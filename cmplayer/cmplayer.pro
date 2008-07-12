@@ -1,28 +1,21 @@
 TEMPLATE = app
 CONFIG += warn_on \
     debug_and_release \
-    debug
+    release
 TARGET = cmplayer
-QT += xml \
-    core \
-    gui
+QT += core gui
 VERSION = 0.1.3
 INCLUDEPATH += ../
 DESTDIR = ../bin
 UI_DIR = ./ui
 target.path = /usr/local/bin
 INSTALLS += target
-LIBS += -L../bin \
-    -lmplayer \
-    -Wl,--rpath \
-    -Wl,/media/bk/workspace/cmplayer/bin \
-    -ldvdcss
+LIBS += -L../bin -lmplayer
 RESOURCES += rsclist.qrc
-debug {
-    RCC_DIR = ./debug
-} else {
-    RCC_DIR = ./release
-}
+
+#MPLAYER_DIR = /media/bk/workspace/cmplayer/bin
+#LIBS += -Wl,--rpath -Wl,$$MPLAYER_DIR
+
 SOURCES += selecttitledialog.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -78,4 +71,3 @@ FORMS += selecttitledialog.ui \
     equalizerdialog.ui \
     aboutdialog.ui \
     abrepeatdialog.ui
-CONFIG -= release
