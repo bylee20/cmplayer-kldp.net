@@ -90,7 +90,6 @@ void MainWindow::updateRecentActions(const RecentStack &stack) {
 	const int count = stack.size();
 	if (count != d->recentActions.size())
 		updateRecentSize(count);
-	qDebug() << d->recentActions.size();
 	for (int i=0; i<count; ++i) {
 		QAction *act = d->recentActions[i];
 		act->setData(stack[i].url());
