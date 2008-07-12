@@ -399,11 +399,10 @@ void MainWindow::Data::resetSeekDVDMenu() {
 
 void MainWindow::Data::open(MPlayer::MediaSource source) {
 	engine->stop();
-	if (source.isLocalFile() || source.isDisc())
+	if ((source.isLocalFile() || source.isDisc()) && !source.gotInfo())
 		source.getInfo();
 	MPlayer::PlayList list;
 	const Pref::General &general = pref->general();
-	int idx = 0;
 	if (source.isLocalFile() && general.autoAddFiles != Pref::General::DoNotAddFiles) {
 		static const QStringList NameFilter = info->videoExtensions().toNameFilter()
 				+ info->audioExtensions().toNameFilter();
@@ -435,7 +434,6 @@ void MainWindow::Data::open(MPlayer::MediaSource source) {
 			}
 			list.append(MPlayer::MediaSource(it->absoluteFilePath()));
 		}
-		idx = list.indexOf(source);
 	} else if (source.isDisc() && source.getInfo()) {
 		const MPlayer::DVDInfo &dvd = source.info().dvd();
 		if (dvd.titles.isEmpty())
@@ -444,17 +442,17 @@ void MainWindow::Data::open(MPlayer::MediaSource source) {
 			SelectTitleDialog dlg(dvd, p);
 			if (!dlg.exec())
 				return;
-			idx = dlg.titleNumber() - 1;
+			source = MPlayer::MediaSource(QUrl("dvd://" + QString::number(dlg.titleNumber())));
 		}
 		if (general.addAllDVDTitles) {
 			for (int i=0; i<dvd.titles.size(); ++i)
 				list.append(MPlayer::MediaSource(QUrl("dvd://" + QString::number(i+1))));
 		} else
-			list.append(MPlayer::MediaSource(QUrl("dvd://" + QString::number(idx+1))));
+			list.append(source);
 	} else
 		list.append(source);
 	model->setPlayList(list);
-	model->play(idx);
+	model->play(list.indexOf(source));
 	recent->stackSource(source);
 }
 
