@@ -33,7 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 : QMainWindow(parent), d(new Data(this)) {
 	d->init();
  	QStringList args = QApplication::arguments();
- 	if (!args.isEmpty()) {
+ 	if (args.size() > 1) {
  		QUrl url(args.last());
  		if (url.scheme().isEmpty())
  			d->open(MPlayer::MediaSource(args.last()));
