@@ -1,12 +1,27 @@
-CMP 0.1.1 은 Qt4로 만들어진 MPlayer GUI 프론트엔드입니다.
+CMPlayer는 Qt4로 만들어진 MPlayer GUI 프론트엔드입니다.
 
 라이센스는 GPLv2를 따릅니다(LICENSE참조).
 
-컴파일하기 위해서는 Qt 4.3 이상과 qmake가 필요합니다.
+컴파일하기 위해서는 Qt 4.3 이상과 Qt 개발 툴이 필요합니다.
+
 
 컴파일 방법
 
-$ qmake -recursive
+콘솔을 열고 현재 위치에서 다음 명령어를 입력합니다.
+
+$ qmake
 $ make
+
+컴파일된 바이너리 파일(cmplayer)은 bin 디렉토리에 생성됩니다.
+
+
+설치 방법
+
+콘솔을 열고 현재 위치에서 다음 명령어를 입력합니다.
+ 
+$ make install
+
+실행파일(cmplayer)이 /usr/local/bin 에 설치됩니다.
+
 
 버그리포트나 개선사항은 darklin20@gmail.com으로 보내주시거나 xylosper.net에 남겨주세요.
