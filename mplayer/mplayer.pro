@@ -1,10 +1,11 @@
 TEMPLATE = lib
 TARGET = mplayer
-CONFIG += warn_on \
-    debug_and_release \
-    dll \
-    debug
+CONFIG += warn_on debug_and_release release 
 DESTDIR = ../bin
+
+#CONFIG += dll
+CONFIG += staticlib 
+
 HEADERS += utility.h \
     dvdinfo.h \
     mplayerprocess.h \
@@ -48,4 +49,3 @@ SOURCES += mplayerprocess.cpp \
     abrepeater.cpp \
     controller.cpp \
     videooutput.cpp
-CONFIG -= release
