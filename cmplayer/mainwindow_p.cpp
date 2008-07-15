@@ -11,15 +11,15 @@
 #include "pref/interface.h"
 #include "pref/subtitle.h"
 #include <xine/mediasource.h>
+#include <xine/xinestream.h>
+#include <xine/xineaudio.h>
+#include <xine/xinevideo.h>
 //#include <Xine/utility.h>
-//#include <Xine/playengine.h>
-//#include <Xine/videooutput.h>
 //#include <Xine/subtitleoutput.h>
-//#include <Xine/audiooutput.h>
 //#include <Xine/informations.h>
 //#include <Xine/playlist.h>
-//#include <Xine/volumeslider.h>
-//#include <Xine/seekslider.h>
+#include <xine/volumeslider.h>
+#include <xine/seekslider.h>
 //#include <Xine/abrepeater.h>
 //#include <Xine/mediainfo.h>
 //#include <Xine/dvdinfo.h>
@@ -32,9 +32,9 @@
 MainWindow::Data::Data(MainWindow *p)
 : p(p), dragMove(false), repeating(false), pausedByHiding(false), resizedByAct(false)
 , changingOnTop(false), staysOnTop(NotStayOnTop), pref(Pref::get())
-, engine(new Xine::XineEngine(p))
-//, video(new Xine::VideoOutput(p))
-//, audio(new Xine::AudioOutput(p)), subout(new Xine::SubtitleOutput(p))
+, engine(new Xine::XineEngine(p)), stream(engine->stream())
+, audio(engine->audio()), video(engine->video())
+//, subout(new Xine::SubtitleOutput(p))
 //, model(new PlayListModel(engine, p)), info(Xine::Informations::get())
 //, recent(RecentInfo::get())
 , pmb(new PlayMenuBar(p)), onTopActions(new QActionGroup(p))
@@ -133,9 +133,9 @@ void MainWindow::Data::setupGUI() {
 	addToolButton(ui.play_pause_action);
 	addToolButton(ui.play_stop_action);
 	addToolButton(ui.play_next_action);
-//	tools.append(new Xine::SeekSlider(engine, pmb));
+	tools.append(new Xine::SeekSlider(stream, pmb));
 	addToolButton(ui.audio_mute_action);
-//	tools.append(new Xine::VolumeSlider(audio, pmb));
+	tools.append(new Xine::VolumeSlider(audio, pmb));
 #undef makeToolButton
 	pmb->init(tools);
 	ui.play_bar->layout()->setMargin(0);
@@ -202,14 +202,14 @@ void MainWindow::Data::createConnections() {
 //	Xine::link(engine, audio);
 //	Xine::link(engine, subout);
 
-	connect(engine, SIGNAL(totalTimeChanged(qint64)), pmb, SLOT(setTotalTime(qint64)));
-	connect(engine, SIGNAL(tick(qint64)), pmb, SLOT(setCurrentTime(qint64)));
-	connect(engine, SIGNAL(stateChanged(Xine::State, Xine::State)),
+	connect(stream, SIGNAL(totalTimeChanged(qint64)), pmb, SLOT(setTotalTime(qint64)));
+	connect(stream, SIGNAL(tick(qint64)), pmb, SLOT(setCurrentTime(qint64)));
+	connect(stream, SIGNAL(stateChanged(Xine::State, Xine::State)),
 			p, SLOT(slotStateChanged(Xine::State)));
-	connect(engine, SIGNAL(started()), p, SLOT(slotStarted()));
-	connect(engine, SIGNAL(speedChanged(double)), p, SLOT(updateSpeed(double)));
-	connect(engine, SIGNAL(aboutToFinished()), p, SLOT(updateFinished()));
-	connect(engine, SIGNAL(stopped(qint64)), p, SLOT(updateStopped(qint64)));
+	connect(stream, SIGNAL(started()), p, SLOT(slotStarted()));
+	connect(stream, SIGNAL(speedChanged(double)), p, SLOT(updateSpeed(double)));
+	connect(stream, SIGNAL(aboutToFinished()), p, SLOT(updateFinished()));
+	connect(stream, SIGNAL(stopped(qint64)), p, SLOT(updateStopped(qint64)));
 
 //	connect(model, SIGNAL(currentRowChanged(int)), p, SLOT(updatePlayText()));
 //	connect(model, SIGNAL(rowCountChanged(int)), p, SLOT(updatePlayText()));
@@ -299,7 +299,7 @@ void MainWindow::Data::updateStaysOnTop() {
 	bool wasOnTop =  f & Qt::WindowStaysOnTopHint;
 	bool wasVisible = p->isVisible();
 	bool wasActivated = p->isActiveWindow();
-	bool isOnTop = staysOnTop == AlwaysOnTop || (staysOnTop == OnlyPlaying && engine->isPlaying());
+	bool isOnTop = staysOnTop == AlwaysOnTop || (staysOnTop == OnlyPlaying && stream->isPlaying());
 	if (wasOnTop != isOnTop) {
 		changingOnTop = true;
 		if (isOnTop)

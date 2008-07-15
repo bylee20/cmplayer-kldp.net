@@ -11,13 +11,17 @@ namespace Xine {
 
 class XineEngine;
 
-class XineWidget : public QWidget {
+class XineVideo : public QWidget {
 	Q_OBJECT
 public:
-	XineWidget(XineEngine *engine, const QString &videoDriver, QWidget *parent = 0);
-	~XineWidget();
-	bool isValid() const {return m_valid;}
-	xine_video_port_t *videoPort() {return m_videoPort;}
+	XineVideo(XineEngine *engine, QWidget *parent);
+	~XineVideo();
+	//bool isValid() const {return m_valid;}
+	bool open(const QString &driver);
+	void close();
+	bool isOpen() const {return m_open;}
+	xine_video_port_t *port() {return m_port;}
+	const QString &driver() const {return m_driver;}
 protected:
 	virtual void paintEvent(QPaintEvent *event);
 private:
@@ -28,10 +32,12 @@ private:
 			int *dest_width, int *dest_height,
 			double *dest_pixel_aspect, int *win_x, int *win_y);
 	XineEngine *m_engine;
-	xine_video_port_t *m_videoPort;
+	xine_t *m_xine;
+	xine_video_port_t *m_port;
 	xcb_visual_t m_visual;
 	xcb_connection_t *m_connection;
-	bool m_valid;
+	bool m_open;
+	QString m_driver;
 };
 
 }

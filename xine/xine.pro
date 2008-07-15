@@ -8,19 +8,19 @@ DESTDIR = ../bin
 CONFIG += dll
 
 # CONFIG += staticlib
-HEADERS += abrepeater.h \
-    audiooutput.h \
+HEADERS += xinevideo.h \
+    xinestream.h \
+    xineaudio.h \
+    abrepeater.h \
     controller.h \
     dvdinfo.h \
     informations.h \
     mediainfo.h \
     playlist.h \
     xinenamespace.h \
-    xinewidget.h \
     xineengine.h \
     utility.h \
     mediainfo.h \
-    audiooutput.h \
     informations.h \
     mediasource.h \
     playengine.h \
@@ -36,8 +36,10 @@ HEADERS += abrepeater.h \
     cslider.h \
     controller.h \
     videooutput.h
-SOURCES += abrepeater.cpp \
-    audiooutput.cpp \
+SOURCES += xinevideo.cpp \
+    xinestream.cpp \
+    xineaudio.cpp \
+    abrepeater.cpp \
     controller.cpp \
     cslider.cpp \
     informations.cpp \
@@ -55,6 +57,6 @@ SOURCES += abrepeater.cpp \
     videooutput.cpp \
     videowidget.cpp \
     volumeslider.cpp \
-    xinewidget.cpp \
     xineengine.cpp
-LIBS += -lxine -lxcb
+LIBS += -lxine \
+    -lxcb

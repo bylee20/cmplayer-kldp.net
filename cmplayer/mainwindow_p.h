@@ -42,6 +42,9 @@ public:
 	QPoint dragPos;
 	Pref::Preferences *pref;
 	Xine::XineEngine *engine;
+	Xine::XineStream *stream;
+	Xine::XineAudio *audio;
+	Xine::XineVideo *video;
 //	MPlayer::PlayEngine *engine;
 //	MPlayer::VideoOutput *video;
 //	MPlayer::AudioOutput *audio;

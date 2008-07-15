@@ -14,14 +14,12 @@
 #include "pref/interface.h"
 #include "pref/subtitle.h"
 #include "pref/preferencesdialog.h"
-//#include <mplayer/playengine.h>
 #include <xine/xineengine.h>
+#include <xine/xinestream.h>
+#include <xine/xineaudio.h>
 #include <xine/mediasource.h>
-//#include <mplayer/videooutput.h>
-//#include <mplayer/playengine.h>
 //#include <mplayer/subtitleoutput.h>
 //#include <mplayer/informations.h>
-//#include <mplayer/audiooutput.h>
 //#include <mplayer/abrepeater.h>
 #include <QUrl>
 #include <QFileInfo>
@@ -222,7 +220,7 @@ void MainWindow::setVideoSize(double rate) {
 }
 
 void MainWindow::slotStateChanged(Xine::State /*state*/) {
-	if (d->engine->isPlaying()) {
+	if (d->stream->isPlaying()) {
 		d->ui.play_pause_action->setIcon(QIcon(":/img/media-playback-pause.png"));
 		d->ui.play_pause_action->setText(trUtf8("일시정지"));
 	} else {
@@ -236,8 +234,8 @@ void MainWindow::slotStateChanged(Xine::State /*state*/) {
 
 void MainWindow::hideEvent(QHideEvent *event) {
 	QMainWindow::hideEvent(event);
-	if (d->pref->general().pauseWhenMinimized && ((windowFlags() & Qt::WindowStaysOnTopHint) || !d->changingOnTop) && d->engine->isPlaying()) {
-		d->engine->pause();
+	if (d->pref->general().pauseWhenMinimized && ((windowFlags() & Qt::WindowStaysOnTopHint) || !d->changingOnTop) && d->stream->isPlaying()) {
+		d->stream->pause();
 		d->pausedByHiding = true;
 	}
 }
@@ -245,7 +243,7 @@ void MainWindow::hideEvent(QHideEvent *event) {
 void MainWindow::showEvent(QShowEvent *event) {
 	QMainWindow::showEvent(event);
 	if (d->pausedByHiding && d->pref->general().playWhenRestored) {
-		d->engine->play();
+		d->stream->play();
 		d->pausedByHiding = false;
 	}
 }
@@ -270,7 +268,7 @@ void MainWindow::openFile() {
 //	const QString file = QFileDialog::getOpenFileName(this, trUtf8("파일 열기"), QString(), Filter);
 	const QString file = QFileDialog::getOpenFileName(this, trUtf8("파일 열기"));
 	if (!file.isEmpty())
-		d->engine->play(file);
+		d->stream->play(file);
 //	if (!file.isEmpty())
 //		d->open(Xine::MediaSource(file));
 }
@@ -362,12 +360,13 @@ void MainWindow::adjustSizeForDock(bool visible) {
 }
 
 void MainWindow::playPause() {
-//	if (d->engine->isStopped())
-//		d->model->play(d->model->currentRow());
-//	else if (d->engine->isPlaying())
-//		d->engine->pause();
-//	else
-//		d->engine->play();
+	//if (d->engine->isStopped())
+	//	d->model->play(d->model->currentRow());
+	//else
+	if (d->stream->isPlaying())
+		d->stream->pause();
+	else
+		d->stream->play();
 }
 
 void MainWindow::increaseSpeed() {
@@ -391,35 +390,36 @@ void MainWindow::halfSpeed() {
 }
 
 void MainWindow::increaseVolume() {
-//	d->audio->setVolume(d->pref->interface().volumeStep, true);
+	d->audio->setVolume(d->audio->volume() + d->pref->interface().volumeStep);
 }
 
 void MainWindow::decreaseVolume() {
-//	d->audio->setVolume(-d->pref->interface().volumeStep, true);
+	d->audio->setVolume(d->audio->volume() - d->pref->interface().volumeStep);
 }
 
 void MainWindow::forward() {
-//	d->engine->seek(d->pref->interface().seekingStep, true);
+	qDebug("forward seek to %d, current %d\n", time, d->stream->currentTime());
+	d->stream->seek(d->stream->currentTime() + d->pref->interface().seekingStep);
 }
 
 void MainWindow::forwardMore() {
-//	d->engine->seek(d->pref->interface().seekingMoreStep, true);
+	d->stream->seek(d->stream->currentTime() + d->pref->interface().seekingMoreStep);
 }
 
 void MainWindow::forwardMuchMore() {
-//	d->engine->seek(d->pref->interface().seekingMuchMoreStep, true);
+	d->stream->seek(d->stream->currentTime() + d->pref->interface().seekingMuchMoreStep);
 }
 
 void MainWindow::backward() {
-//	d->engine->seek(-d->pref->interface().seekingStep, true);
+	d->stream->seek(d->stream->currentTime() - d->pref->interface().seekingStep);
 }
 
 void MainWindow::backwardMore() {
-//	d->engine->seek(-d->pref->interface().seekingMoreStep, true);
+	d->stream->seek(d->stream->currentTime() - d->pref->interface().seekingMoreStep);
 }
 
 void MainWindow::backwardMuchMore() {
-//	d->engine->seek(-d->pref->interface().seekingMuchMoreStep, true);
+	d->stream->seek(d->stream->currentTime() - d->pref->interface().seekingMuchMoreStep);
 }
 
 void MainWindow::increaseSyncDelay() {
