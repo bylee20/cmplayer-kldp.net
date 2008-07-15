@@ -1,0 +1,180 @@
+<ui version="4.0" >
+ <class>Pref::Ui::PreferencesDialog</class>
+ <widget class="QDialog" name="Pref::Ui::PreferencesDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>426</width>
+    <height>290</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Dialog</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <widget class="QListWidget" name="list" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize" >
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="dragDropMode" >
+        <enum>QAbstractItemView::NoDragDrop</enum>
+       </property>
+       <property name="iconSize" >
+        <size>
+         <width>48</width>
+         <height>48</height>
+        </size>
+       </property>
+       <property name="movement" >
+        <enum>QListView::Static</enum>
+       </property>
+       <property name="spacing" >
+        <number>0</number>
+       </property>
+       <property name="gridSize" >
+        <size>
+         <width>94</width>
+         <height>70</height>
+        </size>
+       </property>
+       <property name="viewMode" >
+        <enum>QListView::IconMode</enum>
+       </property>
+       <property name="wordWrap" >
+        <bool>false</bool>
+       </property>
+       <item>
+        <property name="text" >
+         <string>일반</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="../rsclist.qrc" >
+          <normaloff>:/img/games-config-background.png</normaloff>:/img/games-config-background.png</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text" >
+         <string>자막</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="../rsclist.qrc" >
+          <normaloff>:/img/character-set.png</normaloff>:/img/character-set.png</iconset>
+        </property>
+       </item>
+       <item>
+        <property name="text" >
+         <string>인터페이스</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="../rsclist.qrc" >
+          <normaloff>:/img/preferences-desktop-keyboard.png</normaloff>:/img/preferences-desktop-keyboard.png</iconset>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QStackedWidget" name="stack" >
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="page" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>312</width>
+          <height>246</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ok_button" >
+       <property name="text" >
+        <string>확인(&amp;O)</string>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancel_button" >
+       <property name="text" >
+        <string>취소(&amp;C)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../rsclist.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>cancel_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Pref::Ui::PreferencesDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>420</x>
+     <y>470</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>439</x>
+     <y>363</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>list</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>stack</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>109</x>
+     <y>175</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>409</x>
+     <y>175</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
