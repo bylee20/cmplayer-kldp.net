@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'xineengine.h'
 **
-** Created: Tue Jul 15 20:46:24 2008
+** Created: Tue Jul 15 20:49:25 2008
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.4.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_Xine__XineEngine[] = {
        1,       // revision
        0,       // classname
        0,    0, // classinfo
-      24,   10, // methods
+      19,   10, // methods
        0,    0, // properties
        0,    0, // enums/sets
 
@@ -48,12 +48,7 @@ static const uint qt_meta_data_Xine__XineEngine[] = {
      361,   17,   17,   17, 0x0a,
      368,  195,   17,   17, 0x0a,
      381,  315,   17,   17, 0x0a,
-     396,   18,   17,   17, 0x0a,
-     426,  168,   17,   17, 0x0a,
-     443,   17,   17,   17, 0x0a,
-     459,  452,   17,   17, 0x0a,
-     476,  452,   17,   17, 0x0a,
-     491,   17,   17,   17, 0x08,
+     396,   17,   17,   17, 0x08,
 
        0        // eod
 };
@@ -70,9 +65,6 @@ static const char qt_meta_stringdata_Xine__XineEngine[] = {
     "stateChanged(State,State)\0volume\0"
     "volumeChanged(int)\0bool\0play()\0pause()\0"
     "stop()\0seek(qint64)\0setVolume(int)\0"
-    "setCurrentSource(MediaSource)\0"
-    "setSpeed(double)\0replay()\0number\0"
-    "seekChapter(int)\0playTitle(int)\0"
     "emitTick()\0"
 };
 
@@ -120,14 +112,9 @@ int Xine::XineEngine::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 15: stop(); break;
         case 16: seek((*reinterpret_cast< qint64(*)>(_a[1]))); break;
         case 17: setVolume((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 18: setCurrentSource((*reinterpret_cast< const MediaSource(*)>(_a[1]))); break;
-        case 19: setSpeed((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 20: replay(); break;
-        case 21: seekChapter((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 22: playTitle((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 23: emitTick(); break;
+        case 18: emitTick(); break;
         }
-        _id -= 24;
+        _id -= 19;
     }
     return _id;
 }

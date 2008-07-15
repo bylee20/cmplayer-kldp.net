@@ -2,11 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <mplayer/mplayer.h>
+#include <xine/xinenamespace.h>
 
 class RecentStack;
 
-namespace MPlayer {class MediaSource;}
+namespace Xine {class MediaSource;}
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -34,7 +34,7 @@ private slots:
 	void changeStaysOnTop(QAction *act);
 	void seekDVDTitle(QAction *act);
 	void seekDVDChapter(QAction *act);
-	void slotStateChanged(MPlayer::State state);
+	void slotStateChanged(Xine::State state);
 	void slotResized();
 	void setVideoSize(double rate);
 	void changeVideoSize(QAction *act);

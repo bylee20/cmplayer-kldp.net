@@ -3,7 +3,7 @@
 
 #include <QTime>
 
-namespace MPlayer {
+namespace Xine {
 
 class Utility {
 public:

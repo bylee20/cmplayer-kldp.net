@@ -1,7 +1,7 @@
 #include "generalwidget.h"
 #include "general.h"
 #include <ui/ui_generalwidget.h>
-#include <mplayer/informations.h>
+//#include <mplayer/informations.h>
 #include <QFileDialog>
 
 namespace Pref {
@@ -13,7 +13,7 @@ GeneralWidget::GeneralWidget(const General &general, QWidget *parent)
 
 	connect(ui->find_mplayer_button, SIGNAL(clicked()), this, SLOT(findMPlayer()));
 
-	static MPlayer::Informations *info = MPlayer::Informations::get();
+//	static MPlayer::Informations *info = MPlayer::Informations::get();
 
 	ui->mplayer_path_edit->setText(m_general->mplayerPath);
 	ui->auto_add_combo->setCurrentIndex(m_general->autoAddFiles);
@@ -24,18 +24,18 @@ GeneralWidget::GeneralWidget(const General &general, QWidget *parent)
 	ui->restart_stopped_files_check->setChecked(m_general->playFromStoppedPoint);
 
 	int index = -1;
-	ui->vo_combo->addItems(info->videoOutputs());
-	if ((index = info->videoOutputs().indexOf(m_general->videoOutput)) == -1)
-		ui->vo_combo->setEditText(m_general->videoOutput);
-	else
-		ui->vo_combo->setCurrentIndex(index);
+//	ui->vo_combo->addItems(info->videoOutputs());
+//	if ((index = info->videoOutputs().indexOf(m_general->videoOutput)) == -1)
+//		ui->vo_combo->setEditText(m_general->videoOutput);
+//	else
+//		ui->vo_combo->setCurrentIndex(index);
 	ui->software_equalizer_check->setChecked(m_general->useSoftwareEqualizer);
 
-	ui->ao_combo->addItems(info->audioOutputs());
-	if ((index = info->audioOutputs().indexOf(m_general->audioOutput)) == -1)
-		ui->ao_combo->setEditText(m_general->audioOutput);
-	else
-		ui->ao_combo->setCurrentIndex(index);
+//	ui->ao_combo->addItems(info->audioOutputs());
+//	if ((index = info->audioOutputs().indexOf(m_general->audioOutput)) == -1)
+//		ui->ao_combo->setEditText(m_general->audioOutput);
+//	else
+//		ui->ao_combo->setCurrentIndex(index);
 	ui->software_volume_check->setChecked(m_general->useSoftwareVolume);
 	ui->amplification_spin->setValue(m_general->volumeAmplification);
 	ui->reset_volume_check->setChecked(m_general->resetVolume);

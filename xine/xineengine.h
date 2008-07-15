@@ -43,11 +43,7 @@ public slots:
 	void stop();
 	void seek(qint64 time);
 	void setVolume(int volume);
-	void setCurrentSource(const MediaSource &source);
-	void setSpeed(double speed);
-	void replay();
-	void seekChapter(int number);
-	void playTitle(int number);
+	//void setCurrentSource(const MediaSource &source);
 signals:
 	void currentSourceChanged(const Xine::MediaSource &source);
 	void aboutToFinished();

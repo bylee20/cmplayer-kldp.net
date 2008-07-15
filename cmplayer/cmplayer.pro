@@ -10,11 +10,11 @@ DESTDIR = ../bin
 UI_DIR = ./ui
 target.path = /usr/local/bin
 INSTALLS += target
-LIBS += -L../bin -lmplayer
+LIBS += -L../bin -lcmplayer_xine
 RESOURCES += rsclist.qrc
 
-#MPLAYER_DIR = /media/bk/workspace/cmplayer/bin
-#LIBS += -Wl,--rpath -Wl,$$MPLAYER_DIR
+BACKEND_DIR = /media/bk/workspace/cmplayer/bin
+LIBS += -Wl,--rpath -Wl,$$BACKEND_DIR
 
 SOURCES += selecttitledialog.cpp \
     main.cpp \

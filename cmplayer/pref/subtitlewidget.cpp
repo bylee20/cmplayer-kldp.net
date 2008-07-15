@@ -9,7 +9,7 @@ SubtitleWidget::SubtitleWidget(const Subtitle &subtitle, QWidget *parent)
 : QWidget(parent), ui(new Ui::Ui_SubtitleWidget), m_subtitle(new Subtitle) {
 	*m_subtitle = subtitle;
 	ui->setupUi(this);
-	
+
 	static const QStringList encs = QStringList() << "UTF-8" << "Unicode"
 		<< QObject::trUtf8("서유럽언어") + " (ISO-8859-1)"
 		<< QObject::trUtf8("서유럽언어(유로)") + " (ISO-8859-15)"
@@ -34,16 +34,16 @@ SubtitleWidget::SubtitleWidget(const Subtitle &subtitle, QWidget *parent)
 		<< QObject::trUtf8("타이 문자셋") + " (CP874)";
 
 	ui->encoding_combo->addItems(encs);
-	
-	ui->font_family_combo->setEditText(m_subtitle->font.family);
+
+//	ui->font_family_combo->setEditText(m_subtitle->font.family);
 	const int index = encs.indexOf(QRegExp(".* \\(" + m_subtitle->encoding.toUpper() + "\\)"));
 	ui->encoding_combo->setEditText(index == -1 ? m_subtitle->encoding : encs[index]);
-	ui->auto_scale_combo->setCurrentIndex(m_subtitle->autoScale);
-	ui->font_size_spin->setValue(m_subtitle->font.scale);
+//	ui->auto_scale_combo->setCurrentIndex(m_subtitle->autoScale);
+//	ui->font_size_spin->setValue(m_subtitle->font.scale);
 	ui->init_pos_spin->setValue(m_subtitle->initialPos);
 	ui->display_on_margin_check->setChecked(m_subtitle->displayOnMarginWhenFullScreen);
 	ui->auto_load_combo->setCurrentIndex(m_subtitle->autoLoad);
-	ui->auto_select_combo->setCurrentIndex(m_subtitle->autoSelect);
+//	ui->auto_select_combo->setCurrentIndex(m_subtitle->autoSelect);
 	if (m_subtitle->priority.size()) {
 		QString priority = m_subtitle->priority[0];
 		for (int i=1; i<m_subtitle->priority.size(); ++i)
@@ -58,18 +58,18 @@ SubtitleWidget::~SubtitleWidget() {
 }
 
 const Subtitle &SubtitleWidget::subtitle() const {
-	m_subtitle->font.family = ui->font_family_combo->currentText().trimmed();
+//	m_subtitle->font.family = ui->font_family_combo->currentText().trimmed();
 	QString encoding = ui->encoding_combo->currentText().trimmed();
 	static QRegExp rxEnc(".* \\((.*)\\)");
 	m_subtitle->encoding = (rxEnc.indexIn(encoding) != -1) ? rxEnc.cap(1) : encoding;
-	m_subtitle->autoScale =
-			static_cast<MPlayer::SubtitleOutput::AutoScale>(ui->auto_scale_combo->currentIndex());
-	m_subtitle->font.scale = ui->font_size_spin->value();
+//	m_subtitle->autoScale =
+//			static_cast<MPlayer::SubtitleOutput::AutoScale>(ui->auto_scale_combo->currentIndex());
+//	m_subtitle->font.scale = ui->font_size_spin->value();
 	m_subtitle->initialPos = ui->init_pos_spin->value();
 	m_subtitle->priority = ui->priority_edit->text().split(',');
 	m_subtitle->autoLoad = static_cast<Subtitle::AutoLoad>(ui->auto_load_combo->currentIndex());
-	m_subtitle->autoSelect =
-			static_cast<MPlayer::SubtitleOutput::AutoSelect>(ui->auto_select_combo->currentIndex());
+//	m_subtitle->autoSelect =
+//			static_cast<MPlayer::SubtitleOutput::AutoSelect>(ui->auto_select_combo->currentIndex());
 	m_subtitle->displayOnMarginWhenFullScreen = ui->display_on_margin_check->isChecked();
 	return *m_subtitle;
 }

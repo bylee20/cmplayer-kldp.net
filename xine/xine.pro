@@ -1,7 +1,8 @@
 TEMPLATE = lib
-TARGET = mplayer
+TARGET = cmplayer_xine
 CONFIG += warn_on \
     debug_and_release \
+    x11 \
     release
 DESTDIR = ../bin
 CONFIG += dll
@@ -56,4 +57,4 @@ SOURCES += abrepeater.cpp \
     volumeslider.cpp \
     xinewidget.cpp \
     xineengine.cpp
-LIBS += lxine
+LIBS += -lxine -lxcb

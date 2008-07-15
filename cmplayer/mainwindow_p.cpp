@@ -10,18 +10,19 @@
 #include "pref/general.h"
 #include "pref/interface.h"
 #include "pref/subtitle.h"
-#include <mplayer/utility.h>
-#include <mplayer/playengine.h>
-#include <mplayer/videooutput.h>
-#include <mplayer/subtitleoutput.h>
-#include <mplayer/audiooutput.h>
-#include <mplayer/informations.h>
-#include <mplayer/playlist.h>
-#include <mplayer/volumeslider.h>
-#include <mplayer/seekslider.h>
-#include <mplayer/abrepeater.h>
-#include <mplayer/mediainfo.h>
-#include <mplayer/dvdinfo.h>
+#include <xine/mediasource.h>
+//#include <Xine/utility.h>
+//#include <Xine/playengine.h>
+//#include <Xine/videooutput.h>
+//#include <Xine/subtitleoutput.h>
+//#include <Xine/audiooutput.h>
+//#include <Xine/informations.h>
+//#include <Xine/playlist.h>
+//#include <Xine/volumeslider.h>
+//#include <Xine/seekslider.h>
+//#include <Xine/abrepeater.h>
+//#include <Xine/mediainfo.h>
+//#include <Xine/dvdinfo.h>
 #include <QToolButton>
 #include <QDir>
 #include <QLayout>
@@ -31,14 +32,17 @@
 MainWindow::Data::Data(MainWindow *p)
 : p(p), dragMove(false), repeating(false), pausedByHiding(false), resizedByAct(false)
 , changingOnTop(false), staysOnTop(NotStayOnTop), pref(Pref::get())
-, engine(new MPlayer::PlayEngine(p)), video(new MPlayer::VideoOutput(p))
-, audio(new MPlayer::AudioOutput(p)), subout(new MPlayer::SubtitleOutput(p))
-, model(new PlayListModel(engine, p)), info(MPlayer::Informations::get())
-, recent(RecentInfo::get()), pmb(new PlayMenuBar(p)), onTopActions(new QActionGroup(p))
+, engine(new Xine::XineEngine(p))
+//, video(new Xine::VideoOutput(p))
+//, audio(new Xine::AudioOutput(p)), subout(new Xine::SubtitleOutput(p))
+//, model(new PlayListModel(engine, p)), info(Xine::Informations::get())
+//, recent(RecentInfo::get())
+, pmb(new PlayMenuBar(p)), onTopActions(new QActionGroup(p))
 , videoSizeActions(new QActionGroup(p)), videoAspectActions(new QActionGroup(p))
 , videoCropActions(new QActionGroup(p)), subListActions(new QActionGroup(p))
 , seekChapterActions(new QActionGroup(p)), seekTitleActions(new QActionGroup(0))
-, dock(new PlayListDock(model, p)), repeater(engine->repeater()) {
+//, dock(new PlayListDock(model, p)), repeater(engine->repeater())
+{
 	ui.setupUi(p);
 }
 
@@ -47,6 +51,7 @@ MainWindow::Data::~Data() {
 }
 
 void MainWindow::Data::init() {
+	engine->initialize();
 	createConnections();
 
 	ui.video_on_top_only_playing_action->setData(OnlyPlaying);
@@ -75,9 +80,9 @@ void MainWindow::Data::init() {
 	videoSizeActions->addAction(ui.video_size_400_action);
 	videoSizeActions->addAction(ui.video_size_user_action);
 
-	ui.video_aspect_auto_action->setData(MPlayer::VideoOutput::AspectRatioAuto);
-	ui.video_aspect_widget_action->setData(MPlayer::VideoOutput::AspectRatioWidget);
-	ui.video_aspect_4_3_action->setData(static_cast<double>(4) / 3);
+//	ui.video_aspect_auto_action->setData(Xine::VideoOutput::AspectRatioAuto);
+//	ui.video_aspect_widget_action->setData(Xine::VideoOutput::AspectRatioWidget);
+//	ui.video_aspect_4_3_action->setData(static_cast<double>(4) / 3);
 	ui.video_aspect_16_9_action->setData(static_cast<double>(16) / 9);
 	ui.video_aspect_2_35_1_action->setData(2.35 / 1);
 	videoAspectActions->addAction(ui.video_aspect_auto_action);
@@ -86,7 +91,7 @@ void MainWindow::Data::init() {
 	videoAspectActions->addAction(ui.video_aspect_16_9_action);
 	videoAspectActions->addAction(ui.video_aspect_2_35_1_action);
 
-	ui.video_crop_off_action->setData(MPlayer::VideoOutput::CropOff);
+//	ui.video_crop_off_action->setData(Xine::VideoOutput::CropOff);
 	ui.video_crop_4_3_action->setData(static_cast<double>(4) / 3);
 	ui.video_crop_16_9_action->setData(static_cast<double>(16) / 9);
 	ui.video_crop_2_35_1_action->setData(2.35 / 1);
@@ -98,8 +103,8 @@ void MainWindow::Data::init() {
 	subListActions->addAction(ui.subtitle_disable_action);
 	subListActions->setExclusive(false);
 
-	model->setPlayList(recent->lastPlayList());
-	model->setCurrentRow(model->row(recent->lastSource()));
+//	model->setPlayList(recent->lastPlayList());
+//	model->setCurrentRow(model->row(recent->lastSource()));
 
 	setupGUI();
 
@@ -107,18 +112,18 @@ void MainWindow::Data::init() {
 }
 
 void MainWindow::Data::setupGUI() {
-	video->widget()->setContextMenuPolicy(Qt::CustomContextMenu);
+//	video->widget()->setContextMenuPolicy(Qt::CustomContextMenu);
 	p->setMouseTracking(true);
 	p->setAcceptDrops(true);
-	p->setCentralWidget(video->widget());
-	p->setWindowTitle(trUtf8("CMPlayer") + ' ' + Helper::version());
+	p->setCentralWidget(engine->widget());
+	p->setWindowTitle(trUtf8("CXine") + ' ' + Helper::version());
 
 	QMenuBar *bar = p->menuBar();
 	bar->insertSeparator(ui.help_menu->menuAction());
-	bar->hide();
+	//bar->hide();
 
-	p->addDockWidget(Qt::RightDockWidgetArea, dock);
-	dock->hide();
+//	p->addDockWidget(Qt::RightDockWidgetArea, dock);
+//	dock->hide();
 
 	QList<QWidget *> tools;
 #define addToolButton(act) {\
@@ -128,9 +133,9 @@ void MainWindow::Data::setupGUI() {
 	addToolButton(ui.play_pause_action);
 	addToolButton(ui.play_stop_action);
 	addToolButton(ui.play_next_action);
-	tools.append(new MPlayer::SeekSlider(engine, pmb));
+//	tools.append(new Xine::SeekSlider(engine, pmb));
 	addToolButton(ui.audio_mute_action);
-	tools.append(new MPlayer::VolumeSlider(audio, pmb));
+//	tools.append(new Xine::VolumeSlider(audio, pmb));
 #undef makeToolButton
 	pmb->init(tools);
 	ui.play_bar->layout()->setMargin(0);
@@ -149,8 +154,8 @@ void MainWindow::Data::createConnections() {
 	connect(ui.play_show_playlist_action, SIGNAL(triggered()), p, SLOT(togglePlayListVisibility()));
 	connect(ui.play_pause_action, SIGNAL(triggered()), p, SLOT(playPause()));
 	connect(ui.play_stop_action, SIGNAL(triggered()), engine, SLOT(stop()));
-	connect(ui.play_previous_action, SIGNAL(triggered()), model, SLOT(playPrevious()));
-	connect(ui.play_next_action, SIGNAL(triggered()), model, SLOT(playNext()));
+//	connect(ui.play_previous_action, SIGNAL(triggered()), model, SLOT(playPrevious()));
+//	connect(ui.play_next_action, SIGNAL(triggered()), model, SLOT(playNext()));
 	connect(ui.play_forward_action, SIGNAL(triggered()), p, SLOT(forward()));
 	connect(ui.play_forward_more_action, SIGNAL(triggered()), p, SLOT(forwardMore()));
 	connect(ui.play_forward_much_more_action, SIGNAL(triggered()), p, SLOT(forwardMuchMore()));
@@ -158,7 +163,7 @@ void MainWindow::Data::createConnections() {
 	connect(ui.play_backward_more_action, SIGNAL(triggered()), p, SLOT(backwardMore()));
 	connect(ui.play_backward_much_more_action, SIGNAL(triggered()), p, SLOT(backwardMuchMore()));
 	connect(ui.play_ab_select_action, SIGNAL(triggered()), p, SLOT(selectABSection()));
-	connect(ui.play_ab_stop_action, SIGNAL(triggered()), engine->repeater(), SLOT(stop()));
+//	connect(ui.play_ab_stop_action, SIGNAL(triggered()), engine->repeater(), SLOT(stop()));
 	connect(ui.play_ab_advance_action, SIGNAL(triggered()), p, SLOT(showABRepeatDialog()));
 	connect(ui.play_speed_restore_action, SIGNAL(triggered()), p, SLOT(restoreSpeed()));
 	connect(ui.play_speed_increase_action, SIGNAL(triggered()), p, SLOT(increaseSpeed()));
@@ -177,13 +182,13 @@ void MainWindow::Data::createConnections() {
 
 	connect(ui.audio_volume_up_action, SIGNAL(triggered()), p, SLOT(increaseVolume()));
 	connect(ui.audio_volume_down_action, SIGNAL(triggered()), p, SLOT(decreaseVolume()));
-	connect(ui.audio_mute_action, SIGNAL(toggled(bool)), audio, SLOT(setMuted(bool)));
+//	connect(ui.audio_mute_action, SIGNAL(toggled(bool)), audio, SLOT(setMuted(bool)));
 
 	connect(subListActions, SIGNAL(triggered(QAction*)), p, SLOT(changeCurrentSubtitles(QAction*)));
-	connect(ui.subtitle_clear_action, SIGNAL(triggered()), subout, SLOT(clear()));
+//	connect(ui.subtitle_clear_action, SIGNAL(triggered()), subout, SLOT(clear()));
 	connect(ui.subtitle_add_action, SIGNAL(triggered()), p, SLOT(addSubtitles()));
-	connect(ui.subtitle_step_up_action, SIGNAL(triggered()), subout, SLOT(moveUp()));
-	connect(ui.subtitle_step_down_action, SIGNAL(triggered()), subout, SLOT(moveDown()));
+//	connect(ui.subtitle_step_up_action, SIGNAL(triggered()), subout, SLOT(moveUp()));
+//	connect(ui.subtitle_step_down_action, SIGNAL(triggered()), subout, SLOT(moveDown()));
 	connect(ui.subtitle_sync_increase_action, SIGNAL(triggered()), p, SLOT(increaseSyncDelay()));
 	connect(ui.subtitle_sync_decrease_action, SIGNAL(triggered()), p, SLOT(decreaseSyncDelay()));
 
@@ -193,39 +198,39 @@ void MainWindow::Data::createConnections() {
 	connect(ui.about_qt_action, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 	connect(ui.about_cmp_action, SIGNAL(triggered()), p, SLOT(showAboutDialog()));
 
-	MPlayer::link(engine, video);
-	MPlayer::link(engine, audio);
-	MPlayer::link(engine, subout);
+//	Xine::link(engine, video);
+//	Xine::link(engine, audio);
+//	Xine::link(engine, subout);
 
 	connect(engine, SIGNAL(totalTimeChanged(qint64)), pmb, SLOT(setTotalTime(qint64)));
 	connect(engine, SIGNAL(tick(qint64)), pmb, SLOT(setCurrentTime(qint64)));
-	connect(engine, SIGNAL(stateChanged(MPlayer::State, MPlayer::State)),
-			p, SLOT(slotStateChanged(MPlayer::State)));
+	connect(engine, SIGNAL(stateChanged(Xine::State, Xine::State)),
+			p, SLOT(slotStateChanged(Xine::State)));
 	connect(engine, SIGNAL(started()), p, SLOT(slotStarted()));
 	connect(engine, SIGNAL(speedChanged(double)), p, SLOT(updateSpeed(double)));
 	connect(engine, SIGNAL(aboutToFinished()), p, SLOT(updateFinished()));
 	connect(engine, SIGNAL(stopped(qint64)), p, SLOT(updateStopped(qint64)));
 
-	connect(model, SIGNAL(currentRowChanged(int)), p, SLOT(updatePlayText()));
-	connect(model, SIGNAL(rowCountChanged(int)), p, SLOT(updatePlayText()));
+//	connect(model, SIGNAL(currentRowChanged(int)), p, SLOT(updatePlayText()));
+//	connect(model, SIGNAL(rowCountChanged(int)), p, SLOT(updatePlayText()));
 
-	connect(video, SIGNAL(widgetResized(const QSize&)), p, SLOT(slotResized()));
-	connect(video, SIGNAL(widgetSizeHintChanged(const QSize&)), ui.video_size_100_action, SLOT(trigger()));
-	connect(video->widget(), SIGNAL(customContextMenuRequested(const QPoint&)),
-			p, SLOT(showMenu(const QPoint&)));
+//	connect(video, SIGNAL(widgetResized(const QSize&)), p, SLOT(slotResized()));
+//	connect(video, SIGNAL(widgetSizeHintChanged(const QSize&)), ui.video_size_100_action, SLOT(trigger()));
+//	connect(video->widget(), SIGNAL(customContextMenuRequested(const QPoint&)),
+//			p, SLOT(showMenu(const QPoint&)));
 
-	connect(audio, SIGNAL(mutedChanged(bool)), ui.audio_mute_action, SLOT(setChecked(bool)));
+//	connect(audio, SIGNAL(mutedChanged(bool)), ui.audio_mute_action, SLOT(setChecked(bool)));
 
-	connect(subout, SIGNAL(syncDelayChanged(int)), p, SLOT(updateSyncDelay(int)));
-	connect(subout, SIGNAL(availableSubtitlesChanged(const QStringList&)),
-			p, SLOT(updateSubtitles(const QStringList&)));
-	connect(subout, SIGNAL(selectedSubtitlesChanged(const QList<int>&)),
-			p, SLOT(updateCurrentSubtitleIndexes(const QList<int>&)));
+//	connect(subout, SIGNAL(syncDelayChanged(int)), p, SLOT(updateSyncDelay(int)));
+//	connect(subout, SIGNAL(availableSubtitlesChanged(const QStringList&)),
+//			p, SLOT(updateSubtitles(const QStringList&)));
+//	connect(subout, SIGNAL(selectedSubtitlesChanged(const QList<int>&)),
+//			p, SLOT(updateCurrentSubtitleIndexes(const QList<int>&)));
 
-	connect(recent, SIGNAL(sourcesChanged(const RecentStack&)), p, SLOT(updateRecentActions(const RecentStack&)));
-	connect(recent, SIGNAL(rememberCountChanged(int)), p, SLOT(updateRecentSize(int)));
-
-	connect(dock, SIGNAL(visibilityChanged(bool)), p, SLOT(adjustSizeForDock(bool)));
+//	connect(recent, SIGNAL(sourcesChanged(const RecentStack&)), p, SLOT(updateRecentActions(const RecentStack&)));
+//	connect(recent, SIGNAL(rememberCountChanged(int)), p, SLOT(updateRecentSize(int)));
+//
+//	connect(dock, SIGNAL(visibilityChanged(bool)), p, SLOT(adjustSizeForDock(bool)));
 }
 
 
@@ -283,7 +288,7 @@ void MainWindow::Data::registerActions() {
 		if (act)
 			act->setShortcut(it.value());
 	}
-	p->updateRecentActions(recent->sources());
+//	p->updateRecentActions(recent->sources());
 }
 
 void MainWindow::Data::updateStaysOnTop() {
@@ -325,38 +330,38 @@ QMenu *MainWindow::Data::findMenuIn(QMenu *menu, const QString &title) {
 	return 0;
 }
 void MainWindow::Data::initSubtitles() {
-	const Pref::Subtitle &subtitle = pref->subtitle();
-	QStringList files;
-	const MPlayer::MediaSource source = engine->currentSource();
-	if (subtitle.autoLoad != Pref::Subtitle::NoAutoLoad && source.isLocalFile()) {
-		static const QStringList NameFilter = info->subtitleFilter().toNameFilter();
-		QFileInfo file(source.filePath());
-		QDir dir = file.dir();
-		QFileInfoList all = dir.entryInfoList(NameFilter, QDir::Files, QDir::Name);
-		QString base = file.baseName();
-		for (int i=0; i<all.size(); ++i) {
-			bool add = subtitle.autoLoad == Pref::Subtitle::SamePath;
-			if (subtitle.autoLoad == Pref::Subtitle::Matched)
-				add = base == QFileInfo(all[i]).baseName();
-			else
-				add = all[i].fileName().contains(base);
-			if (add)
-				files.append(all[i].absoluteFilePath());
-		}
-		subout->load(files);
-	} else if (source.isDisc())
-		subout->loadDisc();
+//	const Pref::Subtitle &subtitle = pref->subtitle();
+//	QStringList files;
+//	const Xine::MediaSource source = engine->currentSource();
+//	if (subtitle.autoLoad != Pref::Subtitle::NoAutoLoad && source.isLocalFile()) {
+//		static const QStringList NameFilter = info->subtitleFilter().toNameFilter();
+//		QFileInfo file(source.filePath());
+//		QDir dir = file.dir();
+//		QFileInfoList all = dir.entryInfoList(NameFilter, QDir::Files, QDir::Name);
+//		QString base = file.baseName();
+//		for (int i=0; i<all.size(); ++i) {
+//			bool add = subtitle.autoLoad == Pref::Subtitle::SamePath;
+//			if (subtitle.autoLoad == Pref::Subtitle::Matched)
+//				add = base == QFileInfo(all[i]).baseName();
+//			else
+//				add = all[i].fileName().contains(base);
+//			if (add)
+//				files.append(all[i].absoluteFilePath());
+//		}
+//		subout->load(files);
+//	} else if (source.isDisc())
+//		subout->loadDisc();
 }
 
 void MainWindow::Data::checkClose() {
-	static bool done = false;
-	if (done)
-		return;
-	engine->stop();
-	recent->setLastPlayList(model->playList());
-	recent->setLastSource(engine->currentSource());
-	recent->save();
-	done = true;
+//	static bool done = false;
+//	if (done)
+//		return;
+//	engine->stop();
+//	recent->setLastPlayList(model->playList());
+//	recent->setLastSource(engine->currentSource());
+//	recent->save();
+//	done = true;
 }
 
 void MainWindow::Data::clearSeekDVDMenu() {
@@ -374,85 +379,85 @@ void MainWindow::Data::clearSeekDVDMenu() {
 }
 
 void MainWindow::Data::resetSeekDVDMenu() {
-	clearSeekDVDMenu();
-	MPlayer::MediaSource source = engine->currentSource();
-	if (source.isDisc() && source.gotInfo()) {
-		for (QVector<MPlayer::DVDInfo::Title>::const_iterator it = source.info().dvd().titles.begin()
-				; it != source.info().dvd().titles.end(); ++it) {
-			QAction *act = ui.seek_title_menu->addAction(trUtf8("타이틀 %1").arg(it->number));
-			act->setData(it->number);
-			seekTitleActions->addAction(act);
-		}
-		seekDVDAction->setVisible(true);
-		int title = source.titleNumber();
-		if (title < 1)
-			return;
-		const QVector<qint64> &chapters = source.info().dvd().titles[title-1].chapters;
-		for (int i=0; i<chapters.size(); ++i) {
-			QAction *act = ui.seek_chapter_menu->addAction(QString::number(i+1)
-					+ ' ' + MPlayer::Utility::msecsToString(chapters[i]));
-			act->setData(i+1);
-			seekChapterActions->addAction(act);
-		}
-	}
+//	clearSeekDVDMenu();
+//	Xine::MediaSource source = engine->currentSource();
+//	if (source.isDisc() && source.gotInfo()) {
+//		for (QVector<Xine::DVDInfo::Title>::const_iterator it = source.info().dvd().titles.begin()
+//				; it != source.info().dvd().titles.end(); ++it) {
+//			QAction *act = ui.seek_title_menu->addAction(trUtf8("타이틀 %1").arg(it->number));
+//			act->setData(it->number);
+//			seekTitleActions->addAction(act);
+//		}
+//		seekDVDAction->setVisible(true);
+//		int title = source.titleNumber();
+//		if (title < 1)
+//			return;
+//		const QVector<qint64> &chapters = source.info().dvd().titles[title-1].chapters;
+//		for (int i=0; i<chapters.size(); ++i) {
+//			QAction *act = ui.seek_chapter_menu->addAction(QString::number(i+1)
+//					+ ' ' + Xine::Utility::msecsToString(chapters[i]));
+//			act->setData(i+1);
+//			seekChapterActions->addAction(act);
+//		}
+//	}
 }
 
-void MainWindow::Data::open(MPlayer::MediaSource source) {
-	engine->stop();
-	if ((source.isLocalFile() || source.isDisc()) && !source.gotInfo())
-		source.getInfo();
-	MPlayer::PlayList list;
-	const Pref::General &general = pref->general();
-	if (source.isLocalFile() && general.autoAddFiles != Pref::General::DoNotAddFiles) {
-		static const QStringList NameFilter = info->videoExtensions().toNameFilter()
-				+ info->audioExtensions().toNameFilter();
-		const QFileInfo file(source.filePath());
-		QString fileName = file.fileName();
-		QFileInfoList files=file.dir().entryInfoList(NameFilter, QDir::Files, QDir::Name);
-		bool all = general.autoAddFiles == Pref::General::AllFiles;
-		bool prefix = false, suffix = false;
-		for(QFileInfoList::const_iterator it = files.begin(); it != files.end(); ++it) {
-			if (!all) {
-				static QRegExp rxs("(\\D*)\\d+(.*)");
-				static QRegExp rxt("(\\D*)\\d+(.*)");
-				if (rxs.indexIn(fileName) == -1 || rxt.indexIn(it->fileName()) == -1)
-					continue;
-				if (!prefix && !suffix) {
-					if (rxs.cap(1) == rxt.cap(1))
-						prefix = true;
-					else if (rxs.cap(2) == rxt.cap(2))
-						suffix = true;
-					else
-						continue;
-				} else if (prefix) {
-					if (rxs.cap(1) != rxt.cap(1))
-						continue;
-				} else if (suffix) {
-					if (rxs.cap(2) != rxt.cap(2))
-						continue;
-				}
-			}
-			list.append(MPlayer::MediaSource(it->absoluteFilePath()));
-		}
-	} else if (source.isDisc() && source.getInfo()) {
-		const MPlayer::DVDInfo &dvd = source.info().dvd();
-		if (dvd.titles.isEmpty())
-			return;
-		if (dvd.titles.size() > 1) {
-			SelectTitleDialog dlg(dvd, p);
-			if (!dlg.exec())
-				return;
-			source = MPlayer::MediaSource(QUrl("dvd://" + QString::number(dlg.titleNumber())));
-		}
-		if (general.addAllDVDTitles) {
-			for (int i=0; i<dvd.titles.size(); ++i)
-				list.append(MPlayer::MediaSource(QUrl("dvd://" + QString::number(i+1))));
-		} else
-			list.append(source);
-	} else
-		list.append(source);
-	model->setPlayList(list);
-	model->play(list.indexOf(source));
-	recent->stackSource(source);
+void MainWindow::Data::open(Xine::MediaSource source) {
+//	engine->stop();
+//	if ((source.isLocalFile() || source.isDisc()) && !source.gotInfo())
+//		source.getInfo();
+//	Xine::PlayList list;
+//	const Pref::General &general = pref->general();
+//	if (source.isLocalFile() && general.autoAddFiles != Pref::General::DoNotAddFiles) {
+//		static const QStringList NameFilter = info->videoExtensions().toNameFilter()
+//				+ info->audioExtensions().toNameFilter();
+//		const QFileInfo file(source.filePath());
+//		QString fileName = file.fileName();
+//		QFileInfoList files=file.dir().entryInfoList(NameFilter, QDir::Files, QDir::Name);
+//		bool all = general.autoAddFiles == Pref::General::AllFiles;
+//		bool prefix = false, suffix = false;
+//		for(QFileInfoList::const_iterator it = files.begin(); it != files.end(); ++it) {
+//			if (!all) {
+//				static QRegExp rxs("(\\D*)\\d+(.*)");
+//				static QRegExp rxt("(\\D*)\\d+(.*)");
+//				if (rxs.indexIn(fileName) == -1 || rxt.indexIn(it->fileName()) == -1)
+//					continue;
+//				if (!prefix && !suffix) {
+//					if (rxs.cap(1) == rxt.cap(1))
+//						prefix = true;
+//					else if (rxs.cap(2) == rxt.cap(2))
+//						suffix = true;
+//					else
+//						continue;
+//				} else if (prefix) {
+//					if (rxs.cap(1) != rxt.cap(1))
+//						continue;
+//				} else if (suffix) {
+//					if (rxs.cap(2) != rxt.cap(2))
+//						continue;
+//				}
+//			}
+//			list.append(Xine::MediaSource(it->absoluteFilePath()));
+//		}
+//	} else if (source.isDisc() && source.getInfo()) {
+//		const Xine::DVDInfo &dvd = source.info().dvd();
+//		if (dvd.titles.isEmpty())
+//			return;
+//		if (dvd.titles.size() > 1) {
+//			SelectTitleDialog dlg(dvd, p);
+//			if (!dlg.exec())
+//				return;
+//			source = Xine::MediaSource(QUrl("dvd://" + QString::number(dlg.titleNumber())));
+//		}
+//		if (general.addAllDVDTitles) {
+//			for (int i=0; i<dvd.titles.size(); ++i)
+//				list.append(Xine::MediaSource(QUrl("dvd://" + QString::number(i+1))));
+//		} else
+//			list.append(source);
+//	} else
+//		list.append(source);
+//	model->setPlayList(list);
+//	model->play(list.indexOf(source));
+//	recent->stackSource(source);
 }
 

@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <QStringList>
-#include <mplayer/subtitleoutput.h>
+//#include <mplayer/subtitleoutput.h>
 
 class QSettings;
 
@@ -12,11 +12,11 @@ namespace Pref {
 class Subtitle {
 public:
 	enum AutoLoad {NoAutoLoad = 0, Matched = 1, Contain = 2, SamePath = 3};
-	MPlayer::SubtitleOutput::Font font;
+//	MPlayer::SubtitleOutput::Font font;
 	QString encoding;
-	MPlayer::SubtitleOutput::AutoScale autoScale;
+//	MPlayer::SubtitleOutput::AutoScale autoScale;
 	AutoLoad autoLoad;
-	MPlayer::SubtitleOutput::AutoSelect autoSelect;
+//	MPlayer::SubtitleOutput::AutoSelect autoSelect;
 	int initialPos;
 	QStringList priority;
 	bool displayOnMarginWhenFullScreen;
