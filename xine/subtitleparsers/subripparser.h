@@ -3,7 +3,7 @@
 
 #include "abstractparser.h"
 
-namespace MPlayer {
+namespace Xine {
 
 namespace SubtitleParsers {
 

@@ -4,7 +4,7 @@
 #include <QList>
 #include "mediasource.h"
 
-namespace MPlayer {
+namespace Xine {
 
 class PlayList : public QList<MediaSource> {
 public:

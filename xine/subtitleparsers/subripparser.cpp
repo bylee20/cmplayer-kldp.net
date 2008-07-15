@@ -4,7 +4,7 @@
 #include <QRegExp>
 #include <QTime>
 
-namespace MPlayer {
+namespace Xine {
 
 namespace SubtitleParsers {
 

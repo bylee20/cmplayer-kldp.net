@@ -4,7 +4,7 @@
 #include <QRegExp>
 #include <QTextCodec>
 
-namespace MPlayer {
+namespace Xine {
 
 namespace SubtitleParsers {
 

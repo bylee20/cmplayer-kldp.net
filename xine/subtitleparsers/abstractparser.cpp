@@ -2,7 +2,7 @@
 #include <QTextCodec>
 #include <QTextStream>
 
-namespace MPlayer {
+namespace Xine {
 
 namespace SubtitleParsers {
 

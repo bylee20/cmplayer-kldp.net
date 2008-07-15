@@ -2,7 +2,7 @@
 #include <QFileInfo>
 #include <QDebug>
 
-namespace MPlayer {
+namespace Xine {
 
 struct Subtitle::Data : public QSharedData {
 	Data(): filePath(), lang(), type(Invalid), discType(NoDisc), id(-1) {}

@@ -4,11 +4,11 @@
 #include <QSharedDataPointer>
 #include <QSize>
 #include <QString>
-#include "mplayer.h"
+#include "xinenamespace.h"
 
 class QUrl;
 
-namespace MPlayer {
+namespace Xine {
 
 class MediaInfo;
 
@@ -32,12 +32,8 @@ public:
 	bool isDisc() const;
 	QUrl url () const;
 	QString displayName() const;
-	const MediaInfo &info() const;
 	DiscType discType() const;
 	int titleNumber() const;
-	MediaInfo &info();
-	bool getInfo();
-	bool gotInfo() const;
 private:
 	struct Data;
 	friend class SourceInfo;

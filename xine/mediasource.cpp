@@ -1,5 +1,4 @@
 #include "mediasource.h"
-#include "mediainfo.h"
 #include <QFileInfo>
 #include <QRegExp>
 #include <QUrl>
@@ -8,16 +7,15 @@
 #include <QTime>
 #include <QSize>
 
-namespace MPlayer {
+namespace Xine {
 
 struct MediaSource::Data : public QSharedData {
 	Data(): type(Invalid), discType(NoDisc) {}
 	Data(const Data &rhs)
-	: QSharedData(rhs), type(rhs.type), url(rhs.url), info(rhs.info), discType(rhs.discType) {}
+	: QSharedData(rhs), type(rhs.type), url(rhs.url), discType(rhs.discType) {}
 	~Data() {}
 	Type type;
 	QUrl url;
-	MediaInfo info;
 	DiscType discType;
 };
 
@@ -34,8 +32,6 @@ MediaSource::MediaSource(DiscType dt)
 		d->url.setUrl("vcd://1");
 	else
 		d->type = Invalid;
-	if (d->type == Disc)
-		d->info.m_disc = true;
 }
 
 MediaSource::MediaSource(const QString &filePath)
@@ -60,12 +56,10 @@ MediaSource::MediaSource(const QUrl &url)
 		} else if (scheme == "vcd") {
 			d->type = Disc;
 			d->discType = VCD;
-			d->info.m_disc = true;
 		} else
 			d->type = Url;
 		if (d->type == Disc) {
 			static QRegExp rxDigit("^\\d+$");
-			d->info.m_disc = true;
 			if (d->url.authority().indexOf(rxDigit) == -1)
 				d->url.setAuthority("1");
 		}
@@ -128,28 +122,12 @@ QUrl MediaSource::url () const {
 	return d->type != Invalid ? d->url : QUrl();
 }
 
-const MediaInfo &MediaSource::info() const {
-	return d->info;
-}
-
-MediaInfo &MediaSource::info() {
-	return d->info;
-}
-
 DiscType MediaSource::discType() const {
 	return d->discType;
 }
 
 bool MediaSource::isDisc() const {
 	return d->type == Disc && d->discType != NoDisc;
-}
-
-bool MediaSource::getInfo() {
-	return d->info.get(*this);
-}
-
-bool MediaSource::gotInfo() const {
-	return d->info.isValid();
 }
 
 int MediaSource::titleNumber() const {

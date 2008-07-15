@@ -5,9 +5,9 @@
 #include <QMapIterator>
 #include <QSharedDataPointer>
 #include <QString>
-#include "mplayer.h"
+#include "xinenamespace.h"
 
-namespace MPlayer {
+namespace Xine {
 
 class Subtitle : private QMap<qint64, QString> {
 public:

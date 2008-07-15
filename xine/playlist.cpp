@@ -5,7 +5,7 @@
 #include <QRegExp>
 #include <QUrl>
 
-namespace MPlayer {
+namespace Xine {
 
 PlayList::PlayList()
 : QList<MediaSource>() {}

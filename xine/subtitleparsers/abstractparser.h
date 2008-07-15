@@ -6,7 +6,7 @@
 class QTextStream;
 class QIODevice;
 
-namespace MPlayer {
+namespace Xine {
 
 namespace SubtitleParsers {
 

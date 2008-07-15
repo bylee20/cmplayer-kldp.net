@@ -4,7 +4,7 @@
 #include "subtitle.h"
 #include <QFileInfo>
 
-namespace MPlayer {
+namespace Xine {
 
 namespace SubtitleParsers {
 

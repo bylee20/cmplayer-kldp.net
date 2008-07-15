@@ -1,6 +1,6 @@
 #include "subtitleparsers/abstractparser.h"
 
-namespace MPlayer {
+namespace Xine {
 
 class Subtitle;
 
