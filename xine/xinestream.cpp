@@ -5,6 +5,13 @@
 #include <QTimer>
 #include <QDebug>
 
+extern "C" {
+#define this xine_this
+#include <xine/xine_internal.h>
+#undef this
+}
+
+
 namespace Xine {
 
 XineStream::XineStream(XineEngine *engine) {
@@ -40,6 +47,8 @@ bool XineStream::open(XineAudio *audio, XineVideo *video) {
 void XineStream::close() {
 	if (!isOpen())
 		return;
+	if (!isStopped())
+		stop();
 	xine_close(m_stream);
 	xine_event_dispose_queue(m_eventQueue);
 	xine_dispose(m_stream);
@@ -85,6 +94,7 @@ void XineStream::pause() {
 		return;
 	xine_set_param(m_stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
 	setState(PausedState);
+
 // 	} else {
 // 		xine_play(m_stream, 0, 0);
 // 		xine_set_param(m_stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);

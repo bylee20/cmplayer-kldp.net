@@ -267,8 +267,9 @@ void MainWindow::openFile() {
 //			+ trUtf8("모든 파일") + ' ' + "(*.*)";
 //	const QString file = QFileDialog::getOpenFileName(this, trUtf8("파일 열기"), QString(), Filter);
 	const QString file = QFileDialog::getOpenFileName(this, trUtf8("파일 열기"));
+	const QString sub = QFileDialog::getOpenFileName(this, trUtf8("자막 열기"));
 	if (!file.isEmpty())
-		d->stream->play(file);
+		d->stream->play(file + "#subtitle:" + sub);
 //	if (!file.isEmpty())
 //		d->open(Xine::MediaSource(file));
 }

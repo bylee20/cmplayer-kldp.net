@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'xinevideo.h'
 **
-** Created: Tue Jul 15 23:30:25 2008
+** Created: Wed Jul 16 17:19:33 2008
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.4.0)
 **
 ** WARNING! All changes made in this file will be lost!

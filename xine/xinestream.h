@@ -10,7 +10,7 @@ class QTimer;
 namespace Xine {
 
 class XineEngine;				class XineAudio;
-class XineVideo;
+class XineVideo;				class XinePost;
 
 class XineStream : public QObject {
 	Q_OBJECT

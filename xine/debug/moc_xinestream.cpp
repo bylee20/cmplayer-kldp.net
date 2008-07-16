@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'xinestream.h'
 **
-** Created: Wed Jul 16 00:32:50 2008
+** Created: Thu Jul 17 00:16:00 2008
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.4.0)
 **
 ** WARNING! All changes made in this file will be lost!

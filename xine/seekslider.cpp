@@ -23,10 +23,8 @@ void SeekSlider::setTotalTime(qint64 ms) {
 }
 
 void SeekSlider::seek(int ms) {
-	if (!m_tick) {
-		qDebug("slider seek to %d\n", time);
+	if (!m_tick)
 		m_stream->seek(ms);
-	}
 }
 
 void SeekSlider::slotTick(qint64 ms) {

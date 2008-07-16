@@ -8,7 +8,9 @@ DESTDIR = ../bin
 CONFIG += dll
 
 # CONFIG += staticlib
-HEADERS += xinevideo.h \
+HEADERS += xinepost.h \
+    xineosd.h \
+    xinevideo.h \
     xinestream.h \
     xineaudio.h \
     abrepeater.h \
@@ -36,7 +38,9 @@ HEADERS += xinevideo.h \
     cslider.h \
     controller.h \
     videooutput.h
-SOURCES += xinevideo.cpp \
+SOURCES += xinepost.cpp \
+    xineosd.cpp \
+    xinevideo.cpp \
     xinestream.cpp \
     xineaudio.cpp \
     abrepeater.cpp \

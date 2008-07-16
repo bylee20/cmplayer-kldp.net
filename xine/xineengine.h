@@ -12,7 +12,7 @@ namespace Xine {
 
 class XineWidget;					class MediaSource;
 class XineStream;					class XineAudio;
-class XineVideo;
+class XineVideo;					class XinePost;
 
 class XineEngine : public QObject {
 	Q_OBJECT
@@ -27,23 +27,13 @@ public:
 	XineStream *stream() {return m_stream;}
 	QWidget *widget();
 	const MediaSource &currentSource() const;
-	bool hasVideo() const;
-	bool isSeekable() const;
-	qint64 remainingTime() const;
-	bool isRunning();
-	double speed() const;
+	void unwireAudioPosts();
+	void unwireVideoPosts();
+	void wireAudioPosts();
+	void wireVideoPosts();
 public slots:
 	//void setCurrentSource(const MediaSource &source);
 signals:
-	void currentSourceChanged(const Xine::MediaSource &source);
-	void aboutToFinished();
-	void finished();
-	void started();
-	void hasVideoChanged(bool hasVideo);
-	void seekableChanged(bool isSeekable);
-	void speedChanged(double speed);
-	void stopped(qint64 time);
-	void aboutToStarted();
 private:
 	xine_t *m_xine;
 	XineStream *m_stream;
@@ -52,6 +42,8 @@ private:
 	//xine_audio_port_t *m_audioPort;
 	QWidget *m_parentWidget;
 	bool m_init;
+	QList<XinePost*> m_videoPosts;
+	QList<XinePost*> m_audioPosts;
 };
 
 }

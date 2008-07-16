@@ -20,7 +20,7 @@ public:
 	bool open(const QString &driver);
 	void close();
 	bool isOpen() const {return m_open;}
-	xine_video_port_t *port() {return m_port;}
+	xine_video_port_t *&port() {return m_port;}
 	const QString &driver() const {return m_driver;}
 protected:
 	virtual void paintEvent(QPaintEvent *event);

@@ -19,7 +19,7 @@ public:
 	void setVolumeAmplification(qreal amp);
 	int initialVolume() const {return m_initVol;}
 	bool initailize(const QString &driver = QString("auto"));
-	xine_audio_port_t *port() {return m_port;}
+	xine_audio_port_t *&port() {return m_port;}
 	const QString &driver() const {return m_driver;}
 	bool open(const QString &driver);
 	bool isOpen() const {return m_open;}
