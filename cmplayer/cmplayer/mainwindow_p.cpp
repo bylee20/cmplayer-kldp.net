@@ -30,7 +30,7 @@
 #include <QUrl>
 
 MainWindow::Data::Data(MainWindow *p)
-: p(p), dragMove(false), repeating(false), pausedByHiding(false), resizedByAct(false)
+: p(p), repeating(false), pausedByHiding(false), resizedByAct(false)
 , changingOnTop(false), staysOnTop(NotStayOnTop), pref(Pref::get())
 , stream(Xine::XineEngine::get()->createStream())
 , audio(stream->audio()), video(stream->video())

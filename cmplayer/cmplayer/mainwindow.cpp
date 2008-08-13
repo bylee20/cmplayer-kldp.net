@@ -306,9 +306,12 @@ void MainWindow::showAboutDialog() {
 	dlg.exec();
 }
 
+#define checkInCenter() (d->video->widget()->geometry().contains(event->pos()))
+#define checkButton(b) (event->buttons() & (b))
 void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 	QMainWindow::mouseMoveEvent(event);
-	if (d->dragMove && event->buttons() & Qt::LeftButton) {
+	const bool dragMove = checkInCenter() && checkButton(Qt::LeftButton) && !isFullScreen();
+	if (dragMove) {
 		if (cursor().shape() != Qt::SizeAllCursor)
 			setCursor(Qt::SizeAllCursor);
 		move(event->globalPos() - d->dragPos);
@@ -323,18 +326,17 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 
 void MainWindow::mousePressEvent(QMouseEvent *event) {
 	QMainWindow::mouseMoveEvent(event);
-	bool inCentral = d->video->widget()->geometry().contains(event->pos());
-	d->dragMove = event->buttons() & Qt::LeftButton && inCentral && !isFullScreen();
-	if (d->dragMove)
+	if (!checkInCenter())
+		return;
+	if (checkButton(Qt::LeftButton) && !isFullScreen())
 		d->dragPos = event->globalPos() - frameGeometry().topLeft();
-	if (event->button() == Qt::MidButton && inCentral)
+	if (checkButton(Qt::MidButton))
 		d->mouseClickActions[d->pref->interface().middleClickAction]->trigger();
 }
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 	QMainWindow::mouseDoubleClickEvent(event);
-	if (event->button() == Qt::LeftButton
-			&& d->video->widget()->geometry().contains(event->pos()))
+	if (checkButton(Qt::LeftButton) && checkInCenter())
 		d->mouseClickActions[d->pref->interface().doubleClickAction]->trigger();
 }
 
@@ -345,14 +347,24 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 void MainWindow::wheelEvent(QWheelEvent *event) {
+	if (!checkInCenter()) {
+		QMainWindow::wheelEvent(event);
+		return;
+	}
 	const int delta = event->delta();
 	if (delta > 0)
 		d->wheelScrollActions[d->pref->interface().wheelScrollAction].first->trigger();
 	else if (delta < 0)
 		d->wheelScrollActions[d->pref->interface().wheelScrollAction].second->trigger();
-	else
+	else {
 		event->ignore();
+		return;
+	}
+	event->accept();
 }
+
+#undef checkInCenter
+#undef checkButton
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
 	if (event->mimeData()->hasUrls())

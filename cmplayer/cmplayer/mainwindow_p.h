@@ -32,7 +32,7 @@ private:
 public:
 	MainWindow *p;
 	Ui::Ui_MainWindow ui;
-	bool dragMove, repeating, pausedByHiding, resizedByAct, changingOnTop;
+	bool repeating, pausedByHiding, resizedByAct, changingOnTop;
 	StaysOnTop staysOnTop;
 	QPoint dragPos;
 	Pref::Preferences *pref;
