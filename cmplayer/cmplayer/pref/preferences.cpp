@@ -40,7 +40,7 @@ void Preferences::load() {
 
 void Preferences::save() const {
 	QSettings set(Helper::configFile(), QSettings::IniFormat);
-	set.value("Version", version);
+	set.setValue("Version", version);
 	m_general->save(&set);
 	m_subtitle->save(&set);
 	m_interface->save(&set);
