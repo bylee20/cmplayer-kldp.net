@@ -1,13 +1,15 @@
 TEMPLATE = lib
-TARGET = cmplayer_xine
-CONFIG += warn_on \
-    debug_and_release \
-    x11 \
-    release
-DESTDIR = ../bin
-CONFIG += dll
 
-# CONFIG += staticlib
+TARGET = cmplayer_xine
+
+CONFIG += warn_on debug_and_release x11 release
+
+DESTDIR = ../bin
+
+#CONFIG += dll
+
+CONFIG += staticlib
+
 HEADERS += xineosd_clut.h \
     videooutput.h \
     audiooutput.h \
