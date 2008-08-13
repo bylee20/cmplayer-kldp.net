@@ -11,7 +11,7 @@ public:
 	static const QString &recentFile();
 	static const QString &homePath();
 	static const QString &privatePath();
-	static const char *version() {return "0.1.3";}
+	static const char *version() {return "0.2.0";}
 private:
 	static Helper *get() {static Helper obj; return &obj;}
 	struct Data;
