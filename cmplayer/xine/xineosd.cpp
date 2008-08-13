@@ -6,69 +6,7 @@
 #include <QRegExp>
 #include <QPainter>
 #include <QTextDocument>
-#include <QDebug>
-
-namespace ShadowEngine
-{
-    // Not sure, doesn't work above 10
-    static const int    MULTIPLICATION_FACTOR = 3;
-    // Multiplication factor for pixels directly above, under, or next to the text
-    static const double AXIS_FACTOR = 2.0;
-    // Multiplication factor for pixels diagonal to the text
-    static const double DIAGONAL_FACTOR = 0.1;
-    // Self explanatory
-    static const int    MAX_OPACITY = 200;
-
-    double decay( QImage&, int, int );
-
-    QImage makeShadow( const QPixmap& textPixmap, const QColor &bgColor )
-    {
-
-        const int w   = textPixmap.width();
-        const int h   = textPixmap.height();
-        const int bgr = bgColor.red();
-        const int bgg = bgColor.green();
-        const int bgb = bgColor.blue();
-
-        int alphaShadow;
-
-        // This is the source pixmap
-        QImage img = textPixmap.toImage().convertToFormat(QImage::Format_ARGB32);
-        QImage result(w, h, QImage::Format_ARGB32);
-//        result.fill(Qt::black);
-
-        static const int M = 5;
-        for( int i = M; i < w - M; i++) {
-            for( int j = M; j < h - M; j++ )
-            {
-                alphaShadow = (int) decay( img, i, j );
-
-                result.setPixel( i,j, qRgba( bgr, bgg , bgb, qMin( MAX_OPACITY, alphaShadow ) ) );
-            }
-        }
-
-        return result;
-    }
-
-    double decay( QImage& source, int i, int j )
-    {
-        //if ((i < 1) || (j < 1) || (i > source.width() - 2) || (j > source.height() - 2))
-        //    return 0;
-
-        double alphaShadow;
-        alphaShadow =(qGray(source.pixel(i-1,j-1)) * DIAGONAL_FACTOR +
-                qGray(source.pixel(i-1,j  )) * AXIS_FACTOR +
-                qGray(source.pixel(i-1,j+1)) * DIAGONAL_FACTOR +
-                qGray(source.pixel(i  ,j-1)) * AXIS_FACTOR +
-                0                         +
-                qGray(source.pixel(i  ,j+1)) * AXIS_FACTOR +
-                qGray(source.pixel(i+1,j-1)) * DIAGONAL_FACTOR +
-                qGray(source.pixel(i+1,j  )) * AXIS_FACTOR +
-                qGray(source.pixel(i+1,j+1)) * DIAGONAL_FACTOR) / MULTIPLICATION_FACTOR;
-
-        return alphaShadow;
-    }
-}
+#include <cmath>
 
 namespace Xine {
 
@@ -95,9 +33,15 @@ struct XineOsd::Data {
 	QTextDocument *doc;
 	QRect rect;
 	QString last;
-	double tow;
+	double bw;
+	static const int Count = 10;
+	QPointF points[Count];
+	static double Sines[Count];
+	static double Cosines[Count];
 };
 
+double XineOsd::Data::Sines[XineOsd::Data::Count];
+double XineOsd::Data::Cosines[XineOsd::Data::Count];
 
 XineOsd::XineOsd(VideoOutput *video) {
 	d = new Data;
@@ -108,13 +52,25 @@ XineOsd::XineOsd(VideoOutput *video) {
 	m_align = Qt::AlignBottom;
 	setAlignment(Qt::AlignCenter);
 	m_visible = false;
-	d->tow = 2.0;
+	d->bw = 1.0;
 	slotStreamOpenChanged(video->stream()->isOpen());
 	connect(video->stream(), SIGNAL(openStateChanged(bool)), this, SLOT(slotStreamOpenChanged(bool)));
 	connect(video, SIGNAL(widgetSizeHintChanged(const QSize&)), this, SLOT(updateRect()));
 	connect(video, SIGNAL(widgetResized(const QSize&)), this, SLOT(updateRect()));
 	connect(video, SIGNAL(sizeUpdated()), this, SLOT(updateRect()));
 	m_margins[MLeft] = m_margins[MRight] = m_margins[MBottom] = m_margins[MRight] = 0.0;
+
+	static bool init = false;
+	if (!init) {
+		const double pi = 3.14159265;
+		const double factor = pi*2.0/double(Data::Count);
+		for (int i=0; i<Data::Count; ++i) {
+			const double theta = double(i)*factor;
+			Data::Sines[i] = std::sin(theta);
+			Data::Cosines[i] = std::cos(theta);
+		}
+		init = true;
+	}
 }
 
 XineOsd::~XineOsd() {
@@ -128,8 +84,6 @@ bool XineOsd::isValid() const {
 	return d->osd != 0 && d->buffer != 0;
 }
 
-
-
 void XineOsd::drawText(const QString &text) {
 	if (!isValid())
 		return;
@@ -137,14 +91,14 @@ void XineOsd::drawText(const QString &text) {
 		xine_osd_clear(d->buffer);
 	else {
 		d->doc->setDefaultFont(m_style.font);
-		d->doc->setTextWidth(d->rect.width() - 2*d->tow);
+		d->doc->setTextWidth(d->rect.width() - (2*d->bw));
 		static QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
 		QString bgText = text;
 		d->doc->setHtml(QString("<font color='%1'>").arg(m_style.borderColor.name())
 				+ bgText.remove(rxColor) + "</font>");
 		QSize size = d->doc->size().toSize();
-		size.rheight() += 2*d->tow;
-		size.rwidth() += 2*d->tow;
+		size.rheight() += (2*d->bw);
+		size.rwidth() += (2*d->bw);
 		if (size.height() > d->rect.height())
 			size.setHeight(d->rect.height());
 		if (size.width() > d->rect.width())
@@ -156,19 +110,15 @@ void XineOsd::drawText(const QString &text) {
 		QPainter p(&pixmap);
 
 		p.setOpacity(m_style.borderColor.alphaF());
-		static const int count = 5;
-		static const double factor = count - 1;
-		for (int i=0; i<count; ++i) {
-			for (int j=0; j<count; ++j) {
-				p.translate(d->tow*2.0*double(j)/factor, d->tow*2.0*double(i)/factor);
-				d->doc->drawContents(&p, rect);
-				p.resetTransform();
-			}
+		for (int i=0; i<Data::Count; ++i) {
+			p.translate(d->points[i]);
+			d->doc->drawContents(&p, rect);
+			p.resetTransform();
 		}
 
 		d->doc->setHtml(QString("<font color='%1'>").arg(m_style.textColor.name()) + text + "</font>");
 		p.setOpacity(m_style.textColor.alphaF());
-		p.translate(d->tow, d->tow);
+		p.translate(d->bw, d->bw);
 		d->doc->drawContents(&p, rect);
 
 		drawImage(pixmap);
@@ -260,14 +210,13 @@ QPoint XineOsd::getPos(const QSize &size) const {
 }
 
 void XineOsd::updateFontSize() {
-	int size = qMax(0, qRound(double(d->rect.height())*m_style.size));
+	int size = qMax(1, qRound(double(d->rect.height())*m_style.size));
 	m_style.font.setPixelSize(size);
-	if (size > 40)
-		d->tow = 3.0;
-	else if (size > 20)
-		d->tow = 2.0;
-	else
-		d->tow = 1.0;
+	d->bw = double(size)*0.05;
+	for (int i=0; i<Data::Count; ++i) {
+		d->points[i].setX(d->bw*(1+Data::Sines[i]));
+		d->points[i].setY(d->bw*(1+Data::Cosines[i]));
+	}
 }
 
 void XineOsd::updateRect() {
