@@ -137,7 +137,7 @@ void XineOsd::drawImage(const QPixmap &pixmap) {
 			const QRgb c = img.pixel(x, y);
 			int idx = Clut::get()->index(c);
 			if (idx == -1) {
-				qDebug() << "Invalid Color! Set transparent!";
+				qWarning("Invalid Color! Set transparent!");
 				idx = 0;
 			}
 			bitmap[y*width+x] = idx;
