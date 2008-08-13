@@ -139,7 +139,6 @@ void SubtitleOutput::updateCurrent() {
 	d->it = d->curSubtitle.end();
 	if (!m_selected.isEmpty())
 		m_osd->show();
-	d->thread->setSubtitle(d->curSubtitle);
 }
 
 void SubtitleOutput::appendSubtitles(const QStringList &files, bool display) {
