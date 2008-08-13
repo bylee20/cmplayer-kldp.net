@@ -1,22 +1,33 @@
 TEMPLATE = app
-CONFIG += warn_on \
-    debug_and_release \
-    release
+
+CONFIG += warn_on debug_and_release release
+
+QT += core gui
+
 TARGET = cmplayer
-QT += core \
-    gui
-VERSION = 0.2.0
+
 INCLUDEPATH += ../
+
 DESTDIR = ../bin
+
 UI_DIR = ./ui
-target.path = /usr/local/bin
+
+isEmpty(PREFIX){
+    PREFIX = /usr/local/bin
+}
+
+target.path = $$PREFIX
+
 INSTALLS += target
-LIBS += -L../bin \
-    -lcmplayer_xine
+
+LIBS += -L../bin -lcmplayer_xine
+
 RESOURCES += rsclist.qrc
-BACKEND_DIR = /media/bk/workspace/cmplayer/bin
-LIBS += -Wl,--rpath \
-    -Wl,$$BACKEND_DIR
+
+#BACKEND_DIR = /media/bk/workspace/cmplayer/bin
+
+#LIBS += -Wl,--rpath -Wl,$$BACKEND_DIR
+
 SOURCES += pref/osdwidget.cpp \
     selecttitledialog.cpp \
     main.cpp \
@@ -39,6 +50,7 @@ SOURCES += pref/osdwidget.cpp \
     pref/generalwidget.cpp \
     pref/subtitle.cpp \
     pref/getshortcutdialog.cpp
+
 HEADERS += pref/osdwidget.h \
     selecttitledialog.h \
     mainwindow.h \
@@ -62,6 +74,7 @@ HEADERS += pref/osdwidget.h \
     pref/interfacewidget.h \
     pref/getshortcutdialog.h \
     pref/generalwidget.h
+
 FORMS += selecttitledialog.ui \
     mainwindow.ui \
     playmenubar.ui \
