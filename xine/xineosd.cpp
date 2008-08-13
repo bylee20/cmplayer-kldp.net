@@ -34,7 +34,7 @@ struct XineOsd::Data {
 	QRect rect;
 	QString last;
 	double bw;
-	static const int Count = 10;
+	static const int Count = 20;
 	QPointF points[Count];
 	static double Sines[Count];
 	static double Cosines[Count];
@@ -212,7 +212,7 @@ QPoint XineOsd::getPos(const QSize &size) const {
 void XineOsd::updateFontSize() {
 	int size = qMax(1, qRound(double(d->rect.height())*m_style.size));
 	m_style.font.setPixelSize(size);
-	d->bw = double(size)*0.05;
+	d->bw = qMax(1.0, double(size)*0.04);
 	for (int i=0; i<Data::Count; ++i) {
 		d->points[i].setX(d->bw*(1+Data::Sines[i]));
 		d->points[i].setY(d->bw*(1+Data::Cosines[i]));
