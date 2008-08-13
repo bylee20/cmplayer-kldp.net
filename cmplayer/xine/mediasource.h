@@ -9,8 +9,6 @@ class QUrl;
 
 namespace Xine {
 
-class MediaInfo;
-
 class MediaSource {
 public:
 	enum Type {Invalid = 0, LocalFile = 1, Url = 2, Disc = 3};
