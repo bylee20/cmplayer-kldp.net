@@ -7,8 +7,10 @@
 #include "xineosd.h"
 #include "abrepeater.h"
 #include "private/xinestream_p.h"
+#include <QEvent>
 #include <QTimer>
 #include <QUrl>
+#include <QApplication>
 #include <xine/xineutils.h>
 #include <QDebug>
 
@@ -17,6 +19,7 @@
 namespace Xine {
 
 struct XineStream::Data {
+	enum Event {Finshed = QEvent::User + 1};//QEvent::User + 1};
 	Data(XineStream *parent) {
 		p = parent;
 	}
@@ -114,6 +117,14 @@ bool XineStream::open(const QString &videoDriver, const QString &audioDriver) {
 }
 
 void XineStream::close() {
+	if (d->ticker->isRunning()) {
+		d->ticker->terminate();
+		d->ticker->wait(2000);
+	}
+	if (d->seeker->isRunning()) {
+		d->seeker->terminate();
+		d->seeker->wait(2000);
+	}
 	if (!isOpen())
 		return;
 	if (!isStopped())
@@ -141,8 +152,7 @@ void XineStream::eventListener(void *user_data, const xine_event_t *event) {
 	XineStream *s = static_cast<XineStream*>(user_data);
 	switch(event->type) {
 	case XINE_EVENT_UI_PLAYBACK_FINISHED:
-		s->setState(StoppedState);
-		s->emitFinished();
+		QApplication::postEvent(s, new QEvent(static_cast<QEvent::Type>(Data::Finshed)));
 		break;
 	case XINE_EVENT_FRAME_FORMAT_CHANGE: {
 		xine_format_change_data_t *data = static_cast<xine_format_change_data_t*>(event->data);
@@ -218,7 +228,7 @@ void XineStream::stop() {
 		d->ticker->wait(1000);
 	}
 	xine_stop(m_stream);
-	emit stopped(d->ticker->currentTime());
+	emit stopped(m_source, d->ticker->currentTime());
 	setState(StoppedState);
 }
 
@@ -431,6 +441,16 @@ void XineStream::showOsdText(const QString &text, int time) {
 	d->textOsd->drawText(text);
 	d->textOsd->update();
 	d->textTimer->start(time);
+}
+
+bool XineStream::event(QEvent *event) {
+	if (static_cast<Data::Event>(event->type()) == Data::Finshed) {
+		setState(StoppedState);
+		emit finished(m_source);
+		event->accept();
+		return true;
+	}
+	return QObject::event(event);
 }
 
 }

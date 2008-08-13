@@ -47,7 +47,7 @@ signals:
 	void currentRowChanged(int row);
 	void rowCountChanged(int count);
 private slots:
-	void slotFinished();
+	void slotFinished(const Xine::MediaSource &source);
 private:
 	struct Data;
 	friend struct Data;

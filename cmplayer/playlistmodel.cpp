@@ -44,7 +44,8 @@ PlayListModel::PlayListModel(Xine::XineStream *stream, QObject *parent)
 	d->loop = false;
 	d->font.setItalic(true);
 	d->font.setBold(true);
-	connect(stream, SIGNAL(finished()), this, SLOT(slotFinished()));
+	connect(stream, SIGNAL(finished(Xine::MediaSource))
+			, this, SLOT(slotFinished(const Xine::MediaSource&)));
 }
 
 PlayListModel::~PlayListModel() {
@@ -163,8 +164,8 @@ int PlayListModel::row(const Xine::MediaSource &source) const {
 	return d->list.indexOf(source);
 }
 
-void PlayListModel::slotFinished() {
-	if (!d->stream || !d->isValid(d->curRow) || d->list[d->curRow] != d->stream->currentSource())
+void PlayListModel::slotFinished(const Xine::MediaSource &source) {
+	if (!d->stream || !d->isValid(d->curRow) || d->list[d->curRow] != source)
 		return;
 	if (d->curRow == d->list.size()-1) {
 		emit playListFinished();

@@ -518,16 +518,15 @@ void MainWindow::slotStarted() {
 	d->stream->showOsdText(trUtf8("재생 시작: %1").arg(d->stream->currentSource().displayName()));
 }
 
-void MainWindow::updateFinished() {
-	Xine::MediaSource source = d->stream->currentSource();
+void MainWindow::updateFinished(const Xine::MediaSource &source) {
+	qDebug() << "main finished" << source.toMrl();
 	if (source.isLocalFile())
-		d->recent->setFinished(d->stream->currentSource());
+		d->recent->setFinished(source);
 }
 
-void MainWindow::updateStopped(int time) {
-	Xine::MediaSource source = d->stream->currentSource();
+void MainWindow::updateStopped(const Xine::MediaSource &source, int time) {
 	if (source.isLocalFile())
-		d->recent->setStopped(d->stream->currentSource(), time);
+		d->recent->setStopped(source, time);
 }
 
 void MainWindow::executeWizard() {

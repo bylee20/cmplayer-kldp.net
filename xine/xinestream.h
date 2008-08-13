@@ -69,17 +69,17 @@ signals:
 	void stateChanged(Xine::State newState, Xine::State oldState);
 	void hasVideoChanged(bool hasVideo);
 	void seekableChanged(bool seekable);
-	void deleted(XineStream *stream);
-	void currentSourceChanged(const MediaSource &source);
+	void currentSourceChanged(const Xine::MediaSource &source);
 	void openStateChanged(bool open);
 	void started();
-	void stopped(int time);
-	void finished();
+	void stopped(Xine::MediaSource source, int time);
+	void finished(Xine::MediaSource source);
 	void speedChanged(double speed);
+protected:
+	bool event(QEvent *event);
 private:
 	static void eventListener(void *user_data, const xine_event_t *event);
 	XinePost *makePost(const QString &name);
-	void emitFinished() {emit finished();}
 	void updateInfo();
 	void updateMediaInfo();
 	void setState(State state);

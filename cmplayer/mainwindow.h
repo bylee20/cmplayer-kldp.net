@@ -81,8 +81,8 @@ private slots:
 	void updatePreferences();
 	void executeWizard();
 	void slotStarted();
-	void updateFinished();
-	void updateStopped(int time);
+	void updateFinished(const Xine::MediaSource &source);
+	void updateStopped(const Xine::MediaSource &source, int time);
 private:
 	Q_DISABLE_COPY(MainWindow)
 	class Data;
