@@ -207,8 +207,10 @@ void MainWindow::Data::createConnections() {
 			p, SLOT(slotStateChanged(Xine::State)));
 	connect(stream, SIGNAL(started()), p, SLOT(slotStarted()));
 	connect(stream, SIGNAL(speedChanged(double)), p, SLOT(updateSpeed(double)));
-	connect(stream, SIGNAL(finished()), p, SLOT(updateFinished()));
-	connect(stream, SIGNAL(stopped(int)), p, SLOT(updateStopped(int)));
+	connect(stream, SIGNAL(finished(Xine::MediaSource))
+			, p, SLOT(updateFinished(const Xine::MediaSource&)));
+	connect(stream, SIGNAL(stopped(Xine::MediaSource, int))
+			, p, SLOT(updateStopped(const Xine::MediaSource&, int)));
 
 	connect(model, SIGNAL(currentRowChanged(int)), p, SLOT(updatePlayText()));
 	connect(model, SIGNAL(rowCountChanged(int)), p, SLOT(updatePlayText()));
