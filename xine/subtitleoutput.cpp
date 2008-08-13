@@ -71,12 +71,12 @@ void SubtitleOutput::load(const QStringList &files) {
 			d->subs += subs;
 	}
 	QSet<QString> langs;
-	QString base = QFileInfo(m_stream->currentSource().filePath()).baseName();
+	QString base = QFileInfo(m_stream->currentSource().filePath()).completeBaseName();
 	for (int i=0; i<d->subs.size(); ++i) {
 		bool select = false;
 		switch(m_autoSelect) {
 		case SameName:
-			select = QFileInfo(d->subs[i].filePath()).baseName() == base;
+			select = QFileInfo(d->subs[i].filePath()).completeBaseName() == base;
 			break;
 		case AllLoaded:
 			select = true;

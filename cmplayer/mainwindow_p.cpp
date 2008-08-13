@@ -339,11 +339,11 @@ void MainWindow::Data::initSubtitles() {
 		QFileInfo file(source.filePath());
 		QDir dir = file.dir();
 		QFileInfoList all = dir.entryInfoList(NameFilter, QDir::Files, QDir::Name);
-		QString base = file.baseName();
+		QString base = file.completeBaseName();
 		for (int i=0; i<all.size(); ++i) {
 			bool add = subtitle.autoLoad == Pref::Subtitle::SamePath;
 			if (subtitle.autoLoad == Pref::Subtitle::Matched)
-				add = base == QFileInfo(all[i]).baseName();
+				add = base == QFileInfo(all[i]).completeBaseName();
 			else
 				add = all[i].fileName().contains(base);
 			if (add)
