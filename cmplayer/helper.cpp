@@ -11,8 +11,8 @@ struct Helper::Data {
 		if (!home.exists(".cmplayer"))
 			home.mkdir(".cmplayer");
 		privatePath = homePath + "/.cmplayer";
-		configFile = privatePath + "/xineconfig.ini";
-		recentFile = privatePath + "/xinerecent.ini";
+		configFile = privatePath + "/config.ini";
+		recentFile = privatePath + "/recent.ini";
 	}
 	Helper *p;
 	QString appPath;
