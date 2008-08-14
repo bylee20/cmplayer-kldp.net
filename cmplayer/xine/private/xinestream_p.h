@@ -12,14 +12,15 @@ class SeekThread : public QThread {
 public:
 	SeekThread(XineStream *stream);
 	virtual ~SeekThread();
-	void setTime(int time) {m_time = time;}
-	void setPos(int pos) {m_pos = pos;}
+	void setTime(int time, bool paused) {m_time = time; m_paused = paused;}
+	void setPos(int pos, bool paused) {m_pos = pos; m_paused = paused;}
 	void setSeekTime(bool time) {m_seekTime = time;}
 private:
 	virtual void run();
 	int m_time, m_before;
 	int m_pos, m_count;
 	bool m_seekTime;
+	bool m_paused;
 	XineStream *m_stream;
 };
 
