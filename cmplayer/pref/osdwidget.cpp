@@ -2,6 +2,7 @@
 #include <QColor>
 #include <QFontDialog>
 #include <xine/xineosd_clut.h>
+#include <QDebug>
 
 namespace Pref {
 
@@ -22,10 +23,10 @@ OsdWidget::~OsdWidget() {
 }
 
 void OsdWidget::initColorComboBox(QComboBox *combo) {
-	QVector<QRgb> palette = Xine::XineOsd::Clut::get()->palette();
-	for (int i=0; i<palette.size(); ++i) {
-		QColor color(palette[i]);
-		color.setAlpha(qAlpha(palette[i]));
+	QVector<QRgb> clut = Xine::XineOsd::Clut::get()->clut();
+	for (int i=0; i<clut.size(); ++i) {
+		QColor color(clut[i]);
+		color.setAlpha(qAlpha(clut[i]));
 		combo->addItem(color.name() + "-" + QString::number(qRound(color.alphaF()*100)) + "%");
 		combo->setItemData(i, color, Qt::BackgroundRole);
 	}
@@ -57,8 +58,8 @@ void OsdWidget::setStyle(const Xine::XineOsd::Style &style) {
 	ui.font_label->setFont(font);
 	ui.font_label->setText(font.family());
 
-	ui.text_color_combo->setCurrentIndex(Xine::XineOsd::Clut::get()->index(style.textColor.rgba()));
-	ui.border_color_combo->setCurrentIndex(Xine::XineOsd::Clut::get()->index(style.borderColor.rgba()));
+	ui.text_color_combo->setCurrentIndex(Xine::XineOsd::Clut::get()->clut().indexOf(style.textColor.rgba()));
+	ui.border_color_combo->setCurrentIndex(Xine::XineOsd::Clut::get()->clut().indexOf(style.borderColor.rgba()));
 
 	ui.scale_combo->setCurrentIndex(style.scale);
 	ui.size_spin->setValue(style.size*100.0);
