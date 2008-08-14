@@ -2,6 +2,8 @@
 #include "../xinestream.h"
 #include <QDebug>
 #include <QMutexLocker>
+#include <QEvent>
+#include <QApplication>
 
 namespace Xine {
 
@@ -34,6 +36,8 @@ void SeekThread::run() {
 		if (m_pos > 0)
 			xine_play(m_stream->stream(), m_pos, 0);
 	}
+	if (m_paused)
+		QApplication::postEvent(m_stream, new QEvent(QEvent::Type(QEvent::User + 2)));
 }
 
 TickThread::TickThread(XineStream *stream)

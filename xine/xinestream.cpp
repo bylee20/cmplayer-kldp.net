@@ -19,7 +19,7 @@
 namespace Xine {
 
 struct XineStream::Data {
-	enum Event {Finshed = QEvent::User + 1};//QEvent::User + 1};
+	enum Event {Finshed = QEvent::User + 1};
 	Data(XineStream *parent) {
 		p = parent;
 	}
@@ -280,7 +280,7 @@ void XineStream::showTimeBar() {
 void XineStream::seek(int time, bool relative, bool showTimeBar) {
 	if ((!isPlaying() && !isPaused()) || !m_seekable || d->seeker->isRunning())
 		return;
-	d->seeker->setTime(time + (relative ? d->ticker->currentTime() : 0));
+	d->seeker->setTime(time + (relative ? d->ticker->currentTime() : 0), isPaused());
 	d->seeker->setSeekTime(true);
 	d->seeker->start();
 	if (showTimeBar)
@@ -290,7 +290,7 @@ void XineStream::seek(int time, bool relative, bool showTimeBar) {
 void XineStream::seekPos(int pos) {
 	if ((!isPlaying() && !isPaused()) || !m_seekable || d->seeker->isRunning())
 		return;
-	d->seeker->setPos(qBound(0, pos, 65535));
+	d->seeker->setPos(qBound(0, pos, 65535), isPaused());
 	d->seeker->setSeekTime(false);
 	d->seeker->start();
 }
@@ -444,11 +444,15 @@ void XineStream::showOsdText(const QString &text, int time) {
 }
 
 bool XineStream::event(QEvent *event) {
-	if (static_cast<Data::Event>(event->type()) == Data::Finshed) {
+	int type = event->type();
+	if (type == Data::Finshed) {
 		setState(StoppedState);
 		emit finished(m_source);
 		event->accept();
 		return true;
+	} else if (type == QEvent::User+2) {
+		setState(PlayingState);
+		event->accept();
 	}
 	return QObject::event(event);
 }
