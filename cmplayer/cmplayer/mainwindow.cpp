@@ -26,7 +26,6 @@
 #include <QFileInfo>
 #include <QFileDialog>
 #include <QMouseEvent>
-#include <QFontDialog>
 #include <QDebug>
 #include <cmath>
 
@@ -213,8 +212,6 @@ void MainWindow::showEqualizer() {
 	static EqualizerDialog *dlg = new EqualizerDialog(d->video, this);
 	if (dlg->isHidden())
 		dlg->show();
-	bool ok = false;
-	QFont font = QFontDialog::getFont(&ok, this);
 }
 
 void MainWindow::setFullScreen(bool full) {
