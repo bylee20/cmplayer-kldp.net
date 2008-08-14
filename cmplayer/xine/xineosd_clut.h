@@ -11,8 +11,7 @@ public:
 	static Clut *get() {static Clut clut; return &clut;}
 	inline const uint32_t *colorMap() const {return m_colorMap;}
 	inline const uint8_t *transMap() const {return m_transMap;}
-	inline int index(const QRgb &rgb) const {return m_clut.value(rgb);}
-	inline const QVector<QRgb> &palette() const {return m_palette;}
+	inline const QVector<QRgb> &clut() const {return m_clut;}
 private:
 	static int toYuv(int r, int g, int b) {
 	#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
@@ -27,10 +26,9 @@ private:
 	}
 	static int toYuv(const QRgb &rgb) {return toYuv(qRed(rgb), qGreen(rgb), qBlue(rgb));}
 	Clut();
-	QHash<QRgb, int> m_clut;
 	uint32_t m_colorMap[256];
 	uint8_t m_transMap[256];
-	QVector<QRgb> m_palette;
+	QVector<QRgb> m_clut;
 };
 
 }

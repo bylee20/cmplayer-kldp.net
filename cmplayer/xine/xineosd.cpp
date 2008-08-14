@@ -12,31 +12,27 @@
 
 namespace Xine {
 
-XineOsd::Clut::Clut(): m_palette(256) {
-	static const double factor = 255.0/3.0;
+XineOsd::Clut::Clut(): m_clut(256) {
 	int i=0;
-	for (int r=0; r<16; ++r) {for (int g=0; g<16; ++g) {
-	for (int b=0; b<16; ++b) {for (int a=0; a<16; ++a) {
-		static const double RgbFactor = 255.0/15.0;
-		int red = qMin(255, qRound(r*RgbFactor));
-		int green = qMin(255, qRound(g*RgbFactor));
-		int blue = qMin(255, qRound(b*RgbFactor));
-		int alpha = qMin(255, qRound(a*RgbFactor));
-		QRgb rgb = qRgba(red, green, blue, alpha);
-#define To2(rgb) (qRgba(Conv(qRed(rgb)), Conv(qGreen(rgb)), Conv(qBlue(rgb)), Conv(qAlpha(rgb))))
-#define Conv(val) (qMin(255, qRound(qMin(3, qRound(double(val)/factor))*factor)))
-		QRgb color = To2(rgb);
-#undef Conv
-#undef To2
-		if (!m_clut.contains(color)) {
-			m_colorMap[i] = toYuv(color);
-			m_transMap[i] = qAlpha(color);
-			m_palette[i] = color;
-			m_clut[color] = i++;
+	for (int r=0; r<8; ++r) {for (int g=0; g<8; ++g) {
+	for (int b=0; b<4; ++b) {
+		static const QRgb key = qRgb(0x92, 0xff, 0x00);
+		static const double RFactor = 255.0/7.0;
+		static const double GFactor = 255.0/7.0;
+		static const double BFactor = 255.0/3.0;
+		const int red = qMin(255, qRound(r*RFactor));
+		const int green = qMin(255, qRound(g*GFactor));
+		const int blue = qMin(255, qRound(b*BFactor));
+		const QRgb rgb = qRgb(red, green, blue);
+		m_colorMap[i] = toYuv(rgb);
+		if (rgb == key) {
+			m_transMap[i] = 0;
+			m_clut[i++] = qRgba(0, 0, 0, 0);
+		} else {
+			m_transMap[i] = 255;
+			m_clut[i++] = rgb;
 		}
-		m_clut[rgb] = m_clut[color];
-	}}}}
-	m_clut.squeeze();
+	}}}
 }
 
 struct XineOsd::Data {
@@ -63,7 +59,7 @@ struct XineOsd::Data {
 	QRect rect;
 	QString last;
 	double bw;
-	static const int Count = 8;
+	static const int Count = 20;
 	QPointF points[Count];
 	static double Sines[Count];
 	static double Cosines[Count];
@@ -119,6 +115,8 @@ void XineOsd::drawText(const QString &text) {
 	if (text.trimmed().isEmpty())
 		xine_osd_clear(d->buffer);
 	else {
+		QTime time;
+		time.start();
 		d->doc->setDefaultFont(m_style.font);
 		d->doc->setTextWidth(d->rect.width() - (2*d->bw));
 		static QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
@@ -132,44 +130,53 @@ void XineOsd::drawText(const QString &text) {
 			size.setHeight(d->rect.height());
 		if (size.width() > d->rect.width())
 			size.setWidth(d->rect.width());
+
 		QPixmap pixmap(size);
 		pixmap.fill(Qt::transparent);
 		QRectF rect = pixmap.rect();
 
 		QPainter p(&pixmap);
-
+		p.save();
 		p.setOpacity(m_style.borderColor.alphaF());
 		for (int i=0; i<Data::Count; ++i) {
 			p.translate(d->points[i]);
 			d->doc->drawContents(&p, rect);
 			p.resetTransform();
 		}
+		p.restore();
 		d->doc->setHtml(QString("<font color='%1'>").arg(m_style.textColor.name()) + text + "</font>");
+		p.save();
 		p.setOpacity(m_style.textColor.alphaF());
 		p.translate(d->bw, d->bw);
 		d->doc->drawContents(&p, rect);
+		p.restore();
+		int t1 = time.elapsed();
+		time.restart();
 		drawImage(pixmap);
+		int t2 = time.elapsed();
+		qDebug() << "draw" << t1 << "image" << t2;
 	}
 	d->last = text;
 }
 
 void XineOsd::drawImage(const QPixmap &pixmap) {
-	QImage img = pixmap.toImage().convertToFormat(QImage::Format_ARGB4444_Premultiplied);
+	QImage img = pixmap.toImage().convertToFormat(QImage::Format_Indexed8, Clut::get()->clut());
 	const int width = img.width();
 	const int height = img.height();
 	const int length = width * height;
 	uint8_t bitmap[length];
-	for (int y=0; y<height; ++y) {for (int x=0; x<width; ++x) {
-		QRgb c = img.pixel(x, y);
-		bitmap[y*width+x] = Clut::get()->index(c);
-	}}
+	for (int y=0; y<height; ++y) {
+		for (int x=0; x<width; ++x) {
+			bitmap[y*width+x] = img.pixelIndex(x, y);
+		}
+	}
 	xine_osd_clear(d->buffer);
 	QPoint pos = getPos(img.size());
 	xine_osd_draw_bitmap(d->buffer, bitmap, pos.x(), pos.y(), width, height, 0);
 }
 
 void XineOsd::repaint() {
-	if (!isValid() || m_style.highQuality)
+	if (!isValid() || !m_visible)
 		return;
 	drawText(d->last);
 	update();
@@ -178,9 +185,10 @@ void XineOsd::repaint() {
 void XineOsd::update() {
 	if (!isValid())
 		return;
-	xine_osd_t *temp = d->osd;
-	d->osd = d->buffer;
-	d->buffer = temp;
+	qSwap(d->osd, d->buffer);
+//	xine_osd_t *temp = d->osd;
+//	d->osd = d->buffer;
+//	d->buffer = temp;
 	xine_osd_hide(d->buffer, 0);
 	m_style.highQuality ? xine_osd_show_unscaled(d->osd, 0) : xine_osd_show(d->osd, 0);
 }
@@ -191,10 +199,8 @@ void XineOsd::setVisible(bool visible) {
 			xine_osd_show_unscaled(d->osd, 0);
 		else
 			xine_osd_show(d->osd, 0);
-	} else {
+	} else
 		xine_osd_hide(d->osd, 0);
-		d->last.clear();
-	}
 }
 
 void XineOsd::setStyle(const Style &style) {
