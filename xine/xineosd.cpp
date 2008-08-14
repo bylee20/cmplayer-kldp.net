@@ -217,15 +217,15 @@ void XineOsd::slotStreamOpenChanged(bool open) {
 QPoint XineOsd::getPos(const QSize &size) const {
 	int x, y;
 	if (m_align & Qt::AlignHCenter)
-		x = (d->rect.width() - size.width())/2;
+		x = d->rect.left() + (d->rect.width() - size.width())/2;
 	else if (m_align & Qt::AlignRight)
-		x = (d->rect.right()) - size.width() - qRound(m_margins[MRight]*d->rect.width());
+		x = d->rect.right() - size.width() - qRound(m_margins[MRight]*d->rect.width());
 	else
 		x = d->rect.left() + qRound(m_margins[MLeft]*d->rect.width());
 	if (m_align & Qt::AlignBottom)
 		y = d->rect.bottom() - size.height() - qRound(m_margins[MBottom]*d->rect.height());
 	else if (m_align & Qt::AlignVCenter)
-		y = (d->rect.height() - size.height())/2;
+		y = d->rect.top() + (d->rect.height() - size.height())/2;
 	else
 		y = d->rect.top() + qRound(m_margins[MTop]*d->rect.height());
 	return QPoint(qMax(0, x), qMax(0, y));
