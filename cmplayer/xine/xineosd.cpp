@@ -7,8 +7,6 @@
 #include <QPainter>
 #include <QTextDocument>
 #include <cmath>
-#include <QTime>
-#include <QDebug>
 
 namespace Xine {
 
@@ -112,15 +110,14 @@ bool XineOsd::isValid() const {
 void XineOsd::drawText(const QString &text) {
 	if (!isValid())
 		return;
-	if (text.trimmed().isEmpty())
+	d->last = text.trimmed();
+	if (d->last.isEmpty())
 		xine_osd_clear(d->buffer);
 	else {
-		QTime time;
-		time.start();
 		d->doc->setDefaultFont(m_style.font);
 		d->doc->setTextWidth(d->rect.width() - (2*d->bw));
 		static QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
-		QString bgText = text;
+		QString bgText = d->last;
 		d->doc->setHtml(QString("<font color='%1'>").arg(m_style.borderColor.name())
 				+ bgText.remove(rxColor) + "</font>");
 		QSize size = d->doc->size().toSize();
@@ -136,6 +133,7 @@ void XineOsd::drawText(const QString &text) {
 		QRectF rect = pixmap.rect();
 
 		QPainter p(&pixmap);
+
 		p.save();
 		p.setOpacity(m_style.borderColor.alphaF());
 		for (int i=0; i<Data::Count; ++i) {
@@ -144,19 +142,17 @@ void XineOsd::drawText(const QString &text) {
 			p.resetTransform();
 		}
 		p.restore();
-		d->doc->setHtml(QString("<font color='%1'>").arg(m_style.textColor.name()) + text + "</font>");
+
+		d->doc->setHtml(QString("<font color='%1'>").arg(m_style.textColor.name())+d->last+"</font>");
+
 		p.save();
 		p.setOpacity(m_style.textColor.alphaF());
 		p.translate(d->bw, d->bw);
 		d->doc->drawContents(&p, rect);
 		p.restore();
-		int t1 = time.elapsed();
-		time.restart();
+
 		drawImage(pixmap);
-		int t2 = time.elapsed();
-		qDebug() << "draw" << t1 << "image" << t2;
 	}
-	d->last = text;
 }
 
 void XineOsd::drawImage(const QPixmap &pixmap) {
@@ -186,9 +182,6 @@ void XineOsd::update() {
 	if (!isValid())
 		return;
 	qSwap(d->osd, d->buffer);
-//	xine_osd_t *temp = d->osd;
-//	d->osd = d->buffer;
-//	d->buffer = temp;
 	xine_osd_hide(d->buffer, 0);
 	m_style.highQuality ? xine_osd_show_unscaled(d->osd, 0) : xine_osd_show(d->osd, 0);
 }
