@@ -26,13 +26,15 @@ QStringList Informations::Extensions::toNameFilter() const {
 
 struct Informations::Data {
 	mutable QStringList vos, aos;
-	mutable QString version;
+	QString cv, rv;
 	Extensions ves, aes, ses;
 	QString privatePath;
 };
 
 Informations::Informations()
 : d(new Data) {
+	d->cv = XINE_VERSION;
+	d->rv = xine_get_version_string();
 	d->privatePath = ".";
 	d->ves << "asf" << "avi" << "dvix" << "mkv" << "mov" << "mp4" << "mpeg" << "mpg"
 		<< "vob" << "ogg" << "ogm"<< "qt" << "rm" << "wmv";
@@ -45,10 +47,12 @@ void Informations::setPrivatePath(const QString &path) {
 	d->privatePath = path;
 }
 
-const QString &Informations::version() const {
-	if (d->version.isEmpty())
-		d->version = xine_get_version_string();
-	return d->version;
+const QString &Informations::compileVersion() const {
+	return d->cv;
+}
+
+const QString &Informations::runtimeVersion() const {
+	return d->rv;
 }
 
 const QString &Informations::privatePath() const {
