@@ -141,10 +141,10 @@ void VideoWidget::paintEvent(QPaintEvent *event) {
 		xcb_event.height = rect.height();
 		xcb_event.count = 0;
 		xine_port_send_gui_data(m_video->port(), XINE_GUI_SEND_EXPOSE_EVENT, &xcb_event);
+	} else {
+		QPainter p(this);
+		p.fillRect(rect(), Qt::black);
 	}
-	QPainter p(this);
-	p.fillRect(rect(), Qt::black);
-	QWidget::paintEvent(event);
 }
 #else
 bool VideoWidget::x11Event(XEvent *event) {
