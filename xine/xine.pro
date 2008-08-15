@@ -7,8 +7,8 @@ LIBS += -lxine \
     -lxcb
 DESTDIR = ../bin
 
-# CONFIG += dll
-CONFIG += staticlib
+CONFIG += dll
+#CONFIG += staticlib
 HEADERS += private/cslider.h \
     xineosd_clut.h \
     videooutput.h \
