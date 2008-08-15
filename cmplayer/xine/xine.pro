@@ -1,13 +1,14 @@
 TEMPLATE = lib
-
 TARGET = cmplayer_xine
-
-CONFIG += warn_on debug_and_release x11 release
+CONFIG += warn_on \
+    debug_and_release \
+    release
+    
+LIBS += -lxine \
+    -lxcb
 
 DESTDIR = ../bin
-
 #CONFIG += dll
-
 CONFIG += staticlib
 
 HEADERS += xineosd_clut.h \
@@ -57,6 +58,3 @@ SOURCES += utility.cpp \
     volumeslider.cpp \
     xineengine.cpp \
     private/xinestream_p.cpp
-LIBS += -lxine \
-    -lxcb
-QT += opengl
