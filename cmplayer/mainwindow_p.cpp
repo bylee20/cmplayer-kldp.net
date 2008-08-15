@@ -377,6 +377,15 @@ void MainWindow::Data::checkClose() {
 
 void MainWindow::Data::open(Xine::MediaSource source) {
 	stream->stop();
+	const bool expand = !pref->subtitle().osdStyle.highQuality
+			&& pref->subtitle().displayOnMarginWhenFullScreen
+			&& !source.isDisc();
+	video->expand(expand);
+	videoAspectActions->setDisabled(expand);
+	videoCropActions->setDisabled(expand);
+	ui.video_aspect_menu->setDisabled(expand);
+	ui.video_crop_menu->setDisabled(expand);
+
 	Xine::PlayList list;
 	const Pref::General &general = pref->general();
 	if (source.isLocalFile() && general.autoAddFiles != Pref::General::DoNotAddFiles) {
