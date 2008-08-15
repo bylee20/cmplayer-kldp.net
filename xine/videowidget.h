@@ -22,6 +22,7 @@ public:
 	~VideoWidget();
 	virtual QSize sizeHint() const;
 	void init();
+	QRect videoRect() const;
 protected:
 #if (USE_XCB)
 	void paintEvent(QPaintEvent *event);
