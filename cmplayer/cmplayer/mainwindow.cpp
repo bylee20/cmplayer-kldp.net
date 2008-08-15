@@ -26,7 +26,6 @@
 #include <QFileInfo>
 #include <QFileDialog>
 #include <QMouseEvent>
-#include <QDebug>
 #include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)

@@ -1,4 +1,3 @@
-
 #include "subtitle.h"
 #include "subtitlewidget.h"
 #include "../ui/ui_subtitlewidget.h"

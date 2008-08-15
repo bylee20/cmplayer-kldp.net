@@ -2,7 +2,6 @@
 #include <QColor>
 #include <QFontDialog>
 #include <xine/xineosd_clut.h>
-#include <QDebug>
 
 namespace Pref {
 

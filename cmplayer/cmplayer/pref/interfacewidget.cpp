@@ -3,7 +3,7 @@
 #include "interfacewidget.h"
 #include "getshortcutdialog.h"
 #include "../actioncollection.h"
-#include "ui/ui_interfacewidget.h"
+#include "../ui/ui_interfacewidget.h"
 #include <QMenu>
 
 namespace Pref {
