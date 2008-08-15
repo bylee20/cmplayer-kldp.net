@@ -1,0 +1,894 @@
+<ui version="4.0" >
+ <class>Ui::MainWindow</class>
+ <widget class="QMainWindow" name="Ui::MainWindow" >
+  <property name="enabled" >
+   <bool>true</bool>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>576</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>25</y>
+     <width>576</width>
+     <height>563</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QMenuBar" name="menubar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>576</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="defaultUp" >
+    <bool>false</bool>
+   </property>
+   <widget class="QMenu" name="file_menu" >
+    <property name="title" >
+     <string>파일(&amp;F)</string>
+    </property>
+    <widget class="QMenu" name="file_open_menu" >
+     <property name="title" >
+      <string>열기...</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/document-open.png</normaloff>:/img/document-open.png</iconset>
+     </property>
+     <widget class="QMenu" name="open_recent_menu" >
+      <property name="title" >
+       <string>최근에 재생한 것들</string>
+      </property>
+      <property name="icon" >
+       <iconset resource="rsclist.qrc" >
+        <normaloff>:/img/document-open-recent.png</normaloff>:/img/document-open-recent.png</iconset>
+      </property>
+      <addaction name="separator" />
+      <addaction name="recent_clear_action" />
+     </widget>
+     <addaction name="open_file_action" />
+     <addaction name="open_dvd_action" />
+     <addaction name="separator" />
+     <addaction name="open_recent_menu" />
+    </widget>
+    <addaction name="file_open_menu" />
+    <addaction name="separator" />
+    <addaction name="file_exit_action" />
+   </widget>
+   <widget class="QMenu" name="play_menu" >
+    <property name="title" >
+     <string>재생(&amp;P)</string>
+    </property>
+    <widget class="QMenu" name="play_ab_menu" >
+     <property name="title" >
+      <string>A-B 구간 반복</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/edit-undo.png</normaloff>:/img/edit-undo.png</iconset>
+     </property>
+     <addaction name="play_ab_select_action" />
+     <addaction name="play_ab_stop_action" />
+     <addaction name="play_ab_advance_action" />
+    </widget>
+    <widget class="QMenu" name="play_speed_menu" >
+     <property name="title" >
+      <string>재생 속도</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/arrow-right-double.png</normaloff>:/img/arrow-right-double.png</iconset>
+     </property>
+     <addaction name="play_speed_current_action" />
+     <addaction name="separator" />
+     <addaction name="play_speed_double_action" />
+     <addaction name="play_speed_half_action" />
+     <addaction name="play_speed_increase_action" />
+     <addaction name="play_speed_decrease_action" />
+     <addaction name="play_speed_restore_action" />
+    </widget>
+    <addaction name="play_dvd_menu_action" />
+    <addaction name="play_show_playlist_action" />
+    <addaction name="play_speed_menu" />
+    <addaction name="play_ab_menu" />
+    <addaction name="separator" />
+    <addaction name="play_pause_action" />
+    <addaction name="play_stop_action" />
+    <addaction name="play_previous_action" />
+    <addaction name="play_next_action" />
+    <addaction name="play_backward_action" />
+    <addaction name="play_backward_more_action" />
+    <addaction name="play_backward_much_more_action" />
+    <addaction name="play_forward_action" />
+    <addaction name="play_forward_more_action" />
+    <addaction name="play_forward_much_more_action" />
+   </widget>
+   <widget class="QMenu" name="video_menu" >
+    <property name="enabled" >
+     <bool>true</bool>
+    </property>
+    <property name="title" >
+     <string>비디오(&amp;V)</string>
+    </property>
+    <widget class="QMenu" name="video_aspect_menu" >
+     <property name="title" >
+      <string>영상비율</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/transform-scale.png</normaloff>:/img/transform-scale.png</iconset>
+     </property>
+     <addaction name="video_aspect_auto_action" />
+     <addaction name="video_aspect_4_3_action" />
+     <addaction name="video_aspect_16_9_action" />
+     <addaction name="video_aspect_211_100_action" />
+    </widget>
+    <widget class="QMenu" name="video_size_menu" >
+     <property name="title" >
+      <string>영상크기</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/zoom-fit-best.png</normaloff>:/img/zoom-fit-best.png</iconset>
+     </property>
+     <addaction name="video_size_50_action" />
+     <addaction name="video_size_100_action" />
+     <addaction name="video_size_150_action" />
+     <addaction name="video_size_200_action" />
+     <addaction name="video_size_250_action" />
+     <addaction name="video_size_300_action" />
+     <addaction name="video_size_350_action" />
+     <addaction name="video_size_400_action" />
+    </widget>
+    <widget class="QMenu" name="video_crop_menu" >
+     <property name="title" >
+      <string>영상 잘라내기</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/transform-crop-and-resize.png</normaloff>:/img/transform-crop-and-resize.png</iconset>
+     </property>
+     <addaction name="video_crop_off_action" />
+     <addaction name="video_crop_4_3_action" />
+     <addaction name="video_crop_16_9_action" />
+     <addaction name="video_crop_2_35_1_action" />
+    </widget>
+    <widget class="QMenu" name="video_on_top_menu" >
+     <property name="title" >
+      <string>맨위로</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/go-top.png</normaloff>:/img/go-top.png</iconset>
+     </property>
+     <addaction name="video_on_top_always_action" />
+     <addaction name="video_on_top_only_playing_action" />
+     <addaction name="video_on_top_off_action" />
+    </widget>
+    <addaction name="video_fullscreen_action" />
+    <addaction name="video_on_top_menu" />
+    <addaction name="separator" />
+    <addaction name="video_size_menu" />
+    <addaction name="video_aspect_menu" />
+    <addaction name="video_crop_menu" />
+    <addaction name="video_equalizer_action" />
+   </widget>
+   <widget class="QMenu" name="audio_menu" >
+    <property name="title" >
+     <string>오디오(&amp;A)</string>
+    </property>
+    <addaction name="audio_volume_up_action" />
+    <addaction name="audio_volume_down_action" />
+    <addaction name="audio_mute_action" />
+   </widget>
+   <widget class="QMenu" name="subtitle_menu" >
+    <property name="title" >
+     <string>자막(&amp;S)</string>
+    </property>
+    <widget class="QMenu" name="subtitle_select_menu" >
+     <property name="title" >
+      <string>자막 파일</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/format-list-unordered.png</normaloff>:/img/format-list-unordered.png</iconset>
+     </property>
+     <addaction name="subtitle_add_action" />
+     <addaction name="subtitle_clear_action" />
+     <addaction name="separator" />
+     <addaction name="subtitle_disable_action" />
+    </widget>
+    <widget class="QMenu" name="subtitle_sync_menu" >
+     <property name="title" >
+      <string>자막 동기화</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/format-indent-more.png</normaloff>:/img/format-indent-more.png</iconset>
+     </property>
+     <addaction name="subtitle_sync_current_action" />
+     <addaction name="separator" />
+     <addaction name="subtitle_sync_increase_action" />
+     <addaction name="subtitle_sync_decrease_action" />
+    </widget>
+    <widget class="QMenu" name="subtitle_pos_menu" >
+     <property name="title" >
+      <string>자막 위치</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/format-line-spacing-normal.png</normaloff>:/img/format-line-spacing-normal.png</iconset>
+     </property>
+     <addaction name="subtitle_step_up_action" />
+     <addaction name="subtitle_step_down_action" />
+    </widget>
+    <widget class="QMenu" name="sub_channel_menu" >
+     <property name="title" >
+      <string>자막 채널</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/format-list-ordered.png</normaloff>:/img/format-list-ordered.png</iconset>
+     </property>
+     <addaction name="sub_channel_off_action" />
+    </widget>
+    <addaction name="sub_channel_menu" />
+    <addaction name="subtitle_select_menu" />
+    <addaction name="subtitle_pos_menu" />
+    <addaction name="subtitle_sync_menu" />
+   </widget>
+   <widget class="QMenu" name="option_menu" >
+    <property name="title" >
+     <string>옵션(&amp;O)</string>
+    </property>
+    <addaction name="option_preferences_action" />
+   </widget>
+   <widget class="QMenu" name="help_menu" >
+    <property name="title" >
+     <string>도움말(&amp;H)</string>
+    </property>
+    <addaction name="about_qt_action" />
+    <addaction name="about_cmp_action" />
+   </widget>
+   <addaction name="file_menu" />
+   <addaction name="play_menu" />
+   <addaction name="video_menu" />
+   <addaction name="audio_menu" />
+   <addaction name="subtitle_menu" />
+   <addaction name="option_menu" />
+   <addaction name="help_menu" />
+  </widget>
+  <widget class="QToolBar" name="play_bar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>588</y>
+     <width>576</width>
+     <height>12</height>
+    </rect>
+   </property>
+   <property name="windowTitle" >
+    <string>재생 도구막대</string>
+   </property>
+   <property name="movable" >
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas" >
+    <set>Qt::BottomToolBarArea</set>
+   </property>
+   <property name="iconSize" >
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>BottomToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="open_file_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/video-x-generic.png</normaloff>:/img/video-x-generic.png</iconset>
+   </property>
+   <property name="text" >
+    <string>파일</string>
+   </property>
+   <property name="shortcut" >
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="play_forward_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/media-seek-forward.png</normaloff>:/img/media-seek-forward.png</iconset>
+   </property>
+   <property name="text" >
+    <string>앞으로</string>
+   </property>
+   <property name="shortcut" >
+    <string>Right</string>
+   </property>
+   <property name="shortcutContext" >
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="play_backward_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/media-seek-backward.png</normaloff>:/img/media-seek-backward.png</iconset>
+   </property>
+   <property name="text" >
+    <string>뒤로</string>
+   </property>
+   <property name="shortcut" >
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="audio_volume_up_action" >
+   <property name="text" >
+    <string>소리크게</string>
+   </property>
+   <property name="shortcut" >
+    <string>Up</string>
+   </property>
+  </action>
+  <action name="audio_volume_down_action" >
+   <property name="text" >
+    <string>소리작게</string>
+   </property>
+   <property name="shortcut" >
+    <string>Down</string>
+   </property>
+  </action>
+  <action name="video_fullscreen_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/view-fullscreen.png</normaloff>:/img/view-fullscreen.png</iconset>
+   </property>
+   <property name="text" >
+    <string>전체화면 켜기</string>
+   </property>
+   <property name="shortcut" >
+    <string>Return</string>
+   </property>
+  </action>
+  <action name="play_forward_more_action" >
+   <property name="text" >
+    <string>많이 앞으로</string>
+   </property>
+   <property name="shortcut" >
+    <string>PgUp</string>
+   </property>
+  </action>
+  <action name="play_backward_more_action" >
+   <property name="text" >
+    <string>많이 뒤로</string>
+   </property>
+   <property name="shortcut" >
+    <string>PgDown</string>
+   </property>
+  </action>
+  <action name="play_pause_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/media-playback-start.png</normaloff>:/img/media-playback-start.png</iconset>
+   </property>
+   <property name="text" >
+    <string>일시정지/재생</string>
+   </property>
+   <property name="shortcut" >
+    <string>Space</string>
+   </property>
+  </action>
+  <action name="file_exit_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/application-exit.png</normaloff>:/img/application-exit.png</iconset>
+   </property>
+   <property name="text" >
+    <string>종료</string>
+   </property>
+   <property name="shortcut" >
+    <string>Alt+F4</string>
+   </property>
+  </action>
+  <action name="play_stop_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/media-playback-stop.png</normaloff>:/img/media-playback-stop.png</iconset>
+   </property>
+   <property name="text" >
+    <string>정지</string>
+   </property>
+  </action>
+  <action name="play_previous_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/media-skip-backward.png</normaloff>:/img/media-skip-backward.png</iconset>
+   </property>
+   <property name="text" >
+    <string>이전 파일</string>
+   </property>
+  </action>
+  <action name="play_next_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/media-skip-forward.png</normaloff>:/img/media-skip-forward.png</iconset>
+   </property>
+   <property name="text" >
+    <string>다음 파일</string>
+   </property>
+  </action>
+  <action name="audio_mute_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/player-volume.png</normaloff>:/img/player-volume.png</iconset>
+   </property>
+   <property name="text" >
+    <string>음소거</string>
+   </property>
+  </action>
+  <action name="video_aspect_auto_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>자동</string>
+   </property>
+  </action>
+  <action name="video_aspect_4_3_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>AR 4:3</string>
+   </property>
+  </action>
+  <action name="video_aspect_16_9_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>AR 16:9</string>
+   </property>
+  </action>
+  <action name="video_equalizer_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/view-media-equalizer.png</normaloff>:/img/view-media-equalizer.png</iconset>
+   </property>
+   <property name="text" >
+    <string>이퀄라이저</string>
+   </property>
+  </action>
+  <action name="play_show_playlist_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/view-media-playlist.png</normaloff>:/img/view-media-playlist.png</iconset>
+   </property>
+   <property name="text" >
+    <string>재생 목록</string>
+   </property>
+   <property name="shortcut" >
+    <string>L</string>
+   </property>
+  </action>
+  <action name="subtitle_step_up_action" >
+   <property name="text" >
+    <string>자막 위로</string>
+   </property>
+   <property name="shortcut" >
+    <string>]</string>
+   </property>
+  </action>
+  <action name="subtitle_step_down_action" >
+   <property name="text" >
+    <string>자막 아래로</string>
+   </property>
+   <property name="shortcut" >
+    <string>[</string>
+   </property>
+  </action>
+  <action name="subtitle_add_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/list-add.png</normaloff>:/img/list-add.png</iconset>
+   </property>
+   <property name="text" >
+    <string>자막 추가</string>
+   </property>
+  </action>
+  <action name="subtitle_disable_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>자막없음</string>
+   </property>
+   <property name="visible" >
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="subtitle_clear_action" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/edit-delete.png</normaloff>:/img/edit-delete.png</iconset>
+   </property>
+   <property name="text" >
+    <string>자막 비우기</string>
+   </property>
+  </action>
+  <action name="video_size_100_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>100%</string>
+   </property>
+   <property name="shortcut" >
+    <string>1</string>
+   </property>
+  </action>
+  <action name="video_size_200_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>200%</string>
+   </property>
+   <property name="shortcut" >
+    <string>2</string>
+   </property>
+  </action>
+  <action name="video_size_50_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>50%</string>
+   </property>
+   <property name="shortcut" >
+    <string>`</string>
+   </property>
+  </action>
+  <action name="video_size_300_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>300%</string>
+   </property>
+   <property name="shortcut" >
+    <string>3</string>
+   </property>
+  </action>
+  <action name="video_size_400_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>400%</string>
+   </property>
+   <property name="shortcut" >
+    <string>4</string>
+   </property>
+  </action>
+  <action name="subtitle_sync_increase_action" >
+   <property name="text" >
+    <string>싱크 +0.5초</string>
+   </property>
+   <property name="shortcut" >
+    <string>P</string>
+   </property>
+  </action>
+  <action name="subtitle_sync_decrease_action" >
+   <property name="text" >
+    <string>싱크 -0.5초</string>
+   </property>
+   <property name="shortcut" >
+    <string>O</string>
+   </property>
+  </action>
+  <action name="subtitle_sync_current_action" >
+   <property name="text" >
+    <string>현재값: 0.0초</string>
+   </property>
+  </action>
+  <action name="option_preferences_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/preferences-system.png</normaloff>:/img/preferences-system.png</iconset>
+   </property>
+   <property name="text" >
+    <string>환경설정</string>
+   </property>
+  </action>
+  <action name="video_size_150_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>150%</string>
+   </property>
+  </action>
+  <action name="video_size_250_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>250%</string>
+   </property>
+  </action>
+  <action name="video_size_350_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>350%</string>
+   </property>
+  </action>
+  <action name="video_crop_off_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>취소</string>
+   </property>
+  </action>
+  <action name="video_crop_4_3_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>CR 4:3</string>
+   </property>
+  </action>
+  <action name="video_crop_16_9_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>CR 16:9</string>
+   </property>
+  </action>
+  <action name="video_on_top_always_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>항상 맨위로</string>
+   </property>
+  </action>
+  <action name="video_on_top_only_playing_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>재생시만 맨위로</string>
+   </property>
+  </action>
+  <action name="video_on_top_off_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>맨위로 끄기</string>
+   </property>
+  </action>
+  <action name="about_qt_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/qt-logo.png</normaloff>:/img/qt-logo.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Qt에 대하여</string>
+   </property>
+  </action>
+  <action name="about_cmp_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/help-about.png</normaloff>:/img/help-about.png</iconset>
+   </property>
+   <property name="text" >
+    <string>CMPlayer에 대하여</string>
+   </property>
+  </action>
+  <action name="play_ab_select_action" >
+   <property name="checkable" >
+    <bool>false</bool>
+   </property>
+   <property name="text" >
+    <string>A-B 구간 지정</string>
+   </property>
+   <property name="shortcut" >
+    <string>R</string>
+   </property>
+  </action>
+  <action name="play_ab_advance_action" >
+   <property name="text" >
+    <string>고급 구간 반복</string>
+   </property>
+  </action>
+  <action name="play_ab_stop_action" >
+   <property name="text" >
+    <string>반복 중지</string>
+   </property>
+   <property name="shortcut" >
+    <string>Esc</string>
+   </property>
+  </action>
+  <action name="play_forward_much_more_action" >
+   <property name="text" >
+    <string>더 많이 앞으로</string>
+   </property>
+   <property name="shortcut" >
+    <string>Home</string>
+   </property>
+  </action>
+  <action name="play_backward_much_more_action" >
+   <property name="text" >
+    <string>더 많이 뒤로</string>
+   </property>
+   <property name="shortcut" >
+    <string>End</string>
+   </property>
+  </action>
+  <action name="video_aspect_211_100_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>AR 2.11:1</string>
+   </property>
+  </action>
+  <action name="video_crop_2_35_1_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>CR 2.35:1</string>
+   </property>
+  </action>
+  <action name="play_speed_current_action" >
+   <property name="text" >
+    <string>현재: ×1 배속</string>
+   </property>
+  </action>
+  <action name="play_speed_increase_action" >
+   <property name="text" >
+    <string>+ 0.1 배속</string>
+   </property>
+   <property name="shortcut" >
+    <string>+</string>
+   </property>
+  </action>
+  <action name="play_speed_decrease_action" >
+   <property name="text" >
+    <string>- 0.1 배속</string>
+   </property>
+   <property name="shortcut" >
+    <string>-</string>
+   </property>
+  </action>
+  <action name="play_speed_restore_action" >
+   <property name="text" >
+    <string>원래 속도로</string>
+   </property>
+   <property name="shortcut" >
+    <string>Backspace</string>
+   </property>
+  </action>
+  <action name="play_speed_double_action" >
+   <property name="text" >
+    <string>현재의 2배속</string>
+   </property>
+  </action>
+  <action name="play_speed_half_action" >
+   <property name="text" >
+    <string>현재의 0.5배속</string>
+   </property>
+  </action>
+  <action name="open_url_action" >
+   <property name="text" >
+    <string>URL</string>
+   </property>
+  </action>
+  <action name="recent_clear_action" >
+   <property name="text" >
+    <string>목록비우기</string>
+   </property>
+  </action>
+  <action name="sub_channel_off_action" >
+   <property name="checkable" >
+    <bool>true</bool>
+   </property>
+   <property name="checked" >
+    <bool>true</bool>
+   </property>
+   <property name="text" >
+    <string>끄기</string>
+   </property>
+  </action>
+  <action name="open_dvd_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/media-optical.png</normaloff>:/img/media-optical.png</iconset>
+   </property>
+   <property name="text" >
+    <string>DVD</string>
+   </property>
+  </action>
+  <action name="play_dvd_menu_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/view-list-details.png</normaloff>:/img/view-list-details.png</iconset>
+   </property>
+   <property name="text" >
+    <string>DVD 메뉴 전환</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="rsclist.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>subtitle_disable_action</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>subtitle_disable_action</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
