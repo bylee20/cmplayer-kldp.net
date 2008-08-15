@@ -195,10 +195,9 @@ void XineStream::play(int start) {
 		open();
 	qDebug() << "play" << m_source.toMrl() << "from" << start;
 	if (xine_open(m_stream, m_source.toMrl().toLocal8Bit())) {
+		updateInfo();
 		xine_play(m_stream, 0, start);
 		setState(PlayingState);
-		updateInfo();
-		emit started();
 		setSpeed(1.0);
 	}
 }
