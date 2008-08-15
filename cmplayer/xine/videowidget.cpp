@@ -71,24 +71,23 @@ void VideoWidget::cbFrameOutput(void *user_data, int /*video_width*/, int /*vide
 	*dest_pixel_aspect = 1;
 }
 
-QRect VideoWidget::videoRect() const {
+QRectF VideoWidget::videoRect() const {
 	if (!m_video->isExpanded())
 		return QRect(QPoint(0, 0), m_video->m_videoSize);
-	QRect rect(QPoint(), size());
+	QRectF rect(QPoint(), size());
 	double videoRatio = VideoOutput::ratio(m_video->m_videoSize);
 	static const double desktopRatio = Utility::desktopRatio();
 	if (videoRatio > desktopRatio)
 		rect.setHeight(rect.height()/(videoRatio/desktopRatio));
 	else
 		rect.setWidth(rect.width()*videoRatio/desktopRatio);
-	rect.setX((width()-rect.width())/2);
-	rect.setY((height()-rect.height())/2);
+	rect.moveTopLeft(QPoint((width()-rect.width())/2, (height()-rect.height())/2));
 	return rect;
 }
 
 void VideoWidget::mouseMoveEvent(QMouseEvent *event) {
 	if (m_video->port()) {
-		QPoint pos = videoRect().topLeft();
+		QPoint pos = videoRect().topLeft().toPoint();
 		x11_rectangle_t rect;
 		rect.x = event->x() - pos.x();
 		rect.y = event->y() - pos.y();
@@ -124,7 +123,7 @@ void VideoWidget::mousePressEvent(QMouseEvent *event) {
 		button = 0;
 	}
 	if (button && m_video->port()) {
-		QPoint pos = videoRect().topLeft();
+		QPoint pos = videoRect().topLeft().toPoint();
 		x11_rectangle_t rect;
 		rect.x = event->x() - pos.x();
 		rect.y = event->y() - pos.y();
