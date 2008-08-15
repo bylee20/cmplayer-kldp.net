@@ -99,12 +99,17 @@ void SubtitleOutput::load(const QStringList &files) {
 }
 
 void SubtitleOutput::clear(bool emits) {
+	m_osd->hide();
 	d->curSubtitle.clear();
 	d->subs.clear();
 	m_selected.clear();
+	d->channels.clear();
+	m_curChannel = -1;
 	if (emits) {
 		emit availableSubtitlesChanged(names());
 		emit selectedSubtitlesChanged(m_selected);
+		emit availableChannelsChanged(d->channels);
+		emit currentChannelChanged(m_curChannel);
 	}
 }
 
