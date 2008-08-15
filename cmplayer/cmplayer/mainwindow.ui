@@ -85,6 +85,7 @@
      <addaction name="play_speed_decrease_action" />
      <addaction name="play_speed_restore_action" />
     </widget>
+    <addaction name="play_dvd_menu_action" />
     <addaction name="play_show_playlist_action" />
     <addaction name="play_speed_menu" />
     <addaction name="play_ab_menu" />
@@ -797,6 +798,11 @@
   <action name="open_dvd_action" >
    <property name="text" >
     <string>DVD</string>
+   </property>
+  </action>
+  <action name="play_dvd_menu_action" >
+   <property name="text" >
+    <string>DVD 메뉴 전환</string>
    </property>
   </action>
  </widget>
