@@ -1,9 +1,9 @@
 #include "videowidget.h"
-#include "videooutput.h"
-#include "xinestream.h"
+#include "../videooutput.h"
+#include "../xinestream.h"
 #include <QApplication>
 #include <QMouseEvent>
-#include "utility.h"
+#include "../utility.h"
 
 #if (USE_XCB)
 #include <QPaintEvent>
