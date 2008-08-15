@@ -1,5 +1,5 @@
 #include "getshortcutdialog.h"
-#include "ui/ui_getshortcutdialog.h"
+#include "../ui/ui_getshortcutdialog.h"
 #include <QKeyEvent>
 
 namespace Pref {

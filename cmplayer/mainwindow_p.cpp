@@ -26,7 +26,6 @@
 #include <QDir>
 #include <QLayout>
 #include <QFileInfo>
-#include <QDebug>
 #include <QUrl>
 
 MainWindow::Data::Data(MainWindow *p)

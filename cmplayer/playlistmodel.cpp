@@ -5,7 +5,6 @@
 #include <xine/mediasource.h>
 #include <xine/playlist.h>
 #include <xine/xinestream.h>
-#include <QDebug>
 
 struct PlayListModel::Data {
 	inline bool isValid(int row) { return row >=0 && row < list.size();}
