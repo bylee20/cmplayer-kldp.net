@@ -8,6 +8,7 @@
 class MainWindow;				class PlayListModel;
 class PlayMenuBar;				class PlayListDock;
 class RecentInfo;				class ActionCollection;
+class QTimer;
 
 namespace Xine {class Informations;}
 namespace Pref {class Preferences;}
@@ -53,6 +54,7 @@ public:
 	QMap<int, QAction*> mouseClickActions;
 	QMap<int, QPair<QAction*, QAction*> > wheelScrollActions;
 	QAction *seekDVDAction;
+	QTimer *cursorTimer;
 };
 
 

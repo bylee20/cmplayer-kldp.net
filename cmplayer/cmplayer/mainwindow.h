@@ -84,6 +84,7 @@ private slots:
 	void updateSource(const Xine::MediaSource &source);
 	void updateFinished(const Xine::MediaSource &source);
 	void updateStopped(const Xine::MediaSource &source, int time);
+	void hideCursor();
 private:
 	Q_DISABLE_COPY(MainWindow)
 	class Data;

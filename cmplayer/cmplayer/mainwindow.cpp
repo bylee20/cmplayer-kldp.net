@@ -26,6 +26,7 @@
 #include <QFileInfo>
 #include <QFileDialog>
 #include <QMouseEvent>
+#include <QTimer>
 #include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -222,10 +223,13 @@ void MainWindow::setFullScreen(bool full) {
 		winSize = size();
 		d->dock->hide();
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
+		d->cursorTimer->start();
 	} else {
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
 		d->updateStaysOnTop();
 		resize(winSize);
+		if (cursor().shape() == Qt::BlankCursor)
+			unsetCursor();
 	}
 	d->video->setFullScreen(full);
 	d->videoSizeActions->setDisabled(full);
@@ -304,17 +308,30 @@ void MainWindow::showAboutDialog() {
 	dlg.exec();
 }
 
+void MainWindow::hideCursor() {
+	if (cursor().shape() != Qt::BlankCursor)
+		setCursor(Qt::BlankCursor);
+}
+
 #define checkInCenter() (d->video->widget()->geometry().contains(event->pos()))
 #define checkButton(b) (event->buttons() & (b))
 void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 	QMainWindow::mouseMoveEvent(event);
-	const bool dragMove = checkInCenter() && checkButton(Qt::LeftButton) && !isFullScreen();
+	const bool in = checkInCenter();
+	const bool dragMove = in && checkButton(Qt::LeftButton) && !isFullScreen();
+	bool set = false;
 	if (dragMove) {
-		if (cursor().shape() != Qt::SizeAllCursor)
+		if (set = (cursor().shape() != Qt::SizeAllCursor))
 			setCursor(Qt::SizeAllCursor);
 		move(event->globalPos() - d->dragPos);
 	}
+	if (!set)
+		unsetCursor();
 	if (isFullScreen()) {
+		if (in)
+			d->cursorTimer->start();
+		else
+			d->cursorTimer->stop();
 		static const int h = d->pmb->height();
 		QRect r = rect();
 		r.setTop(r.height() - h);
@@ -341,7 +358,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 void MainWindow::mouseReleaseEvent(QMouseEvent *event) {
 	QMainWindow::mouseReleaseEvent(event);
 	if (cursor().shape() == Qt::SizeAllCursor)
-		setCursor(Qt::ArrowCursor);
+		unsetCursor();
 }
 
 void MainWindow::wheelEvent(QWheelEvent *event) {
