@@ -75,14 +75,8 @@ void VideoOutput::setDriver(const QString &driver) {
 void VideoOutput::setFullScreen(bool fs) {
 	if (fs == m_fullScreen)
 		return;
-	if ((m_fullScreen = fs) && isExpanded()) {
-		m_visual->resize(Utility::desktopSize());
-		m_video->resize(Utility::desktopSize());
-		m_visual->move(0, 0);
-		m_video->move(0, 0);
-		emit sizeUpdated();
-	} else
-		updateVisual();
+	m_fullScreen = fs;
+	updateVisual();
 }
 
 QSize VideoOutput::widgetSizeHint() const {
@@ -157,8 +151,14 @@ void *VideoOutput::visual() {
 }
 
 void VideoOutput::updateVisual() {
-	if (isExpanded() && m_fullScreen)
+	if (isExpanded() && m_fullScreen) {
+		m_visual->resize(Utility::desktopSize());
+		m_video->resize(Utility::desktopSize());
+		m_visual->move(0, 0);
+		m_video->move(0, 0);
+		emit sizeUpdated();
 		return;
+	}
 	QSizeF widget = m_widget->size();
 	QSizeF visual(1.0, 1.0), video(1.0, 1.0);
 	if (isExpanded()) {
