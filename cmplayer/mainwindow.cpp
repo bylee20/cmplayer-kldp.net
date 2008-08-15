@@ -563,6 +563,18 @@ void MainWindow::executeWizard() {
 	//wizard.exec();
 }
 
+void MainWindow::slotFullScreen() {
+	const bool full = isFullScreen();
+	if (full) {
+		d->ui.video_fullscreen_action->setIcon(QIcon(":/img/view-fullscreen.png"));
+		d->ui.video_fullscreen_action->setText(trUtf8("전체화면 켜기"));
+	} else {
+		d->ui.video_fullscreen_action->setIcon(QIcon(":/img/view-restore.png"));
+		d->ui.video_fullscreen_action->setText(trUtf8("전체화면 끄기"));
+	}
+	setFullScreen(!full);
+}
+
 void MainWindow::openDVD() {
 	d->open(Xine::MediaSource(Xine::DVD));
 }
