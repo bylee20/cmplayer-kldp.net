@@ -538,6 +538,10 @@ void MainWindow::updateStopped(const Xine::MediaSource &source, int time) {
 		d->recent->setStopped(source, time);
 }
 
+void MainWindow::updateSource(const Xine::MediaSource &source) {
+	d->ui.play_dvd_menu_action->setVisible(source.isDisc() && source.discType() == Xine::DVD);
+}
+
 void MainWindow::executeWizard() {
 	//Preferences::SettingsWizard wizard(this);
 	//wizard.exec();

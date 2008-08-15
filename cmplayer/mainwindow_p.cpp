@@ -5,7 +5,6 @@
 #include "playlistmodel.h"
 #include "recentinfo.h"
 #include "helper.h"
-#include "selecttitledialog.h"
 #include "pref/preferences.h"
 #include "pref/general.h"
 #include "pref/interface.h"
@@ -142,6 +141,7 @@ void MainWindow::Data::setupGUI() {
 	ui.play_bar->layout()->setSpacing(0);
 	ui.play_bar->addWidget(pmb);
 
+	ui.play_dvd_menu_action->setVisible(false);
 	ui.sub_channel_menu->menuAction()->setVisible(false);
 
 	p->resize(300, 200);
@@ -153,6 +153,7 @@ void MainWindow::Data::createConnections() {
 	connect(ui.recent_clear_action, SIGNAL(triggered()), p, SLOT(clearRecentFiles()));
 	connect(ui.file_exit_action, SIGNAL(triggered()), qApp, SLOT(quit()));
 
+	connect(ui.play_dvd_menu_action, SIGNAL(triggered()), stream, SLOT(toggleDvdMenu()));
 	connect(ui.play_show_playlist_action, SIGNAL(triggered()), p, SLOT(togglePlayListVisibility()));
 	connect(ui.play_pause_action, SIGNAL(triggered()), p, SLOT(playPause()));
 	connect(ui.play_stop_action, SIGNAL(triggered()), stream, SLOT(stop()));
@@ -206,6 +207,8 @@ void MainWindow::Data::createConnections() {
 			p, SLOT(slotStateChanged(Xine::State)));
 	connect(stream, SIGNAL(started()), p, SLOT(slotStarted()));
 	connect(stream, SIGNAL(speedChanged(double)), p, SLOT(updateSpeed(double)));
+	connect(stream, SIGNAL(currentSourceChanged(const Xine::MediaSource&))
+			, p, SLOT(updateSource(const Xine::MediaSource&)));
 	connect(stream, SIGNAL(finished(Xine::MediaSource))
 			, p, SLOT(updateFinished(const Xine::MediaSource&)));
 	connect(stream, SIGNAL(stopped(Xine::MediaSource, int))
@@ -265,6 +268,7 @@ void MainWindow::Data::registerActions() {
 	contextMenu->addMenu(ui.video_crop_menu);
 	contextMenu->addAction(ui.video_equalizer_action);
 	contextMenu->addSeparator();
+	contextMenu->addAction(ui.play_dvd_menu_action);
 	contextMenu->addAction(ui.play_show_playlist_action);
 	contextMenu->addMenu(ui.play_speed_menu);
 	contextMenu->addMenu(ui.play_ab_menu);
