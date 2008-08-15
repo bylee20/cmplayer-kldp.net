@@ -81,6 +81,7 @@ private slots:
 	void updatePreferences();
 	void executeWizard();
 	void slotStarted();
+	void slotFullScreen();
 	void updateSource(const Xine::MediaSource &source);
 	void updateFinished(const Xine::MediaSource &source);
 	void updateStopped(const Xine::MediaSource &source, int time);

@@ -179,7 +179,7 @@ void MainWindow::Data::createConnections() {
 	connect(ui.play_speed_double_action, SIGNAL(triggered()), p, SLOT(doubleSpeed()));
 	connect(ui.play_speed_half_action, SIGNAL(triggered()), p, SLOT(halfSpeed()));
 
-	connect(ui.video_fullscreen_action, SIGNAL(toggled(bool)), p, SLOT(setFullScreen(bool)));
+	connect(ui.video_fullscreen_action, SIGNAL(triggered()), p, SLOT(slotFullScreen()));
 	connect(onTopActions, SIGNAL(triggered(QAction*)), p, SLOT(changeStaysOnTop(QAction*)));
 	connect(videoSizeActions, SIGNAL(triggered(QAction*)), p, SLOT(changeVideoSize(QAction*)));
 	connect(videoAspectActions, SIGNAL(triggered(QAction*)), p, SLOT(changeAspectRatio(QAction*)));
@@ -270,6 +270,7 @@ void MainWindow::Data::registerActions() {
 	contextMenu->addMenu(ui.file_open_menu);
 	contextMenu->addSeparator();
 	contextMenu->addMenu(ui.video_on_top_menu);
+	contextMenu->addAction(ui.video_fullscreen_action);
 	contextMenu->addMenu(ui.video_size_menu);
 	contextMenu->addMenu(ui.video_aspect_menu);
 	contextMenu->addMenu(ui.video_crop_menu);

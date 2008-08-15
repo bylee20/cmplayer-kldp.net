@@ -45,9 +45,17 @@
      <property name="title" >
       <string>열기...</string>
      </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/document-open.png</normaloff>:/img/document-open.png</iconset>
+     </property>
      <widget class="QMenu" name="open_recent_menu" >
       <property name="title" >
        <string>최근에 재생한 것들</string>
+      </property>
+      <property name="icon" >
+       <iconset resource="rsclist.qrc" >
+        <normaloff>:/img/document-open-recent.png</normaloff>:/img/document-open-recent.png</iconset>
       </property>
       <addaction name="separator" />
       <addaction name="recent_clear_action" />
@@ -69,6 +77,10 @@
      <property name="title" >
       <string>A-B 구간 반복</string>
      </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/edit-undo.png</normaloff>:/img/edit-undo.png</iconset>
+     </property>
      <addaction name="play_ab_select_action" />
      <addaction name="play_ab_stop_action" />
      <addaction name="play_ab_advance_action" />
@@ -76,6 +88,10 @@
     <widget class="QMenu" name="play_speed_menu" >
      <property name="title" >
       <string>재생 속도</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/arrow-right-double.png</normaloff>:/img/arrow-right-double.png</iconset>
      </property>
      <addaction name="play_speed_current_action" />
      <addaction name="separator" />
@@ -112,6 +128,10 @@
      <property name="title" >
       <string>영상비율</string>
      </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/transform-scale.png</normaloff>:/img/transform-scale.png</iconset>
+     </property>
      <addaction name="video_aspect_auto_action" />
      <addaction name="video_aspect_4_3_action" />
      <addaction name="video_aspect_16_9_action" />
@@ -120,6 +140,10 @@
     <widget class="QMenu" name="video_size_menu" >
      <property name="title" >
       <string>영상크기</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/zoom-fit-best.png</normaloff>:/img/zoom-fit-best.png</iconset>
      </property>
      <addaction name="video_size_50_action" />
      <addaction name="video_size_100_action" />
@@ -133,6 +157,10 @@
     <widget class="QMenu" name="video_crop_menu" >
      <property name="title" >
       <string>영상 잘라내기</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/transform-crop-and-resize.png</normaloff>:/img/transform-crop-and-resize.png</iconset>
      </property>
      <addaction name="video_crop_off_action" />
      <addaction name="video_crop_4_3_action" />
@@ -177,7 +205,7 @@
      </property>
      <property name="icon" >
       <iconset resource="rsclist.qrc" >
-       <normaloff>:/img/format-justify-center.png</normaloff>:/img/format-justify-center.png</iconset>
+       <normaloff>:/img/format-list-unordered.png</normaloff>:/img/format-list-unordered.png</iconset>
      </property>
      <addaction name="subtitle_add_action" />
      <addaction name="subtitle_clear_action" />
@@ -188,6 +216,10 @@
      <property name="title" >
       <string>자막 동기화</string>
      </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/format-indent-more.png</normaloff>:/img/format-indent-more.png</iconset>
+     </property>
      <addaction name="subtitle_sync_current_action" />
      <addaction name="separator" />
      <addaction name="subtitle_sync_increase_action" />
@@ -197,12 +229,20 @@
      <property name="title" >
       <string>자막 위치</string>
      </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/format-line-spacing-normal.png</normaloff>:/img/format-line-spacing-normal.png</iconset>
+     </property>
      <addaction name="subtitle_step_up_action" />
      <addaction name="subtitle_step_down_action" />
     </widget>
     <widget class="QMenu" name="sub_channel_menu" >
      <property name="title" >
       <string>자막 채널</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/format-list-ordered.png</normaloff>:/img/format-list-ordered.png</iconset>
      </property>
      <addaction name="sub_channel_off_action" />
     </widget>
@@ -266,7 +306,7 @@
   <action name="open_file_action" >
    <property name="icon" >
     <iconset resource="rsclist.qrc" >
-     <normaloff>:/img/document-open.png</normaloff>:/img/document-open.png</iconset>
+     <normaloff>:/img/video-x-generic.png</normaloff>:/img/video-x-generic.png</iconset>
    </property>
    <property name="text" >
     <string>파일</string>
@@ -320,14 +360,14 @@
   </action>
   <action name="video_fullscreen_action" >
    <property name="checkable" >
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="icon" >
     <iconset resource="rsclist.qrc" >
      <normaloff>:/img/view-fullscreen.png</normaloff>:/img/view-fullscreen.png</iconset>
    </property>
    <property name="text" >
-    <string>전체화면</string>
+    <string>전체화면 켜기</string>
    </property>
    <property name="shortcut" >
     <string>Return</string>
@@ -480,6 +520,10 @@
    </property>
   </action>
   <action name="subtitle_add_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/list-add.png</normaloff>:/img/list-add.png</iconset>
+   </property>
    <property name="text" >
     <string>자막 추가</string>
    </property>
@@ -501,6 +545,10 @@
   <action name="subtitle_clear_action" >
    <property name="enabled" >
     <bool>false</bool>
+   </property>
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/edit-delete.png</normaloff>:/img/edit-delete.png</iconset>
    </property>
    <property name="text" >
     <string>자막 비우기</string>
@@ -670,11 +718,19 @@
    </property>
   </action>
   <action name="about_qt_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/qt-logo.png</normaloff>:/img/qt-logo.png</iconset>
+   </property>
    <property name="text" >
     <string>Qt에 대하여</string>
    </property>
   </action>
   <action name="about_cmp_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/help-about.png</normaloff>:/img/help-about.png</iconset>
+   </property>
    <property name="text" >
     <string>CMPlayer에 대하여</string>
    </property>
@@ -796,11 +852,19 @@
    </property>
   </action>
   <action name="open_dvd_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/media-optical.png</normaloff>:/img/media-optical.png</iconset>
+   </property>
    <property name="text" >
     <string>DVD</string>
    </property>
   </action>
   <action name="play_dvd_menu_action" >
+   <property name="icon" >
+    <iconset resource="rsclist.qrc" >
+     <normaloff>:/img/view-list-details.png</normaloff>:/img/view-list-details.png</iconset>
+   </property>
    <property name="text" >
     <string>DVD 메뉴 전환</string>
    </property>

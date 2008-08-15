@@ -1,7 +1,23 @@
 <RCC>
   <qresource prefix="/" >
+    <file>img/view-list-details.png</file>
+    <file>img/qt-logo.png</file>
+    <file>img/format-indent-more.png</file>
+    <file>img/help-about.png</file>
+    <file>img/format-line-spacing-normal.png</file>
+    <file>img/edit-delete.png</file>
+    <file>img/format-list-ordered.png</file>
+    <file>img/format-list-unordered.png</file>
+    <file>img/arrow-right-double.png</file>
+    <file>img/edit-undo.png</file>
+    <file>img/zoom-fit-best.png</file>
+    <file>img/document-open-folder.png</file>
+    <file>img/video-x-generic.png</file>
+    <file>img/media-optical.png</file>
+    <file>img/view-restore.png</file>
     <file>img/format-justify-center.png</file>
     <file>img/transform-scale.png</file>
+    <file>img/transform-crop-and-resize.png</file>
     <file>img/application-exit.png</file>
     <file>img/arrow-down.png</file>
     <file>img/arrow-left.png</file>
