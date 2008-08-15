@@ -170,6 +170,7 @@ void XineStream::eventListener(void *user_data, const xine_event_t *event) {
 		qDebug() << "XINE_EVENT_UI_SET_TITLE";
 		xine_ui_data_t* data = static_cast<xine_ui_data_t*>(event->data);
 		qDebug() << "Title:" << QString::fromLocal8Bit(data->str);
+		s->updateMediaInfo();
 		break;
 	} case XINE_EVENT_UI_CHANNELS_CHANGED: {
 		qDebug() << "XINE_EVENT_UI_CHANNELS_CHANGED";
