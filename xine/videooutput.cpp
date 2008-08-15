@@ -244,14 +244,7 @@ QRect VideoOutput::osdRect(bool forScaled) const {
 	if (pos.y() < 0)
 		pos.setY(-pos.y());
 	if (forScaled) {
-		QSizeF video = m_video->size();
-		double videoRatio = ratio(m_videoSize);
-		static const double desktopRatio = Utility::desktopRatio();
-		if (videoRatio > desktopRatio)
-			video.setHeight(video.height()/(videoRatio/desktopRatio));
-		else
-			video.setWidth(video.width()*videoRatio/desktopRatio);
-		double scale = video.width()/m_videoSize.width();
+		const double scale = m_video->videoRect().width()/m_videoSize.width();
 		pos /= scale;
 		size /= scale;
 	}
