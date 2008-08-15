@@ -1,7 +1,7 @@
 #ifndef XINESEEKSLIDER_H
 #define XINESEEKSLIDER_H
 
-#include "cslider.h"
+#include "private/cslider.h"
 
 namespace Xine {
 

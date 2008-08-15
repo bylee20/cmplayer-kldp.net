@@ -1,7 +1,7 @@
 #ifndef MPLAYERVOLUMESLIDER_H
 #define MPLAYERVOLUMESLIDER_H
 
-#include "cslider.h"
+#include "private/cslider.h"
 
 namespace Xine {
 
