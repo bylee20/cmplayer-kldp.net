@@ -16,9 +16,9 @@ LIBS += -L../bin \
     -lxine
 RESOURCES += rsclist.qrc
 
-BACKEND_DIR = /media/bk/workspace/cmplayer/bin
-LIBS += -Wl,--rpath \
-    -Wl,$$BACKEND_DIR
+#BACKEND_DIR = /media/bk/workspace/cmplayer/bin
+#LIBS += -Wl,--rpath \
+#    -Wl,$$BACKEND_DIR
 
 SOURCES += pref/osdwidget.cpp \
     main.cpp \
