@@ -353,7 +353,8 @@ void MainWindow::Data::initSubtitles() {
 				files.append(all[i].absoluteFilePath());
 		}
 		subout->load(files);
-	}
+	} else
+		subout->clear();
 }
 
 void MainWindow::Data::checkClose() {
