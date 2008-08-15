@@ -57,6 +57,7 @@ private:
 	void updateVisual();
 	QSize visualSize(bool scaled) const;
 	int visualBottom() const;
+	friend class VideoWidget;
 	XineStream *m_stream;
 	xine_video_port_t *m_port;
 	QString m_driver;

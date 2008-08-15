@@ -3,6 +3,7 @@
 #include "xinestream.h"
 #include <QApplication>
 #include <QMouseEvent>
+#include "utility.h"
 
 #if (USE_XCB)
 #include <QPaintEvent>
@@ -70,11 +71,27 @@ void VideoWidget::cbFrameOutput(void *user_data, int /*video_width*/, int /*vide
 	*dest_pixel_aspect = 1;
 }
 
+QRect VideoWidget::videoRect() const {
+	if (!m_video->isExpanded())
+		return QRect(QPoint(0, 0), m_video->m_videoSize);
+	QRect rect(QPoint(), size());
+	double videoRatio = VideoOutput::ratio(m_video->m_videoSize);
+	static const double desktopRatio = Utility::desktopRatio();
+	if (videoRatio > desktopRatio)
+		rect.setHeight(rect.height()/(videoRatio/desktopRatio));
+	else
+		rect.setWidth(rect.width()*videoRatio/desktopRatio);
+	rect.setX((width()-rect.width())/2);
+	rect.setY((height()-rect.height())/2);
+	return rect;
+}
+
 void VideoWidget::mouseMoveEvent(QMouseEvent *event) {
 	if (m_video->port()) {
+		QPoint pos = videoRect().topLeft();
 		x11_rectangle_t rect;
-		rect.x = event->x();
-		rect.y = event->y();
+		rect.x = event->x() - pos.x();
+		rect.y = event->y() - pos.y();
 		rect.w = 0;
 		rect.h = 0;
 		xine_port_send_gui_data(m_video->port(), XINE_GUI_SEND_TRANSLATE_GUI_TO_VIDEO, &rect);
@@ -107,9 +124,10 @@ void VideoWidget::mousePressEvent(QMouseEvent *event) {
 		button = 0;
 	}
 	if (button && m_video->port()) {
+		QPoint pos = videoRect().topLeft();
 		x11_rectangle_t rect;
-		rect.x = event->x();
-		rect.y = event->y();
+		rect.x = event->x() - pos.x();
+		rect.y = event->y() - pos.y();
 		rect.w = 0;
 		rect.h = 0;
 		xine_port_send_gui_data(m_video->port(), XINE_GUI_SEND_TRANSLATE_GUI_TO_VIDEO, &rect);
