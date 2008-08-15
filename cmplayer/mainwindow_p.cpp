@@ -26,6 +26,7 @@
 #include <QLayout>
 #include <QFileInfo>
 #include <QUrl>
+#include <QTimer>
 
 MainWindow::Data::Data(MainWindow *p)
 : p(p), repeating(false), pausedByHiding(false), resizedByAct(false)
@@ -42,6 +43,7 @@ MainWindow::Data::Data(MainWindow *p)
 , subChannelsActions(new QActionGroup(p))
 , dock(new PlayListDock(model, p))
 , repeater(stream->repeater())
+, cursorTimer(new QTimer(p))
 {
 	ui.setupUi(p);
 }
@@ -104,6 +106,9 @@ void MainWindow::Data::init() {
 
 	model->setPlayList(recent->lastPlayList());
 	model->setCurrentRow(model->row(recent->lastSource()));
+
+	cursorTimer->setSingleShot(true);
+	cursorTimer->setInterval(5000);
 
 	setupGUI();
 
@@ -237,6 +242,8 @@ void MainWindow::Data::createConnections() {
 	connect(recent, SIGNAL(rememberCountChanged(int)), p, SLOT(updateRecentSize(int)));
 
 	connect(dock, SIGNAL(visibilityChanged(bool)), p, SLOT(adjustSizeForDock(bool)));
+
+	connect(cursorTimer, SIGNAL(timeout()), p, SLOT(hideCursor()));
 }
 
 void MainWindow::Data::registerActions() {
