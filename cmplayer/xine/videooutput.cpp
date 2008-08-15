@@ -2,7 +2,7 @@
 #include "xinepost.h"
 #include "videooutput.h"
 #include "xinestream.h"
-#include "videowidget.h"
+#include "private/videowidget.h"
 #include <QResizeEvent>
 #include <QPaintEvent>
 #include <QWidget>
