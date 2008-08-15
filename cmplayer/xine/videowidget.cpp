@@ -74,7 +74,7 @@ void VideoWidget::cbFrameOutput(void *user_data, int /*video_width*/, int /*vide
 QRectF VideoWidget::videoRect() const {
 	if (!m_video->isExpanded())
 		return QRect(QPoint(0, 0), m_video->m_videoSize);
-	QRectF rect(QPoint(), size());
+	QRectF rect(QPointF(0.0, 0.0), size());
 	double videoRatio = VideoOutput::ratio(m_video->m_videoSize);
 	static const double desktopRatio = Utility::desktopRatio();
 	if (videoRatio > desktopRatio)
