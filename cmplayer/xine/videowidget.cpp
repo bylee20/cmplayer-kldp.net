@@ -2,7 +2,6 @@
 #include "videooutput.h"
 #include "xinestream.h"
 #include <QApplication>
-#include <QDebug>
 #include <QMouseEvent>
 
 #if (USE_XCB)

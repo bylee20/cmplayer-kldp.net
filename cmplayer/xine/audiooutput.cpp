@@ -1,7 +1,6 @@
 #include "audiooutput.h"
 #include "xineengine.h"
 #include "xinestream.h"
-#include <QDebug>
 
 namespace Xine {
 

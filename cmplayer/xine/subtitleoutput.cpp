@@ -4,7 +4,7 @@
 #include "xineosd.h"
 #include "subtitleparsers.h"
 #include <QFileInfo>
-#include <QDebug>
+#include <QSet>
 
 namespace Xine {
 

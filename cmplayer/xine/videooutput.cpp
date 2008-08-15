@@ -7,7 +7,6 @@
 #include <QPaintEvent>
 #include <QWidget>
 #include <QPainter>
-#include <QDebug>
 
 namespace Xine {
 
