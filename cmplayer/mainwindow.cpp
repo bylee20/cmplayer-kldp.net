@@ -527,7 +527,6 @@ void MainWindow::slotStarted() {
 }
 
 void MainWindow::updateFinished(const Xine::MediaSource &source) {
-	qDebug() << "main finished" << source.toMrl();
 	if (source.isLocalFile())
 		d->recent->setFinished(source);
 }
