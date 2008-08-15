@@ -14,7 +14,8 @@ class Informations {
 public:
 	inline static Informations *get() {static Informations obj; return &obj;}
 	void setPrivatePath(const QString &path);
-	const QString &version() const;
+	const QString &compileVersion() const;
+	const QString &runtimeVersion() const;
 	const QString &privatePath() const;
 	const QStringList &videoOutputs() const;
 	const QStringList &audioOutputs() const;

@@ -298,7 +298,9 @@ void MainWindow::showAboutDialog() {
 	QDialog dlg(this);
 	Ui::Ui_AboutDialog ui;
 	ui.setupUi(&dlg);
-	ui.version_label->setText(ui.version_label->text().arg(Helper::version()).arg(QT_VERSION_STR));
+	ui.version_label->setText(ui.version_label->text().arg(Helper::version())
+			.arg(QT_VERSION_STR).arg(d->info->compileVersion())
+			.arg(qVersion()).arg(d->info->runtimeVersion()));
 	dlg.exec();
 }
 
