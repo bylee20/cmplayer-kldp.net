@@ -52,7 +52,7 @@ public:
 	bool isSeeking() const;
 	ABRepeater *repeater() {return m_repeater;}
 public slots:
-	void showOsdText(const QString &text, int time = 5000);
+	void showOsdText(const QString &text, int time = 3000);
 	void showTimeBar();
 	void toggleDvdMenu();
 	void play(int start);
