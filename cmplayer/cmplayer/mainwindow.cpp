@@ -324,8 +324,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 		if (set = (cursor().shape() != Qt::SizeAllCursor))
 			setCursor(Qt::SizeAllCursor);
 		move(event->globalPos() - d->dragPos);
-	}
-	if (!set)
+	} else
 		unsetCursor();
 	if (isFullScreen()) {
 		if (in)
