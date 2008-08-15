@@ -128,6 +128,11 @@ void XineOsd::drawText(const QString &text) {
 		if (size.width() > d->rect.width())
 			size.setWidth(d->rect.width());
 
+		if (size.isEmpty()) {
+			xine_osd_clear(d->buffer);
+			return;
+		}
+
 		QPixmap pixmap(size);
 		pixmap.fill(Qt::transparent);
 		QRectF rect = pixmap.rect();
