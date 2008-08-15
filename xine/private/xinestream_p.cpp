@@ -1,7 +1,5 @@
 #include "xinestream_p.h"
 #include "../xinestream.h"
-#include <QDebug>
-#include <QMutexLocker>
 #include <QEvent>
 #include <QApplication>
 

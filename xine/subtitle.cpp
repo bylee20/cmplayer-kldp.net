@@ -1,6 +1,5 @@
 #include "subtitle.h"
 #include <QFileInfo>
-#include <QDebug>
 
 namespace Xine {
 
