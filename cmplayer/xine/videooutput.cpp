@@ -33,6 +33,8 @@ VideoOutput::VideoOutput(XineStream *stream) {
 	m_video->setAttribute(Qt::WA_PaintUnclipped);
 	m_widget->installEventFilter(this);
 	m_widget->resize(400, 300);
+	m_video->resize(400, 300);
+	m_visual->resize(400, 300);
 	m_widget->setMinimumSize(40, 30);
 	m_video->setMinimumSize(10, 10);
 	m_visual->setMinimumSize(10, 10);
