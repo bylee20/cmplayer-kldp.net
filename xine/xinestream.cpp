@@ -176,6 +176,7 @@ void XineStream::eventListener(void *user_data, const xine_event_t *event) {
 		qDebug() << "XINE_EVENT_UI_CHANNELS_CHANGED";
 		s->m_audio->updateTracks();
 		s->m_subout->updateChannels();
+		s->updateMediaInfo();
 		break;
 	} case XINE_EVENT_SPU_BUTTON: {
 		xine_spu_button_t* button = static_cast<xine_spu_button_t*>(event->data);
