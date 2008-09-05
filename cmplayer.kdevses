@@ -1,10 +1,16 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="1" >
-  <Doc0 NumberOfViews="1" URL="file:///home/xylosper/cmplayer_svn/cmplayer/trunk/cmplayer/cmplayer/cmplayer.pro" >
-   <View0 Encoding="" line="18" Type="Source" />
+ <DocsAndViews NumberOfDocuments="3" >
+  <Doc0 NumberOfViews="1" URL="file:///home/xylosper/cmplayer_svn/cmplayer/trunk/cmplayer/readme" >
+   <View0 Encoding="" Type="Source" />
   </Doc0>
+  <Doc1 NumberOfViews="1" URL="file:///home/xylosper/cmplayer_svn/cmplayer/trunk/cmplayer/changes" >
+   <View0 Encoding="" line="9" Type="Source" />
+  </Doc1>
+  <Doc2 NumberOfViews="1" URL="file:///home/xylosper/cmplayer_svn/cmplayer/trunk/cmplayer/cmplayer/helper.h" >
+   <View0 Encoding="" line="13" Type="Source" />
+  </Doc2>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
