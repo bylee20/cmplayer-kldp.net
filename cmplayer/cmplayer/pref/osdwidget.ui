@@ -1,0 +1,246 @@
+<ui version="4.0" >
+ <class>Pref::Ui::OsdWidget</class>
+ <widget class="QWidget" name="Pref::Ui::OsdWidget" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>232</width>
+    <height>205</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout" >
+   <item row="0" column="0" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>글꼴</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <layout class="QHBoxLayout" name="horizontalLayout_5" >
+     <item>
+      <widget class="QLabel" name="font_label" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Preferred" hsizetype="MinimumExpanding" >
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize" >
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow" >
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <property name="text" >
+        <string>TextLabel</string>
+       </property>
+       <property name="alignment" >
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="font_button" >
+       <property name="text" >
+        <string>변경</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QLabel" name="label_3" >
+     <property name="text" >
+      <string>글자색</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <layout class="QHBoxLayout" name="horizontalLayout_4" >
+     <item>
+      <widget class="QComboBox" name="text_color_combo" >
+       <property name="minimumSize" >
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_6" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QLabel" name="label_4" >
+     <property name="text" >
+      <string>테두리색</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" >
+    <layout class="QHBoxLayout" name="horizontalLayout_3" >
+     <item>
+      <widget class="QComboBox" name="border_color_combo" >
+       <property name="minimumSize" >
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_7" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0" >
+    <widget class="QLabel" name="label_8" >
+     <property name="text" >
+      <string>크기기준</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" >
+    <layout class="QHBoxLayout" name="horizontalLayout_2" >
+     <item>
+      <widget class="QComboBox" name="scale_combo" >
+       <property name="sizeAdjustPolicy" >
+        <enum>QComboBox::AdjustToContents</enum>
+       </property>
+       <item>
+        <property name="text" >
+         <string>화면 세로 길이</string>
+        </property>
+       </item>
+       <item>
+        <property name="text" >
+         <string>화면 가로 길이</string>
+        </property>
+       </item>
+       <item>
+        <property name="text" >
+         <string>화면 대각선 길이</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="4" column="0" >
+    <widget class="QLabel" name="label_7" >
+     <property name="text" >
+      <string>글자크기</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" >
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <item>
+      <widget class="QDoubleSpinBox" name="size_spin" >
+       <property name="accelerated" >
+        <bool>true</bool>
+       </property>
+       <property name="suffix" >
+        <string> %</string>
+       </property>
+       <property name="decimals" >
+        <number>1</number>
+       </property>
+       <property name="maximum" >
+        <double>99.000000000000000</double>
+       </property>
+       <property name="singleStep" >
+        <double>0.500000000000000</double>
+       </property>
+       <property name="value" >
+        <double>10.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_4" >
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="5" column="0" colspan="2" >
+    <widget class="QCheckBox" name="high_quality_check" >
+     <property name="text" >
+      <string>고품질 모드</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2" >
+    <spacer name="verticalSpacer" >
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0" >
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
