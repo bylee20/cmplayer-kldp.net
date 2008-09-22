@@ -58,7 +58,7 @@ CONFIG -= release
 
 INCLUDEPATH += ../
 BACKEND_DIR = /home/xylosper/cmplayer/cmplayer/branches/work_for_backend/bin
-LIBS += -L../bin -lmediainfo -Wl,--rpath -Wl,$$BACKEND_DIR
+LIBS += -L../bin -Wl,--rpath -Wl,$$BACKEND_DIR
 
 QT += opengl
 
