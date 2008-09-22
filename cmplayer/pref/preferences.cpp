@@ -2,30 +2,47 @@
 #include "subtitle.h"
 #include "general.h"
 #include "interface.h"
+#include "backend.h"
 #include "../helper.h"
 #include <QSettings>
 
 namespace Pref {
+
+struct Preferences::Data {
+	General general;
+	Subtitle subtitle;
+	Interface interface;
+	BackendPref backend;
+};
 
 Preferences *get() {
 	return Preferences::get();
 }
 
 Preferences::Preferences()
-: m_general(new General()), m_subtitle(new Subtitle()), m_interface(new Interface()) {
+: d(new Data), m_gen(d->general), m_sub(d->subtitle)
+, m_iface(d->interface), m_back(d->backend) {
 	load();
 }
 
+Preferences::~Preferences() {
+	delete d;
+}
+
 void Preferences::setGeneral(const General &general) {
-	*m_general = general;
+	d->general = general;
 }
 
 void Preferences::setSubtitle(const Subtitle &subtitle) {
-	*m_subtitle = subtitle;
+	d->subtitle = subtitle;
 }
 
 void Preferences::setInterface(const Interface &interface) {
-	*m_interface = interface;
+	d->interface = interface;
+}
+
+void Preferences::setBackend(const BackendPref &backend) {
+	d->backend = backend;
 }
 
 void Preferences::load() {
@@ -33,17 +50,19 @@ void Preferences::load() {
 	int ver = set.value("Version", 0).toInt();
 	if (ver != version)
 		set.clear();
-	m_general->load(&set);
-	m_subtitle->load(&set);
-	m_interface->load(&set);
+	d->general.load(&set);
+	d->subtitle.load(&set);
+	d->interface.load(&set);
+	d->backend.load(&set);
 }
 
 void Preferences::save() const {
 	QSettings set(Helper::configFile(), QSettings::IniFormat);
 	set.setValue("Version", version);
-	m_general->save(&set);
-	m_subtitle->save(&set);
-	m_interface->save(&set);
+	d->general.save(&set);
+	d->subtitle.save(&set);
+	d->interface.save(&set);
+	d->backend.save(&set);
 }
 
 }

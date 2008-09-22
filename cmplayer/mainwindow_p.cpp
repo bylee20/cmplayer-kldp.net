@@ -9,18 +9,18 @@
 #include "pref/general.h"
 #include "pref/interface.h"
 #include "pref/subtitle.h"
-#include <xine/mediasource.h>
-#include <xine/xinestream.h>
-#include <xine/audiooutput.h>
-#include <xine/videooutput.h>
-#include <xine/subtitleoutput.h>
-#include <xine/informations.h>
-#include <xine/playlist.h>
-#include <xine/volumeslider.h>
-#include <xine/seekslider.h>
-#include <xine/xineengine.h>
-#include <xine/abrepeater.h>
-
+#include <backend/mediasource.h>
+#include <backend/playengine.h>
+#include <backend/audiooutput.h>
+#include <backend/videooutput.h>
+#include <backend/subtitleoutput.h>
+#include <backend/info.h>
+#include <backend/playlist.h>
+#include <backend/volumeslider.h>
+#include <backend/seekslider.h>
+#include <backend/abrepeater.h>
+#include <backend/factoryiface.h>
+#include <backend/manager.h>
 #include <QToolButton>
 #include <QDir>
 #include <QLayout>
@@ -28,34 +28,40 @@
 #include <QUrl>
 #include <QTimer>
 
-MainWindow::Data::Data(MainWindow *p)
-: p(p), repeating(false), pausedByHiding(false), resizedByAct(false)
-, changingOnTop(false), staysOnTop(NotStayOnTop), pref(Pref::get())
-, stream(Xine::XineEngine::get()->createStream())
-, audio(stream->audio()), video(stream->video())
-, subout(stream->subtitle())
-, model(new PlayListModel(stream, p))
-, info(Xine::Informations::get())
-, recent(RecentInfo::get())
-, pmb(new PlayMenuBar(p)), onTopActions(new QActionGroup(p))
-, videoSizeActions(new QActionGroup(p)), videoAspectActions(new QActionGroup(p))
-, videoCropActions(new QActionGroup(p)), subListActions(new QActionGroup(p))
-, subChannelsActions(new QActionGroup(p))
-, dock(new PlayListDock(model, p))
-, repeater(stream->repeater())
-, cursorTimer(new QTimer(p))
-{
+MainWindow::Data::Data(MainWindow *p) {
+	f = Backend::Manager::get()->load("libcmplayer_xine.so");
+	Helper::setCurrentFactory(f);
+	this->p = p;
+	repeating = pausedByHiding = resizedByAct = changingOnTop = false;
+	staysOnTop = NotStayOnTop;
+	pref = Pref::get();
+	engine = f->createPlayEngine(0);
+	audio = engine->audio();
+	video = engine->video();
+	subtitle = engine->subtitle();
+	model = new PlayListModel(engine, p);
+	recent = RecentInfo::get();
+	pmb = new PlayMenuBar(p);
+	onTopActions = new QActionGroup(p);
+	videoSizeActions = new QActionGroup(p);
+	videoAspectActions = new QActionGroup(p);
+	videoCropActions = new QActionGroup(p);
+	subListActions = new QActionGroup(p);
+	subChannelsActions = new QActionGroup(p);
+	dock = new PlayListDock(model, p);
+	repeater = engine->repeater();
+	cursorTimer = new QTimer(p);
+	
 	ui.setupUi(p);
 }
 
 MainWindow::Data::~Data() {
 	checkClose();
-	stream->close();
+	delete engine;
 }
 
 void MainWindow::Data::init() {
 	createConnections();
-	stream->open();
 	ui.video_on_top_only_playing_action->setData(OnlyPlaying);
 	ui.video_on_top_off_action->setData(NotStayOnTop);
 	ui.video_on_top_always_action->setData(AlwaysOnTop);
@@ -80,19 +86,19 @@ void MainWindow::Data::init() {
 	videoSizeActions->addAction(ui.video_size_350_action);
 	videoSizeActions->addAction(ui.video_size_400_action);
 
-	ui.video_aspect_auto_action->setData(Xine::VideoOutput::AR_Auto);
-	ui.video_aspect_4_3_action->setData(Xine::VideoOutput::AR_4_3);
-	ui.video_aspect_16_9_action->setData(Xine::VideoOutput::AR_16_9);
-	ui.video_aspect_211_100_action->setData(Xine::VideoOutput::AR_211_100);
+	ui.video_aspect_auto_action->setData(Backend::VideoOutput::AspectRatioAuto);
+	ui.video_aspect_4_3_action->setData(4.0/3.0);
+	ui.video_aspect_16_9_action->setData(16.0/9.0);
+	ui.video_aspect_211_100_action->setData(2.11/1.0);
 	videoAspectActions->addAction(ui.video_aspect_auto_action);
 	videoAspectActions->addAction(ui.video_aspect_4_3_action);
 	videoAspectActions->addAction(ui.video_aspect_16_9_action);
 	videoAspectActions->addAction(ui.video_aspect_211_100_action);
 
-	ui.video_crop_off_action->setData(Xine::VideoOutput::CR_Off);
-	ui.video_crop_4_3_action->setData(Xine::VideoOutput::CR_4_3);
-	ui.video_crop_16_9_action->setData(Xine::VideoOutput::CR_16_9);
-	ui.video_crop_2_35_1_action->setData(Xine::VideoOutput::CR_211_100);
+	ui.video_crop_off_action->setData(Backend::VideoOutput::CropOff);
+	ui.video_crop_4_3_action->setData(4.0/3.0);
+	ui.video_crop_16_9_action->setData(16.0/9.0);
+	ui.video_crop_2_35_1_action->setData(2.35/1.0);
 	videoCropActions->addAction(ui.video_crop_off_action);
 	videoCropActions->addAction(ui.video_crop_4_3_action);
 	videoCropActions->addAction(ui.video_crop_16_9_action);
@@ -137,9 +143,9 @@ void MainWindow::Data::setupGUI() {
 	addToolButton(ui.play_pause_action);
 	addToolButton(ui.play_stop_action);
 	addToolButton(ui.play_next_action);
-	tools.append(new Xine::SeekSlider(stream, pmb));
+	tools.append(new Backend::SeekSlider(engine, pmb));
 	addToolButton(ui.audio_mute_action);
-	tools.append(new Xine::VolumeSlider(audio, pmb));
+	tools.append(new Backend::VolumeSlider(audio, pmb));
 #undef makeToolButton
 	pmb->init(tools);
 	ui.play_bar->layout()->setMargin(0);
@@ -158,10 +164,10 @@ void MainWindow::Data::createConnections() {
 	connect(ui.recent_clear_action, SIGNAL(triggered()), p, SLOT(clearRecentFiles()));
 	connect(ui.file_exit_action, SIGNAL(triggered()), qApp, SLOT(quit()));
 
-	connect(ui.play_dvd_menu_action, SIGNAL(triggered()), stream, SLOT(toggleDvdMenu()));
+	connect(ui.play_dvd_menu_action, SIGNAL(triggered()), engine, SLOT(toggleDvdMenu()));
 	connect(ui.play_show_playlist_action, SIGNAL(triggered()), p, SLOT(togglePlayListVisibility()));
 	connect(ui.play_pause_action, SIGNAL(triggered()), p, SLOT(playPause()));
-	connect(ui.play_stop_action, SIGNAL(triggered()), stream, SLOT(stop()));
+	connect(ui.play_stop_action, SIGNAL(triggered()), engine, SLOT(stop()));
 	connect(ui.play_previous_action, SIGNAL(triggered()), model, SLOT(playPrevious()));
 	connect(ui.play_next_action, SIGNAL(triggered()), model, SLOT(playNext()));
 	connect(ui.play_forward_action, SIGNAL(triggered()), p, SLOT(forward()));
@@ -193,10 +199,10 @@ void MainWindow::Data::createConnections() {
 	connect(subChannelsActions, SIGNAL(triggered(QAction*)),
 			p, SLOT(changeCurrentSubChannel(QAction*)));
 	connect(subListActions, SIGNAL(triggered(QAction*)), p, SLOT(changeCurrentSubtitles(QAction*)));
-	connect(ui.subtitle_clear_action, SIGNAL(triggered()), subout, SLOT(clear()));
+	connect(ui.subtitle_clear_action, SIGNAL(triggered()), subtitle, SLOT(clear()));
 	connect(ui.subtitle_add_action, SIGNAL(triggered()), p, SLOT(addSubtitles()));
-	connect(ui.subtitle_step_up_action, SIGNAL(triggered()), subout, SLOT(moveUp()));
-	connect(ui.subtitle_step_down_action, SIGNAL(triggered()), subout, SLOT(moveDown()));
+	connect(ui.subtitle_step_up_action, SIGNAL(triggered()), subtitle, SLOT(moveUp()));
+	connect(ui.subtitle_step_down_action, SIGNAL(triggered()), subtitle, SLOT(moveDown()));
 	connect(ui.subtitle_sync_increase_action, SIGNAL(triggered()), p, SLOT(increaseSyncDelay()));
 	connect(ui.subtitle_sync_decrease_action, SIGNAL(triggered()), p, SLOT(decreaseSyncDelay()));
 
@@ -206,18 +212,18 @@ void MainWindow::Data::createConnections() {
 	connect(ui.about_qt_action, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 	connect(ui.about_cmp_action, SIGNAL(triggered()), p, SLOT(showAboutDialog()));
 
-	connect(stream, SIGNAL(totalTimeChanged(int)), pmb, SLOT(setTotalTime(int)));
-	connect(stream, SIGNAL(tick(int)), pmb, SLOT(setCurrentTime(int)));
-	connect(stream, SIGNAL(stateChanged(Xine::State, Xine::State)),
-			p, SLOT(slotStateChanged(Xine::State)));
-	connect(stream, SIGNAL(started()), p, SLOT(slotStarted()));
-	connect(stream, SIGNAL(speedChanged(double)), p, SLOT(updateSpeed(double)));
-	connect(stream, SIGNAL(currentSourceChanged(const Xine::MediaSource&))
-			, p, SLOT(updateSource(const Xine::MediaSource&)));
-	connect(stream, SIGNAL(finished(Xine::MediaSource))
-			, p, SLOT(updateFinished(const Xine::MediaSource&)));
-	connect(stream, SIGNAL(stopped(Xine::MediaSource, int))
-			, p, SLOT(updateStopped(const Xine::MediaSource&, int)));
+	connect(engine, SIGNAL(totalTimeChanged(int)), pmb, SLOT(setTotalTime(int)));
+	connect(engine, SIGNAL(tick(int)), pmb, SLOT(setCurrentTime(int)));
+	connect(engine, SIGNAL(stateChanged(Backend::State, Backend::State)),
+			p, SLOT(slotStateChanged(Backend::State)));
+	connect(engine, SIGNAL(started()), p, SLOT(slotStarted()));
+	connect(engine, SIGNAL(speedChanged(double)), p, SLOT(updateSpeed(double)));
+	connect(engine, SIGNAL(currentSourceChanged(const Backend::MediaSource&))
+			, p, SLOT(updateSource(const Backend::MediaSource&)));
+	connect(engine, SIGNAL(finished(Backend::MediaSource))
+			, p, SLOT(updateFinished(const Backend::MediaSource&)));
+	connect(engine, SIGNAL(stopped(Backend::MediaSource, int))
+			, p, SLOT(updateStopped(const Backend::MediaSource&, int)));
 
 	connect(model, SIGNAL(currentRowChanged(int)), p, SLOT(updatePlayText()));
 	connect(model, SIGNAL(rowCountChanged(int)), p, SLOT(updatePlayText()));
@@ -229,13 +235,13 @@ void MainWindow::Data::createConnections() {
 
 	connect(audio, SIGNAL(mutedChanged(bool)), ui.audio_mute_action, SLOT(setChecked(bool)));
 
-	connect(subout, SIGNAL(syncDelayChanged(int)), p, SLOT(updateSyncDelay(int)));
-	connect(subout, SIGNAL(availableChannelsChanged(const QStringList&)),
+	connect(subtitle, SIGNAL(syncDelayChanged(int)), p, SLOT(updateSyncDelay(int)));
+	connect(subtitle, SIGNAL(availableChannelsChanged(const QStringList&)),
 			p, SLOT(updateSubChannels(const QStringList&)));
-	connect(subout, SIGNAL(currentChannelChanged(int)), p, SLOT(updateCurrentSubChannel(int)));
-	connect(subout, SIGNAL(availableSubtitlesChanged(const QStringList&)),
+	connect(subtitle, SIGNAL(currentChannelChanged(int)), p, SLOT(updateCurrentSubChannel(int)));
+	connect(subtitle, SIGNAL(availableSubtitlesChanged(const QStringList&)),
 			p, SLOT(updateSubtitles(const QStringList&)));
-	connect(subout, SIGNAL(selectedSubtitlesChanged(const QList<int>&)),
+	connect(subtitle, SIGNAL(selectedSubtitlesChanged(const QList<int>&)),
 			p, SLOT(updateCurrentSubtitleIndexes(const QList<int>&)));
 
 	connect(recent, SIGNAL(sourcesChanged(const RecentStack&)), p, SLOT(updateRecentActions(const RecentStack&)));
@@ -294,8 +300,9 @@ void MainWindow::Data::registerActions() {
 	contextMenu->addSeparator();
 	contextMenu->addAction(ui.file_exit_action);
 
-	const QMap<QString, QKeySequence> &keys = Pref::get()->interface().shortcuts;
-	for (QMap<QString, QKeySequence>::const_iterator it = keys.begin(); it != keys.end(); ++it) {
+	const Pref::Interface::KeyMap &keys = Pref::get()->interface().shortcuts();
+	Pref::Interface::KeyMap::const_iterator it = keys.begin();
+	for (; it != keys.end(); ++it) {
 		QAction *act = ac->action(it.key());
 		if (act)
 			act->setShortcut(it.value());
@@ -311,7 +318,7 @@ void MainWindow::Data::updateStaysOnTop() {
 	bool wasOnTop =  f & Qt::WindowStaysOnTopHint;
 	bool wasVisible = p->isVisible();
 	bool wasActivated = p->isActiveWindow();
-	bool isOnTop = staysOnTop == AlwaysOnTop || (staysOnTop == OnlyPlaying && stream->isPlaying());
+	bool isOnTop = staysOnTop == AlwaysOnTop || (staysOnTop == OnlyPlaying && engine->isPlaying());
 	if (wasOnTop != isOnTop) {
 		changingOnTop = true;
 		if (isOnTop)
@@ -344,58 +351,53 @@ QMenu *MainWindow::Data::findMenuIn(QMenu *menu, const QString &title) {
 void MainWindow::Data::initSubtitles() {
 	const Pref::Subtitle &subtitle = pref->subtitle();
 	QStringList files;
-	const Xine::MediaSource source = stream->currentSource();
-	if (subtitle.autoLoad != Pref::Subtitle::NoAutoLoad && source.isLocalFile()) {
-		static const QStringList NameFilter = info->subtitleFilter().toNameFilter();
+	const Backend::MediaSource source = engine->currentSource();
+	if (subtitle.autoLoad() != Pref::Subtitle::NoAutoLoad && source.isLocalFile()) {
+		Backend::Info *info = f->info();
+		const QStringList NameFilter = info->subtitleExtensions().toNameFilter();
 		QFileInfo file(source.filePath());
 		QDir dir = file.dir();
 		QFileInfoList all = dir.entryInfoList(NameFilter, QDir::Files, QDir::Name);
 		QString base = file.completeBaseName();
 		for (int i=0; i<all.size(); ++i) {
-			bool add = subtitle.autoLoad == Pref::Subtitle::SamePath;
-			if (subtitle.autoLoad == Pref::Subtitle::Matched)
-				add = base == QFileInfo(all[i]).completeBaseName();
+			bool add = (subtitle.autoLoad() == Pref::Subtitle::SamePath);
+			if (subtitle.autoLoad() == Pref::Subtitle::Matched)
+				add = (base == QFileInfo(all[i]).completeBaseName());
 			else
 				add = all[i].fileName().contains(base);
 			if (add)
 				files.append(all[i].absoluteFilePath());
 		}
-		subout->load(files);
+		this->subtitle->load(files);
 	} else
-		subout->clear();
+		this->subtitle->clear();
 }
 
 void MainWindow::Data::checkClose() {
 	static bool done = false;
 	if (done)
 		return;
-	stream->stop();
+	engine->stop();
 	recent->setLastPlayList(model->playList());
-	recent->setLastSource(stream->currentSource());
+	recent->setLastSource(engine->currentSource());
 	recent->save();
 	done = true;
 }
 
-void MainWindow::Data::open(Xine::MediaSource source) {
-	stream->stop();
-	const bool expand = !pref->subtitle().osdStyle.highQuality
-			&& pref->subtitle().displayOnMarginWhenFullScreen
+void MainWindow::Data::open(Backend::MediaSource source) {
+	engine->stop();
+	const bool expand = !pref->subtitle().osdStyle().high_quality
 			&& !source.isDisc();
 	video->expand(expand);
-	videoAspectActions->setDisabled(expand);
-	videoCropActions->setDisabled(expand);
-	ui.video_aspect_menu->setDisabled(expand);
-	ui.video_crop_menu->setDisabled(expand);
-
-	Xine::PlayList list;
+	Backend::PlayList list;
 	const Pref::General &general = pref->general();
-	if (source.isLocalFile() && general.autoAddFiles != Pref::General::DoNotAddFiles) {
-		static const QStringList NameFilter = info->videoExtensions().toNameFilter()
-				+ info->audioExtensions().toNameFilter();
+	if (source.isLocalFile() && general.autoAddFiles() != Pref::General::DoNotAddFiles) {
+		static const QStringList NameFilter = f->info()->videoExtensions().toNameFilter()
+				+ f->info()->audioExtensions().toNameFilter();
 		const QFileInfo file(source.filePath());
 		QString fileName = file.fileName();
 		QFileInfoList files = file.dir().entryInfoList(NameFilter, QDir::Files, QDir::Name);
-		bool all = general.autoAddFiles == Pref::General::AllFiles;
+		bool all = (general.autoAddFiles() == Pref::General::AllFiles);
 		bool prefix = false, suffix = false;
 		for(QFileInfoList::const_iterator it = files.begin(); it != files.end(); ++it) {
 			if (!all) {
@@ -418,7 +420,7 @@ void MainWindow::Data::open(Xine::MediaSource source) {
 						continue;
 				}
 			}
-			list.append(Xine::MediaSource(it->absoluteFilePath()));
+			list.append(Backend::MediaSource(it->absoluteFilePath()));
 		}
 		if (list.isEmpty())
 			list.append(source);

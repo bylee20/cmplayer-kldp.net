@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>362</width>
-    <height>365</height>
+    <width>387</width>
+    <height>382</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -25,14 +25,6 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>354</width>
-        <height>333</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>일반</string>
       </attribute>
@@ -303,14 +295,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>354</width>
-        <height>333</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>자막 출력</string>
       </attribute>
@@ -320,34 +304,17 @@
          <property name="title" >
           <string>자막 OSD 설정</string>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout" >
+         <layout class="QVBoxLayout" name="verticalLayout" >
           <item>
            <widget class="Pref::OsdWidget" native="1" name="osd_widget" />
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_3" >
-         <property name="title" >
-          <string>여백 출력</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout" >
           <item>
            <widget class="QLabel" name="label_3" >
             <property name="text" >
-             <string>전체 화면시에 검은 여백에도 자막을 출력합니다.
-화면 비율 및 화면 잘라내기를 이용할 수 없게 되고, 자막 OSD가 고품질 모드일땐 무시됩니다.</string>
+             <string>주) 재생엔진의 종류에 따라 일부 옵션은 무시될 수 있습니다.</string>
             </property>
             <property name="wordWrap" >
              <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="display_on_margin_check" >
-            <property name="text" >
-             <string>여백 출력 켜기</string>
             </property>
            </widget>
           </item>
@@ -362,7 +329,7 @@
          <property name="sizeHint" stdset="0" >
           <size>
            <width>0</width>
-           <height>151</height>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -370,14 +337,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>354</width>
-        <height>333</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>다중/통합자막</string>
       </attribute>

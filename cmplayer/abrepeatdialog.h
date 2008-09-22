@@ -3,12 +3,12 @@
 
 #include <QDialog>
 
-namespace Xine {class ABRepeater;}
+namespace Backend {class ABRepeater;}
 
 class ABRepeatDialog : public QDialog {
 	Q_OBJECT
 public:
-	ABRepeatDialog(Xine::ABRepeater *repeater, QWidget *parent = 0);
+	ABRepeatDialog(Backend::ABRepeater *repeater, QWidget *parent = 0);
 	~ABRepeatDialog();
 private slots:
 	void getAFromTime();

@@ -24,6 +24,7 @@ struct Helper::Data {
 
 Helper::Helper() {
 	d = new Data(this);
+	f = 0;
 }
 
 Helper::~Helper() {

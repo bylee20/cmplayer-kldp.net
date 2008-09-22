@@ -2,7 +2,7 @@
 #define OSDWIDGET_H_
 
 #include <QWidget>
-#include <xine/xineosd.h>
+#include <backend/osdstyle.h>
 #include "../ui/ui_osdwidget.h"
 
 class QComboBox;
@@ -14,9 +14,9 @@ class OsdWidget : public QWidget {
 public:
 	OsdWidget(QWidget *parent = 0);
 	~OsdWidget();
-	Xine::XineOsd::Style style() const;
+	Backend::OsdStyle style() const;
 	bool highQuality() const;
-	void setStyle(const Xine::XineOsd::Style &style);
+	void setStyle(const Backend::OsdStyle &style);
 	void setHighQuality(bool high);
 private slots:
 	void changeFont();

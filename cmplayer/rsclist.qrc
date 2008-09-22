@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/" >
+    <file>img/applications-multimedia-big.png</file>
     <file>img/view-list-details.png</file>
     <file>img/qt-logo.png</file>
     <file>img/format-indent-more.png</file>

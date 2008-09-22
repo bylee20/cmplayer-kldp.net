@@ -1,4 +1,7 @@
 TEMPLATE = subdirs
-SUBDIRS += xine \
-    cmplayer
 CONFIG += ordered
+SUBDIRS += backend \
+  xine \
+  mplayer \
+  cmplayer
+

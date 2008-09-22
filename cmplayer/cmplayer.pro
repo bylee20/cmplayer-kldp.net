@@ -1,23 +1,23 @@
 TEMPLATE = app
 CONFIG += warn_on \
     debug_and_release \
-    release
+ debug
 QT += core \
     gui
 TARGET = cmplayer
 INCLUDEPATH += ../
 DESTDIR = ../bin
 UI_DIR = ./ui
-isEmpty(PREFIX):PREFIX = /usr/local/bin
+isEmpty(PREFIX): PREFIX = /usr/local/bin
 target.path = $$PREFIX
 INSTALLS += target
+BACKEND_DIR = /home/xylosper/cmplayer/cmplayer/branches/work_for_backend/bin
 LIBS += -L../bin \
-    -lcmplayer_xine \
-    -lxine
+ -lcmplayer_backend \
+ -Wl,--rpath \
+ -Wl,$$BACKEND_DIR
 RESOURCES += rsclist.qrc
 
-#BACKEND_DIR = /home/xylosper/cmplayer_svn/cmplayer/trunk/cmplayer/bin
-#LIBS += -Wl,--rpath -Wl,$$BACKEND_DIR
 
 SOURCES += pref/osdwidget.cpp \
     main.cpp \
@@ -39,7 +39,9 @@ SOURCES += pref/osdwidget.cpp \
     pref/interfacewidget.cpp \
     pref/generalwidget.cpp \
     pref/subtitle.cpp \
-    pref/getshortcutdialog.cpp
+    pref/getshortcutdialog.cpp \
+ pref/backendwidget.cpp \
+ pref/backend.cpp
 HEADERS += pref/osdwidget.h \
     mainwindow.h \
     playmenubar.h \
@@ -61,7 +63,9 @@ HEADERS += pref/osdwidget.h \
     pref/subtitlewidget.h \
     pref/interfacewidget.h \
     pref/getshortcutdialog.h \
-    pref/generalwidget.h
+    pref/generalwidget.h \
+ pref/backendwidget.h \
+ pref/backend.h
 FORMS += selecttitledialog.ui \
     mainwindow.ui \
     playmenubar.ui \
@@ -74,4 +78,7 @@ FORMS += selecttitledialog.ui \
     pref/osdwidget.ui \
     equalizerdialog.ui \
     aboutdialog.ui \
-    abrepeatdialog.ui
+    abrepeatdialog.ui \
+ pref/backendwidget.ui
+CONFIG -= release
+

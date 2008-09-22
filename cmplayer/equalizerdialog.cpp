@@ -1,11 +1,11 @@
 #include "equalizerdialog.h"
 #include "ui/ui_equalizerdialog.h"
-#include <xine/videooutput.h>
+#include <backend/videooutput.h>
 
 struct EqualizerDialog::Data {
 	static const int MaxValue = 100;
 	Ui::Ui_EqualizerDialog ui;
-	Xine::VideoOutput *video;
+	Backend::VideoOutput *video;
 	int brightness;
 	int contrast;
 	int gamma;
@@ -13,7 +13,7 @@ struct EqualizerDialog::Data {
 	int saturation;
 };
 
-EqualizerDialog::EqualizerDialog(Xine::VideoOutput *video, QWidget *parent)
+EqualizerDialog::EqualizerDialog(Backend::VideoOutput *video, QWidget *parent)
 : QDialog(parent), d(new Data) {
 	d->video = video;
 	d->brightness = d->video->brightness();
@@ -23,10 +23,10 @@ EqualizerDialog::EqualizerDialog(Xine::VideoOutput *video, QWidget *parent)
 
 	d->ui.setupUi(this);
 
-	d->ui.brightness_spin->setValue(d->brightness);
-	d->ui.contrast_spin->setValue(d->contrast);
-	d->ui.hue_spin->setValue(d->hue);
-	d->ui.saturation_spin->setValue(d->saturation);
+	d->ui.brightness_spin->setValue(to200(d->brightness));
+	d->ui.contrast_spin->setValue(to200(d->contrast));
+	d->ui.hue_spin->setValue(to200(d->hue));
+	d->ui.saturation_spin->setValue(to200(d->saturation));
 
 	connect(d->ui.brightness_spin, SIGNAL(valueChanged(int)), this, SLOT(setBrightness(int)));
 	connect(d->ui.contrast_spin, SIGNAL(valueChanged(int)), this, SLOT(setContrast(int)));
@@ -41,23 +41,23 @@ EqualizerDialog::~EqualizerDialog() {
 }
 
 void EqualizerDialog::setBrightness(int value) {
-	d->video->setBrightness(value);
-	d->ui.brightness_spin->setValue(d->video->brightness());
+	d->video->setBrightness(to1(value));
+	d->ui.brightness_spin->setValue(to200(d->video->brightness()));
 }
 
 void EqualizerDialog::setContrast(int value) {
-	d->video->setContrast(value);
-	d->ui.contrast_spin->setValue(d->video->contrast());
+	d->video->setContrast(to1(value));
+	d->ui.contrast_spin->setValue(to200(d->video->contrast()));
 }
 
 void EqualizerDialog::setHue(int value) {
-	d->video->setHue(value);
-	d->ui.hue_spin->setValue(d->video->hue());
+	d->video->setHue(to1(value));
+	d->ui.hue_spin->setValue(to200(d->video->hue()));
 }
 
 void EqualizerDialog::setSaturation(int value) {
-	d->video->setSaturation(value);
-	d->ui.saturation_spin->setValue(d->video->saturation());
+	d->video->setSaturation(to1(value));
+	d->ui.saturation_spin->setValue(to200(d->video->saturation()));
 }
 
 void EqualizerDialog::showEvent(QShowEvent *event) {

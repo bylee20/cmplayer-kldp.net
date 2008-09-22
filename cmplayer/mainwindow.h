@@ -2,11 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <xine/xinenamespace.h>
+#include <backend/backend.h>
 
 class RecentStack;
 
-namespace Xine {class MediaSource;}
+namespace Backend {class MediaSource;}
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -33,7 +33,7 @@ private slots:
 	void openRecent();
 	void changeAspectRatio(QAction *act);
 	void changeStaysOnTop(QAction *act);
-	void slotStateChanged(Xine::State state);
+	void slotStateChanged(Backend::State state);
 	void slotResized();
 	void setVideoSize(double rate);
 	void changeVideoSize(QAction *act);
@@ -82,9 +82,9 @@ private slots:
 	void executeWizard();
 	void slotStarted();
 	void slotFullScreen();
-	void updateSource(const Xine::MediaSource &source);
-	void updateFinished(const Xine::MediaSource &source);
-	void updateStopped(const Xine::MediaSource &source, int time);
+	void updateSource(const Backend::MediaSource &source);
+	void updateFinished(const Backend::MediaSource &source);
+	void updateStopped(const Backend::MediaSource &source, int time);
 	void hideCursor();
 private:
 	Q_DISABLE_COPY(MainWindow)

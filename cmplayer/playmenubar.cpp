@@ -1,6 +1,6 @@
 #include "playmenubar.h"
 #include "ui/ui_playmenubar.h"
-#include <xine/utility.h>
+#include <backend/utility.h>
 
 struct PlayMenuBar::Data {
 	Data(PlayMenuBar *parent) : p(parent) {ui.setupUi(p);}
@@ -33,13 +33,13 @@ void PlayMenuBar::setPlayText(const QString &text) {
 }
 
 void PlayMenuBar::setTotalTime(int ms) {
-	d->ui.total_time_label->setText(Xine::Utility::msecsToString(ms));
+	d->ui.total_time_label->setText(Backend::Utility::msecsToString(ms));
 }
 
 void PlayMenuBar::setCurrentTime(int ms) {
 	static int before = -1;
 	if (ms != before) {
-		d->ui.current_time_label->setText(Xine::Utility::msecsToString(ms));
+		d->ui.current_time_label->setText(Backend::Utility::msecsToString(ms));
 		before = ms;
 	}
 }

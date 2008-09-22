@@ -2,9 +2,9 @@
 #include "recentinfo.h"
 #include <QUrl>
 #include <QFont>
-#include <xine/mediasource.h>
-#include <xine/playlist.h>
-#include <xine/xinestream.h>
+#include <backend/mediasource.h>
+#include <backend/playlist.h>
+#include <backend/playengine.h>
 
 struct PlayListModel::Data {
 	inline bool isValid(int row) { return row >=0 && row < list.size();}
@@ -19,8 +19,8 @@ struct PlayListModel::Data {
 		emitDataChanged(temp);
 		if (curRow != -1) {
 			emitDataChanged(curRow);
-			if (stream && stream->currentSource() != list[curRow])
-				stream->setCurrentSource(list[curRow]);
+			if (engine && engine->currentSource() != list[curRow])
+				engine->setCurrentSource(list[curRow]);
 		}
 		emit p->currentRowChanged(curRow);
 		return true;
@@ -29,29 +29,29 @@ struct PlayListModel::Data {
 		emit p->dataChanged(p->index(row, 0), p->index(row, p->columnCount()-1));
 	}
 	PlayListModel *p;
-	Xine::PlayList list;
+	Backend::PlayList list;
 	QFont font;
-	Xine::XineStream *stream;
+	Backend::PlayEngine *engine;
 	int curRow;
 	bool loop;
 };
 
-PlayListModel::PlayListModel(Xine::XineStream *stream, QObject *parent)
+PlayListModel::PlayListModel(Backend::PlayEngine *engine, QObject *parent)
 : QAbstractTableModel(parent), d(new Data()) {
 	d->p = this;
-	d->stream = stream;
+	d->engine = engine;
 	d->loop = false;
 	d->font.setItalic(true);
 	d->font.setBold(true);
-	connect(stream, SIGNAL(finished(Xine::MediaSource))
-			, this, SLOT(slotFinished(const Xine::MediaSource&)));
+	connect(engine, SIGNAL(finished(Backend::MediaSource))
+			, this, SLOT(slotFinished(const Backend::MediaSource&)));
 }
 
 PlayListModel::~PlayListModel() {
 	delete d;
 }
 
-bool PlayListModel::setMediaSource(int row, const Xine::MediaSource &source) {
+bool PlayListModel::setMediaSource(int row, const Backend::MediaSource &source) {
 	if (!d->isValid(row))
 		return false;
 	d->list[row] = source;
@@ -59,7 +59,7 @@ bool PlayListModel::setMediaSource(int row, const Xine::MediaSource &source) {
 	return true;
 }
 
-Xine::MediaSource PlayListModel::mediaSource(int row) const {
+Backend::MediaSource PlayListModel::mediaSource(int row) const {
 	return d->list.value(row);
 }
 
@@ -81,18 +81,18 @@ bool PlayListModel::swap(int row1, int row2) {
 		return false;
 }
 
-void PlayListModel::addSources(const QList<Xine::MediaSource> &list) {
+void PlayListModel::addSources(const QList<Backend::MediaSource> &list) {
 	emit layoutAboutToBeChanged();
 	d->list += list;
 	emit rowCountChanged(d->list.size());
 	emit layoutChanged();
 }
 
-void PlayListModel::addSource(const Xine::MediaSource &source) {
+void PlayListModel::addSource(const Backend::MediaSource &source) {
 	insert(rowCount(), source);
 }
 
-bool PlayListModel::insert(int row, const Xine::MediaSource &source) {
+bool PlayListModel::insert(int row, const Backend::MediaSource &source) {
 	if (!d->isValid(row))
 		return false;
 	emit layoutAboutToBeChanged();
@@ -113,7 +113,7 @@ int PlayListModel::currentRow() const {
 	return d->curRow;
 }
 
-Xine::MediaSource PlayListModel::currentSource() const {
+Backend::MediaSource PlayListModel::currentSource() const {
 	return source(d->curRow);
 }
 
@@ -129,10 +129,10 @@ void PlayListModel::remove(int row) {
 }
 
 void PlayListModel::play(int row) {
-	if (!d->isValid(row) || !d->stream)
+	if (!d->isValid(row) || !d->engine)
 		return;
 	d->setCurrentRow(row);
-	d->stream->play(RecentInfo::get()->stoppedTime(d->list[row]));
+	d->engine->play(RecentInfo::get()->stoppedTime(d->list[row]));
 }
 
 void PlayListModel::playNext() {
@@ -155,16 +155,16 @@ bool PlayListModel::isLoopEnabled() const {
 	return d->loop;
 }
 
-Xine::MediaSource PlayListModel::source(int row) const {
+Backend::MediaSource PlayListModel::source(int row) const {
 	return d->list.value(row);
 }
 
-int PlayListModel::row(const Xine::MediaSource &source) const {
+int PlayListModel::row(const Backend::MediaSource &source) const {
 	return d->list.indexOf(source);
 }
 
-void PlayListModel::slotFinished(const Xine::MediaSource &source) {
-	if (!d->stream || !d->isValid(d->curRow) || d->list[d->curRow] != source)
+void PlayListModel::slotFinished(const Backend::MediaSource &source) {
+	if (!d->engine || !d->isValid(d->curRow) || d->list[d->curRow] != source)
 		return;
 	if (d->curRow == d->list.size()-1) {
 		emit playListFinished();
@@ -174,14 +174,14 @@ void PlayListModel::slotFinished(const Xine::MediaSource &source) {
 	playNext();
 }
 
-void PlayListModel::setPlayList(const Xine::PlayList &list) {
-	Xine::MediaSource curSrc = currentSource();
+void PlayListModel::setPlayList(const Backend::PlayList &list) {
+	Backend::MediaSource curSrc = currentSource();
 	d->list = list;
 	reset();
 	d->setCurrentRow(row(curSrc));
 }
 
-const Xine::PlayList &PlayListModel::playList() const {
+const Backend::PlayList &PlayListModel::playList() const {
 	return d->list;
 }
 
@@ -224,7 +224,7 @@ QVariant PlayListModel::data(const QModelIndex &index, int role) const {
 	const int col = index.column();
 	const int row = index.row();
 	if (role == Qt::DisplayRole) {
-		const Xine::MediaSource &source = d->list[row];
+		const Backend::MediaSource &source = d->list[row];
 		if (col == 0)
 			return source.displayName();
 		else if (col == 1)

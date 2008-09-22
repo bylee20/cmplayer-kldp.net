@@ -1,15 +1,13 @@
-#ifndef PREFERENCESPREFINTERFACEWIDGET_H
-#define PREFERENCESPREFINTERFACEWIDGET_H
+#ifndef PREF_INTERFACEWIDGET_H
+#define PREF_INTERFACEWIDGET_H
 
 #include <QWidget>
 
 class QTreeWidgetItem;
-class ActionCollection;
 
 namespace Pref {
 
 class Interface;
-namespace Ui {class Ui_InterfaceWidget;}
 
 class InterfaceWidget : public QWidget {
 	Q_OBJECT
@@ -20,9 +18,8 @@ public:
 private slots:
 	void getShortcut(QTreeWidgetItem *item);
 private:
-	Ui::Ui_InterfaceWidget *ui;
-	mutable Interface *m_interface;
-	const ActionCollection *const m_ac;
+	struct Data;
+	Data *d;
 };
 
 }

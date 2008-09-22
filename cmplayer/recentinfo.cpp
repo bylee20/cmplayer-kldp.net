@@ -2,20 +2,20 @@
 #include "helper.h"
 #include "pref/preferences.h"
 #include "pref/general.h"
-#include <xine/mediasource.h>
-#include <xine/playlist.h>
+#include <backend/mediasource.h>
+#include <backend/playlist.h>
 #include <QUrl>
 #include <QSettings>
 
 RecentStack::RecentStack(int size) {setSize(size);}
 
 struct RecentInfo::Data {
-	typedef QMap<Xine::MediaSource, qint64> StoppedMap;
+	typedef QMap<Backend::MediaSource, qint64> StoppedMap;
 	Data(): stack(DefaultRememberCount) {}
 	RecentStack stack;
 	StoppedMap stopped;
-	Xine::PlayList playList;
-	Xine::MediaSource source;
+	Backend::PlayList playList;
+	Backend::MediaSource source;
 };
 
 RecentInfo::RecentInfo(): d(new Data) {
@@ -26,19 +26,19 @@ RecentInfo::~RecentInfo() {
 	delete d;
 }
 
-void RecentInfo::setLastPlayList(const Xine::PlayList &list) {
+void RecentInfo::setLastPlayList(const Backend::PlayList &list) {
 	d->playList = list;
 }
 
-const Xine::PlayList &RecentInfo::lastPlayList() const {
+const Backend::PlayList &RecentInfo::lastPlayList() const {
 	return d->playList;
 }
 
-void RecentInfo::setLastSource(const Xine::MediaSource &source) {
+void RecentInfo::setLastSource(const Backend::MediaSource &source) {
 	d->source = source;
 }
 
-const Xine::MediaSource &RecentInfo::lastSource() const {
+const Backend::MediaSource &RecentInfo::lastSource() const {
 	return d->source;
 }
 
@@ -46,7 +46,7 @@ const RecentStack &RecentInfo::sources() const {
 	return d->stack;
 }
 
-Xine::MediaSource RecentInfo::source(int index) const {
+Backend::MediaSource RecentInfo::source(int index) const {
 	return d->stack.value(index);
 }
 
@@ -58,23 +58,23 @@ void RecentInfo::clearStack() {
 void RecentInfo::setRememberCount(int count) {
 		if (count != d->stack.size()) {d->stack.setSize(count);emit rememberCountChanged(count);}}
 
-void RecentInfo::setStopped(const Xine::MediaSource &source, qint64 time) {
-	if (Pref::get()->general().playFromStoppedPoint)
+void RecentInfo::setStopped(const Backend::MediaSource &source, qint64 time) {
+	if (Pref::get()->general().playFromStoppedPoint())
 		d->stopped[source] = time;
 }
 
-void RecentInfo::setFinished(const Xine::MediaSource &source) {
+void RecentInfo::setFinished(const Backend::MediaSource &source) {
 	d->stopped.remove(source);
 }
 
-qint64 RecentInfo::stoppedTime(const Xine::MediaSource &source) const {
-	if (Pref::get()->general().playFromStoppedPoint)
+qint64 RecentInfo::stoppedTime(const Backend::MediaSource &source) const {
+	if (Pref::get()->general().playFromStoppedPoint())
 		return d->stopped.value(source, 0);
 	else
 		return 0;
 }
 
-void RecentInfo::stackSource(const Xine::MediaSource &source) {
+void RecentInfo::stackSource(const Backend::MediaSource &source) {
 	d->stack.stack(source);
 	emit sourcesChanged(d->stack);
 }
@@ -82,28 +82,28 @@ void RecentInfo::stackSource(const Xine::MediaSource &source) {
 void RecentInfo::load() {
 	QSettings set(Helper::recentFile(), QSettings::IniFormat);
 	set.beginGroup("RecentInfo");
-	d->source = Xine::MediaSource(set.value("LastSource", QUrl()).toUrl());
+	d->source = Backend::MediaSource(set.value("LastSource", QUrl()).toUrl());
 	int size = set.beginReadArray("Recents");
-	QList<Xine::MediaSource> recents;
+	QList<Backend::MediaSource> recents;
 	for (int i=0; i<size; ++i) {
 		set.setArrayIndex(i);
-		recents.append(Xine::MediaSource(set.value("Source", QUrl()).toUrl()));
+		recents.append(Backend::MediaSource(set.value("Source", QUrl()).toUrl()));
 	}
 	set.endArray();
 	emit sourcesChanged(d->stack = recents);
 	size = set.beginReadArray("LastPlayList");
 	for (int i=0; i<size; ++i) {
 		set.setArrayIndex(i);
-		const Xine::MediaSource source(set.value("Source", QUrl()).toUrl());
+		const Backend::MediaSource source(set.value("Source", QUrl()).toUrl());
 		if (source.isValid())
 			d->playList.append(source);
 	}
 	set.endArray();
-	if (Pref::get()->general().playFromStoppedPoint) {
+	if (Pref::get()->general().playFromStoppedPoint()) {
 		const int size = set.beginReadArray("StoppedList");
 		for (int i=0; i<size; ++i) {
 			set.setArrayIndex(i);
-			const Xine::MediaSource source(set.value("Source", QUrl()).toUrl());
+			const Backend::MediaSource source(set.value("Source", QUrl()).toUrl());
 			if (source.isValid())
 				d->stopped[source] = set.value("Time", -1).toLongLong();
 		}
@@ -130,7 +130,7 @@ void RecentInfo::save() const {
 		set.setValue("Source", d->playList[i].url());
 	}
 	set.endArray();
-	if (Pref::get()->general().playFromStoppedPoint) {
+	if (Pref::get()->general().playFromStoppedPoint()) {
 		size = d->stopped.size();
 		set.beginWriteArray("StoppedList", size);
 		Data::StoppedMap::const_iterator it = d->stopped.begin();

@@ -2,14 +2,16 @@
 #include "playlistdock_p.h"
 #include "ui/ui_playlistwidget.h"
 #include "playlistmodel.h"
-#include <xine/informations.h>
-#include <xine/playlist.h>
+#include <backend/info.h>
+#include <backend/playlist.h>
 #include <QFileDialog>
 #include <QProcess>
 #include <QMessageBox>
 #include <QComboBox>
 #include <QLabel>
 #include <QPushButton>
+#include "helper.h"
+#include <backend/factoryiface.h>
 
 ShutdownDialog::ShutdownDialog(QWidget *parent)
 : QDialog(parent) {
@@ -125,7 +127,7 @@ void PlayListDock::open() {
 			trUtf8("재생 목록") + " (*.pls)");
 	if (file.isEmpty())
 		return;
-	Xine::PlayList pl;
+	Backend::PlayList pl;
 	pl.load(file);
 	d->model->setPlayList(pl);
 }
@@ -145,14 +147,14 @@ void PlayListDock::setAutoShutdown(bool shut) {
 }
 
 void PlayListDock::add() {
-	static const Xine::Informations *info = Xine::Informations::get();
-	static const QString Filter = trUtf8("비디오 파일") +' ' + info->videoExtensions().toFilter() + ";;"
+	Backend::Info *info = Helper::currentFactory()->info();
+	const QString Filter = trUtf8("비디오 파일") +' ' + info->videoExtensions().toFilter() + ";;"
 			+ trUtf8("음악 파일") + ' ' + info->audioExtensions().toFilter() + ";;"
 			+ trUtf8("모든 파일") + ' ' + "(*.*)";
 	QStringList files = QFileDialog::getOpenFileNames(this, trUtf8("파일 열기"), QString(), Filter);
-	Xine::PlayList pl;
+	Backend::PlayList pl;
 	for (int i=0; i<files.size(); ++i)
-		pl.append(Xine::MediaSource(files[i]));
+		pl.append(Backend::MediaSource(files[i]));
 	d->model->addSources(pl);
 }
 

@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>426</width>
-    <height>290</height>
+    <height>428</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -83,6 +83,15 @@
           <normaloff>:/img/preferences-desktop-keyboard.png</normaloff>:/img/preferences-desktop-keyboard.png</iconset>
         </property>
        </item>
+       <item>
+        <property name="text" >
+         <string>재생엔진</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="../rsclist.qrc" >
+          <normaloff>:/img/applications-multimedia-big.png</normaloff>:/img/applications-multimedia-big.png</iconset>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
@@ -90,16 +99,7 @@
        <property name="currentIndex" >
         <number>0</number>
        </property>
-       <widget class="QWidget" name="page" >
-        <property name="geometry" >
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>312</width>
-          <height>246</height>
-         </rect>
-        </property>
-       </widget>
+       <widget class="QWidget" name="page" />
       </widget>
      </item>
     </layout>

@@ -65,60 +65,67 @@ private:
 	QKeySequence m_key;
 };
 
+struct InterfaceWidget::Data {
+	Ui::Ui_InterfaceWidget ui;
+	Interface iface;
+	const ActionCollection *ac;
+};
 
 InterfaceWidget::InterfaceWidget(const Interface &interface, QWidget *parent)
-: QWidget(parent), ui(new Ui::Ui_InterfaceWidget), m_interface(new Interface)
-, m_ac(ActionCollection::get()) {
-	*m_interface = interface;
-	ui->setupUi(this);
-	connect(ui->shortcut_tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this,
+: QWidget(parent), d(new Data) {
+	d->ac = ActionCollection::get();
+	d->iface = interface;
+	d->ui.setupUi(this);
+	connect(d->ui.shortcut_tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)), this,
 			SLOT(getShortcut(QTreeWidgetItem*)));
 
-	QList<QAction *> acts = m_ac->wholeMenu()->actions();
+	QList<QAction *> acts = d->ac->wholeMenu()->actions();
 	for (int i=0; i<acts.size(); ++i)
-		new MenuTreeItem(ui->shortcut_tree, acts[i]);
+		new MenuTreeItem(d->ui.shortcut_tree, acts[i]);
 
 	static const QStringList MouseClickActions = Interface::mouseClickActions();
 	static const QStringList WheelScrollActions = Interface::wheelScrollActions();
-	ui->double_action_combo->addItems(MouseClickActions);
-	ui->middle_action_combo->addItems(MouseClickActions);
-	ui->scroll_action_combo->addItems(WheelScrollActions);
-	ui->double_action_combo->setCurrentIndex(m_interface->doubleClickAction);
-	ui->middle_action_combo->setCurrentIndex(m_interface->middleClickAction);
-	ui->scroll_action_combo->setCurrentIndex(m_interface->wheelScrollAction);
+	d->ui.double_action_combo->addItems(MouseClickActions);
+	d->ui.middle_action_combo->addItems(MouseClickActions);
+	d->ui.scroll_action_combo->addItems(WheelScrollActions);
+	d->ui.double_action_combo->setCurrentIndex(d->iface.doubleClickAction());
+	d->ui.middle_action_combo->setCurrentIndex(d->iface.middleClickAction());
+	d->ui.scroll_action_combo->setCurrentIndex(d->iface.wheelScrollAction());
 
-	ui->seek_spin->setValue(m_interface->seekingStep/1000);
-	ui->seek_more_spin->setValue(m_interface->seekingMoreStep/1000);
-	ui->seek_much_more_spin->setValue(m_interface->seekingMuchMoreStep/1000);
-	ui->volume_spin->setValue(m_interface->volumeStep);
+	d->ui.seek_spin->setValue(d->iface.seekingStep()/1000);
+	d->ui.seek_more_spin->setValue(d->iface.seekingMoreStep()/1000);
+	d->ui.seek_much_more_spin->setValue(d->iface.seekingMuchMoreStep()/1000);
+	d->ui.volume_spin->setValue(d->iface.volumeStep());
 }
 
 InterfaceWidget::~InterfaceWidget() {
-	delete m_interface;
-	delete ui;
+	delete d;
 }
 
 const Interface &InterfaceWidget::interface() const {
-	m_interface->shortcuts.clear();
-	for (int i=0; i<ui->shortcut_tree->topLevelItemCount(); ++i)
-		static_cast<MenuTreeItem*>(ui->shortcut_tree->topLevelItem(i))->applyShortcut();
-	QList<QAction*> acts = m_ac->actions();
+	Interface::KeyMap map;
+	for (int i=0; i<d->ui.shortcut_tree->topLevelItemCount(); ++i) {
+		QTreeWidgetItem *item = d->ui.shortcut_tree->topLevelItem(i);
+		static_cast<MenuTreeItem*>(item)->applyShortcut();
+	}
+	QList<QAction*> acts = d->ac->actions();
 	for (int i=0; i<acts.size(); ++i)
-		m_interface->shortcuts[m_ac->name(acts[i])] = acts[i]->shortcut();
-//	acts = m_ac->customMenu()->actions();
-//	for (int i=0; i<acts.size(); ++i)
-//		m_ac->customMenu()->removeAction(acts[i]);
+		map[d->ac->name(acts[i])] = acts[i]->shortcut();
+	d->iface.setShortcuts(map);
 
-	m_interface->doubleClickAction = Interface::MouseClickAction(ui->double_action_combo->currentIndex());
-	m_interface->middleClickAction = Interface::MouseClickAction(ui->middle_action_combo->currentIndex());
-	m_interface->wheelScrollAction = Interface::WheelScrollAction(ui->scroll_action_combo->currentIndex());
+	int idx = d->ui.double_action_combo->currentIndex();
+	d->iface.setDoubleClickAction(static_cast<Interface::MouseClickAction>(idx));
+	idx = d->ui.middle_action_combo->currentIndex();
+	d->iface.setMiddleClickAction(static_cast<Interface::MouseClickAction>(idx));
+	idx = d->ui.scroll_action_combo->currentIndex();
+	d->iface.setWheelScrollAction(static_cast<Interface::WheelScrollAction>(idx));
 
-	m_interface->seekingStep = ui->seek_spin->value()*1000;
-	m_interface->seekingMoreStep = ui->seek_more_spin->value()*1000;
-	m_interface->seekingMuchMoreStep = ui->seek_much_more_spin->value()*1000;
-	m_interface->volumeStep = ui->volume_spin->value();
+	d->iface.setSeekingStep(d->ui.seek_spin->value()*1000);
+	d->iface.setSeekingMoreStep(d->ui.seek_more_spin->value()*1000);
+	d->iface.setSeekingMuchMoreStep(d->ui.seek_much_more_spin->value()*1000);
+	d->iface.setVolumeStep(d->ui.volume_spin->value());
 
-	return *m_interface;
+	return d->iface;
 }
 
 void InterfaceWidget::getShortcut(QTreeWidgetItem *item) {

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>373</width>
-    <height>275</height>
+    <width>397</width>
+    <height>322</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -22,18 +22,10 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>365</width>
-        <height>243</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>일반</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4" >
+      <layout class="QVBoxLayout" name="verticalLayout_6" >
        <item>
         <widget class="QGroupBox" name="groupBox_4" >
          <property name="title" >
@@ -97,7 +89,7 @@
          <property name="title" >
           <string>재생</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_6" >
+         <layout class="QVBoxLayout" name="verticalLayout_4" >
           <item>
            <widget class="QCheckBox" name="pause_check" >
             <property name="text" >
@@ -152,125 +144,15 @@
             </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0" >
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_2" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>365</width>
-        <height>243</height>
-       </rect>
-      </property>
-      <attribute name="title" >
-       <string>오디오/비디오</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_3" >
-       <item>
-        <widget class="QGroupBox" name="groupBox" >
-         <property name="title" >
-          <string>오디오</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2" >
           <item>
-           <layout class="QHBoxLayout" name="_2" >
-            <item>
-             <widget class="QLabel" name="label_3" >
-              <property name="text" >
-               <string>오디오 출력 드라이버</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="ao_combo" >
-              <property name="editable" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0" >
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+           <widget class="Line" name="line" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout" >
-            <item>
-             <widget class="QLabel" name="label_8" >
-              <property name="enabled" >
-               <bool>true</bool>
-              </property>
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text" >
-               <string>볼륨 증폭률</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSpinBox" name="amplification_spin" >
-              <property name="accelerated" >
-               <bool>true</bool>
-              </property>
-              <property name="suffix" >
-               <string> %</string>
-              </property>
-              <property name="maximum" >
-               <number>200</number>
-              </property>
-              <property name="value" >
-               <number>100</number>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer" >
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0" >
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QHBoxLayout" name="_4" >
+           <layout class="QHBoxLayout" name="horizontalLayout_2" >
             <item>
              <widget class="QCheckBox" name="reset_volume_check" >
               <property name="text" >
@@ -282,83 +164,38 @@
              </widget>
             </item>
             <item>
-             <spacer>
+             <spacer name="spacer" >
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
               <property name="sizeHint" stdset="0" >
                <size>
-                <width>0</width>
+                <width>10</width>
                 <height>0</height>
                </size>
               </property>
              </spacer>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="_5" >
-              <item>
-               <widget class="QLabel" name="label_7" >
-                <property name="text" >
-                 <string>0</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QSlider" name="volume_slider" >
-                <property name="maximum" >
-                 <number>100</number>
-                </property>
-                <property name="orientation" >
-                 <enum>Qt::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_2" >
-         <property name="title" >
-          <string>비디오</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout" >
-          <item>
-           <layout class="QHBoxLayout" >
-            <item>
-             <widget class="QLabel" name="label_2" >
+             <widget class="QLabel" name="label_9" >
               <property name="text" >
-               <string>비디오 출력 드라이버</string>
+               <string>0</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="vo_combo" >
-              <property name="editable" >
-               <bool>false</bool>
+             <widget class="QSlider" name="volume_slider" >
+              <property name="maximum" >
+               <number>100</number>
               </property>
-             </widget>
-            </item>
-            <item>
-             <spacer>
               <property name="orientation" >
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeHint" stdset="0" >
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-             </spacer>
+             </widget>
             </item>
            </layout>
           </item>
          </layout>
-         <zorder></zorder>
         </widget>
        </item>
        <item>

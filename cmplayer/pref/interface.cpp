@@ -19,21 +19,21 @@ QStringList Interface::wheelScrollActions() {
 
 void Interface::load(QSettings *set) {
 	set->beginGroup("Interface");
-	seekingStep = set->value("SeekingStep", DefaultSeekingStep).toInt();
-	seekingMoreStep = set->value("SeekingMoreStep", DefaultSeekingMoreStep).toInt();
-	seekingMuchMoreStep = set->value("SeekingMuchMoreStep", DefaultSeekingMuchMoreStep).toInt();
-	syncDelayStep = set->value("SyncDelayStep", DefualtSyncDelayStep).toInt();
-	volumeStep = set->value("VolumeStep", DefaultVolumeStep).toInt();
-	doubleClickAction = MouseClickAction(set->value("DoubleClickAction", ToggleFullScreen).toInt());
-	middleClickAction = MouseClickAction(set->value("MiddleClickAction", TogglePlayPause).toInt());
-	wheelScrollAction = WheelScrollAction(set->value("WheelScrollAction", VolumeUpDown).toInt());
-	shortcuts.clear();
+	d->seekingStep = set->value("SeekingStep", DefaultSeekingStep).toInt();
+	d->seekingMoreStep = set->value("SeekingMoreStep", DefaultSeekingMoreStep).toInt();
+	d->seekingMuchMoreStep = set->value("SeekingMuchMoreStep", DefaultSeekingMuchMoreStep).toInt();
+	d->syncDelayStep = set->value("SyncDelayStep", DefualtSyncDelayStep).toInt();
+	d->volumeStep = set->value("VolumeStep", DefaultVolumeStep).toInt();
+	d->doubleClickAction = MouseClickAction(set->value("DoubleClickAction", ToggleFullScreen).toInt());
+	d->middleClickAction = MouseClickAction(set->value("MiddleClickAction", TogglePlayPause).toInt());
+	d->wheelScrollAction = WheelScrollAction(set->value("WheelScrollAction", VolumeUpDown).toInt());
+	d->shortcuts.clear();
 	int size = set->beginReadArray("Shortcuts");
 	for (int i=0; i<size; ++i) {
 		set->setArrayIndex(i);
 		QString name = set->value("Name", QString()).toString();
 		QKeySequence key = set->value("Key", QKeySequence()).value<QKeySequence>();
-		shortcuts[name] = key;
+		d->shortcuts[name] = key;
 	}
 	set->endArray();
 	set->endGroup();
@@ -41,18 +41,18 @@ void Interface::load(QSettings *set) {
 
 void Interface::save(QSettings *set) const {
 	set->beginGroup("Interface");
-	set->setValue("SeekingStep", seekingStep);
-	set->setValue("SeekingMoreStep", seekingMoreStep);
-	set->setValue("SeekingMuchMoreStep", seekingMuchMoreStep);
-	set->setValue("SyncDelayStep", syncDelayStep);
-	set->setValue("VolumeStep", volumeStep);
-	set->setValue("DoubleClickAction", doubleClickAction);
-	set->setValue("MiddleClickAction", middleClickAction);
-	set->setValue("WheelScrollAction", wheelScrollAction);
-	set->beginWriteArray("Shortcuts", shortcuts.size());
+	set->setValue("SeekingStep", d->seekingStep);
+	set->setValue("SeekingMoreStep", d->seekingMoreStep);
+	set->setValue("SeekingMuchMoreStep", d->seekingMuchMoreStep);
+	set->setValue("SyncDelayStep", d->syncDelayStep);
+	set->setValue("VolumeStep", d->volumeStep);
+	set->setValue("DoubleClickAction", d->doubleClickAction);
+	set->setValue("MiddleClickAction", d->middleClickAction);
+	set->setValue("WheelScrollAction", d->wheelScrollAction);
+	set->beginWriteArray("Shortcuts", d->shortcuts.size());
 	int i = -1;
-	for (QMap<QString, QKeySequence>::const_iterator it = shortcuts.begin();
-			it != shortcuts.end(); ++it) {
+	QMap<QString, QKeySequence>::const_iterator it = d->shortcuts.begin();
+	for (; it != d->shortcuts.end(); ++it) {
 		set->setArrayIndex(++i);
 		set->setValue("Name", it.key());
 		set->setValue("Key", it.value());

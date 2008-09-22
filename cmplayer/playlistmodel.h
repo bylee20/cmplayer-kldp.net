@@ -3,31 +3,30 @@
 
 #include <QAbstractTableModel>
 
-namespace Xine {
-class MediaSource;
-class PlayList;
-class XineStream;
+namespace Backend {
+class MediaSource;				class PlayList;
+class PlayEngine;
 }
 
 class PlayListModel : public QAbstractTableModel {
 	Q_OBJECT
 public:
-	PlayListModel(Xine::XineStream *stream, QObject *parent);
+	PlayListModel(Backend::PlayEngine *engine, QObject *parent);
 	~PlayListModel();
-	void setPlayList(const Xine::PlayList &list);
-	void addSources(const QList<Xine::MediaSource> &list);
-	void addSource(const Xine::MediaSource &source);
+	void setPlayList(const Backend::PlayList &list);
+	void addSources(const QList<Backend::MediaSource> &list);
+	void addSource(const Backend::MediaSource &source);
 	bool swap(int row1, int row2);
-	bool insert(int row, const Xine::MediaSource &source);
-	bool setMediaSource(int row, const Xine::MediaSource &source);
+	bool insert(int row, const Backend::MediaSource &source);
+	bool setMediaSource(int row, const Backend::MediaSource &source);
 	void setCurrentFont(const QFont &font);
-	Xine::MediaSource mediaSource(int row) const;
+	Backend::MediaSource mediaSource(int row) const;
 	int currentRow() const;
-	Xine::MediaSource currentSource() const;
-	const Xine::PlayList &playList() const;
+	Backend::MediaSource currentSource() const;
+	const Backend::PlayList &playList() const;
 	bool isLoopEnabled() const;
-	Xine::MediaSource source(int row) const;
-	int row(const Xine::MediaSource &source) const;
+	Backend::MediaSource source(int row) const;
+	int row(const Backend::MediaSource &source) const;
 	const QFont &currentFont() const;
 	int count() const;
 	int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -47,7 +46,7 @@ signals:
 	void currentRowChanged(int row);
 	void rowCountChanged(int count);
 private slots:
-	void slotFinished(const Xine::MediaSource &source);
+	void slotFinished(const Backend::MediaSource &source);
 private:
 	struct Data;
 	friend struct Data;

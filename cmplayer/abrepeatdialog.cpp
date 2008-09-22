@@ -1,15 +1,15 @@
 #include "abrepeatdialog.h"
 #include "ui/ui_abrepeatdialog.h"
-#include <xine/abrepeater.h>
-#include <xine/utility.h>
+#include <backend/abrepeater.h>
+#include <backend/utility.h>
 
 struct ABRepeatDialog::Data {
 	ABRepeatDialog *p;
 	Ui::Ui_ABRepeatDialog ui;
-	Xine::ABRepeater *repeater;
+	Backend::ABRepeater *repeater;
 };
 
-ABRepeatDialog::ABRepeatDialog(Xine::ABRepeater *repeater, QWidget *parent)
+ABRepeatDialog::ABRepeatDialog(Backend::ABRepeater *repeater, QWidget *parent)
 : QDialog(parent), d(new Data) {
 	d->repeater = repeater;
 	d->ui.setupUi(this);
@@ -26,25 +26,25 @@ ABRepeatDialog::~ABRepeatDialog() {
 }
 
 void ABRepeatDialog::start() {
-	int a = Xine::Utility::timeToMSecs(d->ui.a_time_edit->time());
-	int b = Xine::Utility::timeToMSecs(d->ui.b_time_edit->time());
+	int a = Backend::Utility::timeToMSecs(d->ui.a_time_edit->time());
+	int b = Backend::Utility::timeToMSecs(d->ui.b_time_edit->time());
 	int dif = d->ui.add_time_spin->value()*1000;
 	d->repeater->repeat(a - dif, b+ dif, d->ui.times_spin->value());
 }
 
 void ABRepeatDialog::getAFromTime() {
-	d->ui.a_time_edit->setTime(Xine::Utility::msecsToTime(d->repeater->setAToCurrentTime()));
+	d->ui.a_time_edit->setTime(Backend::Utility::msecsToTime(d->repeater->setAToCurrentTime()));
 }
 
 void ABRepeatDialog::getAFromSubtitle() {
-	d->ui.a_time_edit->setTime(Xine::Utility::msecsToTime(d->repeater->setAToSubtitleTime()));
+	d->ui.a_time_edit->setTime(Backend::Utility::msecsToTime(d->repeater->setAToSubtitleTime()));
 }
 
 void ABRepeatDialog::getBFromTime() {
-	d->ui.b_time_edit->setTime(Xine::Utility::msecsToTime(d->repeater->setBToCurrentTime()));
+	d->ui.b_time_edit->setTime(Backend::Utility::msecsToTime(d->repeater->setBToCurrentTime()));
 }
 
 void ABRepeatDialog::getBFromSubtitle() {
-	d->ui.b_time_edit->setTime(Xine::Utility::msecsToTime(d->repeater->setBToSubtitleTime()));
+	d->ui.b_time_edit->setTime(Backend::Utility::msecsToTime(d->repeater->setBToSubtitleTime()));
 }
 

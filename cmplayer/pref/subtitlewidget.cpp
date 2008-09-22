@@ -4,10 +4,15 @@
 
 namespace Pref {
 
+struct SubtitleWidget::Data {
+	Ui::Ui_SubtitleWidget ui;
+	mutable Subtitle sub;
+};
+
 SubtitleWidget::SubtitleWidget(const Subtitle &subtitle, QWidget *parent)
-: QWidget(parent), ui(new Ui::Ui_SubtitleWidget), m_subtitle(new Subtitle) {
-	*m_subtitle = subtitle;
-	ui->setupUi(this);
+: QWidget(parent), d(new Data) {
+	d->sub = subtitle;
+	d->ui.setupUi(this);
 
 	static const QStringList encs = QStringList() << "UTF-8" << "Unicode"
 		<< QObject::trUtf8("서유럽언어") + " (ISO-8859-1)"
@@ -32,40 +37,39 @@ SubtitleWidget::SubtitleWidget(const Subtitle &subtitle, QWidget *parent)
 		<< QObject::trUtf8("한국어 문자셋") + " (CP949)"
 		<< QObject::trUtf8("타이 문자셋") + " (CP874)";
 
-	ui->encoding_combo->addItems(encs);
+	d->ui.encoding_combo->addItems(encs);
 
-	const int index = encs.indexOf(QRegExp(".* \\(" + m_subtitle->encoding.toUpper() + "\\)"));
-	ui->encoding_combo->setEditText(index == -1 ? m_subtitle->encoding : encs[index]);
-	ui->init_pos_spin->setValue(m_subtitle->initialPos);
-	ui->display_on_margin_check->setChecked(m_subtitle->displayOnMarginWhenFullScreen);
-	ui->auto_load_combo->setCurrentIndex(m_subtitle->autoLoad);
-	ui->auto_select_combo->setCurrentIndex(m_subtitle->autoSelect);
-	if (m_subtitle->priority.size()) {
-		QString priority = m_subtitle->priority[0];
-		for (int i=1; i<m_subtitle->priority.size(); ++i)
-			priority += ',' + m_subtitle->priority[i];
-		ui->priority_edit->setText(priority);
+	static const QRegExp rxEncoding(".* \\(" + d->sub.encoding().toUpper() + "\\)");
+	const int idx = encs.indexOf(rxEncoding);
+	d->ui.encoding_combo->setEditText(idx == -1 ? d->sub.encoding() : encs[idx]);
+	d->ui.init_pos_spin->setValue(d->sub.initialPos());
+	d->ui.auto_load_combo->setCurrentIndex(d->sub.autoLoad());
+	d->ui.auto_select_combo->setCurrentIndex(d->sub.autoSelect());
+	if (d->sub.priority().size()) {
+		QString priority = d->sub.priority()[0];
+		for (int i=1; i<d->sub.priority().size(); ++i)
+			priority += ',' + d->sub.priority()[i];
+		d->ui.priority_edit->setText(priority);
 	}
-	ui->osd_widget->setStyle(m_subtitle->osdStyle);
+	d->ui.osd_widget->setStyle(d->sub.osdStyle());
 }
 
 SubtitleWidget::~SubtitleWidget() {
-	delete m_subtitle;
-	delete ui;
+	delete d;
 }
 
 const Subtitle &SubtitleWidget::subtitle() const {
-	QString encoding = ui->encoding_combo->currentText().trimmed();
+	QString encoding = d->ui.encoding_combo->currentText().trimmed();
 	static QRegExp rxEnc(".* \\((.*)\\)");
-	m_subtitle->encoding = (rxEnc.indexIn(encoding) != -1) ? rxEnc.cap(1) : encoding;
-	m_subtitle->initialPos = ui->init_pos_spin->value();
-	m_subtitle->priority = ui->priority_edit->text().split(',');
-	m_subtitle->autoLoad = static_cast<Subtitle::AutoLoad>(ui->auto_load_combo->currentIndex());
-	m_subtitle->autoSelect =
-			static_cast<Xine::SubtitleOutput::AutoSelect>(ui->auto_select_combo->currentIndex());
-	m_subtitle->displayOnMarginWhenFullScreen = ui->display_on_margin_check->isChecked();
-	m_subtitle->osdStyle = ui->osd_widget->style();
-	return *m_subtitle;
+	d->sub.setEncoding((rxEnc.indexIn(encoding) != -1) ? rxEnc.cap(1) : encoding);
+	d->sub.setInitialPos(d->ui.init_pos_spin->value());
+	d->sub.setPriority(d->ui.priority_edit->text().split(','));
+	int idx = d->ui.auto_load_combo->currentIndex();
+	d->sub.setAutoLoad(static_cast<Subtitle::AutoLoad>(idx));
+	idx = d->ui.auto_select_combo->currentIndex();
+	d->sub.setAutoSelect(static_cast<Backend::SubtitleOutput::AutoSelect>(idx));
+	d->sub.setOsdStyle(d->ui.osd_widget->style());
+	return d->sub;
 }
 
 }

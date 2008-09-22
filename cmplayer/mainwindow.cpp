@@ -14,14 +14,12 @@
 #include "pref/interface.h"
 #include "pref/subtitle.h"
 #include "pref/preferencesdialog.h"
-#include <xine/xineengine.h>
-#include <xine/xinestream.h>
-#include <xine/audiooutput.h>
-#include <xine/xineosd.h>
-#include <xine/mediasource.h>
-#include <xine/videooutput.h>
-#include <xine/informations.h>
-#include <xine/abrepeater.h>
+#include <backend/playengine.h>
+#include <backend/audiooutput.h>
+#include <backend/mediasource.h>
+#include <backend/videooutput.h>
+#include <backend/info.h>
+#include <backend/abrepeater.h>
 #include <QUrl>
 #include <QFileInfo>
 #include <QFileDialog>
@@ -30,12 +28,13 @@
 #include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)
-: QMainWindow(parent), d(new Data(this)) {
+: QMainWindow(parent) {
+	d = new Data(this);
 	d->init();
  	QStringList args = QApplication::arguments();
  	if (args.size() > 1) {
  		QUrl url(args.last());
-		d->open(Xine::MediaSource(url.scheme().isEmpty() ? args.last() : url));
+		d->open(Backend::MediaSource(url.scheme().isEmpty() ? args.last() : url));
  	}
 	updatePreferences();
 }
@@ -98,7 +97,7 @@ void MainWindow::updateRecentActions(const RecentStack &stack) {
 void MainWindow::openRecent() {
 	QAction *act = qobject_cast<QAction *>(sender());
 	if (act)
-		d->open(Xine::MediaSource(act->data().toUrl()));
+		d->open(Backend::MediaSource(act->data().toUrl()));
 }
 
 void MainWindow::slotResized() {
@@ -111,15 +110,15 @@ void MainWindow::updateSyncDelay(int msec) {
 }
 
 void MainWindow::crop(QAction *act) {
-	d->video->crop(static_cast<Xine::VideoOutput::CropRatio>(act->data().toInt()));
+	d->video->crop(act->data().toDouble());
 }
 
 void MainWindow::showPreferencesDialog() {
 	Pref::PreferencesDialog dlg(this);
 	if (dlg.exec()) {
 		updatePreferences();
-//		if (d->engine->isPlaying())
-//			d->engine->replay();
+		if (!d->engine->isStopped())
+			d->engine->replay();
 	}
 }
 
@@ -143,7 +142,7 @@ void MainWindow::updateCurrentSubtitleIndexes(const QList<int> &indexes) {
 void MainWindow::updateSubtitles(const QStringList &names) {
 	clearSubtitleList();
 	const int count = names.size();
-	const QList<int> &indexes = d->subout->selectedIndexes();
+	const QList<int> &indexes = d->subtitle->selectedIndexes();
 	for (int i=0; i<count; ++i) {
 		QAction *act = d->ui.subtitle_select_menu->addAction(names[i]);
 		act->setCheckable(true);
@@ -157,7 +156,7 @@ void MainWindow::updateSubtitles(const QStringList &names) {
 }
 
 void MainWindow::changeCurrentSubChannel(QAction *act) {
-	d->subout->setCurrentChannel(act->data().toInt());
+	d->subtitle->setCurrentChannel(act->data().toInt());
 }
 
 void MainWindow::updateCurrentSubChannel(int index) {
@@ -179,7 +178,7 @@ void MainWindow::updateSubChannels(const QStringList &channels) {
 			QAction *act = d->ui.sub_channel_menu->addAction(channels[i]);
 			act->setCheckable(true);
 			act->setData(i);
-			act->setChecked(d->subout->currentChannel() == i);
+			act->setChecked(d->subtitle->currentChannel() == i);
 			d->subChannelsActions->addAction(act);
 		}
 	}
@@ -188,24 +187,24 @@ void MainWindow::updateSubChannels(const QStringList &channels) {
 void MainWindow::changeCurrentSubtitles(QAction* act) {
 	if (act != d->ui.subtitle_disable_action) {
 		if (act->isChecked()) {
-			d->subout->select(act->data().toInt());
+			d->subtitle->select(act->data().toInt());
 		} else
-			d->subout->deselect(act->data().toInt());
+			d->subtitle->deselect(act->data().toInt());
 	} else
-		d->subout->deselectAll();
+		d->subtitle->deselectAll();
 }
 
 void MainWindow::addSubtitles() {
-	static const QString Filter = trUtf8("자막 파일") + ' ' + d->info->subtitleFilter().toFilter() + ";;"
+	const QString Filter = trUtf8("자막 파일") + ' ' + d->f->info()->subtitleExtensions().toFilter() + ";;"
 			+ trUtf8("모든 파일") + ' ' + "(*.*)";
 	QString dir;
-	if (d->stream->currentSource().isLocalFile()) {
-		QFileInfo info(d->stream->currentSource().filePath());
+	if (d->engine->currentSource().isLocalFile()) {
+		QFileInfo info(d->engine->currentSource().filePath());
 		dir = info.path() + '/' + info.completeBaseName();
 	}
 	const QStringList files = QFileDialog::getOpenFileNames(this, trUtf8("자막 열기"), dir, Filter);
 	if (files.size())
-		d->subout->appendSubtitles(files, true);
+		d->subtitle->appendSubtitles(files, true);
 }
 
 void MainWindow::showEqualizer() {
@@ -247,8 +246,8 @@ void MainWindow::setVideoSize(double rate) {
 		resize(size() + d->video->widgetSizeHint()*std::sqrt(rate) - d->video->widget()->size());
 }
 
-void MainWindow::slotStateChanged(Xine::State /*state*/) {
-	if (d->stream->isPlaying()) {
+void MainWindow::slotStateChanged(Backend::State /*state*/) {
+	if (d->engine->isPlaying()) {
 		d->ui.play_pause_action->setIcon(QIcon(":/img/media-playback-pause.png"));
 		d->ui.play_pause_action->setText(trUtf8("일시정지"));
 	} else {
@@ -262,16 +261,16 @@ void MainWindow::slotStateChanged(Xine::State /*state*/) {
 
 void MainWindow::hideEvent(QHideEvent *event) {
 	QMainWindow::hideEvent(event);
-	if (d->pref->general().pauseWhenMinimized && ((windowFlags() & Qt::WindowStaysOnTopHint) || !d->changingOnTop) && d->stream->isPlaying()) {
-		d->stream->pause();
+	if (d->pref->general().pauseWhenMinimized() && ((windowFlags() & Qt::WindowStaysOnTopHint) || !d->changingOnTop) && d->engine->isPlaying()) {
+		d->engine->pause();
 		d->pausedByHiding = true;
 	}
 }
 
 void MainWindow::showEvent(QShowEvent *event) {
 	QMainWindow::showEvent(event);
-	if (d->pausedByHiding && d->pref->general().playWhenRestored) {
-		d->stream->play();
+	if (d->pausedByHiding && d->pref->general().playWhenRestored()) {
+		d->engine->play();
 		d->pausedByHiding = false;
 	}
 }
@@ -282,7 +281,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 void MainWindow::changeAspectRatio(QAction *act) {
-	d->video->setAspectRatio(static_cast<Xine::VideoOutput::AspectRatio>(act->data().toInt()));
+	d->video->setAspectRatio(act->data().toDouble());
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
@@ -290,21 +289,23 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 }
 
 void MainWindow::openFile() {
-	static const QString Filter = trUtf8("비디오 파일") +' '+ d->info->videoExtensions().toFilter() +";;"
-			+ trUtf8("음악 파일") + ' ' + d->info->audioExtensions().toFilter() + ";;"
+	Backend::Info *info = d->f->info();
+	const QString Filter = trUtf8("비디오 파일") +' '+ info->videoExtensions().toFilter() +";;"
+			+ trUtf8("음악 파일") + ' ' + info->audioExtensions().toFilter() + ";;"
 			+ trUtf8("모든 파일") + ' ' + "(*.*)";
 	const QString file = QFileDialog::getOpenFileName(this, trUtf8("파일 열기"), QString(), Filter);
 	if (!file.isEmpty())
-		d->open(Xine::MediaSource(file));
+		d->open(Backend::MediaSource(file));
 }
 
 void MainWindow::showAboutDialog() {
 	QDialog dlg(this);
 	Ui::Ui_AboutDialog ui;
 	ui.setupUi(&dlg);
+	Backend::Info *info = d->f->info();
 	ui.version_label->setText(ui.version_label->text().arg(Helper::version())
-			.arg(QT_VERSION_STR).arg(d->info->compileVersion())
-			.arg(qVersion()).arg(d->info->runtimeVersion()));
+			.arg(QT_VERSION_STR).arg(info->compileVersion())
+			.arg(qVersion()).arg(info->runtimeVersion()));
 	dlg.exec();
 }
 
@@ -321,7 +322,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 	const bool dragMove = in && checkButton(Qt::LeftButton) && !isFullScreen();
 	bool set = false;
 	if (dragMove) {
-		if (set = (cursor().shape() != Qt::SizeAllCursor))
+		if ((set = (cursor().shape() != Qt::SizeAllCursor)))
 			setCursor(Qt::SizeAllCursor);
 		move(event->globalPos() - d->dragPos);
 	} else
@@ -345,13 +346,13 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 	if (checkButton(Qt::LeftButton) && !isFullScreen())
 		d->dragPos = event->globalPos() - frameGeometry().topLeft();
 	if (checkButton(Qt::MidButton))
-		d->mouseClickActions[d->pref->interface().middleClickAction]->trigger();
+		d->mouseClickActions[d->pref->interface().middleClickAction()]->trigger();
 }
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 	QMainWindow::mouseDoubleClickEvent(event);
 	if (checkButton(Qt::LeftButton) && checkInCenter())
-		d->mouseClickActions[d->pref->interface().doubleClickAction]->trigger();
+		d->mouseClickActions[d->pref->interface().doubleClickAction()]->trigger();
 }
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event) {
@@ -366,10 +367,11 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 		return;
 	}
 	const int delta = event->delta();
+	const Pref::Interface &iface = d->pref->interface();
 	if (delta > 0)
-		d->wheelScrollActions[d->pref->interface().wheelScrollAction].first->trigger();
+		d->wheelScrollActions[iface.wheelScrollAction()].first->trigger();
 	else if (delta < 0)
-		d->wheelScrollActions[d->pref->interface().wheelScrollAction].second->trigger();
+		d->wheelScrollActions[iface.wheelScrollAction()].second->trigger();
 	else {
 		event->ignore();
 		return;
@@ -390,7 +392,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 		return;
 	QList<QUrl> urls = event->mimeData()->urls();
 	if (urls.size() && urls[0].scheme() == "file")
-		d->open(Xine::MediaSource(urls[0]));
+		d->open(Backend::MediaSource(urls[0]));
 }
 
 void MainWindow::selectABSection() {
@@ -420,105 +422,93 @@ void MainWindow::adjustSizeForDock(bool visible) {
 }
 
 void MainWindow::playPause() {
-	if (d->stream->isStopped())
+	if (d->engine->isStopped())
 		d->model->play(d->model->currentRow());
-	else if (d->stream->isPlaying())
-		d->stream->pause();
+	else if (d->engine->isPlaying())
+		d->engine->pause();
 	else
-		d->stream->play();
+		d->engine->play();
 }
 
 void MainWindow::increaseSpeed() {
-	d->stream->setSpeed(d->stream->speed() + 0.1);
+	d->engine->setSpeed(d->engine->speed() + 0.1);
 }
 
 void MainWindow::decreaseSpeed() {
-	d->stream->setSpeed(d->stream->speed() - 0.1);
+	d->engine->setSpeed(d->engine->speed() - 0.1);
 }
 
 void MainWindow::restoreSpeed() {
-	d->stream->setSpeed(1.0);
+	d->engine->setSpeed(1.0);
 }
 
 void MainWindow::doubleSpeed() {
-	d->stream->setSpeed(d->stream->speed() * 2.0);
+	d->engine->setSpeed(d->engine->speed() * 2.0);
 }
 
 void MainWindow::halfSpeed() {
-	d->stream->setSpeed(d->stream->speed() * 0.5);
+	d->engine->setSpeed(d->engine->speed() * 0.5);
 }
 
 void MainWindow::increaseVolume() {
-	d->audio->setVolume(d->audio->volume() + d->pref->interface().volumeStep);
+	d->audio->setVolume(d->audio->volume() + d->pref->interface().volumeStep());
 }
 
 void MainWindow::decreaseVolume() {
-	d->audio->setVolume(d->audio->volume() - d->pref->interface().volumeStep);
+	d->audio->setVolume(d->audio->volume() - d->pref->interface().volumeStep());
 }
 
 void MainWindow::forward() {
-	if (d->stream->isSeekable())
-		d->stream->seek(d->pref->interface().seekingStep, true);
+	if (d->engine->isSeekable())
+		d->engine->seek(d->pref->interface().seekingStep(), true, isFullScreen());
 }
 
 void MainWindow::forwardMore() {
-	if (d->stream->isSeekable())
-		d->stream->seek(d->pref->interface().seekingMoreStep, true);
+	if (d->engine->isSeekable())
+		d->engine->seek(d->pref->interface().seekingMoreStep(), true, isFullScreen());
 }
 
 void MainWindow::forwardMuchMore() {
-	if (d->stream->isSeekable())
-		d->stream->seek(d->pref->interface().seekingMuchMoreStep, true);
+	if (d->engine->isSeekable())
+		d->engine->seek(d->pref->interface().seekingMuchMoreStep(), true, isFullScreen());
 }
 
 void MainWindow::backward() {
-	if (d->stream->isSeekable())
-		d->stream->seek(-d->pref->interface().seekingStep, true);
+	if (d->engine->isSeekable())
+		d->engine->seek(-d->pref->interface().seekingStep(), true, isFullScreen());
 }
 
 void MainWindow::backwardMore() {
-	if (d->stream->isSeekable())
-		d->stream->seek(-d->pref->interface().seekingMoreStep, true);
+	if (d->engine->isSeekable())
+		d->engine->seek(-d->pref->interface().seekingMoreStep(), true, isFullScreen());
 }
 
 void MainWindow::backwardMuchMore() {
-	if (d->stream->isSeekable())
-		d->stream->seek(-d->pref->interface().seekingMuchMoreStep, true);
+	if (d->engine->isSeekable())
+		d->engine->seek(-d->pref->interface().seekingMuchMoreStep(), true, isFullScreen());
 }
 
 void MainWindow::increaseSyncDelay() {
-	d->subout->addSyncDelay(d->pref->interface().syncDelayStep);
+	d->subtitle->addSyncDelay(d->pref->interface().syncDelayStep());
 }
 
 void MainWindow::decreaseSyncDelay() {
-	d->subout->addSyncDelay(-d->pref->interface().syncDelayStep);
+	d->subtitle->addSyncDelay(-d->pref->interface().syncDelayStep());
 }
-
+ 
 void MainWindow::updatePreferences() {
-	d->video->setDriver(d->pref->general().videoOutput);
-	const bool expand = !d->pref->subtitle().osdStyle.highQuality
-			&& d->pref->subtitle().displayOnMarginWhenFullScreen;
-	d->video->expand(expand);
+	d->audio->setInitialVolume(d->pref->general().resetVolume()
+			? d->pref->general().initialVolume() : -1);
 
-	d->audio->setDriver(d->pref->general().audioOutput);
-	d->audio->setVolumeAmplification(d->pref->general().volumeAmplification*0.01);
-	d->audio->setInitialVolume(d->pref->general().resetVolume
-			? d->pref->general().initialVolume : -1);
-
-	d->subout->setInitialPos(d->pref->subtitle().initialPos/100.0);
-	d->subout->osd()->setStyle(d->pref->subtitle().osdStyle);
-	d->subout->setEncoding(d->pref->subtitle().encoding);
-	d->subout->setAutoSelect(d->pref->subtitle().autoSelect);
-	d->subout->setPriority(d->pref->subtitle().priority);
-
-	d->videoAspectActions->setDisabled(expand);
-	d->videoCropActions->setDisabled(expand);
-	d->ui.video_aspect_menu->setDisabled(expand);
-	d->ui.video_crop_menu->setDisabled(expand);
+	d->subtitle->setInitialPos(d->pref->subtitle().initialPos()/100.0);
+	d->subtitle->setStyle(d->pref->subtitle().osdStyle());
+	d->subtitle->setEncoding(d->pref->subtitle().encoding());
+	d->subtitle->setAutoSelect(d->pref->subtitle().autoSelect());
+	d->subtitle->setPriority(d->pref->subtitle().priority());
 }
 
 void MainWindow::updatePlayText() {
-	Xine::MediaSource source = d->model->currentSource();
+	Backend::MediaSource source = d->model->currentSource();
 	QString text;
 	if (source.isValid()) {
 		text = source.displayName();
@@ -528,9 +518,9 @@ void MainWindow::updatePlayText() {
 			text += QString(" (%1/%2)").arg(row + 1).arg(count);
 		if (!text.isEmpty())
 			text += " - ";
-		if (d->stream->isPlaying())
+		if (d->engine->isPlaying())
 			text += trUtf8("재생중");
-		else if (d->stream->isPaused())
+		else if (d->engine->isPaused())
 			text += trUtf8("일시정지");
 		else
 			text += trUtf8("정지");
@@ -541,21 +531,20 @@ void MainWindow::updatePlayText() {
 void MainWindow::slotStarted() {
 	d->initSubtitles();
 	setVideoSize(1.0);
-	d->stream->showOsdText(trUtf8("재생 시작: %1").arg(d->stream->currentSource().displayName()));
 }
 
-void MainWindow::updateFinished(const Xine::MediaSource &source) {
+void MainWindow::updateFinished(const Backend::MediaSource &source) {
 	if (source.isLocalFile())
 		d->recent->setFinished(source);
 }
 
-void MainWindow::updateStopped(const Xine::MediaSource &source, int time) {
+void MainWindow::updateStopped(const Backend::MediaSource &source, int time) {
 	if (source.isLocalFile())
 		d->recent->setStopped(source, time);
 }
 
-void MainWindow::updateSource(const Xine::MediaSource &source) {
-	d->ui.play_dvd_menu_action->setVisible(source.isDisc() && source.discType() == Xine::DVD);
+void MainWindow::updateSource(const Backend::MediaSource &source) {
+	d->ui.play_dvd_menu_action->setVisible(source.isDisc());
 }
 
 void MainWindow::executeWizard() {
@@ -576,5 +565,5 @@ void MainWindow::slotFullScreen() {
 }
 
 void MainWindow::openDVD() {
-	d->open(Xine::MediaSource(Xine::DVD));
+	d->open(Backend::MediaSource(Backend::MediaSource::Disc, "/"));
 }

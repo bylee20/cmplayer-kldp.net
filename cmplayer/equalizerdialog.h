@@ -3,12 +3,12 @@
 
 #include <QDialog>
 
-namespace Xine {class VideoOutput;}
+namespace Backend {class VideoOutput;}
 
 class EqualizerDialog : public QDialog {
 	Q_OBJECT
 public:
-	EqualizerDialog(Xine::VideoOutput *video, QWidget *parent = 0);
+	EqualizerDialog(Backend::VideoOutput *video, QWidget *parent = 0);
 	~EqualizerDialog();
 protected:
 	void showEvent(QShowEvent *event);
@@ -20,6 +20,8 @@ private slots:
 	void resetValues();
 	void setValuesDefault();
 private:
+	static int to200(double val) {return qRound(val*200);}
+	static double to1(int val) {return qBound(-1.0, val/200.0, 1.0);}
 	struct Data;
 	Data *d;
 };

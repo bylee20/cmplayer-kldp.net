@@ -6,7 +6,8 @@
 namespace Pref {
 
 class Preferences;				class GeneralWidget;
-class SubtitleWidget;		class InterfaceWidget;
+class SubtitleWidget;			class InterfaceWidget;
+class BackendWidget;
 
 namespace Ui {class Ui_PreferencesDialog;}
 
@@ -23,6 +24,7 @@ private:
 	GeneralWidget *m_general;
 	SubtitleWidget *m_subtitle;
 	InterfaceWidget *m_interface;
+	BackendWidget *m_backend;
 };
 
 }
