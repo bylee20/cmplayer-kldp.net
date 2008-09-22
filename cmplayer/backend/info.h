@@ -5,7 +5,7 @@
 
 namespace Backend {
 
-class MediaSource;
+// class MediaSource;
 
 class Info {
 public:
@@ -30,7 +30,7 @@ public:
 	};
 	Info() {}
 	~Info() {}
-	static bool get(MediaSource *soure);
+// 	static bool get(MediaSource *soure);
 	virtual bool supportsVolumeAmplification() const {return false;}
 	virtual double maximumVolumeAmplification() const {return 1.0;}
 	virtual bool supportsExpansion() const {return false;}
