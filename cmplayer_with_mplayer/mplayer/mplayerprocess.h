@@ -3,6 +3,8 @@
 
 #include <QProcess>
 
+namespace Backend {
+
 namespace MPlayer {
 
 class PlayEngine;				class MediaInfo;
@@ -19,6 +21,8 @@ private:
 	struct Data;
 	Data *d;
 };
+
+}
 
 }
 

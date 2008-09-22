@@ -1,11 +1,13 @@
 #include "mediainfo.h"
-#include "informations.h"
-#include "mediasource.h"
+#include "info.h"
 #include <QRegExp>
 #include <QUrl>
 #include <QDebug>
-#include "dvdinfo.h"
 #include "mplayerprocess.h"
+#include <backend/mediasource.h>
+#include "config.h"
+
+namespace Backend {
 
 namespace MPlayer {
 
@@ -36,11 +38,12 @@ MediaInfo::~MediaInfo() {
 bool MediaInfo::get(const MediaSource &source) {
 	m_valid = false;
 	QStringList args = QStringList() << "-slave" << "-quiet" << "-identify"
-		<< "-vo" << "null" << "-ao" << "null" << "-vf-add" << "screenshot"
-		<< source.url().toString();
+		<< "-vo" << "null" << "-ao" << "null" << source.url().toString();
 	MPlayerProcess proc;
 	proc.setMediaInfo(this);
-	proc.start(Informations::get()->mplayerPath(), args);
+	static Info info;
+	static Config config;
+	proc.start(config.mplayer(), args);
 	if (proc.waitForStarted(1000)) {
 		proc.write("quit\n");
 		if (!proc.waitForFinished(200000))
@@ -51,5 +54,4 @@ bool MediaInfo::get(const MediaSource &source) {
 
 }
 
-
-
+}

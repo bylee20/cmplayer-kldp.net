@@ -1,12 +1,13 @@
 #include <QDebug>
 #include "videooutput.h"
 #include "playengine.h"
-#include "videowidget.h"
 #include "subtitleoutput.h"
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QEvent>
 #include <QPainter>
+
+namespace Backend {
 
 namespace MPlayer {
 
@@ -20,115 +21,23 @@ struct VideoOutput::Data {
 	static qreal ratio(const QSizeF &size) {return size.width()/size.height();}
 	static QPoint toPoint(const QSizeF &size) {return QPoint(size.width(), size.height());}
 	VideoOutput *p;
-	VideoWidget *widget;
 	MPlayer::PlayEngine *engine;
-	QWidget *visual, *video;
-	qreal cropRatio, aspectRatio;
-	int brightness, contrast, gamma, hue, saturation;
-	QSize videoSize;
-	QString driver;
-	bool enabledSoftEq, expanded;
-	qreal monitorRatio;
 };
 
-VideoOutput::VideoOutput(QWidget *parent)
- : Controller(parent), d(new Data) {
+VideoOutput::VideoOutput(PlayEngine *engine)
+: Backend::VideoOutput(engine), d(new Data) {
 	d->p = this;
-	d->widget = new VideoWidget(this, parent);
-	d->engine = 0;
-	d->visual = new QWidget(d->widget);
-	d->video = new QWidget(d->visual);
-	d->cropRatio = CropOff;
-	d->aspectRatio = AspectRatioAuto;
-	d->brightness = d->contrast = d->gamma = d->hue = d->saturation = 0;
-	d->enabledSoftEq = d->expanded = false;
-	d->monitorRatio = Data::ratio(QApplication::desktop()->size());
-	d->widget->setStyleSheet("background-color: black;");
-	d->widget->setMouseTracking(true);
-	d->widget->installEventFilter(this);
-
-	d->video->setStyleSheet("background-color: black;");
-	d->visual->setMouseTracking(true);
-	d->visual->move(0, 0);
-	d->visual->resize(40, 30);
-
-	d->video->setMouseTracking(true);
-	d->video->setAutoFillBackground(true);
-	d->video->setAttribute(Qt::WA_NoSystemBackground);
-	d->video->setAttribute(Qt::WA_StaticContents);
-	d->video->setAttribute(Qt::WA_PaintOnScreen);
-	d->video->setAttribute(Qt::WA_PaintUnclipped);
-	d->videoSize.scale(4, 3, Qt::IgnoreAspectRatio);
-	d->video->resize(40, 30);
-	d->video->installEventFilter(this);
+	d->engine = engine;
 }
 
 VideoOutput::~VideoOutput() {
 	delete d;
 }
 
-qreal VideoOutput::monitorRatio() const {
-	return d->monitorRatio;
+int VideoOutput::internalWidgetId() const {
+	return int(internalWidget()->winId());
 }
-
-PlayEngine *VideoOutput::playEngine() const {
-	return d->engine;
-}
-
-const QSize &VideoOutput::videoSize() const {
-	return d->videoSize;
-}
-
-qreal VideoOutput::aspectRatio() const {
-	return d->aspectRatio;
-}
-
-qreal VideoOutput::cropRatio() const {
-	return d->cropRatio;
-}
-
-bool VideoOutput::cropOn() const {
-	return !Data::isSame(CropOff, d->cropRatio);
-}
-
-int VideoOutput::videoWID() const {
-	return int(d->video->winId());
-}
-
-void VideoOutput::crop(qreal ratio) {
-	d->cropRatio = ratio;
-	updateVisual();
-}
-
-void VideoOutput::setAspectRatio(qreal ratio) {
-	d->aspectRatio = ratio;
-	updateVisual();
-}
-
-bool VideoOutput::eventFilter(QObject *obj, QEvent *event) {
-	if (obj == d->video && event->type() == QEvent::Paint && (!d->engine || d->engine->isStopped())) {
-		Data::drawBG(d->video);
-		return true;
-	} else if (obj == d->widget) {
-		if (event->type() == QEvent::Resize) {
-			updateVisual();
-			emit widgetResized(d->widget->size());
-			return true;
-		} else if (event->type() == QEvent::Paint) {
-			Data::drawBG(d->widget);
-			return true;
-		}
-	}
-	return Controller::eventFilter(obj, event);
-}
-
-void VideoOutput::setVideoSize(const QSize &size) {
-	if (size != d->videoSize) {
-		emit widgetSizeHintChanged(d->videoSize = size);
-		updateVisual();
-	}
-}
-
+/*
 void VideoOutput::updateVisual() {
 	SubtitleOutput *subout = d->engine->subtitleOutput();
 	const bool showMargin = subout && subout->isDisplayOnMarginEnabled();
@@ -187,81 +96,41 @@ void VideoOutput::updateVisual() {
 
 	if (subout)
 		subout->setPosScale((visual.height() + video.height())/(2*video.height()));
+}*/
+
+void VideoOutput::updateHue(double value) {
+	const int temp = qBound(-100, qRound(value*100.0), 100);
+	d->engine->tellmp("hue " + QString::number(temp) + " 1");
 }
 
-QSize VideoOutput::widgetSizeHint() const {
-	if (cropOn()) {
-		QSize hint = d->visual->size();
-		hint.scale(d->videoSize, Qt::KeepAspectRatio);
-		return hint;
-	} else
-		return d->videoSize;
+void VideoOutput::updateContrast(double value) {
+	const int temp = qBound(-100, qRound(value*100.0), 100);
+	d->engine->tellmp("contrast " + QString::number(temp) + " 1");
 }
 
-void VideoOutput::link(Controller *controller) {
-	PlayEngine *engine = qobject_cast<PlayEngine*>(controller);
-	if (engine) {
-		if (d->engine)
-			unlink(d->engine);
-		d->engine = engine;
-		connect(engine, SIGNAL(started()), this, SLOT(update()));
-		return;
-	}
+void VideoOutput::updateSaturation(double value) {
+	const int temp = qBound(-100, qRound(value*100.0), 100);
+	d->engine->tellmp("saturation " + QString::number(temp) + " 1");
 }
 
-QWidget *VideoOutput::widget() const {
-	return d->widget;
+void VideoOutput::updateBrightness(double value) {
+	const int temp = qBound(-100, qRound(value*100.0), 100);
+	d->engine->tellmp("brightness " + QString::number(temp) + " 1");
 }
 
-void VideoOutput::unlink(Controller *controller) {
-	if (d->engine && d->engine == controller) {
-		connect(d->engine, 0, this, 0);
-		d->engine = 0;
-	}
+bool VideoOutput::updateExpand(bool expand) {
+	return true;
 }
 
-#define DecalreEqProp(Prop, prop) \
-void VideoOutput::set##Prop(int value) {\
-	int temp = qBound(-100, value, 100);\
-	if (d->prop != temp) {\
-		d->prop = temp;\
-		if (d->engine) d->engine->tellmp(#prop" " + QString::number(d->prop) + " 1");}}\
-int VideoOutput::prop() const{return d->prop;}
-DecalreEqProp(Brightness, brightness)
-DecalreEqProp(Contrast, contrast)
-DecalreEqProp(Gamma, gamma)
-DecalreEqProp(Hue, hue)
-DecalreEqProp(Saturation, saturation)
-#undef setValue
+// void VideoOutput::update() {
+// 	d->engine->tellmp("brightness " + QString::number(d->brightness) + " 1");
+// 	d->engine->tellmp("contrast " + QString::number(d->contrast) + " 1");
+// 	d->engine->tellmp("gamma " + QString::number(d->gamma) + " 1");
+// 	d->engine->tellmp("hue " + QString::number(d->hue) + " 1");
+// 	d->engine->tellmp("saturation " + QString::number(d->saturation) + " 1");
+// 	updateVisual();
+// }
 
-const QString &VideoOutput::driver() const {
-	return d->driver;
-}
-
-void VideoOutput::setDriver(const QString &driver) {
-	d->driver = driver;
-}
-
-bool VideoOutput::isSoftwareEqualizerEnabled() const {
-	return d->enabledSoftEq;
-}
-
-void VideoOutput::setSoftwareEqualizerEnabled(bool enabled) {
-	d->enabledSoftEq = enabled;
-}
-
-void VideoOutput::setExpanded(bool expanded) {
-	d->expanded = expanded;
-}
-
-void VideoOutput::update() {
-	d->engine->tellmp("brightness " + QString::number(d->brightness) + " 1");
-	d->engine->tellmp("contrast " + QString::number(d->contrast) + " 1");
-	d->engine->tellmp("gamma " + QString::number(d->gamma) + " 1");
-	d->engine->tellmp("hue " + QString::number(d->hue) + " 1");
-	d->engine->tellmp("saturation " + QString::number(d->saturation) + " 1");
-	updateVisual();
 }
 
 }
-

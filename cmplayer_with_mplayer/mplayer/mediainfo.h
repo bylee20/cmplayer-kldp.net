@@ -2,12 +2,27 @@
 #define MEDIAINFO_H_
 
 #include <QSize>
+#include <QStringList>
+#include <QVector>
 
 class QSize;					class QProcess;
 
+namespace Backend {
+
+class MediaSource;
+
 namespace MPlayer {
 
-class MediaSource;				class DVDInfo;
+struct DVDInfo {
+public:
+	struct Title {
+		Title() : number(1), angles(0), length(0) {}
+		QVector<int> chapters;
+		int number, angles,  length;
+	};
+	QVector<Title> titles;
+	QStringList channels;
+};
 
 class MediaInfo {
 public:
@@ -21,10 +36,10 @@ public:
 	bool isValid() const {return m_valid;}
 	bool isDisc() const {return m_disc;}
 	const DVDInfo &dvd() const {return *m_dvd;}
-private:
-	MediaInfo();
 	bool get(const MediaSource &source);
 	bool get(const QString &parse, const MediaSource &source, QProcess *proc = 0);
+private:
+	MediaInfo();
 	friend class MediaSource;
 	friend class PlayEngine;
 	friend class MPlayerProcess;
@@ -33,6 +48,8 @@ private:
 	bool m_valid, m_hasVideo, m_disc;
 	DVDInfo *m_dvd;
 };
+
+}
 
 }
 

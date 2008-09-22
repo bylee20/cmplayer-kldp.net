@@ -1,8 +1,9 @@
 #include "mplayerprocess.h"
 #include "playengine.h"
 #include "mediainfo.h"
-#include "dvdinfo.h"
-#include "utility.h"
+#include <backend/utility.h>
+
+namespace Backend {
 
 namespace MPlayer {
 
@@ -40,16 +41,16 @@ void MPlayerProcess::interpretMessages() {
 			static QRegExp rxStated("^Playing (.+)");
 			static QRegExp rxFinished("^Exiting\\.+\\s+\\(End of file\\)");
 
-			if (matched = (rxAV.indexIn(msg) != -1)) {
+			if ((matched = (rxAV.indexIn(msg) != -1))) {
 				skip = true;
 				const qint64 msec = static_cast<int>(rxAV.cap(1).toDouble()*1000);
 				d->engine->setState(PlayingState);
 				d->engine->setCurrentTime(msec);
-			} else if (matched = msg.contains(" PAUSE ")) {
+			} else if ((matched = msg.contains(" PAUSE "))) {
 				d->engine->setState(PausedState);
-			} else if (matched = (rxStated.indexIn(msg) != -1 && (!d->info || d->info->isValid()))) {
+			} else if ((matched = (rxStated.indexIn(msg) != -1 && (!d->info || d->info->isValid())))) {
 				emit d->engine->started();
-			} else if (matched = (rxFinished.indexIn(msg) != -1)) {
+			} else if ((matched = (rxFinished.indexIn(msg) != -1))) {
 				d->engine->exiting();
 			}
 		} else if (!matched && d->info) {
@@ -92,13 +93,10 @@ void MPlayerProcess::interpretMessages() {
 					static QRegExp rxSID("^subtitle \\( sid \\): (\\d+) language: (.*)");
 					static QRegExp rxChapters("^CHAPTERS: ([\\d:,]+),$");
 					if (rxSID.indexIn(msg) != -1) {
-						Subtitle sub(DVD);
-						sub.setInternalID(rxSID.cap(1).toInt());
-						sub.setLanguage(rxSID.cap(2));
-						d->info->m_dvd->subtitles.append(sub);
+						d->info->m_dvd->channels.append(trUtf8("채널%1:%2").arg(rxSID.cap(1).toInt()).arg(rxSID.cap(2)));
 					} else if (rxChapters.indexIn(msg) != -1) {
 						QStringList times = rxChapters.cap(1).split(',');
-						QVector<qint64> &chapters = d->info->m_dvd->titles[d->dvdIdx].chapters;
+						QVector<int> &chapters = d->info->m_dvd->titles[d->dvdIdx].chapters;
 						const int size = times.size();
 						if (chapters.size() != size)
 							chapters.resize(size);
@@ -115,6 +113,8 @@ void MPlayerProcess::interpretMessages() {
 
 void MPlayerProcess::setMediaInfo(MediaInfo *info) {
 	d->info = info;
+}
+
 }
 
 }

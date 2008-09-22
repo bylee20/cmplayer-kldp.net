@@ -1,42 +1,25 @@
-#ifndef MPLAYERAUDIOOUTPUT_H
-#define MPLAYERAUDIOOUTPUT_H
+#ifndef BACKEND_MPLAYER_AUDIOOUTPUT_H
+#define BACKEND_MPLAYER_AUDIOOUTPUT_H
 
-#include "controller.h"
+#include <backend/audiooutput.h>
+
+namespace Backend {
 
 namespace MPlayer {
 
 class PlayEngine;
 
-class AudioOutput : public Controller {
+class AudioOutput : public Backend::AudioOutput {
 	Q_OBJECT
 public:
-	AudioOutput(QObject *parent = 0);
-	~AudioOutput();
-	int volume() const;
-	bool isMuted() const;
-	const QString &driver() const;
-	qreal volumeAmplification() const;
-	bool isEnabledSoftwareVolume() const;
-	void setDriver(const QString &driver);
-	void setEnabledSoftwareVolume(bool enabled);
-	void setVolumeAmplification(qreal amp);
-	int initialVolume() const;
-public slots:
-	void setInitialVolume(int value);
-	void setVolume(int value, bool relative = false);
-	void setMuted(bool muted);
-signals:
-	void volumeChanged(int value);
-	void mutedChanged(bool muted);
-protected slots:
-	void update();
-protected:
-	void link(Controller *controller);
-	void unlink(Controller *controller);
+	AudioOutput(PlayEngine *engine);
 private:
-	struct Data;
-	Data *d;
+	virtual void updateVolume(int volume);
+	virtual void updateMuted(bool muted);
+	PlayEngine *m_engine;
 };
+
+}
 
 }
 
