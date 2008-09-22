@@ -1,16 +1,13 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="3" >
-  <Doc0 NumberOfViews="1" URL="file:///home/xylosper/cmplayer_svn/cmplayer/trunk/cmplayer/readme" >
-   <View0 Encoding="" Type="Source" />
+ <DocsAndViews NumberOfDocuments="2" >
+  <Doc0 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/trunk/cmplayer/xine/private/xinestream_p.h" >
+   <View0 Encoding="" line="9" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///home/xylosper/cmplayer_svn/cmplayer/trunk/cmplayer/changes" >
-   <View0 Encoding="" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/trunk/cmplayer/xine/private/xinestream_p.cpp" >
+   <View0 Encoding="" line="27" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///home/xylosper/cmplayer_svn/cmplayer/trunk/cmplayer/cmplayer/helper.h" >
-   <View0 Encoding="" line="13" Type="Source" />
-  </Doc2>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>

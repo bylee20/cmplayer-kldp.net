@@ -2,6 +2,7 @@
 #include "../xinestream.h"
 #include <QEvent>
 #include <QApplication>
+#include <QDebug>
 
 namespace Xine {
 
@@ -24,6 +25,7 @@ void SeekThread::run() {
 			bool forward = m_time >= m_stream->currentTime();
 			int time = qBound(0, m_time + m_count*(forward? 5000 : -5000), m_stream->totalTime());
 			xine_play(m_stream->stream(), 0, time);
+			qDebug() << time << m_stream->currentTime();
 			if (m_time != m_before)
 				m_count = 0;
 			else
