@@ -1,0 +1,424 @@
+<ui version="4.0" >
+ <class>Pref::Ui::SubtitleWidget</class>
+ <widget class="QWidget" name="Pref::Ui::SubtitleWidget" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>387</width>
+    <height>382</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <property name="margin" >
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QTabWidget" name="tabs" >
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>일반</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4" >
+       <item>
+        <widget class="QGroupBox" name="auto_load_group" >
+         <property name="title" >
+          <string>자막 불러오기</string>
+         </property>
+         <property name="checkable" >
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3" >
+          <item>
+           <widget class="QLabel" name="label" >
+            <property name="text" >
+             <string>파일 재생시에 다음에 해당하는 자막을 자동으로 불러옵니다.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="spacing" >
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QComboBox" name="auto_load_combo" >
+              <property name="sizeAdjustPolicy" >
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+              <item>
+               <property name="text" >
+                <string>자막을 자동으로 불러오지 않음</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>파일과 같은 이름의 자막</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>파일 이름을 포함하는 모든 자막</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>파일과 같은 경로에 있는 모든 자막</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_2" >
+            <property name="text" >
+             <string>불러온 자막 중 다음에 해당하는 자막을 자동으로 선택합니다.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="spacing" >
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QComboBox" name="auto_select_combo" >
+              <property name="sizeAdjustPolicy" >
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+              <item>
+               <property name="text" >
+                <string>가장 첫번째 자막</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>파일과 같은 이름의 자막</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>불러온 모든 자막</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>모든 다른 언어</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2" >
+            <item>
+             <widget class="QLabel" name="label_5" >
+              <property name="text" >
+               <string>자막 파일 인코딩</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="encoding_combo" >
+              <property name="editable" >
+               <bool>true</bool>
+              </property>
+              <property name="sizeAdjustPolicy" >
+               <enum>QComboBox::AdjustToContents</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox" >
+         <property name="title" >
+          <string>자막 위치</string>
+         </property>
+         <layout class="QVBoxLayout" >
+          <property name="spacing" >
+           <number>4</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QLabel" name="label_10" >
+              <property name="text" >
+               <string>재생 시작시의 자막 표시 위치</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="init_pos_spin" >
+              <property name="maximum" >
+               <number>100</number>
+              </property>
+              <property name="value" >
+               <number>100</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QSlider" name="horizontalSlider" >
+            <property name="maximum" >
+             <number>100</number>
+            </property>
+            <property name="value" >
+             <number>100</number>
+            </property>
+            <property name="tracking" >
+             <bool>true</bool>
+            </property>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition" >
+             <enum>QSlider::NoTicks</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QLabel" name="label_13" >
+              <property name="text" >
+               <string>화면 위쪽</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0" >
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_14" >
+              <property name="text" >
+               <string>화면 아래쪽</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>0</width>
+           <height>3</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2" >
+      <attribute name="title" >
+       <string>자막 출력</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <item>
+        <widget class="QGroupBox" name="groupBox_2" >
+         <property name="title" >
+          <string>자막 OSD 설정</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout" >
+          <item>
+           <widget class="Pref::OsdWidget" native="1" name="osd_widget" />
+          </item>
+          <item>
+           <widget class="QLabel" name="label_3" >
+            <property name="text" >
+             <string>주) 재생엔진의 종류에 따라 일부 옵션은 무시될 수 있습니다.</string>
+            </property>
+            <property name="wordWrap" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_3" >
+      <attribute name="title" >
+       <string>다중/통합자막</string>
+      </attribute>
+      <layout class="QVBoxLayout" >
+       <item>
+        <widget class="QLabel" name="label_24" >
+         <property name="text" >
+          <string>통합 자막을 다음 클래스 순서대로 표시합니다. 클래스들은 ,(쉼표)로 구분합니다. 지정되지 않은 클래스는 알파벳 순으로 표시합니다.
+입력예: ENCC,EGCC,KRCC,KNCC</string>
+         </property>
+         <property name="wordWrap" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="priority_edit" >
+         <property name="text" >
+          <string>ENCC,EGCC,KRCC</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Pref::OsdWidget</class>
+   <extends>QWidget</extends>
+   <header>pref/osdwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>init_pos_spin</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>horizontalSlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>356</x>
+     <y>249</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>299</x>
+     <y>301</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>horizontalSlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>init_pos_spin</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>273</x>
+     <y>294</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>343</x>
+     <y>232</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
