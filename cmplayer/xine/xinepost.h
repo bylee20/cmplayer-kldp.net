@@ -6,6 +6,8 @@
 #include <QMap>
 #include <xine.h>
 
+namespace Backend {
+
 namespace Xine {
 
 class PostWidget;
@@ -158,6 +160,7 @@ private:
 	bool m_value;
 };
 
+}
 
 }
 

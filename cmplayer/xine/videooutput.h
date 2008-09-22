@@ -4,70 +4,61 @@
 #include <QObject>
 #include <QSize>
 #include <xine.h>
+#include <xcb/xcb.h>
+#include <QRectF>
+#include <backend/videooutput.h>
+#include <QImage>
 
-class QWidget;						class QRect;
+class QRect;
+
+namespace Backend {
 
 namespace Xine {
 
 class XineStream;					class VideoWidget;
+class PlayEngine;
 
-class VideoOutput : public QObject {
+class VideoOutput : public Backend::VideoOutput {
 	Q_OBJECT
 public:
-	enum AspectRatio {AR_Auto, AR_4_3, AR_16_9, AR_211_100};
-	enum CropRatio {CR_Off, CR_4_3, CR_16_9, CR_211_100};
-	VideoOutput(XineStream *stream);
-	void setDriver(const QString &driver);
-	const QString &driver() const {return m_driver;}
-	QWidget *widget() {return m_widget;}
-	const QSize &videoSize() const {return m_videoSize;}
-	int brightness() const;
-	int contrast() const;
-	int hue() const;
-	int saturation() const;
-	QSize widgetSizeHint() const;
+	VideoOutput(PlayEngine *engine, XineStream *stream);
+	~VideoOutput();
 	void *visual();
-	void crop(CropRatio cr);
-	void setAspectRatio(AspectRatio ar);
-	AspectRatio aspectRatio() const {return m_ar;}
 	XineStream *stream() {return m_stream;}
-	bool isExpanded() const {return m_expanded;}
 	xine_video_port_t *&port() {return m_port;}
 	QRect osdRect(bool forScaled) const;
 	void updateSizeInfo();
-	void updateSizeInfo(const QSize &size);
-public slots:
-	void expand(bool expanded);
-	void setBrightness(int value);
-	void setContrast(int value);
-	void setHue(int value);
-	void setSaturation(int value);
-	void setFullScreen(bool fs);
-signals:
-	void widgetSizeHintChanged(const QSize &size);
-	void widgetResized(const QSize &size);
-	void sizeUpdated();
+	virtual bool supportsExpansion() const {return true;}
 protected:
 	virtual bool eventFilter(QObject *obj, QEvent *event);
 private:
-	static double ratio(const QSizeF &size) {return ratio(size.width(), size.height());}
-	static double ratio(const QSize &size) {return ratio(size.width(), size.height());}
-	static double ratio(double w, double h) {return w/h;}
-	static bool isSame(double val1, double val2) {return qAbs(val1-val2) < 0.01;}
-	void updateVisual();
+	static void cbDestSize(void*, int, int, double,	int*, int*, double*);
+	static void cbFrameOutput(void*, int, int, double, int*, int*, int*, int*, double*, int*, int*);
+	static int eq(double value) {
+		return isSame(value, 0.0)
+				? 32768 : qBound(0, qRound((value + 1.0)/2.0*65535), 65535);
+	}
+	QRectF videoRect() const;
+	struct Video {
+		xcb_visual_t visual;
+		xcb_connection_t *connection;
+	};
+	virtual bool updateExpand(bool expand);
+	virtual void updateHue(double value);
+	virtual void updateContrast(double value);
+	virtual void updateSaturation(double value);
+	virtual void updateBrightness(double value);
+	friend class XineStream;
 	QSize visualSize(bool scaled) const;
-	int visualBottom() const;
-	friend class VideoWidget;
+	PlayEngine *m_engine;
+	double m_pixelAspect;
 	XineStream *m_stream;
+	Video m_video;
 	xine_video_port_t *m_port;
-	QString m_driver;
-	QSize m_videoSize;
-	QWidget *m_widget, *m_visual;
-	VideoWidget *m_video;
-	AspectRatio m_ar;
-	CropRatio m_cr;
-	bool m_expanded, m_fullScreen;
+	QImage m_image;
 };
+
+}
 
 }
 

@@ -2,34 +2,36 @@
 #include "xinestream.h"
 #include "videooutput.h"
 #include "xineosd.h"
-#include "subtitleparsers.h"
+#include <backend/subtitleparsers.h>
+#include <backend/subtitle.h>
 #include <QFileInfo>
 #include <QSet>
+#include "playengine.h"
+
+namespace Backend {
 
 namespace Xine {
 
 struct SubtitleOutput::Data {
-	Subtitle curSubtitle;
+	Subtitle *sub;
 	Subtitle::ConstIterator it;
 	int curTime;
 	bool rendering;
-	QList<Subtitle> subs;
-	QStringList channels;
 };
 
-SubtitleOutput::SubtitleOutput(XineStream *stream) {
+SubtitleOutput::SubtitleOutput(PlayEngine *engine, XineStream *stream)
+: Backend::SubtitleOutput(engine) {
 	d = new Data;
+	d->sub = const_cast<Subtitle*>(&currentSubtitle());
+	m_engine = engine;
 	m_stream = stream;
 	m_osd = new XineOsd(stream->video());
-	d->it = d->curSubtitle.end();
+	d->it = currentSubtitle().end();
 	d->curTime = -1;
-	m_delay = 0;
-	m_autoSelect = SameName;
 	d->rendering = false;
-	m_curChannel = -1;
-	m_initPos = 1.0;
-	connect(m_stream, SIGNAL(tick(int)), this, SLOT(showSubtitle(int)));
-	connect(m_stream, SIGNAL(started()), this, SLOT(update()));
+	connect(m_engine, SIGNAL(tick(int)), this, SLOT(showSubtitle(int)));
+	connect(m_engine, SIGNAL(started()), this, SLOT(update()));
+	connect(this, SIGNAL(syncDelayChanged(int)), this, SLOT(slotSyncDelayChanged(int)));
 	m_osd->setAlignment(Qt::AlignBottom | Qt::AlignHCenter);
 }
 
@@ -48,12 +50,12 @@ void SubtitleOutput::renderSubtitle(const QString &text) {
 }
 
 void SubtitleOutput::showSubtitle(int time) {
-	if (d->curSubtitle.isEmpty() || m_stream->isSeeking())
+	if (d->sub->isEmpty() || m_engine->isSeeking())
 		return;
-	d->it = d->curSubtitle.find(time -= m_delay);
-	if (d->it == d->curSubtitle.end()) {
-		d->it = d->curSubtitle.upperBound(time);
-		if (d->it == d->curSubtitle.begin())
+	d->it = d->sub->find(time -= syncDelay());
+	if (d->it == d->sub->end()) {
+		d->it = d->sub->upperBound(time);
+		if (d->it == d->sub->begin())
 			return;
 		--d->it;
 	}
@@ -63,195 +65,59 @@ void SubtitleOutput::showSubtitle(int time) {
 	}
 }
 
-void SubtitleOutput::load(const QStringList &files) {
-	clear(false);
-	for (int i=0; i<files.size(); ++i) {
-		QList<Subtitle> subs;
-		if (SubtitleParsers::parse(files[i], &subs, m_encoding))
-			d->subs += subs;
-	}
-	QSet<QString> langs;
-	QString base = QFileInfo(m_stream->currentSource().filePath()).completeBaseName();
-	for (int i=0; i<d->subs.size(); ++i) {
-		bool select = false;
-		switch(m_autoSelect) {
-		case SameName:
-			select = QFileInfo(d->subs[i].filePath()).completeBaseName() == base;
-			break;
-		case AllLoaded:
-			select = true;
-			break;
-		case EachLanguage:
-			if (select = (!langs.contains(d->subs[i].language())))
-				langs.insert(d->subs[i].language());
-			break;
-		default:
-			break;
-		}
-		if (select)
-			m_selected.append(i);
-	}
-	emit availableSubtitlesChanged(names());
-	if (!d->subs.isEmpty()) {
-		updateCurrent();
-		emit selectedSubtitlesChanged(m_selected);
-	}
+void SubtitleOutput::update() {
+	updatePos(initialPos());
 }
 
-void SubtitleOutput::clear(bool emits) {
+void SubtitleOutput::updateClear() {
 	m_osd->hide();
-	d->curSubtitle.clear();
-	d->subs.clear();
-	m_selected.clear();
-	d->channels.clear();
-	m_curChannel = -1;
-	if (emits) {
-		emit availableSubtitlesChanged(names());
-		emit selectedSubtitlesChanged(m_selected);
-		emit availableChannelsChanged(d->channels);
-		emit currentChannelChanged(m_curChannel);
+}
+
+void SubtitleOutput::setVisible(bool visible) {
+	m_osd->setVisible(visible);
+}
+
+void SubtitleOutput::slotSyncDelayChanged(int delay) {
+	QString sec(delay > 0 ? "+" : "");
+	sec += QString::number(double(delay)/1000.0);
+	m_stream->showOsdText(trUtf8("자막 싱크: %1초").arg(sec));
+}
+
+void SubtitleOutput::updateSyncDelay(int msec) {
+}
+
+void SubtitleOutput::updatePos(double pos) {
+	if (m_osd->margin(XineOsd::MBottom) != (1.0 - pos)) {
+		m_osd->setMargin(XineOsd::MBottom, 1.0 - pos);
+		m_stream->showOsdText(trUtf8("자막 위치: %1%").arg(qRound(pos*100)));
 	}
-}
-
-QStringList SubtitleOutput::names() const {
-	QStringList names;
-	for (int i=0; i<d->subs.size(); ++i)
-		names.append(d->subs[i].name());
-	return names;
-}
-
-void SubtitleOutput::updateCurrent() {
-	m_osd->hide();
-	if (m_selected.isEmpty())
-		return;
-	QList<int> order;
-	QList<int> indexes = m_selected;
-	for (int i=0; i<m_priority.size(); ++i) {
-		QString lang = m_priority[i];
-		QMutableListIterator<int> it(indexes);
-		while(it.hasNext()) {
-			if (d->subs[it.next()].language() == lang) {
-				order.append(it.value());
-				it.remove();
-			}
-		}
-	}
-	order += indexes;
-	d->curSubtitle = d->subs[order[0]];
-	for (int i=1; i<order.size(); ++i)
-		d->curSubtitle |= d->subs[order[i]];
-	d->curTime = -1;
-	d->it = d->curSubtitle.end();
-	if (!m_selected.isEmpty())
-		m_osd->show();
-}
-
-void SubtitleOutput::appendSubtitles(const QStringList &files, bool display) {
-	if (files.isEmpty())
-		return;
-	int index = d->subs.size();
-	for (int i=0; i<files.size(); ++i) {
-		QList<Subtitle> subs;
-		if (!SubtitleParsers::parse(files[i], &subs, m_encoding))
-			continue;
-		d->subs += subs;
-		if (display) {
-			for (int j=0; j<subs.size(); ++j, ++index)
-				m_selected.append(index);
-		}
-	}
-	emit availableSubtitlesChanged(names());
-	if (display) {
-		updateCurrent();
-		emit selectedSubtitlesChanged(m_selected);
-	}
-}
-
-void SubtitleOutput::select(int index) {
-	if (m_selected.contains(index) || index < 0 || index >= d->subs.size())
-		return;
-	m_selected.append(index);
-	updateCurrent();
-	emit selectedSubtitlesChanged(m_selected);
-}
-
-void SubtitleOutput::deselect(int index) {
-	const int pos = m_selected.indexOf(index);
-	if (pos != -1) {
-		m_selected.removeAt(pos);
-		updateCurrent();
-		emit selectedSubtitlesChanged(m_selected);
-	}
-}
-
-void SubtitleOutput::deselectAll() {
-	m_selected.clear();
-	updateCurrent();
-	emit selectedSubtitlesChanged(m_selected);
-}
-
-void SubtitleOutput::moveUp() {
-	move(1.0 - m_osd->margin(XineOsd::MBottom) - 0.01);
-}
-
-void SubtitleOutput::moveDown() {
-	move(1.0 - m_osd->margin(XineOsd::MBottom) + 0.01);
-}
-
-void SubtitleOutput::move(double percent) {
-	double val = qBound(0.0, percent, 1.0);
-	if (m_osd->margin(XineOsd::MBottom) != (1.0 - val)) {
-		m_osd->setMargin(XineOsd::MBottom, 1.0 - val);
-		m_stream->showOsdText(trUtf8("자막 위치: %1%").arg(int(val*100)));
-	}
-}
-
-void SubtitleOutput::setInitialPos(double pos) {
-	if (m_initPos != pos)
-		m_initPos = qBound(0.0, pos, 1.0);
-}
-
-void SubtitleOutput::setSyncDelay(int msec) {
-	if (m_delay != msec) {
-		emit syncDelayChanged(m_delay = msec);
-		QString sec(msec > 0 ? "+" : "");
-		sec += QString::number(double(msec)/1000.0);
-		m_stream->showOsdText(trUtf8("자막 싱크: %1초").arg(sec));
-	}
-}
-
-void SubtitleOutput::addSyncDelay(int msec) {
-	setSyncDelay(m_delay + msec);
 }
 
 void SubtitleOutput::updateChannels() {
+	QStringList channels;
 	const int count = xine_get_stream_info(m_stream->stream(), XINE_STREAM_INFO_MAX_SPU_CHANNEL);
-	d->channels.clear();
 	char buffer[256];
 	for(int i=0; i<count; ++i) {
 		QString channel = trUtf8("채널%1").arg(i);
 		if (xine_get_spu_lang(m_stream->stream(), i, buffer))
 			channel += ":" + QString::fromLocal8Bit(buffer);
-		d->channels.append(channel);
+		channels.append(channel);
 	}
-	emit availableChannelsChanged(d->channels);
+	setChannels(channels);
 	const int cur = xine_get_param(m_stream->stream(), XINE_PARAM_SPU_CHANNEL);
-	if (cur != m_curChannel)
-		emit currentChannelChanged(m_curChannel = cur);
+	if (cur != currentChannel())
+		setCurrentChannel(cur);
 }
 
-void SubtitleOutput::setCurrentChannel(int index) {
+void SubtitleOutput::updateCurrentChannel(int index) {
 	if (m_stream->isOpen())
 		xine_set_param(m_stream->stream(), XINE_PARAM_SPU_CHANNEL, index);
 }
 
-const Subtitle &SubtitleOutput::currentSubtitle() const {
-	return d->curSubtitle;
-}
-
-void SubtitleOutput::update() {
-	m_osd->setMargin(XineOsd::MBottom, 1.0 - m_initPos);
+void SubtitleOutput::updateStyle(const OsdStyle &style) {
+	m_osd->setStyle(style);
 }
 
 }
 
+}

@@ -1,14 +1,21 @@
 #include "xineengine.h"
 #include "xinestream.h"
 
+namespace Backend {
+
 namespace Xine {
 
 XineEngine::XineEngine() {
 	m_xine = 0;
+	initialize();
 }
 
 XineEngine::~XineEngine() {
 	exit();
+}
+
+XineEngine *XineEngine::get() {
+	static XineEngine e; return &e;
 }
 
 void XineEngine::initialize() {
@@ -32,12 +39,14 @@ void XineEngine::unregister(XineStream *stream) {
 		m_streams.removeAt(idx);
 }
 
-XineStream *XineEngine::createStream() {
+XineStream *XineEngine::createStream(PlayEngine *engine) {
 	if (!m_xine)
 		initialize();
-	XineStream *stream = new XineStream(0);
+	XineStream *stream = new XineStream(engine);
 	m_streams.append(stream);
 	return stream;
+}
+
 }
 
 }

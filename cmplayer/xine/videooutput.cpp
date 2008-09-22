@@ -1,292 +1,259 @@
-#include "utility.h"
+#include <backend/utility.h>
 #include "xinepost.h"
 #include "videooutput.h"
 #include "xinestream.h"
-#include "private/videowidget.h"
-#include <QResizeEvent>
+#include <QMouseEvent>
 #include <QPaintEvent>
 #include <QWidget>
 #include <QPainter>
+#include "playengine.h"
+#include <QApplication>
+#include <QDebug>
+
+namespace Backend {
 
 namespace Xine {
 
-VideoOutput::VideoOutput(XineStream *stream) {
+VideoOutput::VideoOutput(PlayEngine *engine, XineStream *stream)
+: Backend::VideoOutput(engine) {
+	m_engine = engine;
 	m_stream = stream;
 	m_port = 0;
-	m_driver = "auto";
-	m_ar = AR_Auto;
-	m_cr = CR_Off;
-	m_widget = new QWidget;
-	m_visual = new QWidget(m_widget);
-	m_visual->move(0, 0);
-	m_widget->setMouseTracking(true);
-	m_video = new VideoWidget(this, m_visual);
-	m_widget->setMouseTracking(true);
-	m_video->setMouseTracking(true);
-	m_visual->setMouseTracking(true);
-	m_video->move(0, 0);
+	
+	int screen_nbr = 0;
+	if (!(m_video.connection = xcb_connect(0, &screen_nbr)))
+		return;
+	m_video.visual.connection = m_video.connection;
+	xcb_screen_iterator_t screenIt = xcb_setup_roots_iterator(xcb_get_setup(m_video.connection));
+	while ((screenIt.rem > 1) && (screen_nbr > 0)) {
+		xcb_screen_next(&screenIt);
+		--screen_nbr;
+	}
+	m_video.visual.screen = screenIt.data;
+	m_video.visual.window = internalWidget()->winId();
+	m_video.visual.user_data = this;
+	m_video.visual.dest_size_cb = cbDestSize;
+	m_video.visual.frame_output_cb = cbFrameOutput;
+	QApplication::syncX();
+	internalWidget()->installEventFilter(this);
+}
 
-	m_video->setAutoFillBackground(true);
-	m_video->setAttribute(Qt::WA_NoSystemBackground);
-	m_video->setAttribute(Qt::WA_StaticContents);
-	m_video->setAttribute(Qt::WA_PaintOnScreen);
-	m_video->setAttribute(Qt::WA_PaintUnclipped);
-	m_widget->installEventFilter(this);
-	m_widget->resize(400, 300);
-	m_video->resize(400, 300);
-	m_visual->resize(400, 300);
-	m_widget->setMinimumSize(40, 30);
-	m_video->setMinimumSize(10, 10);
-	m_visual->setMinimumSize(10, 10);
-	m_expanded = false;
-	m_videoSize.scale(10, 10, Qt::IgnoreAspectRatio);
+VideoOutput::~VideoOutput() {
+	if (m_video.connection)
+		xcb_disconnect(m_video.connection);
+}
+
+void VideoOutput::cbDestSize(void *user_data, int /*video_width*/, int /*video_height*/,
+		double /*video_pixel_aspect*/, int *dest_width, int *dest_height, double *dest_pixel_aspect) {
+	VideoOutput *v = reinterpret_cast<VideoOutput*>(user_data);
+	*dest_width = v->internalWidget()->width();
+	*dest_height = v->internalWidget()->height();
+	*dest_pixel_aspect = v->videoRatio()/v->aspectRatioF();
+}
+
+void VideoOutput::cbFrameOutput(void *user_data, int /*video_width*/, int /*video_height*/,
+		double /*video_pixel_aspect*/, int *dest_x, int *dest_y, int *dest_width, int *dest_height,
+		double *dest_pixel_aspect, int *win_x, int *win_y) {
+	VideoOutput *v = reinterpret_cast<VideoOutput*>(user_data);
+	QWidget *w = v->internalWidget();
+	*dest_x = 0;
+	*dest_y = 0;
+	*win_x = w->x();
+	*win_y = w->y();
+	*dest_width = w->width();
+	*dest_height = w->height();
+	*dest_pixel_aspect = v->videoRatio()/v->aspectRatioF();
+}
+
+QRectF VideoOutput::videoRect() const {
+	if (!isExpanded())
+		return QRect(QPoint(0, 0), videoSize());
+	QWidget *w = internalWidget();
+	QRectF rect(QPointF(0.0, 0.0), w->size());
+	if (videoRatio() > Utility::desktopRatio())
+		rect.setHeight(rect.height()/videoOverDesktop());
+	else
+		rect.setWidth(rect.width()*videoOverDesktop());
+	rect.moveTopLeft(QPoint((w->width()-rect.width())/2, (w->height()-rect.height())/2));
+	return rect;
 }
 
 bool VideoOutput::eventFilter(QObject *obj, QEvent *event) {
-	if (obj == m_widget) {
-		QEvent::Type type = event->type();
-		switch(type) {
-		case QEvent::Resize: {
-			QSize size = static_cast<QResizeEvent*>(event)->size();
-			updateVisual();
-			emit widgetResized(size);
-			return false;
-		} case QEvent::Paint: {
-			QPainter p(m_widget);
-			p.fillRect(m_widget->rect(), Qt::black);
-			return true;
-		} default:
-			return false;
+	if (obj != internalWidget() || !m_port)
+		return QObject::eventFilter(obj, event);
+	QWidget *w = static_cast<QWidget*>(obj);
+	switch (event->type()) {
+	case QEvent::User+100:
+		w->repaint();
+	case QEvent::Paint:
+		if (!m_engine->isStopped()) {
+			const QRect &rect = static_cast<QPaintEvent*>(event)->rect();
+			xcb_expose_event_t xcb_event;
+			memset(&xcb_event, 0, sizeof(xcb_event));
+			xcb_event.window = w->winId();
+			xcb_event.x = rect.x();
+			xcb_event.y = rect.y();
+			xcb_event.width = rect.width();
+			xcb_event.height = rect.height();
+			xcb_event.count = 0;
+			xine_port_send_gui_data(m_port, XINE_GUI_SEND_EXPOSE_EVENT, &xcb_event);
+		} else {
+			QPainter painter(w);
+			painter.drawImage(w->rect(), m_image, m_image.rect());
 		}
+		return true;
+	case QEvent::MouseButtonPress:
+		if (m_engine->currentSource().isDisc()) {
+			QMouseEvent *me = static_cast<QMouseEvent*>(event);
+			uint8_t button = 0;
+			switch (me->button()) {
+				case Qt::RightButton:
+					++button;
+				case Qt::MidButton:
+					++button;
+				case Qt::LeftButton:
+					++button;
+					break;
+				default:
+					button = 0;
+			}
+			if (button) {
+				QPoint pos = videoRect().topLeft().toPoint();
+				x11_rectangle_t rect;
+				rect.x = me->x() - pos.x();
+				rect.y = me->y() - pos.y();
+				rect.w = 0;
+				rect.h = 0;
+				xine_port_send_gui_data(m_port, XINE_GUI_SEND_TRANSLATE_GUI_TO_VIDEO, &rect);
+				if (m_stream->isOpen()) {
+					xine_input_data_t input;
+					input.button = button;
+					input.x = rect.x;
+					input.y = rect.y;
+					xine_event_t event;
+					event.type = XINE_EVENT_INPUT_MOUSE_BUTTON;
+					event.data = &input;
+					event.data_length = sizeof(input);
+					xine_event_send(m_stream->stream(), &event);
+				}
+			}
+		}
+		return false;
+	case QEvent::MouseMove:
+		if (m_engine->currentSource().isDisc()) {
+			QMouseEvent *me = static_cast<QMouseEvent*>(event);
+			QPoint pos = videoRect().topLeft().toPoint();
+			x11_rectangle_t rect;
+			rect.x = me->x() - pos.x();
+			rect.y = me->y() - pos.y();
+			rect.w = 0;
+			rect.h = 0;
+			xine_port_send_gui_data(m_port, XINE_GUI_SEND_TRANSLATE_GUI_TO_VIDEO, &rect);
+			if (m_stream->isOpen()) {
+				xine_input_data_t input;
+				input.button = 0;
+				input.x = rect.x;
+				input.y = rect.y;
+				xine_event_t event;
+				event.type = XINE_EVENT_INPUT_MOUSE_MOVE;
+				event.data = &input;
+				event.data_length = sizeof(input);
+				xine_event_send(m_stream->stream(), &event);
+			}
+		}
+		return false;
+	default:
+		return false;
 	}
 	return false;
 }
 
-void VideoOutput::setDriver(const QString &driver) {
-	if (m_driver == driver)
-		return;
-	m_driver = driver;
-	if (m_stream->isOpen()) {
-		m_stream->close();
-		m_stream->open();
-	}
-}
-
-void VideoOutput::setFullScreen(bool fs) {
-	if (fs == m_fullScreen)
-		return;
-	m_fullScreen = fs;
-	updateVisual();
-}
-
-QSize VideoOutput::widgetSizeHint() const {
-	QSize hint = m_videoSize;
-	switch (m_ar) {
-	case AR_4_3:
-		hint.setWidth(hint.height()*(4.0/3.0));
-		break;
-	case AR_16_9:
-		hint.setWidth(hint.height()*(16.0/9.0));
-		break;
-	case AR_211_100:
-		hint.setWidth(hint.height()*(2.11/1.0));
-		break;
-	default:
-		break;
-	}
-	switch (m_cr) {
-	case CR_4_3:
-		hint.setHeight(hint.width()/(4.0/3.0));
-		break;
-	case CR_16_9:
-		hint.setHeight(hint.width()/(16.0/9.0));
-		break;
-	case CR_211_100:
-		hint.setHeight(hint.width()/(2.11/1.0));
-		break;
-	default:
-		break;
-	}
-	return hint;
-}
-
-void VideoOutput::setBrightness(int value) {
+void VideoOutput::updateBrightness(double value) {
 	if(m_stream->isOpen())
-		xine_set_param(m_stream->stream(), XINE_PARAM_VO_BRIGHTNESS, qBound(0, value, 65535));
+		xine_set_param(m_stream->stream(), XINE_PARAM_VO_BRIGHTNESS, eq(value));
 }
 
-void VideoOutput::setContrast(int value) {
+void VideoOutput::updateContrast(double value) {
 	if(m_stream->isOpen())
-		xine_set_param(m_stream->stream(), XINE_PARAM_VO_CONTRAST, qBound(0, value, 65535));
+		xine_set_param(m_stream->stream(), XINE_PARAM_VO_CONTRAST, eq(value));
 }
 
-void VideoOutput::setHue(int value) {
+void VideoOutput::updateHue(double value) {
 	if(m_stream->isOpen())
-		xine_set_param(m_stream->stream(), XINE_PARAM_VO_HUE, qBound(0, value, 65535));
+		xine_set_param(m_stream->stream(), XINE_PARAM_VO_HUE, eq(value));
 }
 
-void VideoOutput::setSaturation(int value) {
+void VideoOutput::updateSaturation(double value) {
 	if(m_stream->isOpen())
-		xine_set_param(m_stream->stream(), XINE_PARAM_VO_SATURATION, qBound(0, value, 65535));
-}
-
-int VideoOutput::brightness() const {
-	return m_stream->isOpen() ? xine_get_param(m_stream->stream(), XINE_PARAM_VO_BRIGHTNESS) : 32768;
-}
-
-int VideoOutput::contrast() const {
-	return m_stream->isOpen() ? xine_get_param(m_stream->stream(), XINE_PARAM_VO_CONTRAST) : 32768;
-}
-
-int VideoOutput::hue() const {
-	return m_stream->isOpen() ? xine_get_param(m_stream->stream(), XINE_PARAM_VO_HUE) : 32768;
-}
-
-int VideoOutput::saturation() const {
-	return m_stream->isOpen() ? xine_get_param(m_stream->stream(), XINE_PARAM_VO_SATURATION) : 32768;
+		xine_set_param(m_stream->stream(), XINE_PARAM_VO_SATURATION, eq(value));
 }
 
 void *VideoOutput::visual() {
-	return &m_video->m_visual;
+	return &m_video.visual;
 }
 
-void VideoOutput::updateVisual() {
-	if (isExpanded() && m_fullScreen) {
-		m_visual->resize(Utility::desktopSize());
-		m_video->resize(Utility::desktopSize());
-		m_visual->move(0, 0);
-		m_video->move(0, 0);
-		emit sizeUpdated();
-		return;
-	}
-	QSizeF widget = m_widget->size();
-	QSizeF visual(1.0, 1.0), video(1.0, 1.0);
-	if (isExpanded()) {
-		video.setWidth(Utility::desktopRatio());
-		visual.setWidth(ratio(m_videoSize));
-		visual.scale(widget, Qt::KeepAspectRatio);
-		video.scale(visual, Qt::KeepAspectRatioByExpanding);
-	} else {
-		if (m_cr != CR_Off) {
-			visual = widgetSizeHint();
-			video = m_videoSize;
-			visual.scale(widget, Qt::KeepAspectRatio);
-			video.scale(visual, Qt::KeepAspectRatioByExpanding);
-		} else
-			video = visual = widget;
-	}
-	m_visual->resize(visual.toSize());
-	m_video->resize(video.toSize());
-	QPoint pos;
-	pos.setX((widget.width() - visual.width())/2);
-	pos.setY((widget.height() - visual.height())/2);
-	m_visual->move(pos);
-	pos.setX((visual.width() - video.width())/2);
-	pos.setY((visual.height() - video.height())/2);
-	m_video->move(pos);
-	emit sizeUpdated();
-}
-
-void VideoOutput::setAspectRatio(AspectRatio ar) {
-	int val = XINE_VO_ASPECT_AUTO;
-	m_ar = ar;
-	switch (ar) {
-	case AR_4_3:
-		val = XINE_VO_ASPECT_4_3;
-		break;
-	case AR_16_9:
-		val = XINE_VO_ASPECT_ANAMORPHIC;
-		break;
-	case AR_211_100:
-		val = XINE_VO_ASPECT_DVB;
-		break;
-	default:
-		val = XINE_VO_ASPECT_AUTO;
-		m_ar = AR_Auto;
-		break;
-	}
-	if (!isExpanded())
-		xine_set_param(m_stream->stream(), XINE_PARAM_VO_ASPECT_RATIO, val);
-	else
-		updateVisual();
-}
-
-void VideoOutput::crop(CropRatio cr) {
-	m_cr = cr;
-	updateVisual();
-}
 
 QSize VideoOutput::visualSize(bool scaled) const {
 	if (scaled) {
-		if (m_cr != CR_Off) {
+		if (cropRatio() > 0.0) {
 			return widgetSizeHint();
 		} else {
-			QSize size = m_visual->size();
-			size.scale(m_videoSize, Qt::KeepAspectRatio);
+			QSize size = visualWidget()->size();
+			size.scale(videoSize(), Qt::KeepAspectRatio);
 			return size;
 		}
 	} else {
-		if (m_cr != CR_Off) {
+		if (cropRatio() > 0.0) {
 			QSize size = widgetSizeHint();
-			size.scale(m_video->size(), Qt::KeepAspectRatio);
+			size.scale(internalWidget()->size(), Qt::KeepAspectRatio);
 			return size;
 		} else {
-			return m_visual->size();
+			return visualWidget()->size();
 		}
 	}
 }
 
 QRect VideoOutput::osdRect(bool forScaled) const {
 	if (forScaled && !isExpanded())
-		return QRect(QPoint(0, 0), m_videoSize);
-	QPoint pos = m_video->mapTo(m_visual, QPoint(0, 0));
-	QSize size(qMin(m_visual->width(), m_video->width()), qMin(m_visual->height(), m_video->height()));
+		return QRect(QPoint(0, 0), widgetSizeHint());
+	QPoint pos = internalWidget()->mapTo(visualWidget(), QPoint(0, 0));
+	QSize size(qMin(visualWidget()->width(), internalWidget()->width()), qMin(visualWidget()->height(), internalWidget()->height()));
 	if (pos.y() < 0)
 		pos.setY(-pos.y());
+	if (pos.x() < 0)
+		pos.setX(-pos.x());
 	if (forScaled) {
-		const double scale = m_video->videoRect().width()/m_videoSize.width();
+		const double scale = videoRect().width()/widgetSizeHint().width();
 		pos /= scale;
 		size /= scale;
 	}
 	return QRect(pos, size);
 }
 
-int VideoOutput::visualBottom() const {
-	return m_visual->height() - m_video->y();
-}
-
 void VideoOutput::updateSizeInfo() {
-	if (!m_stream->hasVideo())
+	if (!m_engine->hasVideo())
 		return;
 	QSize size;
 	size.setWidth(xine_get_stream_info(m_stream->stream(), XINE_STREAM_INFO_VIDEO_WIDTH));
 	size.setHeight(xine_get_stream_info(m_stream->stream(), XINE_STREAM_INFO_VIDEO_HEIGHT));
-	updateSizeInfo(size);
+	updateVideoSize(size);
 }
 
-void VideoOutput::updateSizeInfo(const QSize &size) {
-	if (m_videoSize != size) {
-		m_videoSize = size;
-		emit widgetSizeHintChanged(widgetSizeHint());
-	}
-}
-
-void VideoOutput::expand(bool expanded) {
-	if (m_expanded == expanded)
-		return;
-	if (m_expanded = expanded) {
+bool VideoOutput::updateExpand(bool expanded) {
+	if (expanded) {
 		XinePost *post = m_stream->addVideoPost("expand");
-		if (post) {
-			XinePost::DoubleParam *param
-					= static_cast<XinePost::DoubleParam*>(post->parameters()->value("aspect"));
-			if (!(m_expanded = param != 0))
-				return;
-			param->setValue(Utility::desktopRatio());
-		} else
-			m_expanded = false;
+		if (!post)
+			return false;
+		XinePost::DoubleParam *param
+				= static_cast<XinePost::DoubleParam*>(post->parameters()->value("aspect"));
+		if (!param)
+			return false;
+		param->setValue(Utility::desktopRatio());
 	} else
 		m_stream->removeVideoPost("expand");
-	updateVisual();
+	return true;
+}
+
 }
 
 }

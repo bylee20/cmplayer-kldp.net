@@ -11,6 +11,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+namespace Backend {
+
 namespace Xine {
 
 PostWidget::PostWidget(XinePost *post, QWidget *parent)
@@ -238,6 +240,8 @@ void XinePost::dumpInfo() const {
 			qDebug() << "Type: Invalid";
 		}
 	}
+}
+
 }
 
 }

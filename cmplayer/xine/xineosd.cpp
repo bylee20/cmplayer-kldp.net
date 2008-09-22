@@ -1,37 +1,16 @@
 #include "xineosd.h"
 #include "videooutput.h"
 #include "xinestream.h"
-#include "xineosd_clut.h"
-#include "utility.h"
+#include <backend/utility.h>
 #include <QRegExp>
 #include <QPainter>
 #include <QTextDocument>
 #include <cmath>
+#include <QTime>
+
+namespace Backend {
 
 namespace Xine {
-
-XineOsd::Clut::Clut(): m_clut(256) {
-	int i=0;
-	for (int r=0; r<8; ++r) {for (int g=0; g<8; ++g) {
-	for (int b=0; b<4; ++b) {
-		static const QRgb key = qRgb(0x92, 0xff, 0x00);
-		static const double RFactor = 255.0/7.0;
-		static const double GFactor = 255.0/7.0;
-		static const double BFactor = 255.0/3.0;
-		const int red = qMin(255, qRound(r*RFactor));
-		const int green = qMin(255, qRound(g*GFactor));
-		const int blue = qMin(255, qRound(b*BFactor));
-		const QRgb rgb = qRgb(red, green, blue);
-		m_colorMap[i] = toYuv(rgb);
-		if (rgb == key) {
-			m_transMap[i] = 0;
-			m_clut[i++] = qRgba(0, 0, 0, 0);
-		} else {
-			m_transMap[i] = 255;
-			m_clut[i++] = rgb;
-		}
-	}}}
-}
 
 struct XineOsd::Data {
 	xine_osd_t *createOsd() {
@@ -39,7 +18,7 @@ struct XineOsd::Data {
 			static const QSize size = Utility::desktopSize();
 			xine_osd_t *osd = xine_osd_new(video->stream()->stream(), 0, 0, size.width(), size.height());
 			if (osd)
-				xine_osd_set_palette(osd, Clut::get()->colorMap(), Clut::get()->transMap());
+				xine_osd_set_palette(osd, clut->colorMap(), clut->transMap());
 			return osd;
 		}
 		return 0;
@@ -53,6 +32,7 @@ struct XineOsd::Data {
 	}
 	VideoOutput *video;
 	xine_osd_t *osd, *buffer;
+	OsdStyle::Clut *clut;
 	QTextDocument *doc;
 	QRect rect;
 	QString last;
@@ -72,6 +52,7 @@ XineOsd::XineOsd(VideoOutput *video) {
 	d->osd = d->createOsd();
 	d->buffer = d->createOsd();
 	d->doc = new QTextDocument;
+	d->clut = OsdStyle::Clut::get();
 	m_align = Qt::AlignBottom;
 	setAlignment(Qt::AlignCenter);
 	m_visible = false;
@@ -108,7 +89,7 @@ bool XineOsd::isValid() const {
 }
 
 void XineOsd::drawText(const QString &text) {
-	if (!isValid())
+	if (!isValid() || m_style.font.pixelSize() <= 0)
 		return;
 	d->last = text.trimmed();
 	if (d->last.isEmpty())
@@ -118,7 +99,7 @@ void XineOsd::drawText(const QString &text) {
 		d->doc->setTextWidth(d->rect.width() - (2*d->bw));
 		static QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
 		QString bgText = d->last;
-		d->doc->setHtml(QString("<font color='%1'>").arg(m_style.borderColor.name())
+		d->doc->setHtml(QString("<font color='%1'>").arg(m_style.border_color.name())
 				+ bgText.remove(rxColor) + "</font>");
 		QSize size = d->doc->size().toSize();
 		size.rheight() += (2*d->bw);
@@ -132,7 +113,8 @@ void XineOsd::drawText(const QString &text) {
 			xine_osd_clear(d->buffer);
 			return;
 		}
-
+		QTime time;
+		time.start();
 		QPixmap pixmap(size);
 		pixmap.fill(Qt::transparent);
 		QRectF rect = pixmap.rect();
@@ -140,7 +122,7 @@ void XineOsd::drawText(const QString &text) {
 		QPainter p(&pixmap);
 
 		p.save();
-		p.setOpacity(m_style.borderColor.alphaF());
+		p.setOpacity(m_style.border_color.alphaF());
 		for (int i=0; i<Data::Count; ++i) {
 			p.translate(d->points[i]);
 			d->doc->drawContents(&p, rect);
@@ -148,20 +130,21 @@ void XineOsd::drawText(const QString &text) {
 		}
 		p.restore();
 
-		d->doc->setHtml(QString("<font color='%1'>").arg(m_style.textColor.name())+d->last+"</font>");
+		d->doc->setHtml(QString("<font color='%1'>").arg(m_style.text_color.name())+d->last+"</font>");
 
 		p.save();
-		p.setOpacity(m_style.textColor.alphaF());
+		p.setOpacity(m_style.text_color.alphaF());
 		p.translate(d->bw, d->bw);
 		d->doc->drawContents(&p, rect);
 		p.restore();
-
-		drawImage(pixmap);
+		int t = time.elapsed();
+		qDebug("%d\n", t);
+		drawImage(pixmap.toImage());
 	}
 }
 
-void XineOsd::drawImage(const QPixmap &pixmap) {
-	QImage img = pixmap.toImage().convertToFormat(QImage::Format_Indexed8, Clut::get()->clut());
+void XineOsd::drawImage(const QImage &image) {
+	QImage img = image.convertToFormat(QImage::Format_Indexed8, d->clut->clut());
 	const int width = img.width();
 	const int height = img.height();
 	const int length = width * height;
@@ -188,12 +171,12 @@ void XineOsd::update() {
 		return;
 	qSwap(d->osd, d->buffer);
 	xine_osd_hide(d->buffer, 0);
-	m_style.highQuality ? xine_osd_show_unscaled(d->osd, 0) : xine_osd_show(d->osd, 0);
+	m_style.high_quality ? xine_osd_show_unscaled(d->osd, 0) : xine_osd_show(d->osd, 0);
 }
 
 void XineOsd::setVisible(bool visible) {
-	if (m_visible = visible) {
-		if (m_style.highQuality)
+	if ((m_visible = visible)) {
+		if (m_style.high_quality)
 			xine_osd_show_unscaled(d->osd, 0);
 		else
 			xine_osd_show(d->osd, 0);
@@ -201,7 +184,7 @@ void XineOsd::setVisible(bool visible) {
 		xine_osd_hide(d->osd, 0);
 }
 
-void XineOsd::setStyle(const Style &style) {
+void XineOsd::setStyle(const OsdStyle &style) {
 	if (style != m_style) {
 		m_style = style;
 		updateFontSize();
@@ -236,9 +219,18 @@ QPoint XineOsd::getPos(const QSize &size) const {
 }
 
 void XineOsd::updateFontSize() {
-	int size = qMax(1, qRound(double(d->rect.height())*m_style.size));
-	m_style.font.setPixelSize(size);
-	d->bw = qMax(1.0, double(size)*0.04);
+	double size = -1;
+	if (m_style.scale == OsdStyle::FitToDiagonal) {
+		const double h = d->rect.height();
+		const double w = d->rect.width();
+		size = std::sqrt(h*h + w*w);
+	} else if (m_style.scale == OsdStyle::FitToWidth)
+		size = d->rect.width();
+	else
+		size = d->rect.height();
+	size *= m_style.size;
+	m_style.font.setPixelSize(qMax(1, qRound(size)));
+	d->bw = qMax(1.0, size*0.04);
 	for (int i=0; i<Data::Count; ++i) {
 		d->points[i].setX(d->bw*(1+Data::Sines[i]));
 		d->points[i].setY(d->bw*(1+Data::Cosines[i]));
@@ -246,7 +238,7 @@ void XineOsd::updateFontSize() {
 }
 
 void XineOsd::updateRect() {
-	QRect rect = d->video->osdRect(!m_style.highQuality);
+	QRect rect = d->video->osdRect(!m_style.high_quality);
 	if (rect != d->rect) {
 		d->rect = rect;
 		updateFontSize();
@@ -273,3 +265,4 @@ void XineOsd::setAlignment(Qt::Alignment align) {
 
 }
 
+}
