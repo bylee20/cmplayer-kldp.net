@@ -1,4 +1,4 @@
-#include "info.h"
+// #include "info.h"
 #include "mediasource.h"
 #include <QFileInfo>
 
@@ -61,8 +61,8 @@ QString MediaSource::toMrl() const {
 	return d->url.toString();
 }
 
-bool MediaSource::getInfo() const {
-	return Info::get(const_cast<MediaSource*>(this));
-}
+// bool MediaSource::getInfo() const {
+// 	return Info::get(const_cast<MediaSource*>(this));
+// }
 
 }

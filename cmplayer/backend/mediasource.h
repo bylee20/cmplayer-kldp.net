@@ -34,24 +34,25 @@ public:
 	QUrl url () const {return isValid() ? d->url : QUrl();}
 	QString displayName() const;
 	QString toMrl() const;
-	bool getInfo() const;
-	bool gotInfo() const {return d->gotInfo;}
-	bool hasVideo() const {return d->hasVideo;}
-	const QSize &videoSize() const {return d->videoSize;}
-	int duration() const {return d->duration;}
+// 	bool getInfo() const;
+// 	bool gotInfo() const {return d->gotInfo;}
+// 	bool hasVideo() const {return d->hasVideo;}
+// 	const QSize &videoSize() const {return d->videoSize;}
+// 	int duration() const {return d->duration;}
 private:
 	friend class Info;
 	struct Data : public QSharedData {
-		Data(): type(Invalid), url(), duration(0), hasVideo(false)
-		, gotInfo(false), videoSize() {}
+		Data(): type(Invalid), url()/*, duration(0), hasVideo(false)
+		, gotInfo(false), videoSize()*/ {}
 		Data(const Data &other): QSharedData(other), type(other.type)
-		, url(other.url), duration(other.duration), hasVideo(other.hasVideo)
-		, gotInfo(other.gotInfo), videoSize(other.videoSize) {}
+		, url(other.url)/*, duration(other.duration), hasVideo(other.hasVideo)
+		, gotInfo(other.gotInfo), videoSize(other.videoSize)*/ {}
 		~Data() {}
-		Type type;	QUrl url;
-		int duration;
-		bool hasVideo, gotInfo;
-		QSize videoSize;
+		Type type;
+		QUrl url;
+// 		int duration;
+// 		bool hasVideo, gotInfo;
+// 		QSize videoSize;
 	};
 	QSharedDataPointer<Data> d;
 };
