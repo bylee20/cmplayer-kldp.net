@@ -160,7 +160,12 @@ bool PlayEngine::start(int time) {
 			args << "-font" << family;
 		if (!d->subout->encoding().isEmpty())
 			args << "-subcp" << d->subout->encoding();
-// 		args << "-subfont-autoscale" << QString::number(d->subout->autoScale());
+		int mode = 1;
+		if (d->subout->style().scale == OsdStyle::FitToDiagonal)
+			mode = 3;
+		else if (d->subout->style().scale == OsdStyle::FitToWidth)
+			mode = 2;
+		args << "-subfont-autoscale" << QString::number(mode);
 	}
 	//if (general.autoPitch)
 	//	args << "-af" << "scaletempo";

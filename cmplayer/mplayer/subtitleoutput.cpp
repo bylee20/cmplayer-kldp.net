@@ -118,6 +118,8 @@ void SubtitleOutput::updateCurrentChannel(int index) {
 }
 
 void SubtitleOutput::updateStyle(const OsdStyle &style) {
+	const double size = qBound(0.0, style.size*100.0, 100.0);
+	d->engine->tellmp("sub_scale " + QString::number(size) + " 1");
 }
 
 }

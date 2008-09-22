@@ -48,7 +48,7 @@ VideoOutput::VideoOutput(PlayEngine *engine)
 	m_video->setPalette(p);
 	m_expanded = false;
 	updateVideoSize(QSize(10, 10));
-	connect(engine, SIGNAL(started()), this, SLOT(updateVideo()));
+	connect(engine, SIGNAL(started()), this, SLOT(update()));
 }
 
 void VideoOutput::setFullScreen(bool fs) {
@@ -219,6 +219,14 @@ bool VideoOutput::expand(bool expanded) {
 	m_expanded = expanded;
 	updateVideo();
 	return true;
+}
+
+void VideoOutput::update() {
+	updateVideo();
+	updateBrightness(m_brightness);
+	updateHue(m_hue);
+	updateSaturation(m_saturation);
+	updateContrast(m_contrast);
 }
 
 }

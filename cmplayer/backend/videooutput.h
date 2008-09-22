@@ -59,6 +59,7 @@ protected:
 	inline static double ratio(double w, double h) {return w/h;}
 	inline static bool isSame(double val1, double val2) {return qAbs(val1-val2) < 0.0001;}
 protected slots:
+	void update();
 	void updateVideo();
 private:
 	friend class VideoWidget;
