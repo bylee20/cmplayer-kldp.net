@@ -1,10 +1,11 @@
 #include "manager.h"
 #include "info.h"
-#include <QStringList>
-#include <QDir>
-#include <QApplication>
-#include <QPluginLoader>
-#include <QMap>
+#include <QtCore/QStringList>
+#include <QtCore/QDir>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QPluginLoader>
+#include <QtCore/QMap>
+#include <QtCore/QDebug>
 
 namespace Backend {
 

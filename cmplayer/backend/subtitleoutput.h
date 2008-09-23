@@ -1,8 +1,8 @@
 #ifndef BACKEND_SUBTITLEOUTPUT_H
 #define BACKEND_SUBTITLEOUTPUT_H
 
-#include <QObject>
-#include <QStringList>
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
 #include "osdstyle.h"
 
 namespace Backend {

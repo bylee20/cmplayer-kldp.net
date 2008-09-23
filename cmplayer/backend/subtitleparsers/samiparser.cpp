@@ -1,8 +1,7 @@
 #include "samiparser.h"
-#include <QFile>
-#include <QTextStream>
-#include <QRegExp>
-#include <QTextCodec>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+#include <QtCore/QRegExp>
 
 namespace Backend {
 

@@ -1,7 +1,7 @@
 #ifndef BACKEND_AUDIOOUTPUT_H
 #define BACKEND_AUDIOOUTPUT_H
 
-#include <QStringList>
+#include <QtCore/QStringList>
 #include "private/avoutput.h"
 
 namespace Backend {

@@ -1,6 +1,6 @@
 // #include "info.h"
 #include "mediasource.h"
-#include <QFileInfo>
+#include <QtCore/QFileInfo>
 
 namespace Backend {
 

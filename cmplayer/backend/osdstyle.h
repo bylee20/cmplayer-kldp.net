@@ -1,9 +1,9 @@
 #ifndef BACKEND_OSDSTYLE_H
 #define BACKEND_OSDSTYLE_H
 
-#include <QFont>
-#include <QColor>
-#include <QVector>
+#include <QtGui/QFont>
+#include <QtGui/QColor>
+#include <QtCore/QVector>
 
 namespace Backend {
 

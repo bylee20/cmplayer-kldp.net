@@ -1,9 +1,9 @@
 #include "playlist.h"
 #include "mediasource.h"
-#include <QFile>
-#include <QTextStream>
-#include <QRegExp>
-#include <QUrl>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+#include <QtCore/QRegExp>
+#include <QtCore/QUrl>
 
 namespace Backend {
 

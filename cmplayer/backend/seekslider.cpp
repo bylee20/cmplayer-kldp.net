@@ -1,7 +1,7 @@
 #include "seekslider.h"
 #include "playengine.h"
 #include "info.h"
-#include <backend/factoryiface.h>
+#include "factoryiface.h"
 
 namespace Backend {
 

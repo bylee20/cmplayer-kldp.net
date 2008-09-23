@@ -1,6 +1,6 @@
 #include "utility.h"
-#include <QApplication>
-#include <QDesktopWidget>
+#include <QtGui/QApplication>
+#include <QtGui/QDesktopWidget>
 
 namespace Backend {
 

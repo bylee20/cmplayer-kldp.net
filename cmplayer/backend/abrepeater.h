@@ -1,7 +1,7 @@
 #ifndef BACKEND_ABREPEATER_H
 #define BACKEND_ABREPEATER_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 namespace Backend {
 

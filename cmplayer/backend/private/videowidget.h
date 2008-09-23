@@ -1,7 +1,7 @@
 #ifndef BACKEND_VIDEOWIDGET_H
 #define BACKEND_VIDEOWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Backend {
 

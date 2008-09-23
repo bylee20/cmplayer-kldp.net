@@ -1,7 +1,7 @@
 #ifndef BACKEND_UTILITY_H
 #define BACKEND_UTILITY_H
 
-#include <QTime>
+#include <QtCore/QTime>
 
 class QSize;
 

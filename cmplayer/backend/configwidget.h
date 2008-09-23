@@ -1,7 +1,7 @@
 #ifndef BACKEND_CONFIGWIDGET_H
 #define BACKEND_CONFIGWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Backend {
 

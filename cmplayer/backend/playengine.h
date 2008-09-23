@@ -1,7 +1,7 @@
 #ifndef BACKEND_PLAYENGINE_H
 #define BACKEND_PLAYENGINE_H
 
-#include <QObject>
+#include <QtCore/QObject>
 #include "mediasource.h"
 #include "backend.h"
 

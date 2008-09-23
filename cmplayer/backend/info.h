@@ -1,7 +1,7 @@
 #ifndef BACKEND_INFO_H
 #define BACKEND_INFO_H
 
-#include <QStringList>
+#include <QtCore/QStringList>
 
 namespace Backend {
 

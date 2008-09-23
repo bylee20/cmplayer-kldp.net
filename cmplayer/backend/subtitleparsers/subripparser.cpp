@@ -1,8 +1,8 @@
 #include "subripparser.h"
-#include <QFile>
-#include <QTextStream>
-#include <QRegExp>
-#include <QTime>
+#include <QtCore/QFile>
+#include <QtCore/QTextStream>
+#include <QtCore/QRegExp>
+#include <QtCore/QTime>
 
 namespace Backend {
 

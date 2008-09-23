@@ -1,7 +1,7 @@
 #ifndef BACKEND_PLAYLIST_H
 #define BACKEND_PLAYLIST_H
 
-#include <QList>
+#include <QtCore/QList>
 #include "mediasource.h"
 
 namespace Backend {

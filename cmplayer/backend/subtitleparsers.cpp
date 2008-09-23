@@ -2,7 +2,7 @@
 #include "subtitleparsers/samiparser.h"
 #include "subtitleparsers/subripparser.h"
 #include "subtitle.h"
-#include <QFileInfo>
+#include <QtCore/QFileInfo>
 
 namespace Backend {
 

@@ -2,7 +2,7 @@
 #define BACKENDMANAGER_H
 
 #include "factoryiface.h"
-#include <QMap>
+#include <QtCore/QMap>
 
 class QStringList;				class QString;
 

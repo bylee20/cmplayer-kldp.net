@@ -1,7 +1,7 @@
 #include "jumpslider.h"
-#include <QApplication>
-#include <QMouseEvent>
-#include <QStyle>
+#include <QtGui/QApplication>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QStyle>
 
 namespace Backend {
 

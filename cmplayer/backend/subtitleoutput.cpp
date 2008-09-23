@@ -1,8 +1,8 @@
 #include "subtitleoutput.h"
 #include "videooutput.h"
 #include "subtitleparsers.h"
-#include <QFileInfo>
-#include <QSet>
+#include <QtCore/QFileInfo>
+#include <QtCore/QSet>
 #include "playengine.h"
 
 namespace Backend {

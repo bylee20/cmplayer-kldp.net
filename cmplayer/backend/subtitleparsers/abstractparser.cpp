@@ -1,6 +1,6 @@
 #include "abstractparser.h"
-#include <QTextCodec>
-#include <QTextStream>
+#include <QtCore/QTextCodec>
+#include <QtCore/QTextStream>
 
 namespace Backend {
 

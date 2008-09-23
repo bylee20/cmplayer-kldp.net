@@ -1,10 +1,10 @@
 #ifndef BACKEND_MEDIASOURCE_H
 #define BACKEND_MEDIASOURCE_H
 
-#include <QSharedDataPointer>
-#include <QString>
-#include <QUrl>
-#include <QSize>
+#include <QtCore/QSharedDataPointer>
+#include <QtCore/QString>
+#include <QtCore/QUrl>
+#include <QtCore/QSize>
 
 namespace Backend {
 

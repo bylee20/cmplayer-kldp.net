@@ -1,7 +1,7 @@
 #ifndef BACKEND_FACTORYIFACE_H
 #define BACKEND_FACTORYIFACE_H
 
-#include <QtPlugin>
+#include <QtCore/QtPlugin>
 
 namespace Backend {
 

@@ -1,7 +1,7 @@
 #ifndef BACKEND_JUMPSLIDER_H
 #define BACKEND_JUMPSLIDER_H
 
-#include <QSlider>
+#include <QtGui/QSlider>
 
 namespace Backend {
 

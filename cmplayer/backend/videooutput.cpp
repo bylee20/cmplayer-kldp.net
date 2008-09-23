@@ -1,12 +1,12 @@
 #include "utility.h"
 #include "videooutput.h"
-#include <QResizeEvent>
-#include <QPaintEvent>
-#include <QWidget>
-#include <QPainter>
+#include <QtGui/QResizeEvent>
+#include <QtGui/QPaintEvent>
+#include <QtGui/QWidget>
+#include <QtGui/QPainter>
 #include "private/videowidget.h"
 #include "playengine.h"
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace Backend {
 

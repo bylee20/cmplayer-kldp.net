@@ -1,6 +1,6 @@
 #include "videowidget.h"
 #include "../videooutput.h"
-#include <QResizeEvent>
+#include <QtGui/QResizeEvent>
 
 namespace Backend {
 

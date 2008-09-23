@@ -1,7 +1,7 @@
 #ifndef BACKEND_VIDEOOUTPUT_H
 #define BACKEND_VIDEOOUTPUT_H
 
-#include <QSize>
+#include <QtCore/QSize>
 #include "private/avoutput.h"
 
 class QWidget;						class QRect;

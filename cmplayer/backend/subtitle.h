@@ -1,10 +1,10 @@
 #ifndef BACKEND_SUBTITLE_H
 #define BACKEND_SUBTITLE_H
 
-#include <QMap>
-#include <QMapIterator>
-#include <QSharedDataPointer>
-#include <QString>
+#include <QtCore/QMap>
+#include <QtCore/QMapIterator>
+#include <QtCore/QSharedDataPointer>
+#include <QtCore/QString>
 
 namespace Backend {
 

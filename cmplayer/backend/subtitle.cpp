@@ -1,5 +1,5 @@
 #include "subtitle.h"
-#include <QFileInfo>
+#include <QtCore/QFileInfo>
 
 namespace Backend {
 

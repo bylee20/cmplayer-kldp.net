@@ -1,5 +1,5 @@
 #include "osdstyle.h"
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace Backend {
 

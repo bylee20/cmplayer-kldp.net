@@ -1,7 +1,7 @@
 #ifndef BACKEND_AVOUTPUT_H
 #define BACKEND_AVOUTPUT_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
 namespace Backend {
 
