@@ -77,7 +77,7 @@ set(cmplayer_QRCS
 qt4_wrap_cpp(cmplayer_MOC_SRCS ${cmplayer_HDRS})
 qt4_wrap_ui(cmplayer_UIS_H ${cmplayer_UIS})
 qt4_add_resources(cmplayer_QRC_SRCS ${cmplayer_QRCS})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(cmplayer-bin
 	${cmplayer_SRCS}
