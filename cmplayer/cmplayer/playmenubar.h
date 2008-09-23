@@ -1,7 +1,7 @@
 #ifndef PLAYMENUBAR_H
 #define PLAYMENUBAR_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 class PlayMenuBar : public QWidget {
 	Q_OBJECT

@@ -1,8 +1,8 @@
 #ifndef ACTIONCOLLECTION_H
 #define ACTIONCOLLECTION_H
 
-#include <QString>
-#include <QMap>
+#include <QtCore/QString>
+#include <QtCore/QMap>
 
 class QMenu;			class QAction;
 

@@ -1,7 +1,7 @@
 #ifndef EQUALIZERDIALOG_H
 #define EQUALIZERDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 namespace Backend {class VideoOutput;}
 

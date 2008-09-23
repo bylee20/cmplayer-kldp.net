@@ -1,7 +1,7 @@
 #ifndef PLAYLISTDOCK_P_H
 #define PLAYLISTDOCK_P_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 class QComboBox;
 

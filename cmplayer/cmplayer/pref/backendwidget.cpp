@@ -3,9 +3,9 @@
 #include <backend/info.h>
 #include <backend/manager.h>
 #include <backend/config.h>
-#include <QMap>
-#include <QRadioButton>
-#include <QButtonGroup>
+#include <QtCore/QMap>
+#include <QtGui/QRadioButton>
+#include <QtGui/QButtonGroup>
 #include "backend.h"
 
 namespace Pref {

@@ -4,7 +4,7 @@
 #include "getshortcutdialog.h"
 #include "../actioncollection.h"
 #include "../ui/ui_interfacewidget.h"
-#include <QMenu>
+#include <QtGui/QMenu>
 
 namespace Pref {
 

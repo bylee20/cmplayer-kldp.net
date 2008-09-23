@@ -20,11 +20,11 @@
 #include <backend/videooutput.h>
 #include <backend/info.h>
 #include <backend/abrepeater.h>
-#include <QUrl>
-#include <QFileInfo>
-#include <QFileDialog>
-#include <QMouseEvent>
-#include <QTimer>
+#include <QtCore/QUrl>
+#include <QtCore/QFileInfo>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMouseEvent>
+#include <QtCore/QTimer>
 #include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)

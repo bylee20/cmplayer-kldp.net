@@ -1,10 +1,10 @@
 #ifndef PREFERENCESPREFINTERFACE_H
 #define PREFERENCESPREFINTERFACE_H
 
-#include <QString>
-#include <QKeySequence>
-#include <QMap>
-#include <QSharedDataPointer>
+#include <QtCore/QString>
+#include <QtGui/QKeySequence>
+#include <QtCore/QMap>
+#include <QtCore/QSharedDataPointer>
 
 class QStringList;
 class QSettings;

@@ -21,12 +21,12 @@
 #include <backend/abrepeater.h>
 #include <backend/factoryiface.h>
 #include <backend/manager.h>
-#include <QToolButton>
-#include <QDir>
-#include <QLayout>
-#include <QFileInfo>
-#include <QUrl>
-#include <QTimer>
+#include <QtGui/QToolButton>
+#include <QtCore/QDir>
+#include <QtGui/QLayout>
+#include <QtCore/QFileInfo>
+#include <QtCore/QUrl>
+#include <QtCore/QTimer>
 
 MainWindow::Data::Data(MainWindow *p) {
 	f = Backend::Manager::get()->load("libcmplayer_xine.so");

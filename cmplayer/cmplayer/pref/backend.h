@@ -1,7 +1,7 @@
 #ifndef PREF_BACKEND_H
 #define PREF_BACKEND_H
 
-#include <QString>
+#include <QtCore/QString>
 
 class QSettings;
 

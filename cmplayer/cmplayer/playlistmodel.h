@@ -1,7 +1,7 @@
 #ifndef PLAYLISTMODEL_H
 #define PLAYLISTMODEL_H
 
-#include <QAbstractTableModel>
+#include <QtCore/QAbstractTableModel>
 
 namespace Backend {
 class MediaSource;				class PlayList;

@@ -4,8 +4,8 @@
 #include "pref/general.h"
 #include <backend/mediasource.h>
 #include <backend/playlist.h>
-#include <QUrl>
-#include <QSettings>
+#include <QtCore/QUrl>
+#include <QtCore/QSettings>
 
 RecentStack::RecentStack(int size) {setSize(size);}
 

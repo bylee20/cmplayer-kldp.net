@@ -1,7 +1,7 @@
 #ifndef ABREPEATDIALOG_H
 #define ABREPEATDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 namespace Backend {class ABRepeater;}
 

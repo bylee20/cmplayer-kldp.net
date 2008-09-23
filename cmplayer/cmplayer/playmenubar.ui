@@ -289,11 +289,11 @@
   <customwidget>
    <class>CLabel</class>
    <extends>QLabel</extends>
-   <header>clabel.h</header>
+   <header location="global" >cmplayer/clabel.h</header>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../../../../cmplayer/trunk/cmplayer/cmplayer/rsclist.qrc" />
+  <include location="rsclist.qrc" />
  </resources>
  <connections/>
 </ui>

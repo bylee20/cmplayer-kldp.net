@@ -1,7 +1,7 @@
 #ifndef PREF_PREFERENCES_H
 #define PREF_PREFERENCES_H
 
-#include <QStringList>
+#include <QtCore/QStringList>
 
 namespace Pref {
 

@@ -1,7 +1,7 @@
 #ifndef PLAYLISTDOCK_H
 #define PLAYLISTDOCK_H
 
-#include <QDockWidget>
+#include <QtGui/QDockWidget>
 
 class QModelIndex;				class PlayListModel;
 

@@ -4,12 +4,12 @@
 #include "playlistmodel.h"
 #include <backend/info.h>
 #include <backend/playlist.h>
-#include <QFileDialog>
-#include <QProcess>
-#include <QMessageBox>
-#include <QComboBox>
-#include <QLabel>
-#include <QPushButton>
+#include <QtGui/QFileDialog>
+#include <QtCore/QProcess>
+#include <QtGui/QMessageBox>
+#include <QtGui/QComboBox>
+#include <QtGui/QLabel>
+#include <QtGui/QPushButton>
 #include "helper.h"
 #include <backend/factoryiface.h>
 

@@ -1,6 +1,6 @@
 #include "actioncollection.h"
-#include <QAction>
-#include <QMenu>
+#include <QtGui/QAction>
+#include <QtGui/QMenu>
 
 ActionCollection::ActionCollection() {}
 

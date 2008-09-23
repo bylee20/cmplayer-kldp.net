@@ -1,7 +1,7 @@
 #include "playlistmodel.h"
 #include "recentinfo.h"
-#include <QUrl>
-#include <QFont>
+#include <QtCore/QUrl>
+#include <QtGui/QFont>
 #include <backend/mediasource.h>
 #include <backend/playlist.h>
 #include <backend/playengine.h>

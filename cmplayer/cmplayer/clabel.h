@@ -1,7 +1,7 @@
 #ifndef CLABEL_H
 #define CLABEL_H
 
-#include <QLabel>
+#include <QtGui/QLabel>
 
 // from KDE's KSqueezedTextLabel
 class CLabel : public QLabel {

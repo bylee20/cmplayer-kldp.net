@@ -4,7 +4,7 @@
 #include "interface.h"
 #include "backend.h"
 #include "../helper.h"
-#include <QSettings>
+#include <QtCore/QSettings>
 
 namespace Pref {
 

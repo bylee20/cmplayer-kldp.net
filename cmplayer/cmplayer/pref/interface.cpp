@@ -1,6 +1,6 @@
 #include "interface.h"
-#include <QStringList>
-#include <QSettings>
+#include <QtCore/QStringList>
+#include <QtCore/QSettings>
 
 namespace Pref {
 

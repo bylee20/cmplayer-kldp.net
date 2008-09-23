@@ -1,10 +1,10 @@
 #ifndef PREFERENCESPREFGENERAL_H
 #define PREFERENCESPREFGENERAL_H
 
-#include <QString>
-#include <QSizeF>
-#include <QStringList>
-#include <QSharedDataPointer>
+#include <QtCore/QString>
+#include <QtCore/QSizeF>
+#include <QtCore/QStringList>
+#include <QtCore/QSharedDataPointer>
 
 class QSettings;
 

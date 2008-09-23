@@ -1,5 +1,5 @@
 #include "subtitle.h"
-#include <QSettings>
+#include <QtCore/QSettings>
 
 namespace Pref {
 

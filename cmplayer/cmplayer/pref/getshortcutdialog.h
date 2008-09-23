@@ -1,7 +1,7 @@
 #ifndef PREFERENCESGETSHORTCUTDIALOG_H
 #define PREFERENCESGETSHORTCUTDIALOG_H
 
-#include <QDialog>
+#include <QtGui/QDialog>
 
 namespace Pref {
 

@@ -1,7 +1,7 @@
 #ifndef OSDWIDGET_H_
 #define OSDWIDGET_H_
 
-#include <QWidget>
+#include <QtGui/QWidget>
 #include <backend/osdstyle.h>
 #include "../ui/ui_osdwidget.h"
 

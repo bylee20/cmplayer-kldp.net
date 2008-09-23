@@ -1,7 +1,7 @@
 #ifndef PREF_INTERFACEWIDGET_H
 #define PREF_INTERFACEWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 class QTreeWidgetItem;
 

@@ -1,8 +1,8 @@
 #ifndef RECENTINFO_H
 #define RECENTINFO_H
 
-#include <QStringList>
-#include <QObject>
+#include <QtCore/QStringList>
+#include <QtCore/QObject>
 #include <backend/mediasource.h>
 
 namespace Backend {class PlayList;}

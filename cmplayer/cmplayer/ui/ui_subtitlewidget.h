@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'subtitlewidget.ui'
 **
-** Created: Mon Sep 22 14:28:01 2008
+** Created: Tue Sep 23 10:12:15 2008
 **      by: Qt User Interface Compiler version 4.4.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!

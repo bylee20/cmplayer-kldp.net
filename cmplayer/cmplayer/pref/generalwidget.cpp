@@ -1,7 +1,7 @@
 #include "generalwidget.h"
 #include "general.h"
 #include "../ui/ui_generalwidget.h"
-#include <QFileDialog>
+#include <QtGui/QFileDialog>
 
 namespace Pref {
 

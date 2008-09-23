@@ -1,7 +1,7 @@
 #ifndef PREFBACKENDWIDGET_H
 #define PREFBACKENDWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 class QSettings;
 

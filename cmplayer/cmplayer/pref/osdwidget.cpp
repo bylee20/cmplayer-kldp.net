@@ -1,7 +1,7 @@
 #include "osdwidget.h"
-#include <QColor>
-#include <QFontDialog>
-#include <QDebug>
+#include <QtGui/QColor>
+#include <QtGui/QFontDialog>
+#include <QtCore/QDebug>
 
 namespace Pref {
 

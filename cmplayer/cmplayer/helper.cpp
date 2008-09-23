@@ -1,11 +1,11 @@
 #include "helper.h"
-#include <QDir>
-#include <QApplication>
-#include <QString>
+#include <QtCore/QDir>
+#include <QtCore/QCoreApplication>
+#include <QtCore/QString>
 
 struct Helper::Data {
 	Data(Helper *parent) : p(parent) {
-		appPath = QApplication::applicationDirPath();
+		appPath = QCoreApplication::applicationDirPath();
 		QDir home = QDir::home();
 		homePath = home.path();
 		if (!home.exists(".cmplayer"))

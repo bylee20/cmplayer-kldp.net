@@ -1,5 +1,5 @@
 #include "general.h"
-#include <QSettings>
+#include <QtCore/QSettings>
 
 namespace Pref {
 

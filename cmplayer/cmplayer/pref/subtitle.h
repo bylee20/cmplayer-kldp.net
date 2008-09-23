@@ -1,11 +1,11 @@
 #ifndef PREFERENCESPREFSUBTITLE_H
 #define PREFERENCESPREFSUBTITLE_H
 
-#include <QString>
-#include <QStringList>
+#include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <backend/subtitleoutput.h>
 #include <backend/osdstyle.h>
-#include <QSharedDataPointer>
+#include <QtCore/QSharedDataPointer>
 
 class QSettings;
 

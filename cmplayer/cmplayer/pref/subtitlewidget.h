@@ -1,7 +1,7 @@
 #ifndef PREFSUBTITLEWIDGET_H
 #define PREFSUBTITLEWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Pref {
 

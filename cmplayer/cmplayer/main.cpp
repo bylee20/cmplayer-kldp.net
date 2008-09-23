@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "helper.h"
-#include <QApplication>
-#include <QDebug>
+#include <QtGui/QApplication>
+#include <QtCore/QDebug>
 #include <backend/info.h>
 
 int main(int argc, char **argv) {

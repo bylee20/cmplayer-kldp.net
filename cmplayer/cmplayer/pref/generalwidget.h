@@ -1,7 +1,7 @@
 #ifndef PREFERENCESGENERALWIDGET_H
 #define PREFERENCESGENERALWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 
 namespace Pref {
 
