@@ -1,25 +1,14 @@
-#include <QDebug>
+#include <QtCore/QDebug>
+#include <QtGui/QWidget>
 #include "videooutput.h"
 #include "playengine.h"
 #include "subtitleoutput.h"
-#include <QApplication>
-#include <QDesktopWidget>
-#include <QEvent>
-#include <QPainter>
 
 namespace Backend {
 
 namespace MPlayer {
 
 struct VideoOutput::Data {
-	static bool isSame(qreal n1, qreal n2, qreal prec = 0.001) {return qAbs(n1 - n2) < prec;}
-	static void drawBG(QWidget *widget, const QColor &color = Qt::black) {
-		QPainter painter(widget);
-		painter.fillRect(widget->rect(), color);
-	}
-	static qreal ratio(qreal width, qreal height) {return width/height;}
-	static qreal ratio(const QSizeF &size) {return size.width()/size.height();}
-	static QPoint toPoint(const QSizeF &size) {return QPoint(size.width(), size.height());}
 	VideoOutput *p;
 	MPlayer::PlayEngine *engine;
 };

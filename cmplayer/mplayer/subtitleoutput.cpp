@@ -2,10 +2,10 @@
 #include "mediainfo.h"
 #include "playengine.h"
 #include "info.h"
-#include <QSet>
-#include <QDir>
+#include <QtCore/QSet>
+#include <QtCore/QDir>
 #include <backend/subtitleparsers.h>
-#include <QDebug>
+#include <QtCore/QDebug>
 
 namespace Backend {
 

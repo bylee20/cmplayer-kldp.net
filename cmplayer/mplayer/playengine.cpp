@@ -7,9 +7,9 @@
 #include "mediainfo.h"
 #include "config.h"
 #include "mplayerprocess.h"
-#include <QFile>
-#include <QSize>
-#include <QDebug>
+#include <QtCore/QFile>
+#include <QtCore/QSize>
+#include <QtCore/QDebug>
 
 namespace Backend {
 

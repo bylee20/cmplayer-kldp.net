@@ -1,6 +1,6 @@
 #include "info.h"
-#include <QObject>
-#include <QProcess>
+#include <QtCore/QObject>
+#include <QtCore/QProcess>
 #include "config.h"
 
 namespace Backend {

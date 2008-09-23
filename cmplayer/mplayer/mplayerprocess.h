@@ -1,7 +1,7 @@
 #ifndef MPLAYERPROCESS_H_
 #define MPLAYERPROCESS_H_
 
-#include <QProcess>
+#include <QtCore/QProcess>
 
 namespace Backend {
 

@@ -1,9 +1,9 @@
 #ifndef MEDIAINFO_H_
 #define MEDIAINFO_H_
 
-#include <QSize>
-#include <QStringList>
-#include <QVector>
+#include <QtCore/QSize>
+#include <QtCore/QStringList>
+#include <QtCore/QVector>
 
 class QSize;					class QProcess;
 

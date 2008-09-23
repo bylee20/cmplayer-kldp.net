@@ -1,8 +1,8 @@
 #include "mediainfo.h"
 #include "info.h"
-#include <QRegExp>
-#include <QUrl>
-#include <QDebug>
+#include <QtCore/QRegExp>
+#include <QtCore/QUrl>
+#include <QtCore/QDebug>
 #include "mplayerprocess.h"
 #include <backend/mediasource.h>
 #include "config.h"

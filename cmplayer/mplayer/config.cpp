@@ -1,16 +1,16 @@
 #include "config.h"
 #include "info.h"
-#include <QDebug>
-#include <QPushButton>
-#include <QSettings>
-#include <QGroupBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QProcess>
-#include <QLineEdit>
-#include <QLabel>
-#include <QFileDialog>
-#include <QMessageBox>
+#include <QtCore/QDebug>
+#include <QtGui/QPushButton>
+#include <QtCore/QSettings>
+#include <QtGui/QGroupBox>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QHBoxLayout>
+#include <QtCore/QProcess>
+#include <QtGui/QLineEdit>
+#include <QtGui/QLabel>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 
 namespace Backend {
 
