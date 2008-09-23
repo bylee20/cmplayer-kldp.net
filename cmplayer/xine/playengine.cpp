@@ -22,7 +22,7 @@ struct PlayEngine::Data {
 
 PlayEngine::PlayEngine(const Backend::FactoryIface *factory, QObject *parent)
 : Backend::PlayEngine(factory, parent), d(new Data) {
-	d->stream = XineEngine::get()->createStream(this);
+	d->stream = XineEngine::get()->createStream(0);
 	d->seeker = new SeekThread(this);
 	d->ticker = new TickThread(this);
 	connect(this, SIGNAL(stateChanged(Backend::State, Backend::State))
@@ -34,6 +34,7 @@ PlayEngine::PlayEngine(const Backend::FactoryIface *factory, QObject *parent)
 }
 
 PlayEngine::~PlayEngine() {
+	delete d->stream;
 	delete d;
 }
 
