@@ -3,7 +3,7 @@
 
 #include <QtGui/QWidget>
 #include <backend/osdstyle.h>
-#include "../ui/ui_osdwidget.h"
+#include "ui_osdwidget.h"
 
 class QComboBox;
 
