@@ -1,5 +1,5 @@
 #include "equalizerdialog.h"
-#include "ui/ui_equalizerdialog.h"
+#include "ui_equalizerdialog.h"
 #include <backend/videooutput.h>
 
 struct EqualizerDialog::Data {

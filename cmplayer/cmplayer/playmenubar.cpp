@@ -1,5 +1,5 @@
 #include "playmenubar.h"
-#include "ui/ui_playmenubar.h"
+#include "ui_playmenubar.h"
 #include <backend/utility.h>
 
 struct PlayMenuBar::Data {

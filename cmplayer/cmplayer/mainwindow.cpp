@@ -8,7 +8,7 @@
 #include "playlistmodel.h"
 #include "equalizerdialog.h"
 #include "abrepeatdialog.h"
-#include "ui/ui_aboutdialog.h"
+#include "ui_aboutdialog.h"
 #include "pref/preferences.h"
 #include "pref/general.h"
 #include "pref/interface.h"

@@ -1,6 +1,6 @@
 #include "playlistdock.h"
 #include "playlistdock_p.h"
-#include "ui/ui_playlistwidget.h"
+#include "ui_playlistwidget.h"
 #include "playlistmodel.h"
 #include <backend/info.h>
 #include <backend/playlist.h>

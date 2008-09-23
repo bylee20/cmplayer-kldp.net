@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_P_H
 #define MAINWINDOW_P_H
 
-#include "ui/ui_mainwindow.h"
+#include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include <backend/playengine.h>
 #include <backend/factoryiface.h>

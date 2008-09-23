@@ -4,7 +4,7 @@
 #include "subtitlewidget.h"
 #include "interfacewidget.h"
 #include "backendwidget.h"
-#include "../ui/ui_preferencesdialog.h"
+#include "ui_preferencesdialog.h"
 
 namespace Pref {
 

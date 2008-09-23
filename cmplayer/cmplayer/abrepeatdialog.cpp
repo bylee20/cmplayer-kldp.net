@@ -1,5 +1,5 @@
 #include "abrepeatdialog.h"
-#include "ui/ui_abrepeatdialog.h"
+#include "ui_abrepeatdialog.h"
 #include <backend/abrepeater.h>
 #include <backend/utility.h>
 

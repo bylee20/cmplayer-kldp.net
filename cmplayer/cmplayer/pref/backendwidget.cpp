@@ -1,5 +1,5 @@
 #include "backendwidget.h"
-#include "ui/ui_backendwidget.h"
+#include "ui_backendwidget.h"
 #include <backend/info.h>
 #include <backend/manager.h>
 #include <backend/config.h>
