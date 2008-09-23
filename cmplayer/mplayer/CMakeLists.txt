@@ -25,8 +25,6 @@ set(cmplayer_mplayer_HDRS
 
 qt4_wrap_cpp(cmplayer_mplayer_MOC_SRCS ${cmplayer_mplayer_HDRS})
 
-include_directories(${QT_INCLUDE_DIR})
-
 add_definitions(-DQT_PLUGIN)
 
 add_library(cmplayer_mplayer

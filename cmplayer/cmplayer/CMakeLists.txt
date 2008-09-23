@@ -83,6 +83,7 @@ add_executable(cmplayer-bin
 	${cmplayer_SRCS}
 	${cmplayer_MOC_SRCS}
 	${cmplayer_QRC_SRCS}
+	${cmplayer_UIS_H}
 )
 set_target_properties(cmplayer-bin PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin

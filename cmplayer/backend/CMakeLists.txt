@@ -61,10 +61,6 @@ set(cmplayer_backend_UIS
 qt4_wrap_cpp(cmplayer_backend_MOC_SRCS ${cmplayer_backend_HDRS})
 qt4_wrap_ui(cmplayer_backend_UIS_H ${cmplayer_backend_UIS})
 
-include_directories(${QT_INCLUDE_DIR})
-
-add_definitions(${QT_DEFINITIONS})
-
 add_library(cmplayer_backend
 	SHARED
 	${cmplayer_backend_SRCS}
