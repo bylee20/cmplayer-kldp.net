@@ -4,8 +4,8 @@
 #include "xineosd.h"
 #include <backend/subtitleparsers.h>
 #include <backend/subtitle.h>
-#include <QFileInfo>
-#include <QSet>
+#include <QtCore/QFileInfo>
+#include <QtCore/QSet>
 #include "playengine.h"
 
 namespace Backend {

@@ -1,9 +1,9 @@
 #ifndef XINEPOST_H_
 #define XINEPOST_H_
 
-#include <QStringList>
-#include <QWidget>
-#include <QMap>
+#include <QtCore/QStringList>
+#include <QtGui/QWidget>
+#include <QtCore/QMap>
 #include <xine.h>
 
 namespace Backend {

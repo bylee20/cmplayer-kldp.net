@@ -1,9 +1,9 @@
 #ifndef XINEAUDIOOUTPUT_H
 #define XINEAUDIOOUTPUT_H
 
-#include <QObject>
+#include <QtCore/QObject>
 #include <xine.h>
-#include <QStringList>
+#include <QtCore/QStringList>
 #include <backend/audiooutput.h>
 
 namespace Backend {

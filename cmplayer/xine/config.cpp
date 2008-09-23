@@ -1,6 +1,6 @@
 #include "config.h"
 #include "info.h"
-#include <QSettings>
+#include <QtCore/QSettings>
 
 namespace Backend {
 

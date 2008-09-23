@@ -1,4 +1,4 @@
-#include <QThread>
+#include <QtCore/QThread>
 
 namespace Backend {
 

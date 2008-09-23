@@ -1,15 +1,15 @@
 #include "xinepost.h"
 #include "xineengine.h"
-#include <QDebug>
-#include <QLineEdit>
-#include <QFrame>
-#include <QLabel>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QDoubleSpinBox>
-#include <QSpinBox>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
+#include <QtCore/QDebug>
+#include <QtGui/QLineEdit>
+#include <QtGui/QFrame>
+#include <QtGui/QLabel>
+#include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
+#include <QtGui/QDoubleSpinBox>
+#include <QtGui/QSpinBox>
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QVBoxLayout>
 
 namespace Backend {
 

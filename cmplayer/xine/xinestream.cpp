@@ -6,12 +6,12 @@
 #include "subtitleoutput.h"
 #include "xinepost.h"
 #include "xineosd.h"
-#include <QEvent>
-#include <QTimer>
-#include <QUrl>
-#include <QApplication>
+#include <QtCore/QEvent>
+#include <QtCore/QTimer>
+#include <QtCore/QUrl>
+#include <QtGui/QApplication>
 #include <xine/xineutils.h>
-#include <QDebug>
+#include <QtCore/QDebug>
 
 #define USE_XCB 1
 

@@ -1,7 +1,7 @@
 #ifndef BACKEND_XINE_FACTORYIFACE_H
 #define BACKEND_XINE_FACTORYIFACE_H
 
-#include <QObject>
+#include <QtCore/QObject>
 #include <backend/factoryiface.h>
 
 namespace Backend {

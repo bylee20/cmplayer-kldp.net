@@ -1,7 +1,7 @@
 #ifndef BACKEND_XINE_CONFIG_H
 #define BACKEND_XINE_CONFIG_H
 
-#include <QString>
+#include <QtCore/QString>
 #include <backend/config.h>
 #include <backend/configwidget.h>
 

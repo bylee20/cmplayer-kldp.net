@@ -1,7 +1,7 @@
 #ifndef BACKEND_XINE_XINESTREAM_H
 #define BACKEND_XINE_XINESTREAM_H
 
-#include <QObject>
+#include <QtCore/QObject>
 #include <xine.h>
 #include <backend/mediasource.h>
 #include <backend/backend.h>

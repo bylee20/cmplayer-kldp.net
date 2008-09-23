@@ -2,7 +2,7 @@
 #define XINE_XINEOSD_H
 
 #include <backend/osdstyle.h>
-#include <QObject>
+#include <QtCore/QObject>
 
 namespace Backend {
 

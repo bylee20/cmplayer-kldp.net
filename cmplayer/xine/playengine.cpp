@@ -5,7 +5,7 @@
 #include "audiooutput.h"
 #include "subtitleoutput.h"
 #include "private/playengine_p.h"
-#include <QDebug>
+#include <QtCore/QDebug>
 #include <xine/xineutils.h>
 #include "config.h"
 

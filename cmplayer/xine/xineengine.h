@@ -1,7 +1,7 @@
 #ifndef XINEENGINE_H
 #define XINEENGINE_H
 
-#include <QList>
+#include <QtCore/QList>
 #include <xine.h>
 
 namespace Backend {

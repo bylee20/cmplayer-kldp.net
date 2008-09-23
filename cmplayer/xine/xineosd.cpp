@@ -2,11 +2,11 @@
 #include "videooutput.h"
 #include "xinestream.h"
 #include <backend/utility.h>
-#include <QRegExp>
-#include <QPainter>
-#include <QTextDocument>
+#include <QtCore/QRegExp>
+#include <QtGui/QPainter>
+#include <QtGui/QTextDocument>
 #include <cmath>
-#include <QTime>
+#include <QtCore/QTime>
 
 namespace Backend {
 

@@ -1,13 +1,13 @@
 #ifndef XINEVIDEOOUTPUT_H
 #define XINEVIDEOOUTPUT_H
 
-#include <QObject>
-#include <QSize>
+#include <QtCore/QObject>
+#include <QtCore/QSize>
 #include <xine.h>
 #include <xcb/xcb.h>
-#include <QRectF>
+#include <QtCore/QRectF>
 #include <backend/videooutput.h>
-#include <QImage>
+#include <QtGui/QImage>
 
 class QRect;
 

@@ -2,13 +2,13 @@
 #include "xinepost.h"
 #include "videooutput.h"
 #include "xinestream.h"
-#include <QMouseEvent>
-#include <QPaintEvent>
-#include <QWidget>
-#include <QPainter>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QPaintEvent>
+#include <QtGui/QWidget>
+#include <QtGui/QPainter>
 #include "playengine.h"
-#include <QApplication>
-#include <QDebug>
+#include <QtGui/QApplication>
+#include <QtCore/QDebug>
 
 namespace Backend {
 

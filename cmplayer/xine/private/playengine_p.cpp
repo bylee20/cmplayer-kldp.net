@@ -1,9 +1,9 @@
 #include "playengine_p.h"
 #include "../playengine.h"
 #include "../xinestream.h"
-#include <QEvent>
-#include <QApplication>
-#include <QDebug>
+#include <QtCore/QEvent>
+#include <QtGui/QApplication>
+#include <QtCore/QDebug>
 
 namespace Backend {
 

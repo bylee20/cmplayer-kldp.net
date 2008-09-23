@@ -1,8 +1,8 @@
 #ifndef XINE_SUBTITLEOUTPUT_H
 #define XINE_SUBTITLEOUTPUT_H
 
-#include <QObject>
-#include <QStringList>
+#include <QtCore/QObject>
+#include <QtCore/QStringList>
 #include <backend/subtitleoutput.h>
 
 namespace Backend {
