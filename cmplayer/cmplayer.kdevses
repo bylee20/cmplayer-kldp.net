@@ -1,22 +1,49 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="5" >
-  <Doc0 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/branches/work_for_backend/backend/videooutput.cpp" >
-   <View0 Encoding="" Type="Source" />
+ <DocsAndViews NumberOfDocuments="14" >
+  <Doc0 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/backend/info.cpp" >
+   <View0 Encoding="" line="32" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/branches/work_for_backend/xine/xineosd.h" >
-   <View0 Encoding="" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/backend/info.h" >
+   <View0 Encoding="" line="32" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/branches/work_for_backend/xine/xineosd.cpp" >
-   <View0 Encoding="" line="119" Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/backend/mediasource.cpp" >
+   <View0 Encoding="" line="0" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/branches/work_for_backend/cmplayer/mainwindow_p.h" >
-   <View0 Encoding="" Type="Source" />
+  <Doc3 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/backend/mediasource.h" >
+   <View0 Encoding="" line="45" Type="Source" />
   </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/branches/work_for_backend/cmplayer/mainwindow_p.cpp" >
-   <View0 Encoding="" line="31" Type="Source" />
+  <Doc4 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/mplayer/playengine.cpp" >
+   <View0 Encoding="" line="167" Type="Source" />
   </Doc4>
+  <Doc5 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/mplayer/subtitleoutput.cpp" >
+   <View0 Encoding="" line="120" Type="Source" />
+  </Doc5>
+  <Doc6 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/mplayer/playengine.h" >
+   <View0 Encoding="" line="44" Type="Source" />
+  </Doc6>
+  <Doc7 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/backend/osdstyle.h" >
+   <View0 Encoding="" line="9" Type="Source" />
+  </Doc7>
+  <Doc8 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/xine/subtitleoutput.h" >
+   <View0 Encoding="" line="33" Type="Source" />
+  </Doc8>
+  <Doc9 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/xine/subtitleoutput.cpp" >
+   <View0 Encoding="" line="85" Type="Source" />
+  </Doc9>
+  <Doc10 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/backend/audiooutput.h" >
+   <View0 Encoding="" line="23" Type="Source" />
+  </Doc10>
+  <Doc11 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/backend/audiooutput.cpp" >
+   <View0 Encoding="" line="14" Type="Source" />
+  </Doc11>
+  <Doc12 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/backend/videooutput.h" >
+   <View0 Encoding="" line="61" Type="Source" />
+  </Doc12>
+  <Doc13 NumberOfViews="1" URL="file:///home/xylosper/cmplayer/cmplayer/backend/videooutput.cpp" >
+   <View0 Encoding="" line="50" Type="Source" />
+  </Doc13>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
