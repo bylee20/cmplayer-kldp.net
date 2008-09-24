@@ -72,7 +72,6 @@ set(cmplayer_UIS
 	aboutdialog.ui 
 	abrepeatdialog.ui 
 	pref/backendwidget.ui
-	pref/backendpage.ui
 )
 
 set(cmplayer_QRCS

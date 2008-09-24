@@ -10,6 +10,7 @@ set(cmplayer_mplayer_SRCS
 	info.cpp 
 	factoryiface.cpp 
 	config.cpp
+	wizardpage.cpp
 )
 set(cmplayer_mplayer_HDRS
 	mplayerprocess.h 
@@ -21,6 +22,7 @@ set(cmplayer_mplayer_HDRS
 	info.h
 	factoryiface.h 
 	config.h
+	wizardpage.h
 )
 
 qt4_wrap_cpp(cmplayer_mplayer_MOC_SRCS ${cmplayer_mplayer_HDRS})

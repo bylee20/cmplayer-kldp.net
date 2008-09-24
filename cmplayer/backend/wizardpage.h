@@ -10,8 +10,7 @@ class WizardPage : public QWizardPage {
 public:
 	static int getUniqueId() {return ++uid;}
 	WizardPage(QWidget *parent);
-	~WizardPage();
-	int id() const;
+	int id() const {return m_id;}
 private:
 	static int uid;
 	const int m_id;

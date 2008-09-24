@@ -1,5 +1,5 @@
 #include "configwidget.h"
-#include "private/ui_configwidget.h"
+#include "ui_configwidget.h"
 #include "info.h"
 
 namespace Backend {

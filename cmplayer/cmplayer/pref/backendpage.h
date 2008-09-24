@@ -1,19 +1,15 @@
 #ifndef PREFBACKENDPAGE_H
 #define PREFBACKENDPAGE_H
 
-#include <QtGui/QWidget>
-#include <backend/manager.h>
-
-class QTreeWidgetItem;
+#include <backend/wizardpage.h>
 
 namespace Pref {
 
-class BackendPage : public QWidget {
+class BackendPage : public Backend::WizardPage {
 	Q_OBJECT
 public:
 	BackendPage(QWidget *parent = 0);
 	~BackendPage();
-	const Backend::FactoryMap &factories() const;
 signals:
 	void backendSelected(const QString &fileName);
 	void backendSelected(Backend::FactoryIface *factory);

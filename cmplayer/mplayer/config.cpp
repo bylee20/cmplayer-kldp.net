@@ -1,5 +1,6 @@
 #include "config.h"
 #include "info.h"
+#include "wizardpage.h"
 #include <QtCore/QDebug>
 #include <QtGui/QPushButton>
 #include <QtCore/QSettings>
@@ -126,6 +127,18 @@ void Config::load() {
 	d.mplayer = set.value("MPlayer", "mplayer").toString();
 	d.options = set.value("Options", QStringList()).toStringList();
 	set.endGroup();
+}
+
+QList<Backend::WizardPage*> Config::wizard(QWidget *parent) {
+	QList<Backend::WizardPage*> pages;
+	pages.append(new WizardPage(parent));
+	return pages;
+}
+
+void Config::update(Backend::WizardPage *wizard) {
+	WizardPage *page = qobject_cast<WizardPage*>(wizard);
+	if (page) {
+	}
 }
 
 }

@@ -25,6 +25,8 @@ set(cmplayer_backend_SRCS
 	configwidget.cpp
 	config.cpp
 	wizardpage.cpp
+	filerequester.cpp
+	selectwidget.cpp
 )
 
 set(cmplayer_backend_HDRS
@@ -54,14 +56,18 @@ set(cmplayer_backend_HDRS
 	configwidget.h
 	config.h
 	wizardpage.h
+	filerequester.h
+	selectwidget.h
 )
 
 set(cmplayer_backend_UIS
 	private/configwidget.ui
+	private/selectwidget.ui
 )
 
 qt4_wrap_cpp(cmplayer_backend_MOC_SRCS ${cmplayer_backend_HDRS})
 qt4_wrap_ui(cmplayer_backend_UIS_H ${cmplayer_backend_UIS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_library(cmplayer_backend
 	SHARED

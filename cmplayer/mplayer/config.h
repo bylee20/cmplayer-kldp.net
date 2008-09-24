@@ -29,6 +29,8 @@ class Config : public Backend::Config {
 public:
 	Config() {if (!d.loaded) {load(); d.loaded = true;}}
 	QWidget *widget(QWidget *parent);
+	QList<Backend::WizardPage*> wizard(QWidget *parent);
+	void update(Backend::WizardPage *wizard);
 	void update(QWidget *widget);
 	void save();
 	void load();
