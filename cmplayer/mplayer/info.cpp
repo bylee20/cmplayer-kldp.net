@@ -12,6 +12,7 @@ Info::Data Info::d;
 Info::Data::Data() {
 	cv = QObject::trUtf8("정보 없음");
 	name = QObject::trUtf8("MPlayer");
+	des = QObject::trUtf8("MPlayer입니다.");
 	ves << "asf" << "avi" << "dvix" << "mkv" << "mov" << "mp4" << "mpeg" << "mpg"
 			<< "vob" << "ogg" << "ogm"<< "qt" << "rm" << "wmv";
 	aes << "mp3" << "ogg" << "ra" << "wav" << "wma";

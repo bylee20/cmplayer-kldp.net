@@ -9,7 +9,7 @@ namespace Backend {class FactoryIface;}
 
 namespace Pref {
 
-	class BackendPref;
+class BackendPref;
 
 class BackendWidget : public QWidget {
 	Q_OBJECT

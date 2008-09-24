@@ -24,6 +24,7 @@ set(cmplayer_backend_SRCS
 	manager.cpp
 	configwidget.cpp
 	config.cpp
+	wizardpage.cpp
 )
 
 set(cmplayer_backend_HDRS
@@ -52,6 +53,7 @@ set(cmplayer_backend_HDRS
 	manager.h
 	configwidget.h
 	config.h
+	wizardpage.h
 )
 
 set(cmplayer_backend_UIS

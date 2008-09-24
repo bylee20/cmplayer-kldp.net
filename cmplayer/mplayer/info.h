@@ -18,6 +18,7 @@ public:
 	virtual bool supportsSeekingByDrag() const {return false;}
 	virtual bool supportsDvdMenu() const {return false;}
 	const QString &name() const {return d.name;}
+	const QString &description() const {return d.des;}
 	const QString &compileVersion() const {return d.cv;}
 	const QString &runtimeVersion() const {
 		if (d.rv.isEmpty()) const_cast<Info*>(this)->getInfo(); return d.rv;}
@@ -33,7 +34,7 @@ private:
 	struct Data {
 		Data();
 		QStringList vos, aos;
-		QString cv, rv, name;
+		QString cv, rv, name, des;
 		Extensions ves, aes, ses;
 	};
 	static Data d;

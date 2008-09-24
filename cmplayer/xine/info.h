@@ -26,6 +26,7 @@ public:
 		return d.vos;
 	}
 	const QString &name() const {return d.name;}
+	const QString &description() const {return d.des;}
 	const QStringList &audioDrivers() const {
 		if (d.aos.isEmpty())
 			return const_cast<Info*>(this)->getAudioDrivers();
@@ -40,7 +41,7 @@ private:
 	struct Data {
 		Data();
 		QStringList vos, aos;
-		QString cv, rv, name;
+		QString cv, rv, name, des;
 		Extensions ves, aes, ses;
 	};
 	static Data d;

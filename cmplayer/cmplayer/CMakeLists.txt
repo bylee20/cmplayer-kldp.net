@@ -24,6 +24,8 @@ set(cmplayer_SRCS
 	pref/getshortcutdialog.cpp 
 	pref/backendwidget.cpp 
 	pref/backend.cpp
+	pref/wizard.cpp
+	pref/backendpage.cpp
 )
 
 set(cmplayer_HDRS
@@ -51,6 +53,8 @@ set(cmplayer_HDRS
 	pref/generalwidget.h 
 	pref/backendwidget.h 
 	pref/backend.h
+	pref/wizard.h
+	pref/backendpage.h
 )
 
 set(cmplayer_UIS
@@ -68,6 +72,7 @@ set(cmplayer_UIS
 	aboutdialog.ui 
 	abrepeatdialog.ui 
 	pref/backendwidget.ui
+	pref/backendpage.ui
 )
 
 set(cmplayer_QRCS

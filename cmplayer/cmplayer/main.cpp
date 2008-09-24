@@ -1,12 +1,14 @@
 #include "mainwindow.h"
 #include "helper.h"
-#include <QtGui/QApplication>
-#include <QtCore/QDebug>
+#include "pref/wizard.h"
 #include <backend/info.h>
+#include <QtGui/QApplication>
 
 int main(int argc, char **argv) {
 	QApplication app(argc, argv);
 	Backend::Info::setPrivatePath(Helper::privatePath());
+	Pref::Wizard wizard;
+	wizard.exec();
 	MainWindow mw;
 	mw.show();
 	return app.exec();

@@ -9,6 +9,7 @@ Info::Data Info::d;
 	
 Info::Data::Data() {
 	name = "xine";
+	des = QObject::trUtf8("xine입니다.");
 	cv = XINE_VERSION;
 	rv = xine_get_version_string();
 	ves << "asf" << "avi" << "dvix" << "mkv" << "mov" << "mp4" << "mpeg" << "mpg"

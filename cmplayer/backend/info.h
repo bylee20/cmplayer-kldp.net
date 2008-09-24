@@ -41,7 +41,7 @@ public:
 	static void setPrivatePath(const QString &path) {m_privatePath = path;}
 	static const QString &privatePath() {return m_privatePath;}
 	virtual const QString &name() const = 0;
-// 	virtual const QString &about() const = 0;
+	virtual const QString &description() const = 0;
 // 	virtual const QImage &logo() const = 0;
 	virtual const QString &compileVersion() const = 0;
 	virtual const QString &runtimeVersion() const = 0;
