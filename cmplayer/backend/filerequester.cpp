@@ -16,11 +16,13 @@ struct FileRequester::Data {
 	QPushButton *findButton, *openButton;
 	QLabel *valid_label;
 	QString fileName;
+	bool exists;
 };
 
 FileRequester::FileRequester(const QString &fileName, QWidget *parent)
 : QWidget(parent), d(new Data) {
 	d->fileName = fileName;
+	d->exists = false;
 	d->fileEdit = new QLineEdit;
 	d->findButton = new QPushButton(trUtf8("찾기"));
 	d->openButton = new QPushButton(trUtf8("열기"));
@@ -29,6 +31,7 @@ FileRequester::FileRequester(const QString &fileName, QWidget *parent)
 	hbox->addWidget(d->findButton);
 	hbox->addWidget(d->openButton);
 	d->valid_label = new QLabel;
+	d->valid_label->setWordWrap(true);
 	QVBoxLayout *vbox = new QVBoxLayout;
 	vbox->addLayout(hbox);
 	vbox->addWidget(d->valid_label);
@@ -56,7 +59,7 @@ void FileRequester::find() {
 			return;
 		}
 	}
-	QMessageBox::warning(this, trUtf8("찾기"), trUtf8("%1 파일을 "
+	QMessageBox::warning(this, trUtf8("찾기"), trUtf8("%1파일을 "
 			"찾지 못하였습니다. '열기'버튼을 눌러 직접 경로를 지정해주세요.").arg(d->fileName));
 }
 
@@ -69,10 +72,13 @@ void FileRequester::open() {
 void FileRequester::checkFileExists(const QString &filePath) {
 	const bool exists = QFileInfo(filePath).exists();
 	if (exists)
-		d->valid_label->setText(trUtf8("%1 은(는) 유효한 파일입니다."));
+		d->valid_label->setText(trUtf8("%1은(는) 유효한 파일입니다.").arg(filePath));
+	else if (!filePath.isEmpty())
+		d->valid_label->setText(trUtf8("%1은(는) 존재하지 않습니다.").arg(filePath));
 	else
-		d->valid_label->setText(trUtf8("%1 은(는) 존재하지 않습니다."));
-	emit validityChanged(exists);
+		d->valid_label->clear();
+	if (exists != d->exists)
+		emit validityChanged(d->exists = exists);
 }
 
 QString FileRequester::filePath() const {
@@ -80,7 +86,7 @@ QString FileRequester::filePath() const {
 }
 
 bool FileRequester::isValidFile() const {
-	return QFileInfo(filePath()).exists();
+	return d->exists;
 }
 
 }

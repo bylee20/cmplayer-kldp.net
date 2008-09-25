@@ -9,11 +9,14 @@ class WizardPage : public QWizardPage {
 	Q_OBJECT
 public:
 	static int getUniqueId() {return ++uid;}
-	WizardPage(QWidget *parent);
+	WizardPage(QWidget *parent = 0);
 	int id() const {return m_id;}
+protected:
+	void setWidget(QWidget *widget);
 private:
 	static int uid;
 	const int m_id;
+	QWidget *w;
 };
 
 }

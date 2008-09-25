@@ -25,7 +25,9 @@ set(cmplayer_SRCS
 	pref/backendwidget.cpp 
 	pref/backend.cpp
 	pref/wizard.cpp
-	pref/backendpage.cpp
+	pref/wizardpages.cpp
+	encodingcombobox.cpp
+	encodingfiledialog.cpp
 )
 
 set(cmplayer_HDRS
@@ -54,7 +56,9 @@ set(cmplayer_HDRS
 	pref/backendwidget.h 
 	pref/backend.h
 	pref/wizard.h
-	pref/backendpage.h
+	pref/wizardpages.h
+	encodingcombobox.h
+	encodingfiledialog.h
 )
 
 set(cmplayer_UIS

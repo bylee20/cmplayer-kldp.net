@@ -10,9 +10,8 @@ class Wizard : public QWizard {
 public:
 	Wizard(QWidget *parent = 0);
 	~Wizard();
+	int nextId() const;
 private:
-	QWizardPage *createIntroPage();
-	QWizardPage *createBackendPage();
 	struct Data;
 	Data *d;
 };

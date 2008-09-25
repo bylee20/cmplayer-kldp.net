@@ -156,12 +156,12 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="encoding_combo" >
+             <widget class="EncodingComboBox" name="encoding_combo" >
               <property name="editable" >
                <bool>true</bool>
               </property>
               <property name="sizeAdjustPolicy" >
-               <enum>QComboBox::AdjustToContents</enum>
+               <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
               </property>
              </widget>
             </item>
@@ -384,6 +384,11 @@
    <extends>QWidget</extends>
    <header>pref/osdwidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>EncodingComboBox</class>
+   <extends>QComboBox</extends>
+   <header>encodingcombobox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

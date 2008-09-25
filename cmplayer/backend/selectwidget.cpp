@@ -9,6 +9,7 @@ struct SelectWidget::Data {
 	Data(): map(Backend::Manager::get()->loadAll()) {}
 	Ui::SelectWidget ui;
 	const Backend::FactoryMap map;
+	QString selected;
 };
 
 SelectWidget::SelectWidget(QWidget *parent)
@@ -38,13 +39,16 @@ SelectWidget::~SelectWidget() {
 void SelectWidget::slotSelected() {
 	QList<QTreeWidgetItem*> items = d->ui.list->selectedItems();
 	if (items.isEmpty()) {
+		d->selected.clear();
 		d->ui.backend_label->setText(trUtf8("없음"));
+		emit selected(QString::null);
+		emit selected(0);
 	} else {
-		const QString key = items[0]->data(0, Qt::UserRole).toString();
-		Backend::FactoryIface *f = d->map[key];
+		d->selected = items[0]->data(0, Qt::UserRole).toString();
+		Backend::FactoryIface *f = d->map[d->selected];
 		d->ui.backend_label->setText(f->info()->name());
 		d->ui.info_label->setText(f->info()->description());
-		emit selected(key);
+		emit selected(d->selected);
 		emit selected(f);
 	}
 }
@@ -59,6 +63,15 @@ void SelectWidget::slotActivated(QTreeWidgetItem *item) {
 		emit activated(fileName);
 		emit activated(d->map[fileName]);
 	}
+}
+
+
+QString SelectWidget::selectedFileName() const {
+	return d->selected;
+}
+
+Backend::FactoryIface *SelectWidget::selectedObject() const {
+	return d->map[d->selected];
 }
 
 }
