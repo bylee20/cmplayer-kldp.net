@@ -111,13 +111,14 @@ void SubtitleOutput::updateCurrent() {
 		setVisible(true);
 }
 
-void SubtitleOutput::appendSubtitles(const QStringList &files, bool display) {
+void SubtitleOutput::appendSubtitles(const QStringList &files, const QString &encoding
+		, bool display) {
 	if (files.isEmpty())
 		return;
 	int index = d->subs.size();
 	for (int i=0; i<files.size(); ++i) {
 		QList<Subtitle> subs;
-		if (!SubtitleParsers::parse(files[i], &subs, m_encoding))
+		if (!SubtitleParsers::parse(files[i], &subs, encoding))
 			continue;
 		d->subs += subs;
 		if (display) {
@@ -130,6 +131,10 @@ void SubtitleOutput::appendSubtitles(const QStringList &files, bool display) {
 		updateCurrent();
 		emit selectedSubtitlesChanged(m_selected);
 	}
+}
+
+void SubtitleOutput::appendSubtitles(const QStringList &files, bool display) {
+	appendSubtitles(files, m_encoding, display);
 }
 
 void SubtitleOutput::select(int index) {

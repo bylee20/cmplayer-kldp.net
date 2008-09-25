@@ -1,3 +1,4 @@
+#include "encodingfiledialog.h"
 #include "mainwindow_p.h"
 #include "actioncollection.h"
 #include "playlistdock.h"
@@ -195,16 +196,18 @@ void MainWindow::changeCurrentSubtitles(QAction* act) {
 }
 
 void MainWindow::addSubtitles() {
-	const QString Filter = trUtf8("자막 파일") + ' ' + d->f->info()->subtitleExtensions().toFilter() + ";;"
-			+ trUtf8("모든 파일") + ' ' + "(*.*)";
 	QString dir;
 	if (d->engine->currentSource().isLocalFile()) {
 		QFileInfo info(d->engine->currentSource().filePath());
 		dir = info.path() + '/' + info.completeBaseName();
 	}
-	const QStringList files = QFileDialog::getOpenFileNames(this, trUtf8("자막 열기"), dir, Filter);
-	if (files.size())
-		d->subtitle->appendSubtitles(files, true);
+	const QString filter = trUtf8("자막 파일") + ' ' + d->f->info()->subtitleExtensions().toFilter() + ";;"
+			+ trUtf8("모든 파일") + ' ' + "(*.*)";
+	EncodingFileDialog dlg(this, trUtf8("자막 열기"), dir, filter, d->subtitle->encoding());
+	dlg.setFileMode(QFileDialog::ExistingFiles);
+	if (dlg.exec()) {
+		d->subtitle->appendSubtitles(dlg.selectedFiles(), true);
+	}
 }
 
 void MainWindow::showEqualizer() {

@@ -32,7 +32,6 @@ EncodingComboBox::EncodingComboBox(QWidget *parent)
 : QComboBox(parent) {
 	addItems(Data::encs);
 	setEditable(true);
-// 	setSizeAdjustPolicy(QComboBox::AdjustToContents);
 }
 
 QString EncodingComboBox::encoding() const {

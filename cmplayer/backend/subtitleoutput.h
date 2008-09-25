@@ -24,6 +24,7 @@ public:
 	void setEncoding(const QString &enc) {m_encoding = enc;}
 	const QString &encoding() const {return m_encoding;}
 	void appendSubtitles(const QStringList &files, bool display = true);
+	void appendSubtitles(const QStringList &files, const QString &encoding, bool display = true);
 	const QList<int> &selectedIndexes() const {return m_selected;}
 	void setCurrentChannel(int channel);
 	int currentChannel() const {return m_curChannel;}

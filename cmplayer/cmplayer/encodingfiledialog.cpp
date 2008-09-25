@@ -11,8 +11,9 @@ struct EncodingFileDialog::Data {
 	EncodingComboBox *combo;
 };
 
-EncodingFileDialog::EncodingFileDialog(QWidget *parent)
-: QFileDialog(parent) {
+EncodingFileDialog::EncodingFileDialog(QWidget *parent, const QString &caption
+		, const QString &directory, const QString &filter, const QString &encoding)
+: QFileDialog(parent, caption, directory, filter) {
 	d = new Data;
 	QLabel *label = new QLabel("Encoding:", this);
 	d->combo = new EncodingComboBox(this);
@@ -23,6 +24,8 @@ EncodingFileDialog::EncodingFileDialog(QWidget *parent)
 		grid->addWidget(label, row, 0, 1, 1);
 		grid->addWidget(d->combo, row, 1, 1, grid->columnCount()-1);
 	}
+	if (!encoding.isEmpty())
+		setEncoding(encoding);
 }
 
 EncodingFileDialog::~EncodingFileDialog() {
