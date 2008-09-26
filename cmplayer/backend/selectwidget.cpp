@@ -1,7 +1,7 @@
 #include "selectwidget.h"
 #include "ui_selectwidget.h"
 #include "backend.h"
-#include <backend/info.h>
+#include "info.h"
 
 namespace Backend {
 

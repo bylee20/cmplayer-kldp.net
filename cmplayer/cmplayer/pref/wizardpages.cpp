@@ -45,7 +45,7 @@ QString BackendPage::backend() const {
 
 SubtitlePage::SubtitlePage() {
 	setTitle(trUtf8("자막 설정"));
-	setSubTitle(trUtf8("자막을 표시하는데 사용할 글꼴과, 자막 파일을 읽어들일때 이용할 인코딩을 선택해주세요."));
+	setSubTitle(trUtf8("자막을 표시하는데 사용할 글꼴과, 자막 파일을 읽어들일때 이용할 인코딩의 기본값을 선택해주세요."));
 	QGridLayout *grid = new QGridLayout;
 	grid->addWidget(new QLabel(trUtf8("글꼴"), this), 0, 0, 1, 1);
 	fontCombo = new QFontComboBox(this);
@@ -69,6 +69,9 @@ SubtitlePage::SubtitlePage() {
 	grid->addWidget(label, 3, 1, 1, 1);
 	setLayout(grid);
 }
+
+FinishPage::FinishPage() {
+	setTi
 
 }
  

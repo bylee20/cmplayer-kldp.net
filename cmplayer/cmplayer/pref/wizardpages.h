@@ -39,6 +39,13 @@ private:
 	EncodingComboBox *encCombo;
 };
 
+class FinishPage : public Backend::WizardPage {
+	Q_OBJECT
+public:
+	FinishPage();
+private:
+};
+
 }
 
 #endif

@@ -73,6 +73,7 @@ add_library(cmplayer_backend
 	SHARED
 	${cmplayer_backend_SRCS}
 	${cmplayer_backend_MOC_SRCS}
+	${cmplayer_backend_UIS}
 )
 set_target_properties(cmplayer_backend PROPERTIES
 	LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
