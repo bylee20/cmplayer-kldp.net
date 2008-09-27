@@ -3,7 +3,7 @@
 
 namespace Backend {
 
-PlayEngine::PlayEngine(const FactoryIface *factory, QObject *parent)
+PlayEngine::PlayEngine(const BackendIface *factory, QObject *parent)
 : QObject(parent) {
 	m_factory = factory;
 	m_hasVideo = m_seekable = false;

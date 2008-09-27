@@ -6,7 +6,7 @@
 class QFontComboBox;			class EncodingComboBox;
 
 namespace Backend {
-class FactoryIface;				class SelectWidget;
+class BackendObject;				class SelectWidget;
 }
 
 namespace Pref {
@@ -22,9 +22,9 @@ class BackendPage : public Backend::WizardPage {
 public:
 	BackendPage();
 	bool isComplete () const {return ok;}
-	QString backend() const;
+	Backend::BackendObject *backend() const;
 private slots:
-	void slotSelected(Backend::FactoryIface *factory);
+	void slotSelected(Backend::BackendObject *factory);
 private:
 	Backend::SelectWidget *w;
 	bool ok;

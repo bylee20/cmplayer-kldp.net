@@ -4,7 +4,7 @@
 #include "videooutput.h"
 #include "audiooutput.h"
 #include "subtitleoutput.h"
-#include "private/playengine_p.h"
+#include "playengine_p.h"
 #include <QtCore/QDebug>
 #include <xine/xineutils.h>
 #include "config.h"
@@ -14,13 +14,14 @@ namespace Backend {
 namespace Xine {
 
 struct PlayEngine::Data {
+	~Data() {delete stream;}
 	XineStream *stream;
 	SeekThread *seeker;
 	TickThread *ticker;
 	Config config;
 };
 
-PlayEngine::PlayEngine(const Backend::FactoryIface *factory, QObject *parent)
+PlayEngine::PlayEngine(const Backend::BackendIface *factory, QObject *parent)
 : Backend::PlayEngine(factory, parent), d(new Data) {
 	d->stream = XineEngine::get()->createStream(this);
 	d->seeker = new SeekThread(this);
@@ -34,7 +35,6 @@ PlayEngine::PlayEngine(const Backend::FactoryIface *factory, QObject *parent)
 }
 
 PlayEngine::~PlayEngine() {
-	delete d->stream;
 	delete d;
 }
 

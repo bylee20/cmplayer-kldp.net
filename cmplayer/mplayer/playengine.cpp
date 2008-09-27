@@ -33,12 +33,14 @@ public:
 };
 
 PlayEngine::Data::Data(PlayEngine *p)
-: p(p), proc(new MPlayerProcess(p)), video(new VideoOutput(p))
-, audio(new AudioOutput(p)), subout(new SubtitleOutput(p))
+: p(p), proc(new MPlayerProcess(p))
 , justFinished(false), gotInfo(false)
 , dontmessup(Info::privatePath() +"/input.conf"), osdLevel(0) {}
 
 void PlayEngine::Data::init() {
+	video = new VideoOutput(p);
+	audio = new AudioOutput(p);
+	subout = new SubtitleOutput(p);
 	connect(proc, SIGNAL(finished(int, QProcess::ExitStatus)), p, SLOT(slotProcFinished()));
 	connect(p, SIGNAL(stateChanged(Backend::State, Backend::State)),
 			p, SLOT(slotStateChanged(Backend::State, Backend::State)));
@@ -53,13 +55,14 @@ void PlayEngine::Data::updateInfo() {
 	}
 }
 
-PlayEngine::PlayEngine(const Backend::FactoryIface *factory, QObject *parent)
+PlayEngine::PlayEngine(const Backend::BackendIface *factory, QObject *parent)
 : Backend::PlayEngine(factory, parent), d(new Data(this)) {
 	d->init();
 	setAudio(d->audio);
 	setVideo(d->video);
 	setSubtitle(d->subout);
 	QFile file(d->dontmessup);
+	qDebug() << d->dontmessup << file.exists();
 	if (!file.exists() && file.open(QFile::WriteOnly)) {
 		file.write(
 			"## prevent mplayer from messing up our shortcuts\n\n"

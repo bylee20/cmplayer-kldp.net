@@ -1,6 +1,6 @@
 #include "backendwidget.h"
+#include <backend/selectwidget.h>
 #include "ui_backendwidget.h"
-#include <backend/info.h>
 #include <backend/manager.h>
 #include <backend/config.h>
 #include <QtCore/QMap>
@@ -11,18 +11,21 @@
 namespace Pref {
 
 struct BackendWidget::Data {
-	Ui::Ui_BackendWidget ui;
-	Backend::FactoryMap factories;
-	BackendPref pref;
+	Ui::BackendWidget ui;
+	BackendPref backend;
 };
 
-BackendWidget::BackendWidget(QWidget *parent)
-: QWidget(parent) {
-	d = new Data;
+BackendWidget::BackendWidget(const BackendPref &backend, QWidget *parent)
+: QWidget(parent), d(new Data) {
 	d->ui.setupUi(this);
-	d->factories = Backend::Manager::get()->loadAll();
-	foreach(QString fileName, d->factories.keys())
-		addBackend(fileName);
+	d->backend = backend;
+	const Backend::BackendList &backends = d->ui.selector->backends();
+	for (int i=0; i<backends.size(); ++i) {
+		Backend::BackendObject *obj = backends[i];
+		if (obj->fileName() == d->backend.fileName())
+			d->ui.selector->setBackend(obj);
+		d->ui.tabs->addTab(obj->config()->widget(this), obj->name());
+	}
 }
 
 BackendWidget::~BackendWidget() {
@@ -30,29 +33,16 @@ BackendWidget::~BackendWidget() {
 }
 
 const BackendPref &BackendWidget::backend() const {
-	d->pref.setFileName(d->factories.keys()[d->ui.combo->currentIndex()]);
-	return d->pref;
-}
-
-void BackendWidget::addBackend(const QString &fileName) {
-	Backend::FactoryIface *f = d->factories[fileName];
-	Backend::Info *info = f->info();
-	
-	d->ui.combo->addItem(info->name());
-	
-	QTreeWidgetItem *item = new QTreeWidgetItem;
-	item->setText(0, info->name() + '(' + fileName + ')');
-	d->ui.list->addTopLevelItem(item);
-	
-	d->ui.tabs->addTab(f->config()->widget(this), info->name());
+	d->backend.setFileName(d->ui.selector->backend()->fileName());
+	return d->backend;
 }
 
 void BackendWidget::save() {
-	Backend::FactoryMap::iterator it = d->factories.begin();
-	for (int i=1; i<d->ui.tabs->count() && it != d->factories.end(); ++i, ++it) {
-		QWidget *w = d->ui.tabs->widget(i);
-		it.value()->config()->update(w);
-		it.value()->config()->save();
+	const Backend::BackendList &backends = d->ui.selector->backends();
+	for (int i=0; i<backends.size(); ++i) {
+		Backend::Config *config = backends[i]->config();
+		config->update(d->ui.tabs->widget(i));
+		config->save();
 	}
 }
 

@@ -16,7 +16,7 @@ class XineStream;
 class PlayEngine : public Backend::PlayEngine {
 	Q_OBJECT
 public:
-	PlayEngine(const Backend::FactoryIface *factory, QObject *parent);
+	PlayEngine(const Backend::BackendIface *factory, QObject *parent);
 	~PlayEngine();
 	virtual bool supportsSeekingByBytes() const {return true;}
 	virtual int maximumBytes() const {return 65535;}

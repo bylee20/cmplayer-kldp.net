@@ -11,7 +11,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
 #include "helper.h"
-#include <backend/factoryiface.h>
+#include <backend/backendobject.h>
 
 ShutdownDialog::ShutdownDialog(QWidget *parent)
 : QDialog(parent) {
@@ -147,7 +147,7 @@ void PlayListDock::setAutoShutdown(bool shut) {
 }
 
 void PlayListDock::add() {
-	Backend::Info *info = Helper::currentFactory()->info();
+	Backend::Info *info = Backend::BackendObject::currentBackend()->info();
 	const QString Filter = trUtf8("비디오 파일") +' ' + info->videoExtensions().toFilter() + ";;"
 			+ trUtf8("음악 파일") + ' ' + info->audioExtensions().toFilter() + ";;"
 			+ trUtf8("모든 파일") + ' ' + "(*.*)";

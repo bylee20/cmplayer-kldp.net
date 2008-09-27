@@ -21,6 +21,7 @@ set(cmplayer_backend_SRCS
 	info.cpp
 	osdstyle.cpp
 	private/jumpslider.cpp
+	backendobject.cpp
 	manager.cpp
 	configwidget.cpp
 	config.cpp
@@ -43,6 +44,8 @@ set(cmplayer_backend_HDRS
 	subtitleparsers/samiparser.h
 	subtitleparsers/subripparser.h
 	subtitle.h
+	backendobject.h
+	private/backendiface.h
 	subtitleparsers.h
 	playengine.h
 	backend.h
@@ -51,7 +54,6 @@ set(cmplayer_backend_HDRS
 	private/avoutput.h
 	osdstyle.h
 	private/jumpslider.h
-	factoryiface.h
 	manager.h
 	configwidget.h
 	config.h

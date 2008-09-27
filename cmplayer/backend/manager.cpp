@@ -6,14 +6,14 @@
 #include <QtCore/QPluginLoader>
 #include <QtCore/QMap>
 #include <QtCore/QDebug>
+#include <QtCore/QFileInfo>
 
 namespace Backend {
 
 struct Manager::Data {
-	QStringList backends;
 	QDir dir;
-	QStringList files;
-	FactoryMap factories;
+	QMap<QString, int> idxes;
+	BackendList objs;
 };
 
 Manager::Manager() {
@@ -31,42 +31,28 @@ Manager *Manager::get() {
 	return &self;
 }
 
-void Manager::getFileNames() {
-	if (d->files.isEmpty()) {
-		d->files = d->dir.entryList(QDir::Files);
-		foreach(QString fileName, d->files)
-			d->factories[fileName] = 0;
-	}
-}
-
-const QStringList &Manager::fileNameList() const {
-	if (d->files.isEmpty())
-		const_cast<Manager*>(this)->getFileNames();
-	return d->files;
-}
-
-FactoryIface *Manager::load(const QString &fileName) {
-	if (d->files.isEmpty())
-		getFileNames();
-	QMap<QString, FactoryIface*>::iterator it = d->factories.find(fileName);
-	if (it == d->factories.end())
-		return 0;
-	if (it.value())
-		return it.value();
-	QPluginLoader loader(d->dir.absoluteFilePath(it.key()));
-	if (!loader.load()) {
-		qFatal("%s", qPrintable(loader.errorString()));
+BackendObject *Manager::load(const QString &fileName) {
+	QMap<QString, int>::const_iterator it = d->idxes.find(fileName);
+	if (it != d->idxes.end())
+		return d->objs[it.value()];
+	BackendObject *obj = new BackendObject(d->dir.filePath(fileName));
+	if (!obj->isValid()) {
+		delete obj;
 		return 0;
 	}
-	return it.value() = qobject_cast<FactoryIface*>(loader.instance());
+	d->idxes[fileName] = d->objs.size();
+	d->objs.append(obj);
+	return obj;
 }
 
-const FactoryMap &Manager::loadAll() {
-	if (d->files.isEmpty())
-		getFileNames();
-	for (int i=0; i<d->files.size(); ++i)
-		load(d->files[i]);
-	return d->factories;
+const BackendList &Manager::loadAll() {
+	static bool loaded = false;
+	if (!loaded) {
+		QStringList files = d->dir.entryList(QDir::Files);
+		for (int i=0; i<files.size(); ++i)
+			load(files[i]);
+	}
+	return d->objs;
 }
 
 }

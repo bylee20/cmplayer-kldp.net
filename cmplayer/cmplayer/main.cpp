@@ -8,8 +8,8 @@
 int main(int argc, char **argv) {
 	QApplication app(argc, argv);
 	Backend::Info::setPrivatePath(Helper::privatePath());
-	Pref::Wizard wizard;
-	wizard.exec();
+// 	Pref::Wizard wizard;
+// 	wizard.exec();
 	MainWindow mw;
 	mw.show();
 	return app.exec();

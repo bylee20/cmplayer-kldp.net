@@ -9,12 +9,12 @@ namespace Backend {
 
 class VideoOutput;				class AudioOutput;
 class SubtitleOutput;			class ABRepeater;
-class FactoryIface;
+class BackendIface;
 
 class PlayEngine : public QObject {
 	Q_OBJECT
 public:
-	PlayEngine(const FactoryIface *factory, QObject *parent);
+	PlayEngine(const BackendIface *factory, QObject *parent);
 	virtual ~PlayEngine();
 	inline AudioOutput *audio() {return m_audio;}
 	inline VideoOutput *video() {return m_video;}
@@ -36,7 +36,7 @@ public:
 	inline bool hasVideo() const {return m_hasVideo;}
 	inline ABRepeater *repeater() {return m_repeater;}
 	virtual int maximumBytes() const {return 0;}
-	const FactoryIface *factory() const {return m_factory;}
+	const BackendIface *factory() const {return m_factory;}
 public slots:
 	void replay();
 	virtual void toggleDvdMenu() {}
@@ -89,7 +89,7 @@ private:
 	State m_state;
 	double m_speed;
 	int m_totalTime, m_curTime, m_curBytes;
-	const FactoryIface *m_factory;
+	const BackendIface *m_factory;
 };
 
 }

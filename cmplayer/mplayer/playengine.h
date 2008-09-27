@@ -15,7 +15,7 @@ class SubtitleOutput;			class AudioOutput;
 class PlayEngine : public Backend::PlayEngine {
 	Q_OBJECT
 public:
-	PlayEngine(const Backend::FactoryIface *factory, QObject *parent);
+	PlayEngine(const Backend::BackendIface *factory, QObject *parent);
 	~PlayEngine();
 	bool tellmp(const QString &command);
 	VideoOutput *videoOutput() const;

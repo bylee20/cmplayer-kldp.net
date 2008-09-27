@@ -11,8 +11,9 @@ class PlayEngine;
 class PlayListModel : public QAbstractTableModel {
 	Q_OBJECT
 public:
-	PlayListModel(Backend::PlayEngine *engine, QObject *parent);
+	PlayListModel(QObject *parent = 0);
 	~PlayListModel();
+	void setPlayEngine(Backend::PlayEngine *engine);
 	void setPlayList(const Backend::PlayList &list);
 	void addSources(const QList<Backend::MediaSource> &list);
 	void addSource(const Backend::MediaSource &source);

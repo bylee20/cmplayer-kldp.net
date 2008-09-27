@@ -1,28 +1,25 @@
 #include "selectwidget.h"
 #include "ui_selectwidget.h"
 #include "backend.h"
-#include "info.h"
 
 namespace Backend {
 
 struct SelectWidget::Data {
-	Data(): map(Backend::Manager::get()->loadAll()) {}
+	Data(): backends(Backend::Manager::get()->loadAll()), idx(-1) {}
 	Ui::SelectWidget ui;
-	const Backend::FactoryMap map;
-	QString selected;
+	const BackendList &backends;
+	int idx;
 };
 
 SelectWidget::SelectWidget(QWidget *parent)
 : QWidget(parent) {
 	d = new Data;
 	d->ui.setupUi(this);
-	Backend::FactoryMap::const_iterator it = d->map.begin();
-	for (; it != d->map.end(); ++it) {
-		const Backend::FactoryIface *f = it.value();
-		Backend::Info *info = f->info();
+	for (int i=0; i<d->backends.size(); ++i) {
+		const Backend::BackendObject *obj = d->backends[i];
 		QTreeWidgetItem *item = new QTreeWidgetItem;
-		item->setText(0, info->name() + '(' + it.key() + ')');
-		item->setData(0, Qt::UserRole, it.key());
+		item->setText(0, obj->name() + '(' + obj->fileName() + ')');
+		item->setData(0, Qt::UserRole, i);
 		d->ui.list->addTopLevelItem(item);
 	}
 	d->ui.info_label->hide();
@@ -36,42 +33,42 @@ SelectWidget::~SelectWidget() {
 	delete d;
 }
 
-void SelectWidget::slotSelected() {
-	QList<QTreeWidgetItem*> items = d->ui.list->selectedItems();
-	if (items.isEmpty()) {
-		d->selected.clear();
-		d->ui.backend_label->setText(trUtf8("없음"));
-		emit selected(QString::null);
-		emit selected(0);
-	} else {
-		d->selected = items[0]->data(0, Qt::UserRole).toString();
-		Backend::FactoryIface *f = d->map[d->selected];
-		d->ui.backend_label->setText(f->info()->name());
-		d->ui.info_label->setText(f->info()->description());
-		emit selected(d->selected);
-		emit selected(f);
+void SelectWidget::setBackend(BackendObject *obj) {
+	const int idx = d->backends.indexOf(obj);
+	if (idx != -1) {
+		QTreeWidgetItem *item = d->ui.list->topLevelItem(idx);
+		d->ui.list->setCurrentItem(item);
 	}
 }
 
-const Backend::FactoryMap &SelectWidget::factories() const {
-	return d->map;
+void SelectWidget::slotSelected() {
+	QList<QTreeWidgetItem*> items = d->ui.list->selectedItems();
+	if (items.isEmpty()) {
+		d->idx = -1;
+		d->ui.backend_label->setText(trUtf8("없음"));
+		emit selected(0);
+	} else {
+		d->idx = items[0]->data(0, Qt::UserRole).toInt();
+		Backend::BackendObject *obj = d->backends[d->idx];
+		d->ui.backend_label->setText(obj->name());
+		d->ui.info_label->setText(obj->description());
+		emit selected(obj);
+	}
+}
+
+const BackendList &SelectWidget::backends() const {
+	return d->backends;
 }
 
 void SelectWidget::slotActivated(QTreeWidgetItem *item) {
 	if (item) {
-		const QString fileName = item->data(0, Qt::UserRole).toString();
-		emit activated(fileName);
-		emit activated(d->map[fileName]);
+		const int idx = item->data(0, Qt::UserRole).toInt();
+		emit activated(d->backends[idx]);
 	}
 }
 
-
-QString SelectWidget::selectedFileName() const {
-	return d->selected;
-}
-
-Backend::FactoryIface *SelectWidget::selectedObject() const {
-	return d->map[d->selected];
+Backend::BackendObject *SelectWidget::backend() const {
+	return (d->idx == -1) ? 0 : d->backends[d->idx];
 }
 
 }

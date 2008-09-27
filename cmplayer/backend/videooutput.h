@@ -5,6 +5,7 @@
 #include "private/avoutput.h"
 
 class QWidget;						class QRect;
+class QRectF;
 
 namespace Backend {
 
@@ -16,6 +17,7 @@ public:
 	static const double AspectRatioAuto = -1.0;
 	static const double CropOff = -1.0;
 	VideoOutput(PlayEngine *engine);
+	~VideoOutput();
 	inline QWidget *widget() {return m_widget;}
 	inline const QSize &videoSize() const {return m_videoSize;}
 	inline double brightness() const {return m_brightness;}
@@ -36,12 +38,13 @@ public slots:
 	void setContrast(double value);
 	void setHue(double value);
 	void setSaturation(double value);
-	void setFullScreen(bool fs);
+	void setFullScreenMode(bool on);
 signals:
 	void widgetSizeHintChanged(const QSize &size);
 	void widgetResized(const QSize &size);
 	void sizeUpdated();
 protected:
+	QRectF videoRect() const;
 	inline double aspectRatioF() const {
 		return m_aspectRatio > 0.0 ? m_aspectRatio : m_videoRatio;}
 	virtual bool updateExpand(bool expand) = 0;

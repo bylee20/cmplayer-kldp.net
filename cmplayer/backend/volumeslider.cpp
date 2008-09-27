@@ -3,14 +3,21 @@
 
 namespace Backend {
 
-VolumeSlider::VolumeSlider(AudioOutput *audio, QWidget *parent)
-: JumpSlider(parent) {
+VolumeSlider::VolumeSlider(QWidget *parent)
+: JumpSlider(parent), audio(0) {
 	setMaximum(100);
 	setMinimum(0);
 	setMaximumWidth(70);
-	setValue(audio->volume());
-	connect(this, SIGNAL(valueChanged(int)), audio, SLOT(setVolume(int)));
-	connect(audio, SIGNAL(volumeChanged(int)), this, SLOT(setValue(int)));
+	setValue(0);
+}
+
+void VolumeSlider::setAudioOutput(AudioOutput *audio) {
+	if (this->audio != audio) {
+		this->audio = audio;
+		setValue(audio->volume());
+		connect(this, SIGNAL(valueChanged(int)), audio, SLOT(setVolume(int)));
+		connect(audio, SIGNAL(volumeChanged(int)), this, SLOT(setValue(int)));
+	}
 }
 
 }

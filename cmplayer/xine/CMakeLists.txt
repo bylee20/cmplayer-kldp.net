@@ -7,9 +7,9 @@ set(cmplayer_xine_SRCS
 	xinestream.cpp
 	videooutput.cpp
 	xineengine.cpp
-	factoryiface.cpp
+	backendiface.cpp
 	info.cpp
-	private/playengine_p.cpp
+	playengine_p.cpp
 	subtitleoutput.cpp
 	playengine.cpp
 	config.cpp
@@ -22,8 +22,8 @@ set(cmplayer_xine_HDRS
 	xinestream.h
 	xineengine.h
 	subtitleoutput.h
-	private/playengine_p.h
-	factoryiface.h
+	playengine_p.h
+	backendiface.h
 	info.h
 	playengine.h
 	config.h

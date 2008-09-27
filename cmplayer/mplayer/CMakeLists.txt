@@ -8,7 +8,7 @@ set(cmplayer_mplayer_SRCS
 	subtitleoutput.cpp 
 	videooutput.cpp 
 	info.cpp 
-	factoryiface.cpp 
+	backendiface.cpp 
 	config.cpp
 	wizardpage.cpp
 )
@@ -20,7 +20,7 @@ set(cmplayer_mplayer_HDRS
 	subtitleoutput.h 
 	videooutput.h 
 	info.h
-	factoryiface.h 
+	backendiface.h 
 	config.h
 	wizardpage.h
 )

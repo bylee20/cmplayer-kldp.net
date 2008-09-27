@@ -27,20 +27,19 @@ BackendPage::BackendPage() {
 	setTitle(trUtf8("재생 엔진 선택"));
 	setSubTitle(trUtf8("멀티미디어 재생을 위한 엔진을 선택해주세요."));
 	
-	connect(w, SIGNAL(selected(Backend::FactoryIface*))
-			, this, SLOT(slotSelected(Backend::FactoryIface*)));
+	connect(w, SIGNAL(selected(Backend::BackendObject*)), this, SLOT(slotSelected(Backend::BackendObject*)));
 }
 
-void BackendPage::slotSelected(Backend::FactoryIface *factory) {
-	const bool ok = (factory != 0);
+void BackendPage::slotSelected(Backend::BackendObject *obj) {
+	const bool ok = (obj != 0);
 	if (this->ok != ok) {
 		this->ok = ok;
 		emit completeChanged();
 	}
 }
 
-QString BackendPage::backend() const {
-	return w->selectedFileName();
+Backend::BackendObject *BackendPage::backend() const {
+	return w->backend();
 }
 
 SubtitlePage::SubtitlePage() {
@@ -71,7 +70,11 @@ SubtitlePage::SubtitlePage() {
 }
 
 FinishPage::FinishPage() {
-	setTi
+	setTitle(trUtf8("설정 완료"));
+	QLabel *label = new QLabel(trUtf8("CMPlayer를 이용하기위해서 필요한 사항들이 설정되었습니다. "
+			"마법사를 마치면 설정된 내용이 적용됩니다. "
+			"좀더 다양한 설정을 위해서는 환경 설정 메뉴를 이용해주세요."));
+	setWidget(label);
+}
 
 }
- 

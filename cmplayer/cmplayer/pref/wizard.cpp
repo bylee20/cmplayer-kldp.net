@@ -9,11 +9,11 @@
 namespace Pref {
 
 struct Wizard::Data {
-	enum {Intro = 0, Backend, Subtitle, End};
-	Data(): map(Backend::Manager::get()->loadAll()), backendPages(0) {}
-	const Backend::FactoryMap map;
-	QMap<QString, QList<Backend::WizardPage*> > pages;
-	QList<Backend::WizardPage*> *backendPages;
+	enum {Intro = 0, Backend, Subtitle, Finish};
+	Data(): backends(Backend::Manager::get()->loadAll()), selectedPages(0) {}
+	const Backend::BackendList backends;
+	QMap<Backend::BackendObject*, QList<Backend::WizardPage*> > pages;
+	QList<Backend::WizardPage*> *selectedPages;
 // 	int introId, backendId, endId;
 };
 
@@ -23,14 +23,13 @@ Wizard::Wizard(QWidget *parent)
 	setPage(Data::Intro, new IntroPage);
 	setPage(Data::Backend, new BackendPage);
 	setPage(Data::Subtitle, new SubtitlePage);
-	setPage(Data::End, new QWizardPage);
-	Backend::FactoryMap::const_iterator it = d->map.constBegin();
-	for (; it != d->map.constEnd(); ++it) {
-		Backend::Config *config = it.value()->config();
+	setPage(Data::Finish, new FinishPage);
+	for (int i=0; i<d->backends.size(); ++i) {
+		Backend::Config *config = d->backends[i]->config();
 		QList<Backend::WizardPage*> pages = config->wizard();
-		for (int i=0; i<pages.size(); ++i)
-			setPage(pages[i]->id(), pages[i]);
-		d->pages[it.key()] = pages;
+		for (int j=0; j<pages.size(); ++j)
+			setPage(pages[j]->id(), pages[j]);
+		d->pages[d->backends[i]] = pages;
 	}
 	setWindowTitle(trUtf8("설정 마법사"));
 	setPixmap(QWizard::LogoPixmap, QPixmap(":/img/tools-wizard.png"));
@@ -48,24 +47,24 @@ int Wizard::nextId() const {
 	case Data::Intro:
 		return Data::Backend;
 	case Data::Backend: {
-		d->backendPages = 0;
-		QString fileName = static_cast<BackendPage*>(currentPage())->backend();
-		if (fileName.isEmpty())
-			return Data::Subtitle;
-		d->backendPages = &d->pages[fileName];
-		if (d->backendPages->isEmpty())
-			return Data::Subtitle;
-		return d->backendPages->first()->id();
+		d->selectedPages = 0;
+		Backend::BackendObject *obj = static_cast<BackendPage*>(currentPage())->backend();
+		if (obj) {
+			d->selectedPages = &d->pages[obj];
+			if (!d->selectedPages->isEmpty())
+				return d->selectedPages->first()->id();
+		}
+		return Data::Subtitle;
 	} case Data::Subtitle:
-		return Data::End;
-	case Data::End:
+		return Data::Finish;
+	case Data::Finish:
 		return -1;
 	default:
-		if (!d->backendPages || d->backendPages->isEmpty())
+		if (!d->selectedPages || d->selectedPages->isEmpty())
 			return -1;
-		for (int i=0; i<d->backendPages->size()-1; ++i) {
-			if (d->backendPages->at(i)->id() == id)
-				return d->backendPages->at(i+1)->id();
+		for (int i=0; i<d->selectedPages->size()-1; ++i) {
+			if (d->selectedPages->at(i)->id() == id)
+				return d->selectedPages->at(i+1)->id();
 		}
 		return Data::Subtitle;
 	}

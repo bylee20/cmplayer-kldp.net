@@ -10,7 +10,10 @@ class AudioOutput;
 class VolumeSlider : public JumpSlider {
 	Q_OBJECT
 public:
-	VolumeSlider(AudioOutput *audio, QWidget *parent = 0);
+	VolumeSlider(QWidget *parent = 0);
+	void setAudioOutput(AudioOutput *audio);
+private:
+	AudioOutput *audio;
 };
 
 }

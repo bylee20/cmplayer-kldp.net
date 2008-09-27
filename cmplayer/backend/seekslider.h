@@ -10,8 +10,8 @@ class PlayEngine;
 class SeekSlider : public JumpSlider {
 	Q_OBJECT
 public:
-	SeekSlider(PlayEngine *engine, QWidget *parent = 0);
-	void setEngine(PlayEngine *engine);
+	SeekSlider(QWidget *parent = 0);
+	void setPlayEngine(PlayEngine *engine);
 private slots:
 	void setTotalTime(int time) {m_tick = true; setRange(0, time); m_tick = false;}
 	void slotTick(int value) {
@@ -19,6 +19,7 @@ private slots:
 	void seek(int value);
 	void setDraggingStarted() {m_drag = true;}
 	void setDraggingEnded();
+	void removeEngine(QObject *obj);
 private:
 	PlayEngine *m_engine;
 	bool m_tick, m_drag, m_dragKeep, m_byteSeek;

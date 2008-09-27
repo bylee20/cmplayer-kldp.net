@@ -13,7 +13,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
 , m_general(new GeneralWidget(m_pref->general(), this))
 , m_subtitle(new SubtitleWidget(m_pref->subtitle(), this))
 , m_interface(new InterfaceWidget(m_pref->interface(), this))
-, m_backend(new BackendWidget(this)) {
+, m_backend(new BackendWidget(m_pref->backend(), this)) {
 	ui->setupUi(this);
 	connect(ui->ok_button, SIGNAL(clicked()), this, SLOT(save()));
 	while (ui->stack->count()) {

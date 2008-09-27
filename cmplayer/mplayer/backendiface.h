@@ -1,15 +1,15 @@
 #ifndef BACKEND_MPLAYER_FACTORYIFACE_H
 #define BACKEND_MPLAYER_FACTORYIFACE_H
 
-#include <backend/factoryiface.h>
+#include <backend/private/backendiface.h>
 
 namespace Backend {
 
 namespace MPlayer {
 
-class FactoryIface : public QObject, public Backend::FactoryIface {
+class BackendIface : public QObject, public Backend::BackendIface {
 	Q_OBJECT
-	Q_INTERFACES(Backend::FactoryIface)
+	Q_INTERFACES(Backend::BackendIface)
 public:
 	PlayEngine *createPlayEngine(QObject *parent) const;
 	Config *config() const;

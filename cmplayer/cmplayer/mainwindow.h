@@ -6,7 +6,9 @@
 
 class RecentStack;
 
-namespace Backend {class MediaSource;}
+namespace Backend {
+class MediaSource;						class BackendObject;
+}
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -87,9 +89,22 @@ private slots:
 	void updateStopped(const Backend::MediaSource &source, int time);
 	void hideCursor();
 private:
-	Q_DISABLE_COPY(MainWindow)
-	class Data;
-	friend class Data;
+	void setBackendActionsEnabled(bool enabled);
+	void setBackend(Backend::BackendObject *backend);
+	static const int SubPosStep = 1;
+	enum StaysOnTop {AlwaysOnTop, OnlyPlaying, NotStayOnTop};
+	void init();
+	void open(const Backend::MediaSource &source);
+	QMenu *findMenuIn(QMenu *menu, const QString &title);
+	void initSubtitles();
+	void updateStaysOnTop();
+	void checkClose();
+	void resetSeekDVDMenu();
+	void clearSeekDVDMenu();
+	void initIface();
+	void registerActions();
+	void initGui();
+	struct Data;
 	Data *d;
 };
 

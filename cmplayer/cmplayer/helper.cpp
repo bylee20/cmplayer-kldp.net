@@ -22,10 +22,7 @@ struct Helper::Data {
 	QString privatePath;
 };
 
-Helper::Helper() {
-	d = new Data(this);
-	f = 0;
-}
+Helper::Helper(): d(new Data(this)) {}
 
 Helper::~Helper() {
 	delete d;

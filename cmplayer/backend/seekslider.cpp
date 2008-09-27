@@ -1,23 +1,17 @@
 #include "seekslider.h"
 #include "playengine.h"
 #include "info.h"
-#include "factoryiface.h"
+#include "private/backendiface.h"
 
 namespace Backend {
 
-SeekSlider::SeekSlider(PlayEngine *engine, QWidget *parent)
+SeekSlider::SeekSlider(QWidget *parent)
 : JumpSlider(parent), m_engine(0) {
-	setEngine(engine);
 }
 
-void SeekSlider::setEngine(PlayEngine *engine) {
+void SeekSlider::setPlayEngine(PlayEngine *engine) {
 	if (m_engine == engine)
 		return;
-	if (m_engine) {
-		m_engine->disconnect(this);
-		this->disconnect(m_engine);
-		this->disconnect(this);
-	}
 	m_tick = m_drag = false;
 	m_dragPos = -1;
 	Backend::Info *info = engine->factory()->info();
@@ -38,23 +32,23 @@ void SeekSlider::setEngine(PlayEngine *engine) {
 	m_dragKeep = !info->supportsSeekingByDrag();
 	setEnabled(engine->isSeekable());
 	connect(engine, SIGNAL(seekableChanged(bool)), this, SLOT(setEnabled(bool)));
+	connect(engine, SIGNAL(destroyed(QObject*)), this, SLOT(removeEngine(QObject*)));
 	m_engine = engine;
 }
 
 void SeekSlider::setDraggingEnded() {
 	m_drag = false;
-	if (m_dragPos != -1) {
-		if (m_byteSeek)
-			m_engine->seekByBytes(m_dragPos);
-		else
-			m_engine->seek(m_dragPos, false, false);
-		m_dragPos = -1;
-	}
-// 		m_engine->seek(m_dragPos, false, false);
+	if (m_dragPos == -1 || !m_engine)
+		return;
+	if (m_byteSeek)
+		m_engine->seekByBytes(m_dragPos);
+	else
+		m_engine->seek(m_dragPos, false, false);
+	m_dragPos = -1;
 }
 
 void SeekSlider::seek(int value) {
-	if (m_tick)
+	if (m_tick || !m_engine)
 		return;
 	if (m_dragKeep && m_drag)
 		m_dragPos = value;
@@ -65,6 +59,11 @@ void SeekSlider::seek(int value) {
 			m_engine->seek(value, false, false);
 		m_dragPos = -1;
 	}
+}
+
+void SeekSlider::removeEngine(QObject *obj) {
+	if (obj == m_engine)
+		m_engine = 0;
 }
 
 }

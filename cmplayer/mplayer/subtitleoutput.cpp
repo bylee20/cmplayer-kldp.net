@@ -3,8 +3,10 @@
 #include "playengine.h"
 #include "info.h"
 #include <QtCore/QSet>
+#include <QtCore/QRectF>
 #include <QtCore/QDir>
 #include <backend/subtitleparsers.h>
+#include "videooutput.h"
 #include <QtCore/QDebug>
 
 namespace Backend {
@@ -30,6 +32,7 @@ struct SubtitleOutput::Data {
 SubtitleOutput::SubtitleOutput(PlayEngine *engine)
 : Backend::SubtitleOutput(engine), d(new Data(this)) {
 	d->engine = engine;
+	connect(d->engine->videoOutput(), SIGNAL(sizeUpdated()), this, SLOT(slotSizeUpdated()));
 }
 
 SubtitleOutput::~SubtitleOutput() {
@@ -43,22 +46,6 @@ void SubtitleOutput::remove() {
 			d->loaded = false;
 	}
 }
-
-// void SubtitleOutput::moveUp() {
-// 	move(d->pos + 0.01/d->posScale);
-// }
-// 
-// void SubtitleOutput::moveDown() {
-// 	move(d->pos - 0.01/d->posScale);
-// }
-// 
-// void SubtitleOutput::move(qreal pos) {
-// 	d->pos = qBound(0.0, pos, 1.0);
-// 	if (d->engine)
-// 		d->engine->tellmp("sub_pos "+QString::number(static_cast<int>(d->pos*d->posScale*100)) + " 1");
-// }
-// 
-
 
 void SubtitleOutput::show() {
 	if (currentSubtitle().isEmpty())
@@ -77,29 +64,6 @@ void SubtitleOutput::hide() {
 		d->engine->tellmp("sub_select -1");
 }
 
-// void SubtitleOutput::setPosScale(qreal scale) {
-// 	if (static_cast<int>(d->posScale*100) == static_cast<int>(scale*100))
-// 		return;
-// 	d->posScale = qBound(0.0, scale, 1.0);
-// 	move(d->pos);
-// }
-
-// void SubtitleOutput::update() {
-// 	if (d->engine && d->engine->isRunning()) {
-// 		d->engine->tellmp("sub_scale " + QString::number(d->font.scale) + " 1");
-// 		move(d->initPos);
-// 		d->engine->tellmp("sub_delay " + QString::number(static_cast<double>(d->delay)/1000.0) + " 1");
-// 	}
-// }
-
-// void SubtitleOutput::setDisplayOnMarginEnabled(bool enabled) {
-// 	d->onMargin = enabled;
-// }
-// 
-// bool SubtitleOutput::isDisplayOnMarginEnabled() const {
-// 	return d->onMargin;
-// }
-
 void SubtitleOutput::updateClear() {
 	remove();
 }
@@ -111,7 +75,19 @@ void SubtitleOutput::updateSyncDelay(int msec) {
 	}
 }
 
+void SubtitleOutput::slotSizeUpdated() {
+	updatePos(pos());
+}
+
 void SubtitleOutput::updatePos(double pos) {
+	if (d->engine) {
+		QRectF rect = d->engine->video()->osdRect(true);
+		const double fullHeight = rect.bottom() + rect.top();
+		const double point = rect.top() + rect.height() * pos;
+		const int p = qBound(0, qRound(point/fullHeight*100.0), 100);
+		qDebug() << rect << fullHeight << point << p;
+		d->engine->tellmp("sub_pos " + QString::number(p) + " 1");
+	}
 }
 
 void SubtitleOutput::updateCurrentChannel(int index) {

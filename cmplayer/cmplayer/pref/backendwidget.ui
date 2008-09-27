@@ -1,12 +1,12 @@
 <ui version="4.0" >
- <class>Pref::Ui::BackendWidget</class>
- <widget class="QWidget" name="Pref::Ui::BackendWidget" >
+ <class>Pref::BackendWidget</class>
+ <widget class="QWidget" name="Pref::BackendWidget" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>289</width>
-    <height>319</height>
+    <width>241</width>
+    <height>91</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -26,6 +26,9 @@
        <string>엔진 선택</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <property name="bottomMargin" >
+        <number>0</number>
+       </property>
        <item>
         <widget class="QLabel" name="label_3" >
          <property name="text" >
@@ -37,44 +40,7 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout" >
-         <item>
-          <widget class="QLabel" name="label_2" >
-           <property name="text" >
-            <string>재생 엔진 선택</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="combo" >
-           <property name="sizeAdjustPolicy" >
-            <enum>QComboBox::AdjustToContents</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer" >
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0" >
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QTreeWidget" name="list" >
-         <column>
-          <property name="text" >
-           <string>이용가능한 재생 엔진 목록</string>
-          </property>
-         </column>
-        </widget>
+        <widget class="Backend::SelectWidget" native="1" name="selector" />
        </item>
        <item>
         <spacer name="verticalSpacer" >
@@ -84,7 +50,7 @@
          <property name="sizeHint" stdset="0" >
           <size>
            <width>0</width>
-           <height>3</height>
+           <height>0</height>
           </size>
          </property>
         </spacer>
@@ -95,6 +61,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Backend::SelectWidget</class>
+   <extends>QWidget</extends>
+   <header location="global" >backend/selectwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

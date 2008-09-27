@@ -46,47 +46,51 @@ VideoOutput::VideoOutput(PlayEngine *engine)
 	m_widget->setPalette(p);
 	m_visual->setPalette(p);
 	m_video->setPalette(p);
-	m_expanded = false;
+	m_fullScreen = m_expanded = false;
 	updateVideoSize(QSize(10, 10));
 	connect(engine, SIGNAL(started()), this, SLOT(update()));
 }
 
-void VideoOutput::setFullScreen(bool fs) {
+VideoOutput::~VideoOutput() {
+	delete m_widget;
+}
+
+void VideoOutput::setFullScreenMode(bool fs) {
 	if (fs == m_fullScreen)
 		return;
 	m_fullScreen = fs;
 	updateVideo();
 }
 
-// QRectF VideoOutput::videoRect() const {
-// 	if (!isExpanded())
-// 		return QRect(QPoint(0, 0), videoSize());
-// 	QWidget *w = internalWidget();
-// 	QRectF rect(QPointF(0.0, 0.0), w->size());
-// 	if (videoRatio() > Utility::desktopRatio())
-// 		rect.setHeight(rect.height()/videoOverDesktop());
-// 	else
-// 		rect.setWidth(rect.width()*videoOverDesktop());
-// 	rect.moveTopLeft(QPoint((w->width()-rect.width())/2, (w->height()-rect.height())/2));
-// 	return rect;
-// }
+QRectF VideoOutput::videoRect() const {
+	if (!isExpanded())
+		return QRect(QPoint(0, 0), videoSize());
+	QWidget *w = internalWidget();
+	QRectF rect(QPointF(0.0, 0.0), w->size());
+	if (videoRatio() > Utility::desktopRatio())
+		rect.setHeight(rect.height()/videoOverDesktop());
+	else
+		rect.setWidth(rect.width()*videoOverDesktop());
+	rect.moveTopLeft(QPoint((w->width()-rect.width())/2, (w->height()-rect.height())/2));
+	return rect;
+}
 
-// QRect VideoOutput::osdRect(bool forScaled) const {
-// 	if (forScaled && !isExpanded())
-// 		return QRect(QPoint(0, 0), widgetSizeHint());
-// 	QPoint pos = internalWidget()->mapTo(visualWidget(), QPoint(0, 0));
-// 	QSize size(qMin(visualWidget()->width(), internalWidget()->width()), qMin(visualWidget()->height(), internalWidget()->height()));
-// 	if (pos.y() < 0)
-// 		pos.setY(-pos.y());
-// 	if (pos.x() < 0)
-// 		pos.setX(-pos.x());
-// 	if (forScaled) {
-// 		const double scale = videoRect().width()/widgetSizeHint().width();
-// 		pos /= scale;
-// 		size /= scale;
-// 	}
-// 	return QRect(pos, size);
-// }
+QRect VideoOutput::osdRect(bool forScaled) const {
+	if (forScaled && !isExpanded())
+		return QRect(QPoint(0, 0), widgetSizeHint());
+	QPoint pos = internalWidget()->mapTo(visualWidget(), QPoint(0, 0));
+	QSize size(qMin(visualWidget()->width(), internalWidget()->width()), qMin(visualWidget()->height(), internalWidget()->height()));
+	if (pos.y() < 0)
+		pos.setY(-pos.y());
+	if (pos.x() < 0)
+		pos.setX(-pos.x());
+	if (forScaled) {
+		const double scale = videoRect().width()/widgetSizeHint().width();
+		pos /= scale;
+		size /= scale;
+	}
+	return QRect(pos, size);
+}
 
 QSize VideoOutput::widgetSizeHint() const {
 	QSize hint = m_videoSize;
@@ -136,21 +140,17 @@ void VideoOutput::updateVideo() {
 	const double widgetRatio = ratio(widget);
 	static const double desktopRatio = Utility::desktopRatio();
 	if (isExpanded()) {
-// 		if (m_fullScreen)
-// 			visual = widget;
-// 		else {
-			visual.setWidth(m_videoRatio);
-			visual.rwidth() *= (aspect/m_videoRatio);
-			
-			if (widgetRatio < ratio(visual)) {
-				if (widgetRatio < desktopRatio) {
-					visual.setWidth(desktopRatio * visual.height());
-					visual.scale(widget, Qt::KeepAspectRatio);
-				} else
-					visual = widget;
-			} else
+		visual.setWidth(m_videoRatio);
+		visual.rwidth() *= (aspect/m_videoRatio);
+		
+		if (widgetRatio < ratio(visual)) {
+			if (widgetRatio < desktopRatio) {
+				visual.setWidth(desktopRatio * visual.height());
 				visual.scale(widget, Qt::KeepAspectRatio);
-// 		}
+			} else
+				visual = widget;
+		} else
+			visual.scale(widget, Qt::KeepAspectRatio);
 		video.setWidth(desktopRatio);
 		video.rwidth() *= (aspect/m_videoRatio);
 		if (ratio(visual) > ratio(video))

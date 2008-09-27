@@ -8,9 +8,9 @@ namespace Backend {
 class Info;						class PlayEngine;
 class Config;
 
-class FactoryIface {
+class BackendIface {
 public:
-	virtual ~FactoryIface() {}
+	virtual ~BackendIface() {}
 	virtual PlayEngine *createPlayEngine(QObject *parent) const = 0;
 	virtual Info *info() const = 0;
 	virtual Config *config() const = 0;
@@ -18,6 +18,6 @@ public:
 
 }
 
-Q_DECLARE_INTERFACE(Backend::FactoryIface, "CMPlayer.Backend.FactoryIface/1.0")
+Q_DECLARE_INTERFACE(Backend::BackendIface, "CMPlayer.Backend.BackendIface/1.0");
 
 #endif

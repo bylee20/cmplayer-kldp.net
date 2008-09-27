@@ -77,18 +77,6 @@ XineStream::~XineStream() {
 	delete d;
 }
 
-// bool XineStream::open() {
-// 	Config config;
-// 	return open(m_video->driver(), m_audio->driver());
-// }
-// 
-// bool XineStream::openAudio(const QString &driver) {
-// 	return open(m_video->driver(), driver);
-// }
-// bool XineStream::openVideo(const QString &driver) {
-// 	return open(driver, m_video->driver());
-// }
-
 bool XineStream::open(const QString &vd, const QString &ad) {
 	close();
 	xine_t *xine = XineEngine::get()->xine();

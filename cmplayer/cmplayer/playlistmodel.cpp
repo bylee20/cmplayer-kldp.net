@@ -1,6 +1,7 @@
 #include "playlistmodel.h"
 #include "recentinfo.h"
 #include <QtCore/QUrl>
+#include <QtCore/QDebug>
 #include <QtGui/QFont>
 #include <backend/mediasource.h>
 #include <backend/playlist.h>
@@ -10,16 +11,13 @@ struct PlayListModel::Data {
 	inline bool isValid(int row) { return row >=0 && row < list.size();}
 	bool setCurrentRow(int row) {
 		int temp = curRow;
-		if (row < 0) {
-			curRow = -1;
-		} else if (isValid(row) && row != curRow) {
-			curRow = row;
-		} else
+		if (row >= list.size())
 			return false;
+		curRow = (row < 0) ? -1 : row;
 		emitDataChanged(temp);
 		if (curRow != -1) {
 			emitDataChanged(curRow);
-			if (engine && engine->currentSource() != list[curRow])
+			if (engine)
 				engine->setCurrentSource(list[curRow]);
 		}
 		emit p->currentRowChanged(curRow);
@@ -36,19 +34,27 @@ struct PlayListModel::Data {
 	bool loop;
 };
 
-PlayListModel::PlayListModel(Backend::PlayEngine *engine, QObject *parent)
+PlayListModel::PlayListModel(QObject *parent)
 : QAbstractTableModel(parent), d(new Data()) {
 	d->p = this;
-	d->engine = engine;
+	d->curRow = -1;
+	d->engine = 0;
 	d->loop = false;
 	d->font.setItalic(true);
 	d->font.setBold(true);
-	connect(engine, SIGNAL(finished(Backend::MediaSource))
-			, this, SLOT(slotFinished(const Backend::MediaSource&)));
 }
 
 PlayListModel::~PlayListModel() {
 	delete d;
+}
+
+void PlayListModel::setPlayEngine(Backend::PlayEngine *engine) {
+	if (d->engine != engine) {
+		d->engine = engine;
+		connect(engine, SIGNAL(finished(Backend::MediaSource)), this, SLOT(slotFinished(const Backend::MediaSource&)));
+		if (d->curRow != -1)
+			d->engine->setCurrentSource(d->list[d->curRow]);
+	}
 }
 
 bool PlayListModel::setMediaSource(int row, const Backend::MediaSource &source) {
@@ -131,6 +137,7 @@ void PlayListModel::remove(int row) {
 void PlayListModel::play(int row) {
 	if (!d->isValid(row) || !d->engine)
 		return;
+	qDebug() << "model" << d->list[row].isValid();
 	d->setCurrentRow(row);
 	d->engine->play(RecentInfo::get()->stoppedTime(d->list[row]));
 }

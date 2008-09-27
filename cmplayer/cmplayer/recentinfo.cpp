@@ -6,6 +6,7 @@
 #include <backend/playlist.h>
 #include <QtCore/QUrl>
 #include <QtCore/QSettings>
+#include <QtCore/QDebug>
 
 RecentStack::RecentStack(int size) {setSize(size);}
 
@@ -83,6 +84,7 @@ void RecentInfo::load() {
 	QSettings set(Helper::recentFile(), QSettings::IniFormat);
 	set.beginGroup("RecentInfo");
 	d->source = Backend::MediaSource(set.value("LastSource", QUrl()).toUrl());
+	qDebug() << "load" << d->source.toMrl();
 	int size = set.beginReadArray("Recents");
 	QList<Backend::MediaSource> recents;
 	for (int i=0; i<size; ++i) {

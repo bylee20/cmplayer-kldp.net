@@ -5,7 +5,7 @@
 
 class QSettings;
 
-namespace Backend {class FactoryIface;}
+namespace Backend {class BackendIface;}
 
 namespace Pref {
 
@@ -14,12 +14,11 @@ class BackendPref;
 class BackendWidget : public QWidget {
 	Q_OBJECT
 public:
-	BackendWidget(QWidget *parent = 0);
+	BackendWidget(const BackendPref &backend, QWidget *parent = 0);
 	~BackendWidget();
 	const BackendPref &backend() const;
 	void save();
 private:
-	void addBackend(const QString &fileName);
 	struct Data;
 	Data *d;
 };

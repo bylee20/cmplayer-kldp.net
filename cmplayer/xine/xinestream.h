@@ -19,9 +19,6 @@ class XineStream : public QObject {
 public:
 	XineStream(PlayEngine *engine);
 	~XineStream();
-// 	bool open();
-// 	bool openAudio(const QString &driver);
-// 	bool openVideo(const QString &driver);
 	bool open(const QString &vd, const QString &ad);
 	bool isOpen() const {return m_open;}
 	void close();

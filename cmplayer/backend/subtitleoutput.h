@@ -34,6 +34,7 @@ public:
 	int syncDelay() const {return m_delay;}
 	void setStyle(const OsdStyle &style) {updateStyle(style); m_style = style;}
 	const OsdStyle &style() const {return m_style;}
+	double pos() const {return m_pos;}
 public slots:
 	void setInitialPos(double pos);
 	double initialPos() const {return m_initPos;}

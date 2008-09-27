@@ -14,14 +14,12 @@ public:
 public:
 	SelectWidget(QWidget *parent = 0);
 	~SelectWidget();
-	const Backend::FactoryMap &factories() const;
-	QString selectedFileName() const;
-	Backend::FactoryIface *selectedObject() const;
+	const BackendList &backends() const;
+	BackendObject *backend() const;
+	void setBackend(BackendObject *obj);
 signals:
-	void selected(const QString &fileName);
-	void selected(Backend::FactoryIface *factory);
-	void activated(const QString &fileName);
-	void activated(Backend::FactoryIface *factory);
+	void selected(Backend::BackendObject *obj);
+	void activated(Backend::BackendObject *obj);
 private slots:
 	void slotSelected();
 	void slotActivated(QTreeWidgetItem *item);

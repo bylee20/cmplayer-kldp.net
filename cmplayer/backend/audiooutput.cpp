@@ -1,6 +1,5 @@
 #include "audiooutput.h"
 #include "playengine.h"
-#include "factoryiface.h"
 #include "info.h"
 
 namespace Backend {

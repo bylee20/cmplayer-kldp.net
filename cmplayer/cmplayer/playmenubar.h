@@ -3,12 +3,14 @@
 
 #include <QtGui/QWidget>
 
+namespace Backend {class PlayEngine;}
+
 class PlayMenuBar : public QWidget {
 	Q_OBJECT
 public:
-	PlayMenuBar(QWidget *parent = 0);
+	PlayMenuBar(const QList<QAction*> &acts, QWidget *parent = 0);
 	~PlayMenuBar();
-	void init(const QList<QWidget *> &tools);
+	void setPlayEngine(Backend::PlayEngine *engine);
 public slots:
 	void setTotalTime(int msec);
 	void setCurrentTime(int msec);
