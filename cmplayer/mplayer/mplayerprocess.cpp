@@ -58,11 +58,16 @@ void MPlayerProcess::interpretMessages() {
 				static QRegExp rxID("^ID_(.*)=(.*)");
 				static QRegExp rxNoVideo("^Video:\\s+no video");
 				static QRegExp rxVO("^VO: \\[(.*)\\] (\\d+)x(\\d+) => (\\d+)x(\\d+)");
+				static QRegExp rxAudio("^AID_(\\d+)_(LANG|NAME)=(.*)");
 				if (rxID.indexIn(msg) != -1) {
 					const QString id = rxID.cap(1);
 					if (id == "LENGTH")
 						d->info->m_length = rxID.cap(2).toDouble()*1000.0;
-					else if (d->info->isDisc()) {
+					else if (id == "AUDIO_ID") {
+						d->info->m_tracks[rxID.cap(2).toInt()] = "";
+					} else if (rxAudio.indexIn(id) != -1) {
+						d->info->m_tracks[rxAudio.cap(1).toInt()] = rxAudio.cap(2);
+					} else if (d->info->isDisc()) {
 						static QRegExp rxDVDTitle("^DVD_TITLE_(\\d+)_([A-Z]+)$");
 						if (id == "DVD_TITLES") {
 							d->info->m_dvd->titles.resize(rxID.cap(2).toInt());

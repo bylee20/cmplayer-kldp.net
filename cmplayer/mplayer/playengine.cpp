@@ -52,6 +52,7 @@ void PlayEngine::Data::updateInfo() {
 		emit p->totalTimeChanged(info.length());
 		if (info.hasVideo() && video)
 			video->updateVideoSize(info.videoSize());
+		audio->updateTracks(info.tracks());
 	}
 }
 

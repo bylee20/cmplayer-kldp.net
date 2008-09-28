@@ -27,6 +27,7 @@ MediaInfo &MediaInfo::operator = (const MediaInfo &rhs) {
 		m_hasVideo = rhs.m_hasVideo;
 		m_disc = rhs.m_disc;
 		*m_dvd = *rhs.m_dvd;
+		m_tracks = rhs.m_tracks;
 	}
 	return *this;
 }

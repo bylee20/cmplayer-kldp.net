@@ -143,7 +143,7 @@
      <x>0</x>
      <y>0</y>
      <width>576</width>
-     <height>25</height>
+     <height>27</height>
     </rect>
    </property>
    <property name="defaultUp" >
@@ -303,9 +303,15 @@
     <property name="title" >
      <string>오디오(&amp;A)</string>
     </property>
+    <widget class="QMenu" name="audio_track_menu" >
+     <property name="title" >
+      <string>오디오 트랙</string>
+     </property>
+    </widget>
     <addaction name="audio_volume_up_action" />
     <addaction name="audio_volume_down_action" />
     <addaction name="audio_mute_action" />
+    <addaction name="audio_track_menu" />
    </widget>
    <widget class="QMenu" name="subtitle_menu" >
     <property name="title" >
@@ -971,6 +977,11 @@
    </property>
    <property name="text" >
     <string>DVD 메뉴 전환</string>
+   </property>
+  </action>
+  <action name="action_2" >
+   <property name="text" >
+    <string>선택</string>
    </property>
   </action>
  </widget>

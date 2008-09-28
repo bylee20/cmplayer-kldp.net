@@ -38,7 +38,7 @@
 struct MainWindow::Data {
 	Data(MainWindow *parent)
 	: onTopActions(0), videoSizeActions(0), videoAspectActions(0)
-	, videoCropActions(0), subListActions(0), subChannelsActions(0) {
+	, videoCropActions(0), subListActions(0), subChannelsActions(0), audioTrackActions(0) {
 		ui.setupUi(parent);
 		repeating = pausedByHiding = resizedByAct = changingOnTop = closed = false;
 		staysOnTop = NotStayOnTop;
@@ -80,7 +80,7 @@ struct MainWindow::Data {
 	PlayListDock *dock;
 	QActionGroup onTopActions, videoSizeActions, videoAspectActions;
 	QActionGroup videoCropActions, subListActions, subChannelsActions;
-	
+	QActionGroup audioTrackActions;
 	QList<QAction *> recentActions;
 	QMenu *contextMenu;
 	QMap<int, QAction*> mouseClickActions;
@@ -95,11 +95,10 @@ MainWindow::MainWindow(QWidget *parent)
 	initGui();
 	initIface();
 	
-		connect(d->ui.open_file_action, SIGNAL(triggered()), this, SLOT(openFile()));
+	connect(d->ui.open_file_action, SIGNAL(triggered()), this, SLOT(openFile()));
 	connect(d->ui.open_dvd_action, SIGNAL(triggered()), this, SLOT(openDVD()));
 	connect(d->ui.recent_clear_action, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
 	connect(d->ui.file_exit_action, SIGNAL(triggered()), qApp, SLOT(quit()));
-
 
 	connect(d->ui.play_show_playlist_action, SIGNAL(triggered()), this, SLOT(togglePlayListVisibility()));
 	connect(d->ui.play_pause_action, SIGNAL(triggered()), this, SLOT(playPause()));
@@ -130,7 +129,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 	connect(d->ui.audio_volume_up_action, SIGNAL(triggered()), this, SLOT(increaseVolume()));
 	connect(d->ui.audio_volume_down_action, SIGNAL(triggered()), this, SLOT(decreaseVolume()));
-	
+	connect(&d->audioTrackActions, SIGNAL(triggered(QAction*)), this, SLOT(changeCurrentAuidoTrack(QAction*)));
 
 	connect(&d->subChannelsActions, SIGNAL(triggered(QAction*)), this, SLOT(changeCurrentSubChannel(QAction*)));
 	connect(&d->subListActions, SIGNAL(triggered(QAction*)), this, SLOT(changeCurrentSubtitles(QAction*)));
@@ -275,6 +274,9 @@ void MainWindow::setBackend(Backend::BackendObject *backend) {
 	d->audio = d->engine->audio();
 	connect(d->ui.audio_mute_action, SIGNAL(toggled(bool)), d->audio, SLOT(setMuted(bool)));
 	connect(d->audio, SIGNAL(mutedChanged(bool)), d->ui.audio_mute_action, SLOT(setChecked(bool)));
+	connect(d->audio, SIGNAL(availableTracksChanged(const QStringList&))
+			, this, SLOT(updateAudioTracks(const QStringList&)));
+	connect(d->audio, SIGNAL(currentTrackChanged(int)), this, SLOT(updateCurrentAudioTrack(int)));
 		
 	d->video = d->engine->video();
 	connect(d->video, SIGNAL(widgetResized(const QSize&)), this, SLOT(slotResized()));
@@ -657,6 +659,30 @@ void MainWindow::addSubtitles() {
 	if (dlg.exec()) {
 		d->subtitle->appendSubtitles(dlg.selectedFiles(), true);
 	}
+}
+
+void MainWindow::updateAudioTracks(const QStringList &tracks) {
+	const bool show = tracks.size() > 1;
+	d->ui.audio_track_menu->setVisible(show);
+	if (show) {
+		QList<QAction*> acts = d->audioTrackActions.actions();
+		for (int i=0; i < acts.size(); ++i) {
+			d->audioTrackActions.removeAction(acts[i]);
+			delete acts[i];
+		}
+		for (int i=0; tracks.size(); ++i) {
+			QAction *act = d->audioTrackActions.addAction(tracks[i]);
+			act->setData(i);
+		}
+	}
+}
+
+void MainWindow::updateCurrentAudioTrack(int index) {
+	d->audioTrackActions.actions()[index]->setCheckable(true);
+}
+
+void MainWindow::changeCurrentAuidoTrack(QAction *act) {
+	d->audio->setCurrentTrack(act->data().toInt());
 }
 
 void MainWindow::showEqualizer() {

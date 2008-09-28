@@ -16,12 +16,10 @@ class AudioOutput : public Backend::AudioOutput {
 	Q_OBJECT
 public:
 	AudioOutput(PlayEngine *engine, XineStream *stream);
-	xine_audio_port_t *&port() {return m_port;}
+	~AudioOutput();
+	xine_audio_port_t *&port();
 	void updateTracks();
 	void setVolumeAmplification(double amp);
-signals:
-	void availableTracksChanged(const QStringList &tracks);
-	void currentTrackChanged(int index);
 private slots:
 	void update();
 	void slotVolumeChanged(int volume);
@@ -29,14 +27,25 @@ private slots:
 private:
 	virtual void updateVolume(int volume);
 	virtual void updateMuted(bool muted);
-	int realVolume(int vol) const {return qBound(0, int(vol*m_volAmp),200);}
-	PlayEngine *m_engine;
-	XineStream *m_stream;
-	xine_audio_port_t *m_port;
-	QStringList m_tracks;
-	int m_curTrack;
-	double m_volAmp;
+	virtual void updateCurrentTrack(int index);
+	int realVolume(int vol) const;
+	struct Data {
+		Data(): engine(0), stream(0), port(0), volAmp(1.0) {}
+		PlayEngine *engine;
+		XineStream *stream;
+		xine_audio_port_t *port;
+		double volAmp;
+	};
+	Data *d;
 };
+
+inline xine_audio_port_t *&AudioOutput::port() {
+	return d->port;
+}
+
+inline int AudioOutput::realVolume(int vol) const {
+	return qBound(0, int(vol*d->volAmp),200);
+}
 
 }
 

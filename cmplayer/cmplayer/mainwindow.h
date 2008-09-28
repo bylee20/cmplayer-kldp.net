@@ -45,6 +45,9 @@ private slots:
 	void updateCurrentSubChannel(int index);
 	void updateSubChannels(const QStringList &channels);
 	void updateCurrentSubtitleIndexes(const QList<int> &indexes);
+	void updateAudioTracks(const QStringList &tracks);
+	void updateCurrentAudioTrack(int index);
+	void changeCurrentAuidoTrack(QAction *act);
 	void showPreferencesDialog();
 	void clearSubtitleList();
 	void addSubtitles();

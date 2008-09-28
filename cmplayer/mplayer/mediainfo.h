@@ -4,6 +4,7 @@
 #include <QtCore/QSize>
 #include <QtCore/QStringList>
 #include <QtCore/QVector>
+#include <QtCore/QMap>
 
 class QSize;					class QProcess;
 
@@ -36,6 +37,7 @@ public:
 	bool isValid() const {return m_valid;}
 	bool isDisc() const {return m_disc;}
 	const DVDInfo &dvd() const {return *m_dvd;}
+	const QMap<int, QString> &tracks() const {return m_tracks;}
 	bool get(const MediaSource &source);
 	bool get(const QString &parse, const MediaSource &source, QProcess *proc = 0);
 private:
@@ -46,6 +48,7 @@ private:
 	qint64 m_length;
 	QSize m_videoSize;
 	bool m_valid, m_hasVideo, m_disc;
+	QMap<int, QString> m_tracks;
 	DVDInfo *m_dvd;
 };
 

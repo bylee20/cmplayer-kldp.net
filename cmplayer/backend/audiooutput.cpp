@@ -5,27 +5,31 @@
 namespace Backend {
 
 AudioOutput::AudioOutput(PlayEngine *engine) 
-: AVOutput(engine), m_volume(100), m_initVol(100), m_muted(false) {
+: AVOutput(engine), d(new Data) {
 	connect(engine, SIGNAL(started()), this, SLOT(update()));
 }
 
+AudioOutput::~AudioOutput() {
+	delete d;
+}
+
 void AudioOutput::update() {
-	updateMuted(m_muted);
-	updateVolume(m_initVol > 0 ? m_initVol : m_volume);
+	updateMuted(d->muted);
+	updateVolume(d->initVol > 0 ? d->initVol : d->volume);
 }
 
 void AudioOutput::setVolume(int volume) {
 	volume = qBound(0, volume, 100);
-	if (m_volume != volume) {
+	if (d->volume != volume) {
 		updateVolume(volume);
-		emit volumeChanged(m_volume = volume);
+		emit volumeChanged(d->volume = volume);
 	}
 }
 
 void AudioOutput::setMuted(bool muted) {
-	if (m_muted != muted) {
+	if (d->muted != muted) {
 		updateMuted(muted);
-		m_muted = muted;
+		d->muted = muted;
 	}
 }
 
