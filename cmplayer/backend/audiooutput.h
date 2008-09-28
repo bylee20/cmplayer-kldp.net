@@ -75,7 +75,7 @@ inline void AudioOutput::setTracks(const QStringList &tracks) {
 }
 
 inline void AudioOutput::setCurrentTrack(int index) {
-	if (d->curTrack != index) {
+	if (d->curTrack != index && index >= 0 && index < d->tracks.size()) {
 		updateCurrentTrack(index);
 		emit currentTrackChanged(d->curTrack = index);
 	}

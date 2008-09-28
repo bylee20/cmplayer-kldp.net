@@ -33,7 +33,8 @@ void AudioOutput::updateTracks(const QMap<int, QString> &ids) {
 }
 
 void AudioOutput::updateCurrentTrack(int index) {
-	
+	if (index >=0 && index < m_tracks.size())
+		m_engine->tellmp("switch_audio " + QString::number(m_tracks[index]));
 }
 
 }

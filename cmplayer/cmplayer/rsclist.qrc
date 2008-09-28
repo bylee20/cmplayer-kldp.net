@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/" >
+    <file>img/speaker.png</file>
     <file>img/applications-multimedia-big.png</file>
     <file>img/view-list-details.png</file>
     <file>img/tools-wizard.png</file>

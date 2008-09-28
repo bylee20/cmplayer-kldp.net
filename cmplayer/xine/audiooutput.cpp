@@ -45,6 +45,8 @@ void AudioOutput::updateMuted(bool muted) {
 }
 
 void AudioOutput::updateTracks() {
+	if (!d->stream->isOpen())
+		return;
 	const int count = xine_get_stream_info(d->stream->stream(), XINE_STREAM_INFO_MAX_AUDIO_CHANNEL);
 	QStringList tracks;
 	char buffer[256];
@@ -59,7 +61,8 @@ void AudioOutput::updateTracks() {
 }
 
 void AudioOutput::updateCurrentTrack(int index) {
-	
+	if (d->stream->isOpen())
+		xine_set_param(d->stream->stream(), XINE_PARAM_AUDIO_CHANNEL_LOGICAL, index);
 }
 
 }

@@ -320,6 +320,7 @@ void MainWindow::initGui() {
 	d->ui.play_bar->addWidget(d->pmb);
 
 	d->ui.play_dvd_menu_action->setVisible(false);
+	d->ui.audio_track_menu->menuAction()->setVisible(false);
 	d->ui.sub_channel_menu->menuAction()->setVisible(false);
 
 	resize(300, 200);
@@ -346,6 +347,8 @@ void MainWindow::initIface() {
 	d->contextMenu->addMenu(d->ui.video_aspect_menu);
 	d->contextMenu->addMenu(d->ui.video_crop_menu);
 	d->contextMenu->addAction(d->ui.video_equalizer_action);
+	d->contextMenu->addSeparator();
+	d->contextMenu->addMenu(d->ui.audio_track_menu);
 	d->contextMenu->addSeparator();
 	d->contextMenu->addAction(d->ui.play_dvd_menu_action);
 	d->contextMenu->addAction(d->ui.play_show_playlist_action);
@@ -663,22 +666,24 @@ void MainWindow::addSubtitles() {
 
 void MainWindow::updateAudioTracks(const QStringList &tracks) {
 	const bool show = tracks.size() > 1;
-	d->ui.audio_track_menu->setVisible(show);
-	if (show) {
-		QList<QAction*> acts = d->audioTrackActions.actions();
-		for (int i=0; i < acts.size(); ++i) {
-			d->audioTrackActions.removeAction(acts[i]);
-			delete acts[i];
-		}
-		for (int i=0; tracks.size(); ++i) {
-			QAction *act = d->audioTrackActions.addAction(tracks[i]);
-			act->setData(i);
-		}
+	d->ui.audio_track_menu->menuAction()->setVisible(show);
+	QList<QAction*> acts = d->audioTrackActions.actions();
+	for (int i=0; i < acts.size(); ++i) {
+		d->audioTrackActions.removeAction(acts[i]);
+		delete acts[i];
+	}
+	for (int i=0; i < tracks.size(); ++i) {
+		QAction *act = d->ui.audio_track_menu->addAction(tracks[i]);
+		act->setCheckable(true);
+		d->audioTrackActions.addAction(act);
+		act->setData(i);
 	}
 }
 
 void MainWindow::updateCurrentAudioTrack(int index) {
-	d->audioTrackActions.actions()[index]->setCheckable(true);
+	QList<QAction*> acts = d->audioTrackActions.actions();
+	if (index >= 0 && index<acts.size())
+		acts[index]->setChecked(true);
 }
 
 void MainWindow::changeCurrentAuidoTrack(QAction *act) {

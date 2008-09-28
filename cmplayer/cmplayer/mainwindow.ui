@@ -16,6 +16,9 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="widget" >
+   <property name="mouseTracking" >
+    <bool>true</bool>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout_2" >
     <property name="spacing" >
      <number>0</number>
@@ -306,6 +309,10 @@
     <widget class="QMenu" name="audio_track_menu" >
      <property name="title" >
       <string>오디오 트랙</string>
+     </property>
+     <property name="icon" >
+      <iconset resource="rsclist.qrc" >
+       <normaloff>:/img/speaker.png</normaloff>:/img/speaker.png</iconset>
      </property>
     </widget>
     <addaction name="audio_volume_up_action" />
