@@ -6,7 +6,6 @@
 #include <QtGui/QPainter>
 #include <QtGui/QTextDocument>
 #include <cmath>
-#include <QtCore/QTime>
 
 namespace Backend {
 
@@ -113,8 +112,6 @@ void XineOsd::drawText(const QString &text) {
 			xine_osd_clear(d->buffer);
 			return;
 		}
-		QTime time;
-		time.start();
 		QPixmap pixmap(size);
 		pixmap.fill(Qt::transparent);
 		QRectF rect = pixmap.rect();
@@ -137,8 +134,6 @@ void XineOsd::drawText(const QString &text) {
 		p.translate(d->bw, d->bw);
 		d->doc->drawContents(&p, rect);
 		p.restore();
-		int t = time.elapsed();
-		qDebug("%d\n", t);
 		drawImage(pixmap.toImage());
 	}
 }

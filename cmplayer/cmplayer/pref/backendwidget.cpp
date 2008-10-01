@@ -6,6 +6,7 @@
 #include <QtCore/QMap>
 #include <QtGui/QRadioButton>
 #include <QtGui/QButtonGroup>
+#include <QtCore/QDebug>
 #include "backend.h"
 
 namespace Pref {
@@ -41,7 +42,7 @@ void BackendWidget::save() {
 	const Backend::BackendList &backends = d->ui.selector->backends();
 	for (int i=0; i<backends.size(); ++i) {
 		Backend::Config *config = backends[i]->config();
-		config->update(d->ui.tabs->widget(i));
+		config->update(d->ui.tabs->widget(i+1));
 		config->save();
 	}
 }

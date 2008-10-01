@@ -7,7 +7,7 @@ class QWidget;
 
 namespace Backend {
 
-class WizardPage;
+class WizardPage;					class ConfigWidget;
 
 class Config {
 public:
