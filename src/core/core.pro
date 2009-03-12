@@ -45,14 +45,17 @@ CONFIG += debug \
     dll
 
 RELEASE = $(CMPLAYER_RELEASE)
-!isEmpty(RELEASE) {
-	CONFIG -= debug
-	CONFIG += release
+!isEmpty(RELEASE){
+    CONFIG -= debug
+    CONFIG += release
 }
 
 TEMPLATE = lib
 TARGET = ../bin/cmplayer_core
-VERSION = 0.3.0
 DEFINES += CMPLAYER_PLUGIN_DIR=$(CMPLAYER_PLUGIN_PATH) \
   CMPLAYER_PRIVATE_DIR=$(CMPLAYER_PRIVATE_PATH)
+
+VERSION = 0.2.5
+
+CONFIG -= release
 
