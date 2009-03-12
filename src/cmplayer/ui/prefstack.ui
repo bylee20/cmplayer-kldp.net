@@ -912,8 +912,6 @@ e.g.: English, Korean</string>
      </widget>
     </item>
    </layout>
-   <zorder>groupBox_8</zorder>
-   <zorder>groupBox</zorder>
   </widget>
  </widget>
  <customwidgets>

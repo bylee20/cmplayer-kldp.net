@@ -552,6 +552,7 @@ void MainWindow::updatePref() {
 		d->menu("play")("engine").g()->trigger(d->pref->backendName(media));
 	d->player->setSubtitleStyle(d->pref->subtitleStyle());
 	d->menu.updatePref();
+	d->playInfo->setState(d->player->state());
 	if (!d->player->isStopped()) {
 		const bool paused = d->player->isPaused();
 		const int time = d->player->currentTime();

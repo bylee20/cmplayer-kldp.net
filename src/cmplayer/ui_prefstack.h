@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'prefstack.ui'
 **
-** Created: Thu Mar 12 09:58:05 2009
+** Created: Thu Mar 12 15:16:50 2009
 **      by: Qt User Interface Compiler version 4.4.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -707,8 +707,6 @@ public:
     verticalLayout_16->addWidget(groupBox_8);
 
     PrefStack->addWidget(widget);
-    groupBox_8->raise();
-    groupBox->raise();
 
     retranslateUi(PrefStack);
     QObject::connect(pauseMinimized, SIGNAL(toggled(bool)), playRestored, SLOT(setEnabled(bool)));
