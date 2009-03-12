@@ -25,7 +25,10 @@ install: cmplayer
 	install -d $(CMPLAYER_TRANSLATION_PATH)
 	install -d $(CMPLAYER_PATH)
 	install -d $(CMPLAYER_PLUGIN_PATH)
-	install -m 644 src/bin/libcmplayer_engine* src/bin/libcmplayer_opengl* $(CMPLAYER_PLUGIN_PATH)
+	install -m 644 src/bin/libcmplayer_engine* $(CMPLAYER_PLUGIN_PATH)
+ifdef OPENGL_PLUGIN
+	install -m 644 src/bin/libcmplayer_opengl* $(CMPLAYER_PLUGIN_PATH)
+endif
 	install -m 644 src/bin/libcmplayer_core* $(CMPLAYER_LIB_PATH)
 	install -m 644 src/cmplayer/translations/cmplayer_*.qm $(CMPLAYER_TRANSLATION_PATH)
 	install -m 755 src/bin/cmplayer-bin $(CMPLAYER_PATH)
