@@ -286,7 +286,7 @@ DEC_ENGINE_CALL_RETURN(Core::State, state)
 
 const BackendMap &VideoPlayer::load(const QString &path) {
 	QStringList list(path);
-	list << Core::Info::pluginPath() << QApplication::applicationDirPath();
+	list << Core::Info::pluginPath();
 	for (int i=0; i<list.size(); ++i) {
 		QDir dir(list[i]);
 		if (!dir.exists())
