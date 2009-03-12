@@ -1,0 +1,30 @@
+#ifndef CORE_SUBTITLE_PARSER_H
+#define CORE_SUBTITLE_PARSER_H
+
+#include "subtitle.h"
+#include <QtCore/QTextStream>
+
+namespace Core {
+
+class Subtitle::Parser {
+public:
+	Parser() {}
+	virtual ~Parser() {}
+	virtual bool parse(const QString &path, QList<Subtitle> *subs) = 0;
+	virtual bool save(const QString &path, const Subtitle &sub) const = 0;
+	void setEncoding(const QString &enc) {m_enc = enc;}
+	static Parser *create(const QString &ext);
+protected:
+	QTextStream &stream() const {return m_stream;}
+	void setDevice(QIODevice *device) const;
+private:
+	class Sami;
+	class SubRip;
+	class SubStationAlpha;
+	mutable QTextStream m_stream;
+	QString m_enc;
+};
+
+}
+
+#endif // SUBTITLE_PARSER_H
