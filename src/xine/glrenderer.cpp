@@ -62,6 +62,10 @@ GLRenderer::~GLRenderer() {
 	delete d;
 }
 
+Core::OpenGLVideoRendererIface *GLRenderer::renderer() {
+	return d->renderer;
+}
+
 void *GLRenderer::visual() {return &d->visual;}
 
 void GLRenderer::cbRawOutput(void *user_data, int frame_format, int frame_width, int frame_height,

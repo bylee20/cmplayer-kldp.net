@@ -12,6 +12,7 @@
 #include <xine/xineutils.h>
 #include <QtGui/QApplication>
 #include <QtCore/QTimer>
+#include <core/openglfactory.h>
 
 namespace Xine {
 
@@ -407,19 +408,15 @@ bool PlayEngine::updateVideoRenderer(const QString &name) {
 	setVideoRenderer(0);
 	d->stream.close();
 	delete d->renderer;
-#if 0
-	if (name == "raw") {
+	if (name == "raw" && Core::OpenGLFactory::isAvailable()) {
 		GLRenderer *renderer = new GLRenderer(&d->stream);
-		d->renderer = renderer;
+		d->renderer = renderer->renderer();
 		d->video = renderer;
 	} else {
-#endif
 		NativeRenderer *renderer = new NativeRenderer(this, &d->stream);
 		d->renderer = renderer;
 		d->video = renderer;
-#if 0
 	}
-#endif
 	d->stream.videoDriver = name;
 	d->stream.open(d->video->xineType(), d->video->visual(), eventListener, this);
 	setSubtitleOsd(d->renderer->createOsd());
