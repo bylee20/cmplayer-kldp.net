@@ -105,7 +105,7 @@ MainWindow::MainWindow()
 	connect(sub.g("pos"), SIGNAL(triggered(int)), this, SLOT(setSubtitlePos(int)));
 	connect(sub.g("sync"), SIGNAL(triggered(int)), this, SLOT(setSyncDelay(int)));
 	connect(menu["pref"], SIGNAL(triggered()), this, SLOT(showPrefDialog()));
-	connect(menu["help"], SIGNAL(triggered()), this, SLOT(slotHelp()));
+// 	connect(menu["help"], SIGNAL(triggered()), this, SLOT(slotHelp()));
 	connect(menu["exit"], SIGNAL(triggered()), qApp, SLOT(quit()));
 
 	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
@@ -142,8 +142,6 @@ MainWindow::MainWindow()
 			, this, SLOT(updateRecentActions(const RecentStack&)));
 	connect(d->recent, SIGNAL(rememberCountChanged(int)), this, SLOT(updateRecentSize(int)));
 	
-// 	BackendManager *man = BackendManager::get();
-// 	const BackendMap backends = man->backends();
 	const BackendMap &backend = VideoPlayer::load();
 	Menu &engine = play("engine");
 	for (BackendMap::const_iterator it = backend.begin(); it != backend.end(); ++it)
@@ -293,8 +291,8 @@ void MainWindow::initIface() {
 	d->contextMenu->addMenu(menu.m("audio"));
 	d->contextMenu->addSeparator();
 	d->contextMenu->addAction(menu["pref"]);
-	d->contextMenu->addAction(menu["help"]);
-	d->contextMenu->addAction(menu["about"]);
+// 	d->contextMenu->addAction(menu["help"]);
+// 	d->contextMenu->addAction(menu["about"]);
 	d->contextMenu->addSeparator();
 	d->contextMenu->addAction(menu["exit"]);
 	

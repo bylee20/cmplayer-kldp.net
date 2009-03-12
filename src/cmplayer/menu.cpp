@@ -211,8 +211,8 @@ Menu &Menu::create(QWidget *parent) {
 	audio->addAction("amp down", false, "amp")->setShortcut(Qt::CTRL + Qt::Key_Down);
 		
 	root->addAction("pref")->setIcon(QIcon(":/img/preferences-system.png"));
-	root->addAction("help")->setIcon(QIcon(":/img/help-contents.png"));
-	root->addAction("about")->setIcon(QIcon(":/img/help-about.png"));
+// 	root->addAction("help")->setIcon(QIcon(":/img/help-contents.png"));
+// 	root->addAction("about")->setIcon(QIcon(":/img/help-about.png"));
 	
 	QAction *exit = root->addAction("exit");
 	exit->setShortcut(Qt::CTRL + Qt::Key_Q);
@@ -352,7 +352,7 @@ void Menu::updatePref() {
 	setActionStep(audio["amp up"], audio["amp down"], tr("Amp. %1%"), p->ampStep());
 
 	root["pref"]->setText(tr("Preferences"));
-	root["help"]->setText(tr("Help"));
-	root["about"]->setText(tr("About..."));
+// 	root["help"]->setText(tr("Help"));
+// 	root["about"]->setText(tr("About..."));
 	root["exit"]->setText(tr("Exit"));
 }
