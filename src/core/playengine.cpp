@@ -5,6 +5,7 @@
 #include "subtitlerenderer.h"
 #include "videorendereriface.h"
 #include "info.h"
+#include "abrepeater.h"
 #include <QtGui/QWidget>
 #include <QtGui/QPainter>
 #include <QtGui/QPaintEvent>
@@ -53,54 +54,51 @@ private:
 	QWidget *m_widget;
 };
 
-PlayEngine::Data::Data() {
-	gotInfo = muted = seekable = false;
-	subVisible = true;
-	prevTick = prevSubTime = -1;
-	ampRate = pos = speed = 1.0;
-	videoProps.append(0.0);
-	videoProps.append(0.0);
-	videoProps.append(0.0);
-	videoProps.append(0.0);
-	aspect = crop = -1.0;
-	msgOsd = timeOsd = 0;
-	renderer = 0;
-	subRenderer = 0;
-	duration = syncDelay = 0;
-	volume = 100;
-	state = Stopped;
-	sub = new Subtitle;
-	source = new MediaSource;
-	msgStyle = new OsdStyle;
-	subStyle = new OsdStyle;
-	timeStyle = new OsdStyle;
-	screen = new Screen;
-	msgStyle->alignment = Qt::AlignLeft | Qt::AlignTop;
-	msgStyle->scale = OsdStyle::FitToHeight;
-	subStyle->alignment = Qt::AlignHCenter | Qt::AlignBottom;
-	subStyle->font.setBold(true);
-	timeStyle->alignment = Qt::AlignCenter;
-	timeStyle->fgColor.setAlphaF(0.8);
-	timeStyle->bgColor.setAlphaF(0.8);
-	tracks.append("Auto Track");
-	track = tracks[0];
-}
-
-PlayEngine::Data::~Data() {
-	delete sub;
-	delete source;
-	delete msgStyle;
-	delete subStyle;
-	delete timeStyle;
-	delete screen;
-}
-
 PlayEngine::PlayEngine(QObject *parent)
-: QObject(parent), d(new Data) {}
+: QObject(parent), d(new Data) {
+	d->gotInfo = d->muted = d->seekable = false;
+	d->subVisible = true;
+	d->prevTick = d->prevSubTime = -1;
+	d->ampRate = d->pos = d->speed = 1.0;
+	d->videoProps.append(0.0);
+	d->videoProps.append(0.0);
+	d->videoProps.append(0.0);
+	d->videoProps.append(0.0);
+	d->aspect = d->crop = -1.0;
+	d->msgOsd = d->timeOsd = 0;
+	d->renderer = 0;
+	d->subRenderer = 0;
+	d->duration = d->syncDelay = 0;
+	d->volume = 100;
+	d->state = Stopped;
+	d->repeater = new ABRepeater(this);
+	d->sub = new Subtitle;
+	d->source = new MediaSource;
+	d->msgStyle = new OsdStyle;
+	d->subStyle = new OsdStyle;
+	d->timeStyle = new OsdStyle;
+	d->screen = new Screen;
+	d->msgStyle->alignment = Qt::AlignLeft | Qt::AlignTop;
+	d->msgStyle->scale = OsdStyle::FitToHeight;
+	d->subStyle->alignment = Qt::AlignHCenter | Qt::AlignBottom;
+	d->subStyle->font.setBold(true);
+	d->timeStyle->alignment = Qt::AlignCenter;
+	d->timeStyle->fgColor.setAlphaF(0.8);
+	d->timeStyle->bgColor.setAlphaF(0.8);
+	d->tracks.append("Auto Track");
+	d->track = d->tracks[0];
+}
 
 PlayEngine::~PlayEngine() {
 	if (d->subRenderer)
 		delete d->subRenderer;
+	delete d->sub;
+	delete d->source;
+	delete d->msgStyle;
+	delete d->subStyle;
+	delete d->timeStyle;
+	delete d->screen;
+	delete d->repeater;
 	delete d;
 }
 

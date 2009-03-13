@@ -12,11 +12,23 @@ ABRepeater::ABRepeater(PlayEngine *engine)
 	m_times = m_nth = 0;
 }
 
+ABRepeater::~ABRepeater() {
+	stop();
+}
+
 void ABRepeater::slotTick(int time) {
 	if (m_repeating && time > m_b) {
 		m_engine->seek(m_a, false, false);
-		if (m_times > 0 && m_times == ++m_nth)
-			stop();
+		if (m_times < 0)
+			emit repeated(-1);
+		else {
+			const int rest = m_times - (++m_nth);
+			emit repeated(rest);
+			if (rest <= 0) {
+				stop();
+				emit stopped();
+			}
+		}
 	}
 }
 
@@ -57,14 +69,17 @@ bool ABRepeater::start(int times) {
 		stop();
 	m_times = times;
 	m_nth = 0;
-	if ((m_repeating = (m_a >= 0 && m_b > m_a)))
+	if ((m_repeating = (m_a >= 0 && m_b > m_a))) {
 		connect(m_engine, SIGNAL(tick(int)), this, SLOT(slotTick(int)));
+		emit started();
+	}
 	return m_repeating;
 }
 
 void ABRepeater::stop() {
 	disconnect(m_engine, 0, this, 0);
 	m_repeating = false;
+	emit stopped();
 }
 
 }

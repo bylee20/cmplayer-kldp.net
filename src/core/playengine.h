@@ -13,7 +13,7 @@ namespace Core {
 class Subtitle;				class OsdStyle;
 class AbstractOsdRenderer;		class VideoRendererIface;
 class Info;				class SubtitleRenderer;
-class DummyWidget;
+class DummyWidget;			class ABRepeater;
 
 class PlayEngine : public QObject {
 	Q_OBJECT
@@ -54,6 +54,7 @@ public:
 	void setAudioRenderer(const QString &name);
 	const QString &videoRenderer() const {return d->videoRenderer;}
 	const QString &audioRenderer() const {return d->audioRenderer;}
+	ABRepeater *repeater() {return d->repeater;}
 	virtual QWidget *widget();
 	virtual int currentTime() const = 0;
 	virtual const Info &info() const = 0;
@@ -137,8 +138,6 @@ private slots:
 private:
 	class Screen;
 	struct Data {
-		Data();
-		~Data();
 		bool gotInfo, muted, subVisible, seekable;
 		int prevTick, prevSubTime, duration, volume, syncDelay;
 		double ampRate, aspect, crop, pos, speed;
@@ -153,6 +152,7 @@ private:
 		QString videoRenderer, audioRenderer, track, spu;
 		QStringList tracks, spus;
 		Screen *screen;
+		ABRepeater *repeater;
 	};
 	Data *d;
 };
