@@ -21,8 +21,8 @@ endif
 	$(INSTALL_FILE) src/cmplayer/translations/cmplayer_*.qm $(CMPLAYER_TRANSLATION_PATH)
 	$(INSTALL_EXE) src/bin/cmplayer-bin $(CMPLAYER_PATH)
 	echo "#!/bin/sh\nLD_LIBRARY_PATH=$(CMPLAYER_LIB_PATH):\$${LD_LIBRARY_PATH} $(CMPLAYER_PATH)/cmplayer-bin\nexit \$$exitcode"\
-		> $(CMPLAYER_PATH)/cmplayer
-	chmod 0755 $(CMPLAYER_PATH)/cmplayer
+		> $(CMPLAYER_BIN_PATH)/cmplayer
+	chmod 0755 $(CMPLAYER_BIN_PATH)/cmplayer
 
 uninstall:
 ifdef OPENGL_PLUGIN
