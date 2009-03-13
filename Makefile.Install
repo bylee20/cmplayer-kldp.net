@@ -1,8 +1,9 @@
 OPENGL_PLUGIN = 
-CMPLAYER_PATH = "/home/xylosper/cmplayer"
-CMPLAYER_LIB_PATH = "/home/xylosper/cmplayer/lib"
-CMPLAYER_TRANSLATION_PATH = "/home/xylosper/cmplayer/translations"
-CMPLAYER_PLUGIN_PATH = "/home/xylosper/cmplayer/plugins"
+CMPLAYER_BIN_PATH = "/usr/bin"
+CMPLAYER_PATH = "/usr/local/share/cmplayer"
+CMPLAYER_LIB_PATH = "/usr/local/share/cmplayer/lib"
+CMPLAYER_TRANSLATION_PATH = "/usr/local/share/cmplayer/translations"
+CMPLAYER_PLUGIN_PATH = "/usr/local/share/cmplayer/plugins"
 
 INSTALL_FILE = install -m 644
 INSTALL_EXE = install -m 755

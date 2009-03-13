@@ -1,5 +1,6 @@
-PREFIX = ${HOME}
+PREFIX = /usr/local/share
 
+CMPLAYER_BIN_PATH = /usr/bin
 CMPLAYER_PATH = "$(PREFIX)/cmplayer"
 CMPLAYER_PRIVATE_PATH = "${HOME}/.cmplayer"
 CMPLAYER_LIB_PATH = "$(CMPLAYER_PATH)/lib"
@@ -25,6 +26,7 @@ else
 endif
 	cd src && $(MAKE_ENV) make && cd cmplayer && $(LRELEASE) cmplayer.pro
 	@cat Makefile.InstallTemplate | sed s/\\!\\!OPENGL_PLUGIN\\!\\!/$(subst /,\\\/,$(OPENGL_PLUGIN))/g | \
+	sed s/\\!\\!CMPLAYER_BIN_PATH\\!\\!/\"$(subst /,\\/,$(CMPLAYER_BIN_PATH))\"/g | \
 	sed s/\\!\\!CMPLAYER_PATH\\!\\!/\"$(subst /,\\/,$(CMPLAYER_PATH))\"/g | \
 	sed s/\\!\\!CMPLAYER_LIB_PATH\\!\\!/\"$(subst /,\\/,$(CMPLAYER_LIB_PATH))\"/g | \
 	sed s/\\!\\!CMPLAYER_TRANSLATION_PATH\\!\\!/\"$(subst /,\\/,$(CMPLAYER_TRANSLATION_PATH))\"/g | \
