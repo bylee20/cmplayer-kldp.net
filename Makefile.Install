@@ -7,7 +7,6 @@ CMPLAYER_PLUGIN_PATH = "/usr/local/share/cmplayer/plugins"
 
 INSTALL_FILE = install -m 644
 INSTALL_EXE = install -m 755
-FIND_PLUGINS_EXP = -regextype posix-egrep -regex ".*libcmplayer_(engine|opengl).*"
 
 install:
 	install -d $(CMPLAYER_LIB_PATH)
