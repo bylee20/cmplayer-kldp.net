@@ -89,21 +89,21 @@ clean:
 
 install: cmplayer
 	@echo "\n======================= Start to Install! =======================\n"
-	install -d $(CMPLAYER_EXE_PATH)
-	install -d $(CMPLAYER_PATH)
-	install -d $(CMPLAYER_LIB_PATH)
-	install -d $(CMPLAYER_TRANSLATION_PATH)
-	install -d $(CMPLAYER_PLUGIN_PATH)
+	install -d $(DESTDIR)$(CMPLAYER_EXE_PATH)
+	install -d $(DESTDIR)$(CMPLAYER_PATH)
+	install -d $(DESTDIR)$(CMPLAYER_LIB_PATH)
+	install -d $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
+	install -d $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
 ifeq ($(ENABLE_OPENGL),enable)
-	$(install_file) src/bin/libcmplayer_opengl* $(CMPLAYER_PLUGIN_PATH)
+	$(install_file) src/bin/libcmplayer_opengl* $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
 endif
-	$(install_file) src/bin/libcmplayer_engine* $(CMPLAYER_PLUGIN_PATH)
-	$(install_file) src/bin/libcmplayer_core* $(CMPLAYER_LIB_PATH)
-	$(install_file) src/cmplayer/translations/cmplayer_*.qm $(CMPLAYER_TRANSLATION_PATH)
-	$(install_exe) src/bin/cmplayer-bin $(CMPLAYER_PATH)
+	$(install_file) src/bin/libcmplayer_engine* $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
+	$(install_file) src/bin/libcmplayer_core* $(DESTDIR)$(CMPLAYER_LIB_PATH)
+	$(install_file) src/cmplayer/translations/cmplayer_*.qm $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
+	$(install_exe) src/bin/cmplayer-bin $(DESTDIR)$(CMPLAYER_PATH)
 	echo "#!/bin/sh\nLD_LIBRARY_PATH=$(CMPLAYER_LIB_PATH):\$${LD_LIBRARY_PATH} "\
-"$(CMPLAYER_PATH)/cmplayer-bin\nexit \$$exitcode" > $(CMPLAYER_EXE_PATH)/cmplayer
-	chmod 0755 $(CMPLAYER_EXE_PATH)/cmplayer
+"$(CMPLAYER_PATH)/cmplayer-bin\nexit \$$exitcode" > $(DESTDIR)$(CMPLAYER_EXE_PATH)/cmplayer
+	chmod 0755 $(DESTDIR)$(CMPLAYER_EXE_PATH)/cmplayer
 	@echo "\n==================== Installation Finished!! ====================\n\n"\
 "  If you want to execute CMPlayer now, run '$(to_execute)'.\n"
 
