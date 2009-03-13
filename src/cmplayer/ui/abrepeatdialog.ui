@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>328</width>
+    <width>325</width>
     <height>245</height>
    </rect>
   </property>
@@ -214,6 +214,9 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout" >
      <item>
+      <widget class="QLabel" name="rest" />
+     </item>
+     <item>
       <spacer>
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
@@ -241,12 +244,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="close" >
+      <widget class="QPushButton" name="pushButton" >
        <property name="text" >
-        <string>Close</string>
-       </property>
-       <property name="default" >
-        <bool>true</bool>
+        <string>Quit &amp;&amp; Close</string>
        </property>
       </widget>
      </item>
@@ -257,18 +257,18 @@
  <resources/>
  <connections>
   <connection>
-   <sender>close</sender>
+   <sender>pushButton</sender>
    <signal>clicked()</signal>
    <receiver>ABRepeatDialog</receiver>
    <slot>hide()</slot>
    <hints>
     <hint type="sourcelabel" >
      <x>280</x>
-     <y>246</y>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>295</x>
-     <y>261</y>
+     <x>38</x>
+     <y>217</y>
     </hint>
    </hints>
   </connection>

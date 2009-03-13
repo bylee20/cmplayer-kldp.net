@@ -131,10 +131,18 @@ Menu &Menu::create(QWidget *parent) {
 	play->addSeparator();
 
 	Menu *repeat = play->addMenu("repeat");
-	repeat->addAction("range")->setShortcut(Qt::Key_R);
-	repeat->addAction("quit")->setShortcut(Qt::Key_Escape);
-	repeat->addAction("advanced");
-
+	QAction *range = repeat->addActionToGroup("range", false);
+	QAction *srange = repeat->addActionToGroup("subtitle", false);
+	QAction *quitRepeat = repeat->addActionToGroup("quit", false);
+	QAction *advanced = repeat->addActionToGroup("advanced", false);
+	range->setShortcut(Qt::Key_R);	
+	range->setData(int('r'));
+	srange->setShortcut(Qt::Key_E);
+	srange->setData(int('s'));
+	quitRepeat->setShortcut(Qt::Key_Escape);
+	quitRepeat->setData(int('q'));
+	advanced->setData(int('a'));
+	
 	play->addSeparator();
 		
 	Menu *seek = play->addMenu("seek");
@@ -307,7 +315,8 @@ void Menu::updatePref() {
 
 	Menu &repeat = play("repeat");
 	repeat.setTitle(tr("A-B Repeat"));
-	repeat["range"]->setText(tr("Set Range"));
+	repeat["range"]->setText(tr("Set Range to Current Time"));
+	repeat["subtitle"]->setText(tr("Repeat Current Subtitle"));
 	repeat["quit"]->setText(tr("Quit"));
 	repeat["advanced"]->setText(tr("Advanced..."));
 

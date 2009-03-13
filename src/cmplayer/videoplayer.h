@@ -4,7 +4,7 @@
 #include <QtGui/QWidget>
 #include <core/playengine.h>
 
-namespace Core {class BackendIface;}
+namespace Core {class BackendIface;	class ABRepeater;}
 typedef QMap<QString, Core::BackendIface*> BackendMap;
 
 class VideoPlayer : public QWidget {
@@ -16,6 +16,7 @@ public:
 	void keepSize(bool keep);
 	QSize sizeHint() const;
 	const Core::PlayEngine *engine() const;
+	Core::ABRepeater *repeater() const;
 	void play(int time);
 	void play();
 	void pause();

@@ -46,10 +46,8 @@ private slots:
 	void slotCurrentSpuChanged(const QString &spu);
 	void showPrefDialog();
 	void slotBackendChanged();
+	void slotRepeat(int key);
 	void slotHelp();
-	void slotAbRange();
-	void slotAbQuit();
-	void slotAbAdvanced();
 private:
 	typedef QPair<QAction*, QAction*> ActionPair;
 	QWidget *createControl(QWidget *parent);

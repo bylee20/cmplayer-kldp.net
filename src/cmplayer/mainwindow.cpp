@@ -17,6 +17,8 @@
 #include <core/backendiface.h>
 #include <core/playlist.h>
 #include <core/subtitle.h>
+#include <core/abrepeater.h>
+#include <core/utility.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
@@ -83,9 +85,7 @@ MainWindow::MainWindow()
 	connect(play["pause"], SIGNAL(triggered()), this, SLOT(togglePlayPause()));
 	connect(play["list"], SIGNAL(triggered()), this, SLOT(toggleDockVisibility()));
 	connect(play("engine").g(), SIGNAL(triggered(QAction*)), this, SLOT(setBackend(QAction*)));
-	connect(play("repeat")["range"], SIGNAL(triggered()), this, SLOT(slotAbRange()));
-	connect(play("repeat")["quit"], SIGNAL(triggered()), this, SLOT(slotAbQuit()));
-	connect(play("repeat")["advanced"], SIGNAL(triggered()), this, SLOT(slotAbAdvanced()));
+	connect(play("repeat").g(), SIGNAL(triggered(int)), this, SLOT(slotRepeat(int)));
 	connect(play("seek").g(), SIGNAL(triggered(int)), this, SLOT(seek(int)));
 	Menu &video = menu("video");
 	connect(video.g("prop"), SIGNAL(triggered(QAction*)), this, SLOT(setVideoProperty(QAction*)));
@@ -789,6 +789,7 @@ void MainWindow::setBackend(QAction *action) {
 }
 
 void MainWindow::slotBackendChanged() {
+	d->repeater->hide();
 	Menu &vMenu = d->menu("video")("renderer");
 	Menu &aMenu = d->menu("audio")("renderer");
 	vMenu.g()->clear();
@@ -833,17 +834,48 @@ void MainWindow::hideEvent(QHideEvent *event) {
 	}
 }
 
-void MainWindow::slotAbRange() {
-
-
-}
-
-void MainWindow::slotAbQuit() {
-
-}
-
-void MainWindow::slotAbAdvanced() {
-
+void MainWindow::slotRepeat(int key) {
+	Core::ABRepeater *repeater = d->player->repeater();
+	if (!repeater || d->repeater->isVisible())
+		return;
+	const QString msg = tr("A-B Repeat: %1");
+	if (key == 'a') {
+		if (d->repeater->isHidden()) {
+			d->repeater->setRepeater(repeater);
+			d->repeater->show();
+		}
+	} else if (key == 'r') {
+		if (d->player->isStopped())
+			return;
+		if (!repeater->hasA()) {
+			const int at = repeater->setAToCurrentTime();
+			QString a = Core::Utility::msecsToString(at, "h:mm:ss.zzz");
+			a.chop(2);
+			d->player->showMessage(msg.arg(tr("Set A to %1").arg(a)));
+		} else if (!repeater->hasB()) {
+			const int at = repeater->setBToCurrentTime();
+			if ((at - repeater->a()) < 100) {
+				d->player->showMessage(msg.arg(tr("Range is too short!")));
+				repeater->setB(-1);
+			} else {
+				QString b = Core::Utility::msecsToString(at, "h:mm:ss.zzz");
+				b.chop(2);
+				d->player->showMessage(msg
+						.arg(tr("Set B to %1. Start to repeat!").arg(b)));
+				repeater->start();
+			}
+		}
+	} else if (key == 'q') {
+		repeater->stop();
+		repeater->setA(-1);
+		repeater->setB(-1);
+		d->player->showMessage(msg.arg(tr("Quit repeating")));
+	} else if (key == 's') {
+		repeater->setAToSubtitleTime();
+		repeater->setBToSubtitleTime();
+		d->player->showMessage(msg.arg(tr("Repeat current subtitle")));
+		repeater->start();
+	}
 }
 
 #define DEC_DIFF_SETTER_MSG(setter, getter, msg, factor, sign)\
