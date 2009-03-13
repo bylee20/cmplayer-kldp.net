@@ -77,18 +77,21 @@ public:
 		QMenu::addMenu(menu);
 		return (m_menu[key] = menu);
 	}
-	QAction *addAction(const QString &key, bool checkable, const QString &group = "") {
+	QAction *addActionToGroup(const QString &key
+			, bool checkable = false, const QString &group = "") {
 		QAction *action = addAction(key);
 		addGroup(group)->addAction(action);
 		action->setCheckable(checkable);
 		return action;
 	}
-	QAction *addAction(const QString &key) {
+	QAction *addAction(const QString &key, bool checkable = false) {
 		QAction *action = QMenu::addAction(key);
+		action->setCheckable(checkable);
 		keys[action] = m_unique + "." + key;
 		return m_act[key] = action;
 	}
-	QAction *addActionNoKey(const QString &name, bool checkable, const QString &group = "") {
+	QAction *addActionToGroupWithoutKey(const QString &name
+			, bool checkable = false, const QString &group = "") {
 		QAction *action = QMenu::addAction(name);
 		action->setCheckable(checkable);
 		addGroup(group)->addAction(action);

@@ -47,20 +47,20 @@ Menu &Menu::create(QWidget *parent) {
 		
 	Menu *onTop = screen->addMenu("on top");
 	onTop->setIcon(QIcon(":/img/go-top.png"));
-	onTop->addAction("disable", true)->setData("Disable");
-	onTop->addAction("always", true)->setData("Always");
-	onTop->addAction("playing", true)->setData("Playing");
+	onTop->addActionToGroup("disable", true)->setData("Disable");
+	onTop->addActionToGroup("always", true)->setData("Always");
+	onTop->addActionToGroup("playing", true)->setData("Playing");
 		
 	screen->addSeparator();
 		
 	Menu *size = screen->addMenu("size");
 	size->setIcon(QIcon(":/img/transform-scale.png"));
-	QAction *to50 = size->addAction("50%", false);
-	QAction *to100 = size->addAction("100%", false);
-	QAction *to200 = size->addAction("200%", false);
-	QAction *to300 = size->addAction("300%", false);
-	QAction *to400 = size->addAction("400%", false);
-	QAction *toFull = size->addAction("full", true);
+	QAction *to50 = size->addActionToGroup("50%", false);
+	QAction *to100 = size->addActionToGroup("100%", false);
+	QAction *to200 = size->addActionToGroup("200%", false);
+	QAction *to300 = size->addActionToGroup("300%", false);
+	QAction *to400 = size->addActionToGroup("400%", false);
+	QAction *toFull = size->addActionToGroup("full", true);
 	size->g()->setExclusive(false);
 	to50->setData(0.5);
 	to100->setData(1.0);
@@ -81,19 +81,19 @@ Menu &Menu::create(QWidget *parent) {
 
 	Menu *aspect = screen->addMenu("aspect");
 	aspect->setIcon(QIcon(":/img/zoom-fit-best.png"));
-	aspect->addAction("auto", true)->setData(-1.0);
-	aspect->addAction("4:3", true)->setData(4.0/3.0);
-	aspect->addAction("16:9", true)->setData(16.0/9.0);
-	aspect->addAction("1.85:1", true)->setData(1.85);
-	aspect->addAction("2.35:1", true)->setData(2.35);
+	aspect->addActionToGroup("auto", true)->setData(-1.0);
+	aspect->addActionToGroup("4:3", true)->setData(4.0/3.0);
+	aspect->addActionToGroup("16:9", true)->setData(16.0/9.0);
+	aspect->addActionToGroup("1.85:1", true)->setData(1.85);
+	aspect->addActionToGroup("2.35:1", true)->setData(2.35);
 		
 	Menu *crop = screen->addMenu("crop");
 	crop->setIcon(QIcon(":/img/transform-crop-and-resize.png"));
-	crop->addAction("off", true)->setData(-1.0);
-	crop->addAction("4:3", true)->setData(4.0/3.0);
-	crop->addAction("16:9", true)->setData(16.0/9.0);
-	crop->addAction("1.85:1", true)->setData(1.85);
-	crop->addAction("2.35:1", true)->setData(2.35);
+	crop->addActionToGroup("off", true)->setData(-1.0);
+	crop->addActionToGroup("4:3", true)->setData(4.0/3.0);
+	crop->addActionToGroup("16:9", true)->setData(16.0/9.0);
+	crop->addActionToGroup("1.85:1", true)->setData(1.85);
+	crop->addActionToGroup("2.35:1", true)->setData(2.35);
 	
 	Menu *play = root->addMenu("play");
 	play->addMenu("engine");
@@ -120,9 +120,9 @@ Menu &Menu::create(QWidget *parent) {
 	play->addSeparator();
 		
 	Menu *speed = play->addMenu("speed");
-	speed->addAction("slower", false)->setShortcut(Qt::Key_Minus);
-	speed->addAction("reset", false, "reset")->setShortcut(Qt::Key_Backspace);
-	speed->addAction("faster", false)->setShortcut(Qt::Key_Plus);
+	speed->addActionToGroup("slower", false)->setShortcut(Qt::Key_Minus);
+	speed->addActionToGroup("reset", false, "reset")->setShortcut(Qt::Key_Backspace);
+	speed->addActionToGroup("faster", false)->setShortcut(Qt::Key_Plus);
 
 	play->addSeparator();
 		
@@ -138,12 +138,12 @@ Menu &Menu::create(QWidget *parent) {
 	play->addSeparator();
 		
 	Menu *seek = play->addMenu("seek");
-	QAction *forward1 = seek->addAction("forward1", false);
-	QAction *forward2 = seek->addAction("forward2", false);
-	QAction *forward3 = seek->addAction("forward3", false);
-	QAction *backward1 = seek->addAction("backward1", false);
-	QAction *backward2 = seek->addAction("backward2", false);
-	QAction *backward3 = seek->addAction("backward3", false);
+	QAction *forward1 = seek->addActionToGroup("forward1", false);
+	QAction *forward2 = seek->addActionToGroup("forward2", false);
+	QAction *forward3 = seek->addActionToGroup("forward3", false);
+	QAction *backward1 = seek->addActionToGroup("backward1", false);
+	QAction *backward2 = seek->addActionToGroup("backward2", false);
+	QAction *backward3 = seek->addActionToGroup("backward3", false);
 	forward1->setShortcut(Qt::Key_Right);
 	forward2->setShortcut(Qt::Key_PageDown);
 	forward3->setShortcut(Qt::Key_End);
@@ -162,13 +162,13 @@ Menu &Menu::create(QWidget *parent) {
 		
 	subtitle->addSeparator();
 		
-	subtitle->addAction("pos up", false, "pos")->setShortcut(Qt::Key_W);
-	subtitle->addAction("pos down", false, "pos")->setShortcut(Qt::Key_S);
+	subtitle->addActionToGroup("pos up", false, "pos")->setShortcut(Qt::Key_W);
+	subtitle->addActionToGroup("pos down", false, "pos")->setShortcut(Qt::Key_S);
 	
 	subtitle->addSeparator();
 		
-	subtitle->addAction("sync add", false, "sync")->setShortcut(Qt::Key_D);
-	subtitle->addAction("sync sub", false, "sync")->setShortcut(Qt::Key_A);
+	subtitle->addActionToGroup("sync add", false, "sync")->setShortcut(Qt::Key_D);
+	subtitle->addActionToGroup("sync sub", false, "sync")->setShortcut(Qt::Key_A);
 
 	Menu *video = root->addMenu("video");
 	video->setIcon(QIcon(":/img/games-config-background.png"));
@@ -177,14 +177,14 @@ Menu &Menu::create(QWidget *parent) {
 		
 	video->addSeparator();
 		
-	video->addAction("brightness+", false, "prop")->setShortcut(Qt::Key_T);
-	video->addAction("brightness-", false, "prop")->setShortcut(Qt::Key_G);
-	video->addAction("contrast+", false, "prop")->setShortcut(Qt::Key_Y);
-	video->addAction("contrast-", false, "prop")->setShortcut(Qt::Key_H);
-	video->addAction("saturation+", false, "prop")->setShortcut(Qt::Key_U);
-	video->addAction("saturation-", false, "prop")->setShortcut(Qt::Key_J);
-	video->addAction("hue+", false, "prop")->setShortcut(Qt::Key_I);
-	video->addAction("hue-", false, "prop")->setShortcut(Qt::Key_K);
+	video->addActionToGroup("brightness+", false, "prop")->setShortcut(Qt::Key_T);
+	video->addActionToGroup("brightness-", false, "prop")->setShortcut(Qt::Key_G);
+	video->addActionToGroup("contrast+", false, "prop")->setShortcut(Qt::Key_Y);
+	video->addActionToGroup("contrast-", false, "prop")->setShortcut(Qt::Key_H);
+	video->addActionToGroup("saturation+", false, "prop")->setShortcut(Qt::Key_U);
+	video->addActionToGroup("saturation-", false, "prop")->setShortcut(Qt::Key_J);
+	video->addActionToGroup("hue+", false, "prop")->setShortcut(Qt::Key_I);
+	video->addActionToGroup("hue-", false, "prop")->setShortcut(Qt::Key_K);
 
 	Menu *audio = root->addMenu("audio");
 	audio->setIcon(QIcon(":/img/speaker.png"));
@@ -197,18 +197,16 @@ Menu &Menu::create(QWidget *parent) {
 		
 	audio->addSeparator();
 		
-	audio->addAction("volume up", false, "volume")->setShortcut(Qt::Key_Up);
-	audio->addAction("volume down", false, "volume")->setShortcut(Qt::Key_Down);
-	QAction *mute = audio->addAction("mute");
+	audio->addActionToGroup("volume up", false, "volume")->setShortcut(Qt::Key_Up);
+	audio->addActionToGroup("volume down", false, "volume")->setShortcut(Qt::Key_Down);
+	QAction *mute = audio->addAction("mute", true);
 	mute->setIcon(QIcon(":/img/player-volume.png"));
 	mute->setShortcut(Qt::Key_M);
-	mute->setData(0);
-	mute->setCheckable(true);
 		
 	audio->addSeparator();
 		
-	audio->addAction("amp up", false, "amp")->setShortcut(Qt::CTRL + Qt::Key_Up);
-	audio->addAction("amp down", false, "amp")->setShortcut(Qt::CTRL + Qt::Key_Down);
+	audio->addActionToGroup("amp up", false, "amp")->setShortcut(Qt::CTRL + Qt::Key_Up);
+	audio->addActionToGroup("amp down", false, "amp")->setShortcut(Qt::CTRL + Qt::Key_Down);
 		
 	root->addAction("pref")->setIcon(QIcon(":/img/preferences-system.png"));
 // 	root->addAction("help")->setIcon(QIcon(":/img/help-contents.png"));
@@ -316,13 +314,19 @@ void Menu::updatePref() {
 	Menu &seek = play("seek");
 	seek.setTitle(tr("Seek"));
 	const QString forward = tr("Forward %1sec.");
-	setActionAttr(seek["forward1"], p->seekingStep1(), forward, p->seekingStep1()*0.001, false);
-	setActionAttr(seek["forward2"], p->seekingStep2(), forward, p->seekingStep2()*0.001, false);
-	setActionAttr(seek["forward3"], p->seekingStep3(), forward, p->seekingStep3()*0.001, false);
+	setActionAttr(seek["forward1"], p->seekingStep1()
+			, forward, p->seekingStep1()*0.001, false);
+	setActionAttr(seek["forward2"], p->seekingStep2()
+			, forward, p->seekingStep2()*0.001, false);
+	setActionAttr(seek["forward3"], p->seekingStep3()
+			, forward, p->seekingStep3()*0.001, false);
 	const QString backward = tr("Backward %1sec.");
-	setActionAttr(seek["backward1"], -p->seekingStep1(), backward, p->seekingStep1()*0.001, false);
-	setActionAttr(seek["backward2"], -p->seekingStep2(), backward, p->seekingStep2()*0.001, false);
-	setActionAttr(seek["backward3"], -p->seekingStep3(), backward, p->seekingStep3()*0.001, false);
+	setActionAttr(seek["backward1"], -p->seekingStep1()
+			, backward, p->seekingStep1()*0.001, false);
+	setActionAttr(seek["backward2"], -p->seekingStep2()
+			, backward, p->seekingStep2()*0.001, false);
+	setActionAttr(seek["backward3"], -p->seekingStep3()
+			, backward, p->seekingStep3()*0.001, false);
 	
 	Menu &sub = root("subtitle");
 	sub.setTitle(tr("Subtitle"));
@@ -331,25 +335,34 @@ void Menu::updatePref() {
 	list["open"]->setText(tr("Open"));
 	list["clear"]->setText(tr("Clear"));
 	list["hide"]->setText(tr("Hide"));
-	setActionAttr(sub["pos up"], -p->subtitlePosStep(), tr("Up %1%"), p->subtitlePosStep(), false);
-	setActionAttr(sub["pos down"], p->subtitlePosStep(), tr("Down %1%"), p->subtitlePosStep(), false);
-	setActionStep(sub["sync add"], sub["sync sub"], tr("Sync %1sec."), p->syncDelayStep(), 0.001);
+	setActionAttr(sub["pos up"], -p->subtitlePosStep()
+			, tr("Up %1%"), p->subtitlePosStep(), false);
+	setActionAttr(sub["pos down"], p->subtitlePosStep()
+			, tr("Down %1%"), p->subtitlePosStep(), false);
+	setActionStep(sub["sync add"], sub["sync sub"]
+			, tr("Sync %1sec."), p->syncDelayStep(), 0.001);
 	
 	Menu &video = root("video");
 	video.setTitle(tr("Video"));
 	video("renderer").setTitle(tr("Renderer"));
-	setVideoPropStep(video, "brightness", Core::Brightness, tr("Brightness %1%"), p->brightnessStep());
-	setVideoPropStep(video, "saturation", Core::Saturation, tr("Saturation %1%"), p->brightnessStep());
-	setVideoPropStep(video, "contrast", Core::Contrast, tr("Contrast %1%"), p->brightnessStep());
-	setVideoPropStep(video, "hue", Core::Hue, tr("Hue %1%"), p->brightnessStep());
+	setVideoPropStep(video, "brightness", Core::Brightness
+			, tr("Brightness %1%"), p->brightnessStep());
+	setVideoPropStep(video, "saturation", Core::Saturation
+			, tr("Saturation %1%"), p->brightnessStep());
+	setVideoPropStep(video, "contrast", Core::Contrast
+			, tr("Contrast %1%"), p->brightnessStep());
+	setVideoPropStep(video, "hue", Core::Hue
+			, tr("Hue %1%"), p->brightnessStep());
 
 	Menu &audio = root("audio");
 	audio.setTitle(tr("Audio"));
 	audio("renderer").setTitle(tr("Renderer"));
 	audio("track").setTitle(tr("Track"));
 	audio["mute"]->setText(tr("Toggle Mute"));
-	setActionStep(audio["volume up"], audio["volume down"], tr("Volume %1%"), p->volumeStep());
-	setActionStep(audio["amp up"], audio["amp down"], tr("Amp. %1%"), p->ampStep());
+	setActionStep(audio["volume up"], audio["volume down"]
+			, tr("Volume %1%"), p->volumeStep());
+	setActionStep(audio["amp up"], audio["amp down"]
+			, tr("Amp. %1%"), p->ampStep());
 
 	root["pref"]->setText(tr("Preferences"));
 // 	root["help"]->setText(tr("Help"));

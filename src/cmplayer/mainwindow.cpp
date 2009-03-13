@@ -145,7 +145,7 @@ MainWindow::MainWindow()
 	const BackendMap &backend = VideoPlayer::load();
 	Menu &engine = play("engine");
 	for (BackendMap::const_iterator it = backend.begin(); it != backend.end(); ++it)
-		engine.addActionNoKey(it.key(), true)->setData(it.key());
+		engine.addActionToGroupWithoutKey(it.key(), true)->setData(it.key());
 	updatePref();
 	loadState();
 	
@@ -414,7 +414,7 @@ void MainWindow::autoLoadSubtitles() {
 		}
 		Menu &list = d->menu("subtitle")("list");
 		for (int i=0; i<d->subs.size(); ++i) {
-			QAction *action = list.addActionNoKey(d->subs[i].name(), true);
+			QAction *action = list.addActionToGroupWithoutKey(d->subs[i].name(), true);
 			action->setData(i);
 			action->setChecked(d->subIdxes.contains(i));
 		}
@@ -512,7 +512,7 @@ void MainWindow::openSubFile() {
 		for (int j=0; j<subs.size(); ++j, ++idx) {
 			d->subIdxes.append(idx);
 			d->subs.append(subs[j]);
-			QAction *action = list.addActionNoKey(d->subs[idx].name(), true);
+			QAction *action = list.addActionToGroupWithoutKey(d->subs[idx].name(), true);
 			action->setData(idx);
 			action->setChecked(true);
 		}
@@ -758,7 +758,7 @@ void MainWindow::slotTracksChanged(const QStringList &tracks) {
 	Menu &track = d->menu("audio")("track");
 	track.g()->clear();
 	for (int i=0; i<tracks.size(); ++i)
-		track.addActionNoKey(tracks[i], true)->setData(tracks[i]);
+		track.addActionToGroupWithoutKey(tracks[i], true)->setData(tracks[i]);
 }
 
 void MainWindow::slotCurrentTrackChanged(const QString &track) {
@@ -769,7 +769,7 @@ void MainWindow::slotSpusChanged(const QStringList &spus) {
 	clearSubs();
 	Menu &list = d->menu("subtitle")("list");
 	for (int i=0; i<spus.size(); ++i)
-		list.addActionNoKey(spus[i], true)->setData(spus[i]);
+		list.addActionToGroupWithoutKey(spus[i], true)->setData(spus[i]);
 	list.g()->setExclusive(true);
 }
 
@@ -800,9 +800,9 @@ void MainWindow::slotBackendChanged() {
 	const QStringList audios = info.audioRenderer();
 	const QStringList videos = info.videoRenderer();
 	for (int i=0; i<videos.size(); ++i)
-		vMenu.addActionNoKey(videos[i], true)->setData(videos[i]);
+		vMenu.addActionToGroupWithoutKey(videos[i], true)->setData(videos[i]);
 	for (int i=0; i<audios.size(); ++i)
-		aMenu.addActionNoKey(audios[i], true)->setData(audios[i]);
+		aMenu.addActionToGroupWithoutKey(audios[i], true)->setData(audios[i]);
 	State state;
 	const QString video = state[State::VideoRenderer].toMap()[info.name()].toString();
 	if (!video.isEmpty())
