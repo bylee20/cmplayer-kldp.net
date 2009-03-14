@@ -153,7 +153,7 @@ MainWindow::MainWindow()
 	if (args.size() > 1) {
 		QUrl url(args.last());
 		if (url.scheme().isEmpty())
-			url = QUrl::fromLocalFile(args.last());
+			url = QUrl::fromLocalFile(QFileInfo(args.last()).absoluteFilePath());
 		this->open(url);
 	} else {
 		d->model->setPlayList(d->recent->lastPlayList());
@@ -478,6 +478,7 @@ void MainWindow::open(const QUrl &url) {
 	} else
 		list.append(source);
 	d->model->setPlayList(list);
+	qDebug() << list[0].toMrl() << source.toMrl();
 	d->model->play(list.indexOf(source));
 	RecentInfo::get()->stackSource(source);
 }
