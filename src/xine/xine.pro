@@ -25,10 +25,10 @@ CONFIG += debug \
     dll \
     plugin
 
-RELEASE = $(CMPLAYER_RELEASE)
-!isEmpty(RELEASE) {
-	CONFIG -= debug
-	CONFIG += release
+RELEASE = $$(CMPLAYER_RELEASE)
+!isEmpty(RELEASE){
+    CONFIG -= debug
+    CONFIG += release
 }
 
 TEMPLATE = lib
@@ -38,3 +38,5 @@ LIBS += -L../bin \
   -lxcb \
   -lxine \
   -lcmplayer_core
+CONFIG -= release
+

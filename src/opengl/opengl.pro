@@ -6,10 +6,10 @@ opengl \
  debug \
  debug_and_release
 
-RELEASE = $(CMPLAYER_RELEASE)
-!isEmpty(RELEASE) {
-	CONFIG -= debug
-	CONFIG += release
+RELEASE = $$(CMPLAYER_RELEASE)
+!isEmpty(RELEASE){
+    CONFIG -= debug
+    CONFIG += release
 }
 
 QT += opengl
@@ -30,4 +30,6 @@ videorenderer.cpp \
 osdrenderer.cpp \
 pixelbufferosdrenderer.cpp
 INCLUDEPATH += ../
+
+CONFIG -= release
 

@@ -55,7 +55,7 @@ FORMS += ./ui/abrepeatdialog.ui \
 CONFIG += debug \
     debug_and_release
 
-RELEASE = $(CMPLAYER_RELEASE)
+RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE) {
 	CONFIG -= debug
 	CONFIG += release
@@ -66,7 +66,11 @@ INCLUDEPATH += ../
 
 DEFINES += CMPLAYER_TRANSLATION_DIR=$(CMPLAYER_TRANSLATION_PATH)
 
-TARGET = ../bin/cmplayer-bin
+BIN_NAME = $$(CMPLAYER_BIN)
+isEmpty(BIN_NAME) {
+	BIN_NAME = cmplayer-bin
+}
+TARGET = ../bin/$${BIN_NAME}
 
 TRANSLATIONS += translations/cmplayer_ko.ts \
 translations/cmplayer_en.ts

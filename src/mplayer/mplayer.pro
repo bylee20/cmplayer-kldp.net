@@ -18,10 +18,10 @@ CONFIG += debug \
     dll \
     plugin
 
-RELEASE = $(CMPLAYER_RELEASE)
-!isEmpty(RELEASE) {
-	CONFIG -= debug
-	CONFIG += release
+RELEASE = $$(CMPLAYER_RELEASE)
+!isEmpty(RELEASE){
+    CONFIG -= debug
+    CONFIG += release
 }
 
 INCLUDEPATH += ../
@@ -29,4 +29,6 @@ TARGET = ../bin/cmplayer_engine_mplayer
 
 LIBS += -L../bin \
   -lcmplayer_core
+
+CONFIG -= release
 

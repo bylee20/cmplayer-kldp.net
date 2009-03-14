@@ -44,7 +44,7 @@ CONFIG += debug \
     debug_and_release \
     dll
 
-RELEASE = $(CMPLAYER_RELEASE)
+RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE){
     CONFIG -= debug
     CONFIG += release
