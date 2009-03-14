@@ -115,6 +115,7 @@ Menu &Menu::create(QWidget *parent) {
 	prev->setShortcut(Qt::CTRL + Qt::Key_Left);
 	next->setIcon(QIcon(":/img/media-skip-forward.png"));
 	next->setShortcut(Qt::CTRL + Qt::Key_Right);
+	list->setIcon(QIcon(":/img/view-media-playlist.png"));
 	list->setShortcut(Qt::Key_L);
 		
 	play->addSeparator();
