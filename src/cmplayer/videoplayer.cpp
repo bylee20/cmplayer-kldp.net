@@ -286,12 +286,8 @@ DEC_ENGINE_CALL_RETURN(Core::ABRepeater*, repeater)
 #undef DEC_ENGINE_PROP_CHECK_CLIP_RATE
 
 const BackendMap &VideoPlayer::load(const QString &path) {
-	QStringList list(path);
-	list << Core::Info::pluginPath();
-	for (int i=0; i<list.size(); ++i) {
-		QDir dir(list[i]);
-		if (!dir.exists())
-			continue;
+	QDir dir(path.isEmpty() ? Core::Info::pluginPath() : path);
+	if (dir.exists()) {
 		static QRegExp rxFilter("^libcmplayer_engine_(.+).so$");
 		const QFileInfoList file = dir.entryInfoList(QDir::Files);
 		for (int i=0; i<file.size(); ++i) {
