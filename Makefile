@@ -18,7 +18,7 @@ endif
 ifdef PREFIX
 	ifneq ($(PREFIX),)
 		CMPLAYER_BIN_PATH ?= $(PREFIX)/cmplayer
-		CMPLAYER_DATA_PATH ?= $(PREFIX)/cmplayer
+		CMPLAYER_DATA_PATH ?= $(PREFIX)
 		CMPLAYER_TRANSLATION_PATH ?= $(PREFIX)/cmplayer/translations
 		CMPLAYER_LIB_PATH ?= $(PREFIX)/cmplayer/lib
 		CMPLAYER_PLUGIN_PATH ?= $(PREFIX)/cmplayer/plugins
