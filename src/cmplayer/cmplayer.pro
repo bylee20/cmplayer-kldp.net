@@ -64,11 +64,6 @@ RELEASE = $$(CMPLAYER_RELEASE)
 RESOURCES += rsclist.qrc
 INCLUDEPATH += ../
 
-
-isEmpty(BIN_NAME){
-    BIN_NAME = cmplayer-bin
-}
-
 TRANSLATIONS += translations/cmplayer_ko.ts \
 translations/cmplayer_en.ts
 LIBS += -L../bin \
