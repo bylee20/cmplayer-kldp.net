@@ -65,11 +65,9 @@ RESOURCES += rsclist.qrc
 INCLUDEPATH += ../
 
 
-BIN_NAME = $$(CMPLAYER_BIN)
 isEmpty(BIN_NAME){
     BIN_NAME = cmplayer-bin
 }
-TARGET = ../bin/$${BIN_NAME}
 
 TRANSLATIONS += translations/cmplayer_ko.ts \
 translations/cmplayer_en.ts
@@ -78,5 +76,7 @@ LIBS += -L../bin \
 
 CONFIG -= release
 
-DEFINES += CMPLAYER_TRANSLATION_DIR=\\\"$(CMPLAYER_TRANSLATION_PATH)\\\"
+TARGET = ../bin/cmplayer
+
+DEFINES += CMPLAYER_TRANSLATION_DIR=$(CMPLAYER_TRANSLATION_PATH)
 

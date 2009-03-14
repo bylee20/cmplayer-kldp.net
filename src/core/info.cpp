@@ -36,10 +36,8 @@ Info::Data::Data() {
 	privatePath = QString::fromLocal8Bit(qgetenv("CMPLAYER_PRIVATE_PATH"));
 	if (pluginPath.isEmpty())
 		pluginPath = QString(CMPLAYER_PLUGIN_DIR);
-	if (privatePath.isEmpty())
-		privatePath = QString(CMPLAYER_PRIVATE_DIR);
-	QDir dir = QDir::home();
 	if (privatePath.isEmpty()) {
+		QDir dir = QDir::home();
 		if (!dir.exists(".cmplayer"))
 			dir.mkdir(".cmplayer");
 		dir.cd(".cmplayer");
