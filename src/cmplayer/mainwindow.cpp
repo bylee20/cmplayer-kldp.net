@@ -283,6 +283,7 @@ void MainWindow::initIface() {
 	d->contextMenu = new QMenu(this);
 	d->contextMenu->addAction(menu("open")["file"]);
 	d->contextMenu->addMenu(menu.m("open"));
+	d->contextMenu->addAction(menu("play")["list"]);
 	d->contextMenu->addSeparator();
 	d->contextMenu->addMenu(menu.m("screen"));
 	d->contextMenu->addMenu(menu.m("play"));
