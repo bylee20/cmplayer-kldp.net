@@ -2,11 +2,14 @@ PREFIX ?= /usr/local/share
 CMPLAYER_PRIVATE_PATH ?= ${HOME}/.cmplayer
 READ_CONFIG ?= yes
 
+DISABLE_SCRIPT ?= no
 ENABLE_OPENGL ?= no
 BUILD_PLUGIN_ONLY ?= no
 CMPLAYER_EXE_PATH ?= /usr/bin
 CMPLAYER_DIR ?= cmplayer
+CMPLAYER_BIN ?= cmplayer-bin
 CMPLAYER_PATH := $(PREFIX)/$(CMPLAYER_DIR)
+CMPLAYER_BIN_PATH ?= $(CMPLAYER_BIN_PATH)
 CMPLAYER_LIB_PATH ?= $(CMPLAYER_PATH)/lib
 CMPLAYER_TRANSLATION_PATH ?= $(CMPLAYER_PATH)/translations
 CMPLAYER_PLUGIN_PATH ?= $(CMPLAYER_PATH)/plugins
@@ -17,6 +20,9 @@ ifneq ($(READ_CONFIG),no)
 	ifneq ($(config),)
 		ENABLE_OPENGL := $(shell grep \!\!ENABLE_OPENGL\!\! make_config | sed s/^.*\\s=\\s//)
 		BUILD_PLUGIN_ONLY := $(shell grep \!\!BUILD_PLUGIN_ONLY\!\! make_config | sed s/^.*\\s=\\s//)
+		DISABLE_SCRIPT := $(shell grep \!\!DISABLE_SCRIPT\!\! make_config | sed s/^.*\\s=\\s//)
+		CMPLAYER_BIN := $(shell grep \!\!CMPLAYER_BIN\!\! make_config | sed s/^.*\\s=\\s//)
+		CMPLAYER_BIN_PATH := $(shell grep \!\!CMPLAYER_BIN_PATH\!\! make_config | sed s/^.*\\s=\\s//)
 		CMPLAYER_EXE_PATH := $(shell grep \!\!CMPLAYER_EXE_PATH\!\! make_config | sed s/^.*\\s=\\s//)
 		CMPLAYER_PATH := $(shell grep \!\!CMPLAYER_PATH\!\! make_config | sed s/^.*\\s=\\s//)
 		CMPLAYER_LIB_PATH := $(shell grep \!\!CMPLAYER_LIB_PATH\!\! make_config | sed s/^.*\\s=\\s//)
@@ -25,15 +31,13 @@ ifneq ($(READ_CONFIG),no)
 		ENGINE_LIST := $(shell grep \!\!ENGINE_LIST\!\! make_config | sed s/^.*\\s=\\s//)
 	endif
 endif
-ENABLE_OPENGL := $(strip $(ENABLE_OPENGL))
-BUILD_PLUGIN_ONLY := $(strip $(BUILD_PLUGIN_ONLY))
 
 QMAKE ?= qmake
 LRELEASE ?= lrelease
 
 install_file := install -m 644
 install_exe := install -m 755
-qmake_env := CMPLAYER_RELEASE=\\\"yes\\\"
+qmake_env := CMPLAYER_BIN=\\\"$(CMPLAYER_BIN)\\\" CMPLAYER_RELEASE=\\\"yes\\\"
 make_env := CMPLAYER_TRANSLATION_PATH=\\\"$(CMPLAYER_TRANSLATION_PATH)\\\" \
 CMPLAYER_PLUGIN_PATH=\\\"$(CMPLAYER_PLUGIN_PATH)\\\" CMPLAYER_PRIVATE_PATH=\\\"$(CMPLAYER_PRIVATE_PATH)\\\"
 subdirs := "SUBDIRS += core OPENGL ${ENGINE_LIST} CMPLAYER"
@@ -68,6 +72,9 @@ ifeq ($(config),)
 "!!CMPLAYER_LIB_PATH!! = $(CMPLAYER_LIB_PATH)\n"\
 "!!CMPLAYER_TRANSLATION_PATH!! = $(CMPLAYER_TRANSLATION_PATH)\n"\
 "!!CMPLAYER_PLUGIN_PATH!! = $(CMPLAYER_PLUGIN_PATH)\n"\
+"!!DISABLE_SCRIPT!! = $(DISABLE_SCRIPT)\n"\
+"!!CMPLAYER_BIN!! = $(CMPLAYER_BIN)\n"\
+"!!CMPLAYER_BIN_PATH!! = $(CMPLAYER_BIN_PATH)\n"\
 "!!ENGINE_LIST!! = $(ENGINE_LIST)" > make_config
 	@echo "\n===================== Compilation Finished! =====================\n"
 else
@@ -116,16 +123,19 @@ ifneq (,$(findstring mplayer,${ENGINE_LIST}))
 	$(install_file) src/bin/libcmplayer_engine_mplayer* $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
 endif
 ifneq ($(BUILD_PLUGIN_ONLY),yes)
-	install -d $(DESTDIR)$(CMPLAYER_EXE_PATH)
+	install -d $(DESTDIR)$(CMPLAYER_BIN_PATH)
 	install -d $(DESTDIR)$(CMPLAYER_PATH)
 	install -d $(DESTDIR)$(CMPLAYER_LIB_PATH)
 	install -d $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
 	$(install_file) src/bin/libcmplayer_core* $(DESTDIR)$(CMPLAYER_LIB_PATH)
 	$(install_file) src/cmplayer/translations/cmplayer_*.qm $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
-	$(install_exe) src/bin/cmplayer-bin $(DESTDIR)$(CMPLAYER_PATH)
+	$(install_exe) src/bin/$(CMPLAYER_BIN) $(DESTDIR)$(CMPLAYER_BIN_PATH)
+ifneq ($(DISABLE_SCRIPT),yes)
+	install -d $(DESTDIR)$(CMPLAYER_EXE_PATH)
 	echo "#!/bin/sh\nLD_LIBRARY_PATH=$(CMPLAYER_LIB_PATH):\$${LD_LIBRARY_PATH} "\
 "$(CMPLAYER_PATH)/cmplayer-bin\nexit \$$exitcode" > $(DESTDIR)$(CMPLAYER_EXE_PATH)/cmplayer
 	chmod 0755 $(DESTDIR)$(CMPLAYER_EXE_PATH)/cmplayer
+endif
 endif
 	@echo "\n==================== Installation Finished!! ====================\n\n"\
 "  If you want to execute CMPlayer now, run '$(to_execute)'.\n"
@@ -144,10 +154,13 @@ endif
 ifneq ($(BUILD_PLUGIN_ONLY),yes)
 	rm -f $(CMPLAYER_TRANSLATION_PATH)/cmplayer_*.qm
 	rm -f $(CMPLAYER_LIB_PATH)/libcmplayer_core*
-	rm -f $(CMPLAYER_PATH)/cmplayer*
+	rm -f $(CMPLAYER_BIN_PATH)/$(CMPLAYER_BIN)
+ifneq ($(DISABLE_SCRIPT),yes)
 	rm -f $(CMPLAYER_EXE_PATH)/cmplayer
+	rmdir --ignore-fail-on-non-empty $(CMPLAYER_EXE_PATH)
+endif
 	rmdir --ignore-fail-on-non-empty $(CMPLAYER_TRANSLATION_PATH)
 	rmdir --ignore-fail-on-non-empty $(CMPLAYER_LIB_PATH)
 	rmdir --ignore-fail-on-non-empty $(CMPLAYER_PATH)
-	rmdir --ignore-fail-on-non-empty $(CMPLAYER_EXE_PATH)
+	rmdir --ignore-fail-on-non-empty $(CMPLAYER_BIN_PATH)
 endif
