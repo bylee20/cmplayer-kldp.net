@@ -1,26 +1,29 @@
 PREFIX ?= /usr/local/share
 CMPLAYER_PRIVATE_PATH ?= ${HOME}/.cmplayer
+READ_CONFIG ?= yes
 
-config := $(strip $(shell cat make_config))
-ifeq ($(config),)
-	ENABLE_OPENGL ?= no
-	BUILD_PLUGIN_ONLY ?= no
-	CMPLAYER_EXE_PATH ?= /usr/bin
-	CMPLAYER_DIR ?= cmplayer
-	CMPLAYER_PATH := $(PREFIX)/$(CMPLAYER_DIR)
-	CMPLAYER_LIB_PATH ?= $(CMPLAYER_PATH)/lib
-	CMPLAYER_TRANSLATION_PATH ?= $(CMPLAYER_PATH)/translations
-	CMPLAYER_PLUGIN_PATH ?= $(CMPLAYER_PATH)/plugins
-	ENGINE_LIST ?= xine mplayer
-else
-	ENABLE_OPENGL := $(shell grep \!\!ENABLE_OPENGL\!\! make_config | sed s/^.*\\s=\\s//)
-	BUILD_PLUGIN_ONLY := $(shell grep \!\!BUILD_PLUGIN_ONLY\!\! make_config | sed s/^.*\\s=\\s//)
-	CMPLAYER_EXE_PATH := $(shell grep \!\!CMPLAYER_EXE_PATH\!\! make_config | sed s/^.*\\s=\\s//)
-	CMPLAYER_PATH := $(shell grep \!\!CMPLAYER_PATH\!\! make_config | sed s/^.*\\s=\\s//)
-	CMPLAYER_LIB_PATH := $(shell grep \!\!CMPLAYER_LIB_PATH\!\! make_config | sed s/^.*\\s=\\s//)
-	CMPLAYER_TRANSLATION_PATH := $(shell grep \!\!CMPLAYER_TRANSLATION_PATH\!\! make_config | sed s/^.*\\s=\\s//)
-	CMPLAYER_PLUGIN_PATH := $(shell grep \!\!CMPLAYER_PLUGIN_PATH\!\! make_config | sed s/^.*\\s=\\s//)
-	ENGINE_LIST := $(shell grep \!\!ENGINE_LIST\!\! make_config | sed s/^.*\\s=\\s//)
+ENABLE_OPENGL ?= no
+BUILD_PLUGIN_ONLY ?= no
+CMPLAYER_EXE_PATH ?= /usr/bin
+CMPLAYER_DIR ?= cmplayer
+CMPLAYER_PATH := $(PREFIX)/$(CMPLAYER_DIR)
+CMPLAYER_LIB_PATH ?= $(CMPLAYER_PATH)/lib
+CMPLAYER_TRANSLATION_PATH ?= $(CMPLAYER_PATH)/translations
+CMPLAYER_PLUGIN_PATH ?= $(CMPLAYER_PATH)/plugins
+ENGINE_LIST ?= xine mplayer
+
+ifneq ($(READ_CONFIG),no)
+	config := $(strip $(shell cat make_config))
+	ifneq ($(config),)
+		ENABLE_OPENGL := $(shell grep \!\!ENABLE_OPENGL\!\! make_config | sed s/^.*\\s=\\s//)
+		BUILD_PLUGIN_ONLY := $(shell grep \!\!BUILD_PLUGIN_ONLY\!\! make_config | sed s/^.*\\s=\\s//)
+		CMPLAYER_EXE_PATH := $(shell grep \!\!CMPLAYER_EXE_PATH\!\! make_config | sed s/^.*\\s=\\s//)
+		CMPLAYER_PATH := $(shell grep \!\!CMPLAYER_PATH\!\! make_config | sed s/^.*\\s=\\s//)
+		CMPLAYER_LIB_PATH := $(shell grep \!\!CMPLAYER_LIB_PATH\!\! make_config | sed s/^.*\\s=\\s//)
+		CMPLAYER_TRANSLATION_PATH := $(shell grep \!\!CMPLAYER_TRANSLATION_PATH\!\! make_config | sed s/^.*\\s=\\s//)
+		CMPLAYER_PLUGIN_PATH := $(shell grep \!\!CMPLAYER_PLUGIN_PATH\!\! make_config | sed s/^.*\\s=\\s//)
+		ENGINE_LIST := $(shell grep \!\!ENGINE_LIST\!\! make_config | sed s/^.*\\s=\\s//)
+	endif
 endif
 ENABLE_OPENGL := $(strip $(ENABLE_OPENGL))
 BUILD_PLUGIN_ONLY := $(strip $(BUILD_PLUGIN_ONLY))
