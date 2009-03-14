@@ -29,13 +29,15 @@ QStringList Info::ExtensionList::toNameFilter() const {
 	return nameFilter;
 }
 
+// #define TO_STRING(str) str
+
 Info::Data::Data() {
 	pluginPath = QString::fromLocal8Bit(qgetenv("CMPLAYER_PLUGIN_PATH"));
 	privatePath = QString::fromLocal8Bit(qgetenv("CMPLAYER_PRIVATE_PATH"));
 	if (pluginPath.isEmpty())
-		pluginPath = CMPLAYER_PLUGIN_DIR"";
+		pluginPath = QString(CMPLAYER_PLUGIN_DIR);
 	if (privatePath.isEmpty())
-		privatePath = CMPLAYER_PRIVATE_DIR"";
+		privatePath = QString(CMPLAYER_PRIVATE_DIR);
 	QDir dir = QDir::home();
 	if (privatePath.isEmpty()) {
 		if (!dir.exists(".cmplayer"))

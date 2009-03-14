@@ -14,7 +14,7 @@ Translator::Translator()
 	qApp->installTranslator(&d->trans);
 	d->path = QString::fromLocal8Bit(qgetenv("CMPLAYER_TRANSLATION_PATH"));
 	if (d->path.isEmpty())
-		d->path = CMPLAYER_TRANSLATION_DIR"";
+		d->path = QString(CMPLAYER_TRANSLATION_DIR);
 }
 
 Translator::~Translator() {
