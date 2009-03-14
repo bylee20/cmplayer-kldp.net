@@ -1,7 +1,7 @@
 PREFIX ?= /usr/local/share
 CMPLAYER_PRIVATE_PATH ?= ${HOME}/.cmplayer
 READ_CONFIG ?= yes
-
+LIB_VERSION := 0.2.6
 DISABLE_SCRIPT ?= no
 ENABLE_OPENGL ?= no
 BUILD_PLUGIN_ONLY ?= no
@@ -127,7 +127,7 @@ ifneq ($(BUILD_PLUGIN_ONLY),yes)
 	install -d $(DESTDIR)$(CMPLAYER_PATH)
 	install -d $(DESTDIR)$(CMPLAYER_LIB_PATH)
 	install -d $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
-	$(install_file) src/bin/libcmplayer_core* $(DESTDIR)$(CMPLAYER_LIB_PATH)
+	$(install_file) src/bin/libcmplayer_core.so.$(LIB_VERSION) $(DESTDIR)$(CMPLAYER_LIB_PATH)
 	$(install_file) src/cmplayer/translations/cmplayer_*.qm $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
 	$(install_exe) src/bin/$(CMPLAYER_BIN) $(DESTDIR)$(CMPLAYER_BIN_PATH)
 ifneq ($(DISABLE_SCRIPT),yes)
@@ -153,7 +153,7 @@ endif
 	rmdir --ignore-fail-on-non-empty $(CMPLAYER_PLUGIN_PATH)
 ifneq ($(BUILD_PLUGIN_ONLY),yes)
 	rm -f $(CMPLAYER_TRANSLATION_PATH)/cmplayer_*.qm
-	rm -f $(CMPLAYER_LIB_PATH)/libcmplayer_core*
+	rm -f $(CMPLAYER_LIB_PATH)/libcmplayer_core.so.$(LIB_VERSION)
 	rm -f $(CMPLAYER_BIN_PATH)/$(CMPLAYER_BIN)
 ifneq ($(DISABLE_SCRIPT),yes)
 	rm -f $(CMPLAYER_EXE_PATH)/cmplayer
