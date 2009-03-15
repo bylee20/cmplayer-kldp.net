@@ -1,5 +1,7 @@
 #include "aboutdialog.h"
+#include "videoplayer.h"
 #include "ui_aboutdialog.h"
+#include <core/backendiface.h>
 #include <core/info.h>
 
 struct AboutDialog::Data {
@@ -14,6 +16,16 @@ AboutDialog::AboutDialog(QWidget *parent)
 	version = version.arg(QT_VERSION_STR);
 	version = version.arg(qVersion());
 	d->ui.version->setText(version);
+	const BackendMap map = VideoPlayer::backend();
+	BackendMap::const_iterator it = map.begin();
+	for (; it != map.end(); ++it) {
+		const Core::Info *info = it.value()->info();
+		const QStringList engine = QStringList()
+				<< info->name() << info->compileVersion()
+				<< info->runtimeVersion();
+		QTreeWidgetItem *item = new QTreeWidgetItem(engine);
+		d->ui.engineTree->addTopLevelItem(item);
+	}
 }
 
 AboutDialog::~AboutDialog() {

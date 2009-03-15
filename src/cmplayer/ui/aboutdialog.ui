@@ -41,7 +41,7 @@ This application is a front end of various play engines.</string>
          </property>
          <property name="sizeHint" stdset="0" >
           <size>
-           <width>10</width>
+           <width>13</width>
            <height>10</height>
           </size>
          </property>
@@ -51,7 +51,7 @@ This application is a front end of various play engines.</string>
         <widget class="QLabel" name="version" >
          <property name="text" >
           <string>Version: %1
-Compiled With: Qt %2
+Compiled Against: Qt %2
 Linked With: Qt %3</string>
          </property>
         </widget>
@@ -91,13 +91,45 @@ p, li { white-space: pre-wrap; }
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
+         <property name="sizeType" >
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
          <property name="sizeHint" stdset="0" >
           <size>
-           <width>17</width>
-           <height>238</height>
+           <width>20</width>
+           <height>10</height>
           </size>
          </property>
         </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_3" >
+         <property name="text" >
+          <string>Available Play Engine Informations</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="engineTree" >
+         <property name="rootIsDecorated" >
+          <bool>false</bool>
+         </property>
+         <column>
+          <property name="text" >
+           <string>Play Engine</string>
+          </property>
+         </column>
+         <column>
+          <property name="text" >
+           <string>Compiled Against</string>
+          </property>
+         </column>
+         <column>
+          <property name="text" >
+           <string>Linked With</string>
+          </property>
+         </column>
+        </widget>
        </item>
       </layout>
      </widget>

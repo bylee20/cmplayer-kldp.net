@@ -27,6 +27,8 @@ public:
 	virtual const QStringList &audioRenderer() const = 0;
 	virtual QString name() const = 0;
 	virtual double maximumAmplifyingRate() const = 0;
+	virtual QString compileVersion() const = 0;
+	virtual QString runtimeVersion() const = 0;
 private:
 	struct Data {
 		Data();

@@ -11,6 +11,8 @@ public:
 	virtual const QStringList &audioRenderer() const;
 	virtual QString name() const {return QString("xine");}
 	virtual double maximumAmplifyingRate() const {return 10.0;}
+	virtual QString compileVersion() const;
+	virtual QString runtimeVersion() const;
 private:
 	struct Data {
 		Data();

@@ -17,11 +17,14 @@ public:
 		if (d.af.isEmpty()) getInfo(); return d.af;}
 	virtual QString name() const {return QString("MPlayer");}
 	virtual double maximumAmplifyingRate() const {return 10.0;}
+	virtual QString compileVersion() const;
+	virtual QString runtimeVersion() const;
 private:
 	void getInfo() const;
 	struct Data {
 		Data();
 		QStringList vo, ao, vf, af;
+		QString ver;
 	};
 	static Data d;
 };

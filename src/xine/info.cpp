@@ -27,4 +27,12 @@ const QStringList &Info::audioRenderer() const {
 	return d.audioRenderers;
 }
 
+QString Info::compileVersion() const {
+	return QString(XINE_VERSION);
+}
+
+QString Info::runtimeVersion() const {
+	return QString(xine_get_version_string());
+}
+
 }

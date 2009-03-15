@@ -44,8 +44,8 @@ void Info::getInfo() const {
 			what = Nothing;
 			continue;
 		}
-// 		if (rxVer.indexIn(line) != -1)
-// 			d.rv = rxVer.cap(1);
+		if (rxVer.indexIn(line) != -1)
+			d.ver = rxVer.cap(1);
 		if (what == Nothing) {
 			if (rxVo.indexIn(line) != -1)
 				what = Vo;
@@ -75,6 +75,16 @@ void Info::getInfo() const {
 		}
 		what = Nothing;
 	}
+}
+
+QString Info::compileVersion() const {
+	return QString("unknown");
+}
+
+QString Info::runtimeVersion() const {
+	if (d.ver.isEmpty())
+		getInfo();
+	return d.ver;
 }
 
 }

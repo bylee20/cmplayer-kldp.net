@@ -12,18 +12,22 @@ public:
 		const QStringList &audioRenderer() const {return d.ar;}
 		QString name() const {return d.name;}
 		double maximumAmplifyingRate() const {return d.maxAmp;}
+		QString compileVersion() const {return d.cv;}
+		QString runtimeVersion() const {return d.rv;}
 		static void copy(const Core::Info &other) {
 			d.vr = other.videoRenderer();
 			d.ar = other.audioRenderer();
 			d.name = other.name();
 			d.maxAmp = other.maximumAmplifyingRate();
+			d.cv = other.compileVersion();
+			d.rv = other.runtimeVersion();
 		}
 	private:
 		struct Data {
 			Data();
 			QStringList vr, ar;
 			double maxAmp;
-			QString name;
+			QString name, cv, rv;
 		};
 		static Data d;
 	};
