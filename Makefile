@@ -25,6 +25,8 @@ ifdef PREFIX
 	endif
 endif
 
+INSTALL_SYMBOLIC ?= yes
+
 CMPLAYER_BIN_PATH ?= /usr/local/bin
 CMPLAYER_DATA_PATH ?= /usr/local/share
 CMPLAYER_TRANSLATION_PATH ?= $(CMPLAYER_DATA_PATH)/cmplayer/translations
@@ -168,7 +170,11 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	install -d $(DESTDIR)$(CMPLAYER_LIB_PATH)
 	$(install_exe) src/bin/cmplayer $(DESTDIR)$(CMPLAYER_BIN_PATH)
 	$(install_file) src/cmplayer/translations/cmplayer_*.qm $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
+ifeq ($(INSTALL_SYMBOLIC),yes)
+	$(install_file) src/bin/libcmplayer_core.so* $(DESTDIR)$(CMPLAYER_LIB_PATH)
+else
 	$(install_file) src/bin/libcmplayer_core.so.$(cmplayer_version) $(DESTDIR)$(CMPLAYER_LIB_PATH)
+endif
 endif
 	@echo "\n==================== Installation Finished!! ====================\n\n"\
 "  If you want to execute CMPlayer now, run '$(executable)'.\n"
@@ -177,7 +183,7 @@ uninstall:
 # uninstall core and player files
 ifeq ($(BUILD_PLUGIN_ONLY),no)
 	rm -f $(CMPLAYER_TRANSLATION_PATH)/cmplayer_*.qm
-	rm -f $(CMPLAYER_LIB_PATH)/libcmplayer_core.so.$(cmplayer_version)
+	rm -f $(CMPLAYER_LIB_PATH)/libcmplayer_core.so*
 	rm -f $(CMPLAYER_BIN_PATH)/cmplayer
 endif
 # uninstall xine
