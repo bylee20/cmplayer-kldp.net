@@ -42,7 +42,7 @@ LRELEASE ?= lrelease
 cmplayer_version := 0.2.6
 install_file := install -m 644
 install_exe := install -m 755
-qmake_env := CMPLAYER_RELEASE=\\\"yes\\\" CMPLAYER_SET_RPATH=\\\"$(CMPLAYER_SET_RPATH)\\\"
+qmake_env := CMPLAYER_RELEASE=\\\"yes\\\"
 make_env := CMPLAYER_TRANSLATION_PATH=\\\"$(CMPLAYER_TRANSLATION_PATH)\\\" CMPLAYER_PLUGIN_PATH=\\\"$(CMPLAYER_PLUGIN_PATH)\\\"
 subdirs := "SUBDIRS += core OPENGL ${ENGINE_LIST} CMPLAYER"
 ifeq ($(ENABLE_OPENGL),yes)
