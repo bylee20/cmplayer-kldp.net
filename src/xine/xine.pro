@@ -38,5 +38,11 @@ LIBS += -L../bin \
   -lxcb \
   -lxine \
   -lcmplayer_core
+
+SET_RPATH = $$(CMPLAYER_SET_RPATH)
+!isEmpty(SET_RPATH) {
+	LIBS += -Wl,--rpath -Wl,$${SET_RPATH}
+}
+
 CONFIG -= release
 

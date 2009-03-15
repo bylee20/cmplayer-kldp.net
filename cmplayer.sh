@@ -40,6 +40,6 @@ fi
 
 LD_LIBRARY_PATH=${dist_bin}/lib:${LD_LIBRARY_PATH} \
 CMPLAYER_TRANSLATION_PATH=${dist_bin}/translations \
-CMPLAYER_PLUGIN_PATH=${dist_bin}/plugins ${run_cmplayer}
+CMPLAYER_PLUGIN_PATH=${dist_bin}/plugins ${run_cmplayer} "$@"
 
 exit $exitcode
