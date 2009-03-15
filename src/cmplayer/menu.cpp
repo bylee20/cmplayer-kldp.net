@@ -222,7 +222,7 @@ Menu &Menu::create(QWidget *parent) {
 		
 	root->addAction("pref")->setIcon(QIcon(":/img/preferences-system.png"));
 // 	root->addAction("help")->setIcon(QIcon(":/img/help-contents.png"));
-// 	root->addAction("about")->setIcon(QIcon(":/img/help-about.png"));
+	root->addAction("about")->setIcon(QIcon(":/img/help-about.png"));
 	
 	QAction *exit = root->addAction("exit");
 	exit->setShortcut(Qt::CTRL + Qt::Key_Q);
@@ -380,6 +380,6 @@ void Menu::updatePref() {
 
 	root["pref"]->setText(tr("Preferences"));
 // 	root["help"]->setText(tr("Help"));
-// 	root["about"]->setText(tr("About..."));
+	root["about"]->setText(tr("About..."));
 	root["exit"]->setText(tr("Exit"));
 }

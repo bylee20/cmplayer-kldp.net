@@ -48,6 +48,7 @@ private slots:
 	void slotBackendChanged();
 	void slotRepeat(int key);
 	void slotHelp();
+	void showAbout();
 private:
 	typedef QPair<QAction*, QAction*> ActionPair;
 	QWidget *createControl(QWidget *parent);

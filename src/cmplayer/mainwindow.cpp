@@ -14,6 +14,7 @@
 #include "abrepeatdialog.h"
 #include "translator.h"
 #include "geturldialog.h"
+#include "aboutdialog.h"
 #include <core/info.h>
 #include <core/backendiface.h>
 #include <core/playlist.h>
@@ -107,6 +108,7 @@ MainWindow::MainWindow()
 	connect(sub.g("pos"), SIGNAL(triggered(int)), this, SLOT(setSubtitlePos(int)));
 	connect(sub.g("sync"), SIGNAL(triggered(int)), this, SLOT(setSyncDelay(int)));
 	connect(menu["pref"], SIGNAL(triggered()), this, SLOT(showPrefDialog()));
+	connect(menu["about"], SIGNAL(triggered()), this, SLOT(showAbout()));
 // 	connect(menu["help"], SIGNAL(triggered()), this, SLOT(slotHelp()));
 	connect(menu["exit"], SIGNAL(triggered()), qApp, SLOT(quit()));
 
@@ -295,7 +297,7 @@ void MainWindow::initIface() {
 	d->contextMenu->addSeparator();
 	d->contextMenu->addAction(menu["pref"]);
 // 	d->contextMenu->addAction(menu["help"]);
-// 	d->contextMenu->addAction(menu["about"]);
+	d->contextMenu->addAction(menu["about"]);
 	d->contextMenu->addSeparator();
 	d->contextMenu->addAction(menu["exit"]);
 	
@@ -916,3 +918,8 @@ DEC_DIFF_SETTER_MSG(setAmplifyingRate, amplifyingRate, MainWindow::tr("Amp.: %2%
 
 #undef DEC_DIFF_SETTER_MSG
 
+
+void MainWindow::showAbout() {
+	AboutDialog dlg;
+	dlg.exec();
+}
