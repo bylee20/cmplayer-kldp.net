@@ -106,7 +106,7 @@
             <bool>false</bool>
            </property>
            <property name="text" >
-            <string>Apply on video file only</string>
+            <string>Apply on video only</string>
            </property>
            <property name="checked" >
             <bool>true</bool>
