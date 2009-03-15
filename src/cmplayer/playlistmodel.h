@@ -5,18 +5,18 @@
 #include <core/namespace.h>
 
 namespace Core {
-class MediaSource;				class PlayList;
+class MediaSource;				class Playlist;
 class PlayEngine;
 }
 
 class VideoPlayer;
 
-class PlayListModel : public QAbstractTableModel {
+class PlaylistModel : public QAbstractTableModel {
 	Q_OBJECT
 public:
-	PlayListModel(VideoPlayer *player, QObject *parent = 0);
-	~PlayListModel();
-	void setPlayList(const Core::PlayList &list, int current = -1);
+	PlaylistModel(VideoPlayer *player, QObject *parent = 0);
+	~PlaylistModel();
+	void setPlaylist(const Core::Playlist &list, int current = -1);
 	void append(const QList<Core::MediaSource> &list);
 	void append(const Core::MediaSource &source);
 	void insert(int row, const Core::MediaSource &source);
@@ -25,7 +25,7 @@ public:
 	void setCurrentFont(const QFont &font);
 	Core::MediaSource source(int row) const;
 	int currentRow() const;
-	const Core::PlayList &playList() const;
+	const Core::Playlist &playlist() const;
 	bool isLoopEnabled() const;
 	int row(const Core::MediaSource &source) const;
 	const QFont &currentFont() const;
@@ -45,7 +45,7 @@ public slots:
 	void remove(int row);
 	void setLoopEnabled(bool enabled);
 signals:
-	void playListFinished();
+	void playlistFinished();
 	void currentRowChanged(int row);
 	void rowCountChanged(int count);
 private slots:

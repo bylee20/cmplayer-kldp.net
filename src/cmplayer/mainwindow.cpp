@@ -13,6 +13,7 @@
 #include "sliders.h"
 #include "abrepeatdialog.h"
 #include "translator.h"
+#include "geturldialog.h"
 #include <core/info.h>
 #include <core/backendiface.h>
 #include <core/playlist.h>
@@ -34,7 +35,7 @@ struct MainWindow::Data {
 	Data(Menu &menu): dragPos(-1, -1), menu(menu) {}
 	QWidget *control, *center;
 	PlayInfoWidget *playInfo;
-	PlayListModel *model;
+	PlaylistModel *model;
 	DockWidget *dock;
 	QList<Core::Subtitle> subs;
 	QList<int> subIdxes;
@@ -56,7 +57,7 @@ MainWindow::MainWindow()
 	d->pausedByHiding = false;
 	d->player = new VideoPlayer(this);
 	d->repeater = new ABRepeatDialog(this);
-	d->model = new PlayListModel(d->player);
+	d->model = new PlaylistModel(d->player);
 	d->recent = RecentInfo::get();
 	d->pref = Pref::get();
 	
@@ -67,6 +68,7 @@ MainWindow::MainWindow()
 	Menu &menu = d->menu;
 	Menu &open = menu("open");
 	connect(open["file"], SIGNAL(triggered()), this, SLOT(open()));
+	connect(open["url"], SIGNAL(triggered()), this, SLOT(open()));
 	connect(open["dvd"], SIGNAL(triggered()), this, SLOT(open()));
 	connect(open("recent").g(), SIGNAL(triggered(const QUrl &)), this, SLOT(open(const QUrl &)));
 	connect(open("recent")["clear"], SIGNAL(triggered()), d->recent, SLOT(clearStack()));
@@ -136,8 +138,8 @@ MainWindow::MainWindow()
 			, d->recent, SLOT(setFinished(const Core::MediaSource&)));
 	connect(d->player, SIGNAL(customContextMenuRequested(const QPoint&))
 			, this, SLOT(showContextMenu(const QPoint&)));
-	connect(d->model, SIGNAL(currentRowChanged(int)), this, SLOT(updatePlayListInfo()));
-	connect(d->model, SIGNAL(rowCountChanged(int)), this, SLOT(updatePlayListInfo()));
+	connect(d->model, SIGNAL(currentRowChanged(int)), this, SLOT(updatePlaylistInfo()));
+	connect(d->model, SIGNAL(rowCountChanged(int)), this, SLOT(updatePlaylistInfo()));
 	connect(d->recent, SIGNAL(sourcesChanged(const RecentStack&))
 			, this, SLOT(updateRecentActions(const RecentStack&)));
 	connect(d->recent, SIGNAL(rememberCountChanged(int)), this, SLOT(updateRecentSize(int)));
@@ -156,7 +158,7 @@ MainWindow::MainWindow()
 			url = QUrl::fromLocalFile(QFileInfo(args.last()).absoluteFilePath());
 		this->open(url);
 	} else {
-		d->model->setPlayList(d->recent->lastPlayList());
+		d->model->setPlaylist(d->recent->lastPlaylist());
 		d->model->setCurrentSource(d->recent->lastSource());
 	}
 }
@@ -166,7 +168,7 @@ MainWindow::~MainWindow() {
 	RecentInfo *recent = RecentInfo::get();
 	saveState();
 	recent->setLastSource(d->player->currentSource());
-	recent->setLastPlayList(d->model->playList());
+	recent->setLastPlaylist(d->model->playlist());
 	RecentInfo::get()->save();
 	delete d->model;
 	delete d->player;
@@ -269,7 +271,7 @@ void MainWindow::initIface() {
 	d->clickAction[ToggleFullScreen] = menu("screen")("size")["full"];
 	d->clickAction[TogglePlayPause] = menu("play")["pause"];
 	d->clickAction[ToggleMute] = menu("audio")["mute"];
-	d->clickAction[TogglePlayList] = menu("play")["list"];
+	d->clickAction[TogglePlaylist] = menu("play")["list"];
 	
 #define ADD_PAIR(pair, m, a1, a2) ((pair) = qMakePair(((m)[(a1)]), ((m)[(a2)])))
 	ADD_PAIR(d->wheelAction[Seek1], menu("play")("seek"), "forward1", "backward1");
@@ -425,19 +427,36 @@ void MainWindow::autoLoadSubtitles() {
 
 void MainWindow::open() {
 	QAction *action = qobject_cast<QAction*>(sender());
-	if (action && action->data().type() == QVariant::Url)
+	if (!action)
+		return;
+	if (action->data().type() == QVariant::Url)
 		open(action->data().toUrl());
 	else {
-		const QString filter = Helper::mediaExtensionFilter();
-		const QString filePath = QFileDialog::getOpenFileName(this, tr("Open File"), "", filter);
-		if (!filePath.isEmpty())
-			open(QUrl::fromLocalFile(filePath));
+		const int key = action->data().toInt();
+		if (key == 'f') {
+			const QString filter = Helper::mediaExtensionFilter();
+			const QString filePath = QFileDialog::getOpenFileName(this
+					, tr("Open File"), "", filter);
+			if (!filePath.isEmpty())
+				open(QUrl::fromLocalFile(filePath));
+		} else if (key == 'u') {
+			GetUrlDialog dlg(this);
+			if (dlg.exec()) {
+				if (dlg.isPlaylist()) {
+					d->model->setPlaylist(dlg.playlist());
+					qDebug() << d->model->rowCount();
+					if (d->model->rowCount() > 0)
+						d->model->play(0);
+				} else
+					open(dlg.url());
+			}
+		}
 	}
 }
 
 void MainWindow::open(const QUrl &url) {
 	const Core::MediaSource source(url);
-	Core::PlayList list;
+	Core::Playlist list;
 	const AutoAddFiles mode = d->pref->autoAddFiles();
 	if (source.isLocalFile() && mode != DoNotAddFiles) {
 		static const QStringList filter
@@ -478,7 +497,7 @@ void MainWindow::open(const QUrl &url) {
 			list.append(source);
 	} else
 		list.append(source);
-	d->model->setPlayList(list);
+	d->model->setPlaylist(list);
 	qDebug() << list[0].toMrl() << source.toMrl();
 	d->model->play(list.indexOf(source));
 	RecentInfo::get()->stackSource(source);
@@ -593,10 +612,10 @@ void MainWindow::dropEvent(QDropEvent *event) {
 	QList<QUrl> urls = event->mimeData()->urls();
 	if (!urls.isEmpty()) {
 		if (urls.size() > 1) {
-			Core::PlayList pl;
+			Core::Playlist pl;
 			for (int i=0; i<urls.size(); ++i)
 				pl.append(urls[i]);
-			d->model->setPlayList(pl);
+			d->model->setPlaylist(pl);
 			d->model->play(0);
 			RecentInfo::get()->stackSource(urls[0]);
 		} else
@@ -697,7 +716,7 @@ void MainWindow::slotStateChanged(Core::State state, Core::State /*old*/) {
 	updateOnTop();
 }
 
-void MainWindow::updatePlayListInfo() {
+void MainWindow::updatePlaylistInfo() {
 	d->playInfo->setTrackNumber(d->model->currentRow() + 1, d->model->rowCount());
 }
 

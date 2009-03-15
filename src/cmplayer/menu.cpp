@@ -29,7 +29,10 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *file = open->addAction("file");
 	file->setShortcut(Qt::CTRL + Qt::Key_F);
 	file->setIcon(QIcon(":/img/video-x-generic.png"));
-
+	file->setData(int('f'));
+	QAction *url = open->addAction("url");
+	url->setIcon(QIcon(":/img/network-workgroup.png"));
+	url->setData(int('u'));
 	QAction *dvd = open->addAction("dvd");
 	dvd->setIcon(QIcon(":/img/media-optical.png"));
 	dvd->setData(QUrl("dvd://"));
@@ -263,6 +266,7 @@ void Menu::updatePref() {
 	Menu &open = root("open");
 	open.setTitle(tr("Open"));
 	open["file"]->setText(tr("File"));
+	open["url"]->setText(tr("URL"));
 	open["dvd"]->setText(tr("DVD"));
 
 	Menu &recent = open("recent");

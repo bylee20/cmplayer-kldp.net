@@ -14,7 +14,7 @@ struct RecentInfo::Data {
 	Data(): stack(DefaultRememberCount) {}
 	RecentStack stack;
 	StoppedMap stopped;
-	Core::PlayList playList;
+	Core::Playlist playlist;
 	Core::MediaSource source;
 };
 
@@ -29,12 +29,12 @@ RecentInfo::~RecentInfo() {
 	delete d;
 }
 
-void RecentInfo::setLastPlayList(const Core::PlayList &list) {
-	d->playList = list;
+void RecentInfo::setLastPlaylist(const Core::Playlist &list) {
+	d->playlist = list;
 }
 
-const Core::PlayList &RecentInfo::lastPlayList() const {
-	return d->playList;
+const Core::Playlist &RecentInfo::lastPlaylist() const {
+	return d->playlist;
 }
 
 void RecentInfo::setLastSource(const Core::MediaSource &source) {
@@ -98,12 +98,12 @@ void RecentInfo::load() {
 	}
 	set.endArray();
 	emit sourcesChanged(d->stack = recents);
-	size = set.beginReadArray("LastPlayList");
+	size = set.beginReadArray("LastPlaylist");
 	for (int i=0; i<size; ++i) {
 		set.setArrayIndex(i);
 		const Core::MediaSource source(set.value("Source", QUrl()).toUrl());
 		if (source.isValid())
-			d->playList.append(source);
+			d->playlist.append(source);
 	}
 	set.endArray();
 	if (Pref::get()->rememberStopped()) {
@@ -130,11 +130,11 @@ void RecentInfo::save() const {
 		set.setValue("Source", d->stack[i].url());
 	}
 	set.endArray();
-	size = d->playList.size();
-	set.beginWriteArray("LastPlayList", size);
+	size = d->playlist.size();
+	set.beginWriteArray("LastPlaylist", size);
 	for (int i=0; i<size; ++i) {
 		set.setArrayIndex(i);
-		set.setValue("Source", d->playList[i].url());
+		set.setValue("Source", d->playlist[i].url());
 	}
 	set.endArray();
 	if (Pref::get()->rememberStopped()) {

@@ -4,7 +4,7 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QDialog>
 
-class QModelIndex;				class PlayListModel;
+class QModelIndex;				class PlaylistModel;
 class QComboBox;
 
 class ShutdownDialog : public QDialog {
@@ -21,7 +21,7 @@ private:
 class DockWidget : public QDockWidget {
 	Q_OBJECT
 public:
-	DockWidget(PlayListModel *model, QWidget *parent = 0);
+	DockWidget(PlaylistModel *model, QWidget *parent = 0);
 	~DockWidget();
 public slots:
 	void checkRoot(bool checked);

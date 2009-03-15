@@ -26,6 +26,7 @@ struct Pref::General {
 		SAVE(rememberStopped);
 		SAVE(playRestored);
 		SAVE(pauseMinimized);
+		SAVE(pauseVideoOnly);
 		SAVE_ENUM(autoAddFiles);
 		set->endGroup();
 	}
@@ -34,10 +35,11 @@ struct Pref::General {
 		LOAD(rememberStopped, true, toBool);
 		LOAD(playRestored, true, toBool);
 		LOAD(pauseMinimized, true, toBool);
+		LOAD(pauseVideoOnly, true, toBool);
 		LOAD_ENUM(autoAddFiles, AllFiles);
 		set->endGroup();
 	}
-	bool rememberStopped, playRestored, pauseMinimized;
+	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
 	AutoAddFilesEnum autoAddFiles;
 };
 

@@ -1,6 +1,6 @@
 <ui version="4.0" >
- <class>PlayListWidget</class>
- <widget class="QWidget" name="PlayListWidget" >
+ <class>PlaylistWidget</class>
+ <widget class="QWidget" name="PlaylistWidget" >
   <property name="geometry" >
    <rect>
     <x>0</x>

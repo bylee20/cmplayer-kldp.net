@@ -1,9 +1,9 @@
 #include "dockwidget.h"
-#include "ui_playlistwidget.h"
 #include "playlistmodel.h"
+#include "encodingfiledialog.h"
+#include "ui_playlistwidget.h"
 #include <core/info.h>
 #include <core/playlist.h>
-#include <QtGui/QFileDialog>
 #include <QtCore/QProcess>
 #include <QtGui/QMessageBox>
 #include <QtGui/QComboBox>
@@ -52,14 +52,14 @@ struct DockWidget::Data {
 		if (model->swap(row, target))
 			ui.list->setCurrentIndex(model->index(target, 0));
 	}
-	Ui::PlayListWidget ui;
-	PlayListModel *model;
+	Ui::PlaylistWidget ui;
+	PlaylistModel *model;
 	bool checking, adding;
 	bool identified;
 	ShutdownDialog *dlg;
 };
 
-DockWidget::DockWidget(PlayListModel *model, QWidget *parent)
+DockWidget::DockWidget(PlaylistModel *model, QWidget *parent)
 : QDockWidget(parent), d(new Data) {
 	d->checking = d->adding = d->identified = false;
 	d->model = model;
@@ -78,7 +78,7 @@ DockWidget::DockWidget(PlayListModel *model, QWidget *parent)
 		this, SLOT(slotActivated(const QModelIndex&)));
 	connect(d->ui.shutdown_check, SIGNAL(toggled(bool)), this, SLOT(checkRoot(bool)));
 	connect(d->ui.save_button, SIGNAL(clicked()), this, SLOT(save()));
-	connect(d->model, SIGNAL(playListFinished()), this, SLOT(checkShutdown()));
+	connect(d->model, SIGNAL(playlistFinished()), this, SLOT(checkShutdown()));
 	connect(d->model, SIGNAL(rowCountChanged(int)), this, SLOT(adjustCellSize()));
 	d->ui.list->setModel(model);
 	setWindowTitle(tr("Play List"));
@@ -113,13 +113,17 @@ void DockWidget::down() {
 }
 
 void DockWidget::open() {
-	QString file = QFileDialog::getOpenFileName(this, tr("Open File"), QString(),
-			tr("Play List") + " (*.pls)");
-	if (file.isEmpty())
+	EncodingFileDialog dlg(this, tr("Open File")
+			, QString(), tr("Play List") + " (*.pls)");
+	dlg.setFileMode(QFileDialog::ExistingFile);
+	if (!dlg.exec())
 		return;
-	Core::PlayList pl;
-	pl.load(file);
-	d->model->setPlayList(pl);
+	const QStringList file = dlg.selectedFiles();
+	if (file.isEmpty() || file[0].isEmpty())
+		return;
+	Core::Playlist list;
+	list.load(file[0], dlg.encoding());
+	d->model->setPlaylist(list);
 }
 
 void DockWidget::save() {
@@ -128,7 +132,7 @@ void DockWidget::save() {
 	if (!file.isEmpty()) {
 		if (QFileInfo(file).suffix().compare("pls", Qt::CaseInsensitive) != 0)
 			file += ".pls";
-		d->model->playList().save(file);
+		d->model->playlist().save(file);
 	}
 }
 
@@ -139,7 +143,7 @@ void DockWidget::setAutoShutdown(bool shut) {
 void DockWidget::add() {
 	const QString filter = Helper::mediaExtensionFilter();
 	QStringList files = QFileDialog::getOpenFileNames(this, tr("Open File"), QString(), filter);
-	Core::PlayList pl;
+	Core::Playlist pl;
 	for (int i=0; i<files.size(); ++i)
 		pl.append(QUrl::fromLocalFile(files[i]));
 	d->model->append(pl);

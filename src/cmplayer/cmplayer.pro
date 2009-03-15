@@ -22,7 +22,9 @@ SOURCES += main.cpp \
  menu.cpp \
  enum.cpp \
  dummyengine.cpp \
- translator.cpp
+ translator.cpp \
+ geturldialog.cpp \
+ aboutdialog.cpp
 HEADERS += mainwindow.h \
     abrepeatdialog.h \
     playinfowidget.h \
@@ -46,12 +48,16 @@ HEADERS += mainwindow.h \
  menu.h \
  enum.h \
  dummyengine.h \
- translator.h
+ translator.h \
+ geturldialog.h \
+ aboutdialog.h
 FORMS += ./ui/abrepeatdialog.ui \
     ./ui/playlistwidget.ui \
     ./ui/prefdialog.ui \
     ./ui/prefosdwidget.ui \
- ui/prefstack.ui
+ ui/prefstack.ui \
+ ui/geturldialog.ui \
+ ui/aboutdialog.ui
 CONFIG += debug \
     debug_and_release
 
@@ -74,4 +80,6 @@ CONFIG -= release
 TARGET = ../bin/cmplayer
 
 DEFINES += CMPLAYER_TRANSLATION_DIR=$(CMPLAYER_TRANSLATION_PATH)
+
+QT += network
 

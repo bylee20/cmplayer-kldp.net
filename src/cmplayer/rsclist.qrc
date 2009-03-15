@@ -56,5 +56,6 @@
     <file>img/view-media-equalizer.png</file>
     <file>img/view-media-playlist.png</file>
     <file>img/window-close.png</file>
+	<file>img/network-workgroup.png</file>
   </qresource>
 </RCC>

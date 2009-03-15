@@ -5,7 +5,7 @@
 #include <QtCore/QObject>
 #include <core/mediasource.h>
 
-namespace Core {class PlayList;}
+namespace Core {class Playlist;}
 
 class RecentStack : private QList<Core::MediaSource> {
 public:
@@ -34,8 +34,8 @@ public:
 	static const int DefaultRememberCount = 10;
 	static RecentInfo *get();
 	~RecentInfo();
-	void setLastPlayList(const Core::PlayList &list);
-	const Core::PlayList &lastPlayList() const;
+	void setLastPlaylist(const Core::Playlist &list);
+	const Core::Playlist &lastPlaylist() const;
 	void setLastSource(const Core::MediaSource &source);
 	const Core::MediaSource &lastSource() const;
 	const RecentStack &sources() const;

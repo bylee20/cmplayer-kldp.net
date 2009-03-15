@@ -736,7 +736,7 @@
     </message>
 </context>
 <context>
-    <name>PlayListModel</name>
+    <name>PlaylistModel</name>
     <message>
         <location filename="../playlistmodel.cpp" line="151"/>
         <source>Name</source>
@@ -749,7 +749,7 @@
     </message>
 </context>
 <context>
-    <name>PlayListWidget</name>
+    <name>PlaylistWidget</name>
     <message>
         <location filename="../ui/playlistwidget.ui" line="188"/>
         <source>...</source>

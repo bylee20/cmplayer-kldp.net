@@ -54,8 +54,8 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="_2" >
-         <item>
+        <layout class="QGridLayout" name="gridLayout_6" >
+         <item row="0" column="0" >
           <spacer name="spacer" >
            <property name="orientation" >
             <enum>Qt::Horizontal</enum>
@@ -65,19 +65,48 @@
            </property>
            <property name="sizeHint" stdset="0" >
             <size>
-             <width>15</width>
-             <height>0</height>
+             <width>30</width>
+             <height>20</height>
             </size>
            </property>
           </spacer>
          </item>
-         <item>
+         <item row="0" column="1" >
           <widget class="QCheckBox" name="playRestored" >
            <property name="enabled" >
             <bool>false</bool>
            </property>
            <property name="text" >
             <string>Start to play when restored</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <spacer name="horizontalSpacer_7" >
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeType" >
+            <enum>QSizePolicy::Fixed</enum>
+           </property>
+           <property name="sizeHint" stdset="0" >
+            <size>
+             <width>30</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="1" >
+          <widget class="QCheckBox" name="pauseVideoOnly" >
+           <property name="enabled" >
+            <bool>false</bool>
+           </property>
+           <property name="text" >
+            <string>Apply on video file only</string>
            </property>
            <property name="checked" >
             <bool>true</bool>
@@ -377,6 +406,12 @@ e.g.: English, Korean</string>
          <layout class="QHBoxLayout" name="_3" >
           <item>
            <widget class="QLabel" name="label" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text" >
              <string>Change:</string>
             </property>
@@ -384,6 +419,12 @@ e.g.: English, Korean</string>
           </item>
           <item>
            <widget class="QPushButton" name="shortcut1" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text" >
              <string>Shortcut1</string>
             </property>
@@ -391,6 +432,12 @@ e.g.: English, Korean</string>
           </item>
           <item>
            <widget class="QPushButton" name="shortcut2" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text" >
              <string>Shortcut2</string>
             </property>
@@ -398,6 +445,12 @@ e.g.: English, Korean</string>
           </item>
           <item>
            <widget class="QPushButton" name="shortcut3" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text" >
              <string>Shortcut3</string>
             </property>
@@ -405,23 +458,16 @@ e.g.: English, Korean</string>
           </item>
           <item>
            <widget class="QPushButton" name="shortcut4" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text" >
              <string>Shortcut4</string>
             </property>
            </widget>
-          </item>
-          <item>
-           <spacer name="spacer_10" >
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0" >
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>
@@ -948,6 +994,22 @@ e.g.: English, Korean</string>
     <hint type="destinationlabel" >
      <x>103</x>
      <y>163</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pauseMinimized</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pauseVideoOnly</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>67</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>87</x>
+     <y>196</y>
     </hint>
    </hints>
   </connection>

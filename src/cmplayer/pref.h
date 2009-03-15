@@ -44,6 +44,7 @@ public:
 	bool rememberStopped() const;
 	AutoAddFiles autoAddFiles() const;
 	bool pauseWhenMinimized() const;
+	bool pauseVideoOnly() const;
 	bool playWhenRestored() const;
 	UiLanguage uiLanuage() const;
 	
@@ -77,6 +78,7 @@ private:
 	void setRememberStopped(bool remember);
 	void setAutoAddFiles(AutoAddFiles mode);
 	void setPauseWhenMinimized(bool enabled);
+	void setPauseVideoOnly(bool enabled);
 	void setPlayWhenRestored(bool enabled);
 	void setUiLanuage(UiLanguage lang);
 	

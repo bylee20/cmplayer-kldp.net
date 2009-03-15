@@ -9,15 +9,15 @@
 #include <core/playengine.h>
 #include "videoplayer.h"
 
-struct PlayListModel::Data {
+struct PlaylistModel::Data {
 	VideoPlayer *player;
-	Core::PlayList list;
+	Core::Playlist list;
 	QFont font;
 	int row;
 	bool loop;
 };
 
-PlayListModel::PlayListModel(VideoPlayer *player, QObject *parent)
+PlaylistModel::PlaylistModel(VideoPlayer *player, QObject *parent)
 : QAbstractTableModel(parent), d(new Data) {
 	d->player = player;
 	d->row = -1;
@@ -28,11 +28,11 @@ PlayListModel::PlayListModel(VideoPlayer *player, QObject *parent)
 	        , this, SLOT(slotFinished(const Core::MediaSource&)));
 }
 
-PlayListModel::~PlayListModel() {
+PlaylistModel::~PlaylistModel() {
 	delete d;
 }
 
-void PlayListModel::setSource(int row, const Core::MediaSource &source) {
+void PlaylistModel::setSource(int row, const Core::MediaSource &source) {
 	if (0 <= row && row < d->list.size()) {
 		d->list[row] = source;
 		emitDataChanged(row);
@@ -40,11 +40,11 @@ void PlayListModel::setSource(int row, const Core::MediaSource &source) {
 		append(source);
 }
 
-int PlayListModel::count() const {
+int PlaylistModel::count() const {
 	return d->list.size();
 }
 
-bool PlayListModel::swap(int row1, int row2) {
+bool PlaylistModel::swap(int row1, int row2) {
 	if (row1 < 0 || row1 >= d->list.size() || row2 < 0 || row2 >= d->list.size())
 		return false;
 	d->list.swap(row1, row2);
@@ -57,18 +57,18 @@ bool PlayListModel::swap(int row1, int row2) {
 	return true;
 }
 
-void PlayListModel::clear() {
+void PlaylistModel::clear() {
 	setCurrentRow(-1);
 	d->list.clear();
 	emit rowCountChanged(0);
 	reset();
 }
 
-int PlayListModel::currentRow() const {
+int PlaylistModel::currentRow() const {
 	return d->row;
 }
 
-void PlayListModel::remove(int row) {
+void PlaylistModel::remove(int row) {
 	if (row < 0 || row >= d->list.size())
 		return;
 	if (d->row == row)
@@ -79,71 +79,71 @@ void PlayListModel::remove(int row) {
 	emit rowCountChanged(d->list.size());
 }
 
-void PlayListModel::play(int row) {
+void PlaylistModel::play(int row) {
 	if (row < 0 || row >= d->list.size())
 		return;
 	setCurrentRow(row);
 	d->player->play(RecentInfo::get()->stoppedTime(d->list[row]));
 }
 
-void PlayListModel::playNext() {
+void PlaylistModel::playNext() {
 	if (d->list.isEmpty())
 		return;
 	play(d->row + 1);
 }
 
-void PlayListModel::playPrevious() {
+void PlaylistModel::playPrevious() {
 	if (d->list.isEmpty())
 		return;
 	play(d->row - 1);
 }
 
-void PlayListModel::setLoopEnabled(bool enabled) {
+void PlaylistModel::setLoopEnabled(bool enabled) {
 	d->loop = enabled;
 }
 
-bool PlayListModel::isLoopEnabled() const {
+bool PlaylistModel::isLoopEnabled() const {
 	return d->loop;
 }
 
-Core::MediaSource PlayListModel::source(int row) const {
+Core::MediaSource PlaylistModel::source(int row) const {
 	return d->list.value(row);
 }
 
-int PlayListModel::row(const Core::MediaSource &source) const {
+int PlaylistModel::row(const Core::MediaSource &source) const {
 	return d->list.indexOf(source);
 }
 
-void PlayListModel::slotFinished(const Core::MediaSource &/*source*/) {
+void PlaylistModel::slotFinished(const Core::MediaSource &/*source*/) {
 	if (d->row == d->list.size() - 1) {
-		emit playListFinished();
+		emit playlistFinished();
 		if (!d->loop)
 			return;
 	}
 	playNext();
 }
 
-const Core::PlayList &PlayListModel::playList() const {
+const Core::Playlist &PlaylistModel::playlist() const {
 	return d->list;
 }
 
-void PlayListModel::setCurrentFont(const QFont &font) {
+void PlaylistModel::setCurrentFont(const QFont &font) {
 	d->font = font;
 }
 
-const QFont &PlayListModel::currentFont() const {
+const QFont &PlaylistModel::currentFont() const {
 	return d->font;
 }
 
-int PlayListModel::rowCount(const QModelIndex &/*parent*/) const {
+int PlaylistModel::rowCount(const QModelIndex &/*parent*/) const {
 	return d->list.size();
 }
 
-int PlayListModel::columnCount(const QModelIndex &/*parent*/) const {
+int PlaylistModel::columnCount(const QModelIndex &/*parent*/) const {
 	return 2;
 }
 
-QVariant PlayListModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant PlaylistModel::headerData(int section, Qt::Orientation orientation, int role) const {
 	if (role != Qt::DisplayRole)
 		return QVariant();
 	if (orientation == Qt::Horizontal) {
@@ -156,7 +156,7 @@ QVariant PlayListModel::headerData(int section, Qt::Orientation orientation, int
 	return QVariant();
 }
 
-QVariant PlayListModel::data(const QModelIndex &index, int role) const {
+QVariant PlaylistModel::data(const QModelIndex &index, int role) const {
 	if (!index.isValid())
 		return QVariant();
 	const int col = index.column();
@@ -174,7 +174,7 @@ QVariant PlayListModel::data(const QModelIndex &index, int role) const {
 	return QVariant();
 }
 
-void PlayListModel::setCurrentSource(const Core::MediaSource &source) {
+void PlaylistModel::setCurrentSource(const Core::MediaSource &source) {
 	int idx = d->list.indexOf(source);
 	if (idx == -1) {
 		idx = d->list.size();
@@ -183,7 +183,7 @@ void PlayListModel::setCurrentSource(const Core::MediaSource &source) {
 	setCurrentRow(idx);
 }
 
-void PlayListModel::setCurrentRow(int row) {
+void PlaylistModel::setCurrentRow(int row) {
 	if (row < 0 || row >= d->list.size())
 		row = -1;
 	if (row == d->row)
@@ -198,18 +198,18 @@ void PlayListModel::setCurrentRow(int row) {
 	}
 }
 
-void PlayListModel::append(const QList<Core::MediaSource> &list) {
+void PlaylistModel::append(const QList<Core::MediaSource> &list) {
 	emit layoutAboutToBeChanged();
 	d->list += list;
 	emit rowCountChanged(d->list.size());
 	emit layoutChanged();
 }
 
-void PlayListModel::append(const Core::MediaSource &source) {
+void PlaylistModel::append(const Core::MediaSource &source) {
 	insert(rowCount(), source);
 }
 
-void PlayListModel::insert(int row, const Core::MediaSource &source) {
+void PlaylistModel::insert(int row, const Core::MediaSource &source) {
 	if (row < 0 || row >= d->list.size())
 		row = d->list.size();
 	emit layoutAboutToBeChanged();
@@ -219,7 +219,7 @@ void PlayListModel::insert(int row, const Core::MediaSource &source) {
 	emitDataChanged(row);
 }
 
-void PlayListModel::setPlayList(const Core::PlayList &list, int current) {
+void PlaylistModel::setPlaylist(const Core::Playlist &list, int current) {
 	d->list = list;
 	reset();
 	emit rowCountChanged(d->list.size());

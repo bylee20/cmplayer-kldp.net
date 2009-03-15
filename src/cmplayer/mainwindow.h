@@ -34,7 +34,7 @@ private slots:
 	void updateSubtitle();
 	void clearSubs();
 	void slotStateChanged(Core::State state, Core::State old);
-	void updatePlayListInfo();
+	void updatePlaylistInfo();
 	void autoLoadSubtitles();
 	void toggleDockVisibility();
 	void updateRecentActions(const RecentStack &files);
