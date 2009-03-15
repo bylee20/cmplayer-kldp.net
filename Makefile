@@ -79,6 +79,7 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	cd src/cmplayer $(qmake_env) $(QMAKE) cmplayer.pro
 endif
 	cd src && $(make_env) make && cd cmplayer && $(LRELEASE) cmplayer.pro
+ifeq ($(LOAD_CONFIG),yes)
 	@echo "!!PREFIX!! = $(PREFIX)\n"\
 "!!CMPLAYER_BIN_PATH!! = $(CMPLAYER_BIN_PATH)\n"\
 "!!CMPLAYER_DATA_PATH!! = $(CMPLAYER_DATA_PATH)\n"\
@@ -87,7 +88,8 @@ endif
 "!!CMPLAYER_PLUGIN_PATH!! = $(CMPLAYER_PLUGIN_PATH)\n"\
 "!!ENABLE_OPENGL!! = $(ENABLE_OPENGL)\n"\
 "!!ENGINE_LIST!! = $(ENGINE_LIST)\n"\
-"!!BUILD_PLUGIN_ONLY!! = $(BUILD_PLUGIN_ONLY)\n" > $(config_file)
+"!!BUILD_PLUGIN_ONLY!! = $(BUILD_PLUGIN_ONLY)" > $(config_file)
+endif
 	@echo "\n===================== Compilation Finished! =====================\n"
 else
 	@echo "  There already exists config file."
