@@ -83,3 +83,8 @@ void GetUrlDialog::slotFinished(int id) {
 void GetUrlDialog::setUrl(const QUrl &url) {
 	d->ui.url->setText(url.toString());
 }
+
+void GetUrlDialog::showEvent(QShowEvent *event) {
+	d->ui.retranslateUi(this);
+	QDialog::showEvent(event);
+}

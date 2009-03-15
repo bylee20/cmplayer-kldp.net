@@ -16,6 +16,6 @@ public:
 
 }
 
-Q_DECLARE_INTERFACE(Core::BackendIface, "CMPlayer.Backend.BackendIface/3.0");
+Q_DECLARE_INTERFACE(Core::BackendIface, "CMPlayer.Backend.BackendIface/3.1");
 
 #endif

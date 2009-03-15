@@ -19,6 +19,7 @@ private slots:
 	void slotTimeout();
 	void slotFinished(int id);
 private:
+	void showEvent(QShowEvent *event);
 	void accept();
 	struct Data;
 	Data *d;
