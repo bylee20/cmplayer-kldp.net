@@ -168,6 +168,7 @@ bool PlayEngine::updateDuration() {
 bool PlayEngine::updateStreamInfo() {
 	if (!d->stream.stream || !currentSource().isValid())
 		return false;
+	setHasVideo(xine_get_stream_info(d->stream.stream, XINE_STREAM_INFO_HAS_VIDEO));
 	setSeekable(xine_get_stream_info(d->stream.stream, XINE_STREAM_INFO_SEEKABLE));
 	updateVideoSize();
 	updateTracks();

@@ -56,7 +56,7 @@ private:
 
 PlayEngine::PlayEngine(QObject *parent)
 : QObject(parent), d(new Data) {
-	d->gotInfo = d->muted = d->seekable = false;
+	d->hasVideo = d->gotInfo = d->muted = d->seekable = false;
 	d->subVisible = true;
 	d->prevTick = d->prevSubTime = -1;
 	d->ampRate = d->pos = d->speed = 1.0;
@@ -486,6 +486,11 @@ void PlayEngine::setCurrentSpu(const QString &spu) {
 double PlayEngine::realVolume() const {
 	const double max = info().maximumAmplifyingRate();
 	return qBound(0.0, volume()*0.01*amplifyingRate(), max);
+}
+
+void PlayEngine::setHasVideo(bool has) {
+	if (d->hasVideo != has)
+		emit hasVideoChanged(d->hasVideo = has);
 }
 
 }

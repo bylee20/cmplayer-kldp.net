@@ -264,6 +264,7 @@ DEC_ENGINE_CALL_RETURN(bool, isStopped)
 DEC_ENGINE_CALL_RETURN(bool, isSeekable)
 DEC_ENGINE_CALL_RETURN(int, duration)
 DEC_ENGINE_CALL_RETURN(int, currentTime)
+DEC_ENGINE_CALL_RETURN(bool, hasVideo);
 DEC_ENGINE_CALL_RETURN(Core::State, state)
 DEC_ENGINE_CALL_RETURN(Core::ABRepeater*, repeater)
 

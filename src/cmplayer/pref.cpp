@@ -485,3 +485,11 @@ UiLanguage Pref::uiLanuage() const {
 void Pref::setUiLanuage(UiLanguage lang) {
 	iface->uiLanguage = lang;
 }
+
+void Pref::setPauseVideoOnly(bool enabled) {
+	gen->pauseVideoOnly = enabled;
+}
+
+bool Pref::pauseVideoOnly() const {
+	return gen->pauseVideoOnly;
+}

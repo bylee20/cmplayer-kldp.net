@@ -55,6 +55,7 @@ public:
 	const QString &videoRenderer() const {return d->videoRenderer;}
 	const QString &audioRenderer() const {return d->audioRenderer;}
 	ABRepeater *repeater() {return d->repeater;}
+	bool hasVideo() const {return d->hasVideo;}
 	virtual QWidget *widget();
 	virtual int currentTime() const = 0;
 	virtual const Info &info() const = 0;
@@ -85,6 +86,7 @@ public slots:
 	const Subtitle &subtitle() const {return *d->sub;}
 	void setVideoProperty(VideoProperty prop, double value);
 signals:
+	void hasVideoChanged(bool has);
 	void stateChanged(Core::State state, Core::State old);
 	void finished(Core::MediaSource source);
 	void stopped(Core::MediaSource source, int time);
@@ -104,6 +106,7 @@ signals:
 protected:
 	static bool isSame(double v1, double v2) {return qAbs(v1-v2) < 1.0e-5;}
 	double realVolume() const;
+	void setHasVideo(bool has);
 	void setVideoRenderer(VideoRendererIface *renderer);
 	void setSubtitleOsd(AbstractOsdRenderer *osd);
 	void setTimeLineOsd(AbstractOsdRenderer *osd);
@@ -138,7 +141,7 @@ private slots:
 private:
 	class Screen;
 	struct Data {
-		bool gotInfo, muted, subVisible, seekable;
+		bool gotInfo, muted, subVisible, seekable, hasVideo;
 		int prevTick, prevSubTime, duration, volume, syncDelay;
 		double ampRate, aspect, crop, pos, speed;
 		QList<double> videoProps;

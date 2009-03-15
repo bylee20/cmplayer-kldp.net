@@ -251,6 +251,7 @@ PrefDialog::PrefDialog(QWidget *parent)
 	
 	d->stack.pauseMinimized->setChecked(p->pauseWhenMinimized());
 	d->stack.playRestored->setChecked(p->playWhenRestored());
+	d->stack.pauseVideoOnly->setChecked(p->pauseVideoOnly());
 	d->stack.startStopped->setChecked(p->rememberStopped());
 	
 	QList<QAction *> acts = Menu::get().actions();
@@ -355,6 +356,7 @@ void PrefDialog::apply() {
 	p->setUiLanuage((UiLanguage)currentComboData(d->stack.lang));
 	p->setAutoAddFiles((AutoAddFiles)currentComboData(d->stack.autoAdd));
 	p->setPauseWhenMinimized(d->stack.pauseMinimized->isChecked());
+	p->setPauseVideoOnly(d->stack.pauseVideoOnly->isChecked());
 	p->setPlayWhenRestored(d->stack.playRestored->isChecked());
 	p->setRememberStopped(d->stack.startStopped->isChecked());
 	

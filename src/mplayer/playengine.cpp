@@ -100,6 +100,7 @@ const QString &PlayEngine::getDontMessUp() {
 void PlayEngine::updateInfo() {
 	if (d->mediaInfo.isValid()) {
 		setDuration(d->mediaInfo.length());
+		setHasVideo(d->mediaInfo.hasVideo());
 		if (d->mediaInfo.hasVideo()) {
 			d->renderer->setVideoSize(d->mediaInfo.videoSize());
 			d->renderer->setFrameSize(d->mediaInfo.videoSize());

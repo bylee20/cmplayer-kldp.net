@@ -849,9 +849,13 @@ void MainWindow::showEvent(QShowEvent *event) {
 
 void MainWindow::hideEvent(QHideEvent *event) {
 	QMainWindow::hideEvent(event);
-	if (d->pref->pauseWhenMinimized() && d->player && d->player->isPlaying()) {
-		d->pausedByHiding = true;
-		d->player->pause();
+	if (d->pref->pauseWhenMinimized()) {
+		if (d->pref->pauseVideoOnly() && !d->player->hasVideo())
+			return;
+		if (d->player && d->player->isPlaying()) {
+			d->pausedByHiding = true;
+			d->player->pause();
+		}
 	}
 }
 
