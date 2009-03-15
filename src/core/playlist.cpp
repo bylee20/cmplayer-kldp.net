@@ -4,19 +4,20 @@
 #include <QtCore/QTextStream>
 #include <QtCore/QRegExp>
 #include <QtCore/QUrl>
+#include <QtCore/QTextCodec>
 
 namespace Core {
 
-PlayList::PlayList()
+Playlist::Playlist()
 : QList<MediaSource>() {}
 
-PlayList::PlayList(const PlayList &rhs)
+Playlist::Playlist(const Playlist &rhs)
 : QList<MediaSource>(rhs) {}
 
-PlayList::PlayList(const QList<MediaSource> &rhs)
+Playlist::Playlist(const QList<MediaSource> &rhs)
 : QList<MediaSource>(rhs) {}
 
-bool PlayList::save(const QString &filePath) const {
+bool Playlist::save(const QString &filePath) const {
 	QFile file(filePath);
 	if (!file.open(QFile::WriteOnly | QFile::Truncate))
 		return false;
@@ -30,12 +31,19 @@ bool PlayList::save(const QString &filePath) const {
 	return true;
 }
 
-bool PlayList::load(const QString &filePath) {
-	clear();
+bool Playlist::load(const QString &filePath, const QString &enc) {
 	QFile file(filePath);
-	if (!file.open(QFile::ReadOnly))
+	return load(&file, enc);
+}
+
+bool Playlist::load(QFile *file, const QString &enc) {
+	clear();
+	if (!file->isOpen() && !file->open(QFile::ReadOnly))
 		return false;
-	QTextStream in(&file);
+	QTextStream in(file);
+	if (!enc.isEmpty())
+		in.setCodec(QTextCodec::codecForName(enc.toLocal8Bit()));
+	in.seek(0);
 	while (!in.atEnd()) {
 		QString line = in.readLine();
 		if (line.isEmpty())

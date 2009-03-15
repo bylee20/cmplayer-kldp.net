@@ -4,15 +4,18 @@
 #include <QtCore/QList>
 #include "mediasource.h"
 
+class QFile;
+
 namespace Core {
 
-class PlayList : public QList<MediaSource> {
+class Playlist : public QList<MediaSource> {
 public:
-	PlayList();
-	PlayList(const PlayList &rhs);
-	PlayList(const QList<MediaSource> &rhs);
+	Playlist();
+	Playlist(const Playlist &rhs);
+	Playlist(const QList<MediaSource> &rhs);
 	bool save(const QString &filePath) const;
-	bool load(const QString &filePath);
+	bool load(const QString &filePath, const QString &enc = QString());
+	bool load(QFile *file, const QString &enc = QString());
 };
 
 }
