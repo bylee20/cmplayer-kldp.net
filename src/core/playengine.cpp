@@ -87,6 +87,7 @@ PlayEngine::PlayEngine(QObject *parent)
 	d->timeStyle->bgColor.setAlphaF(0.8);
 	d->tracks.append("Auto Track");
 	d->track = d->tracks[0];
+	connect(this, SIGNAL(started()), this, SLOT(update()));
 }
 
 PlayEngine::~PlayEngine() {

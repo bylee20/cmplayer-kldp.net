@@ -85,6 +85,7 @@ public slots:
 	void setSpeed(double speed);
 	const Subtitle &subtitle() const {return *d->sub;}
 	void setVideoProperty(VideoProperty prop, double value);
+	void update() {updateVideo(); updateAudio();}
 signals:
 	void hasVideoChanged(bool has);
 	void stateChanged(Core::State state, Core::State old);
