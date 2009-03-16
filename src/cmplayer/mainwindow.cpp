@@ -27,6 +27,7 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QMenuBar>
 #include <QtGui/QApplication>
+#include <QtCore/QTimer>
 #include <QtCore/QSet>
 #include <QtCore/QDebug>
 #include <cmath>
@@ -51,6 +52,7 @@ struct MainWindow::Data {
 	Pref *pref;
 	Menu &menu;
 	ABRepeatDialog *repeater;
+	QTimer hider;
 };
 
 MainWindow::MainWindow()
@@ -145,6 +147,8 @@ MainWindow::MainWindow()
 	connect(d->recent, SIGNAL(sourcesChanged(const RecentStack&))
 			, this, SLOT(updateRecentActions(const RecentStack&)));
 	connect(d->recent, SIGNAL(rememberCountChanged(int)), this, SLOT(updateRecentSize(int)));
+	connect(&d->hider, SIGNAL(timeout()), this, SLOT(hideCursor()));
+	d->hider.setSingleShot(true);
 	
 	updatePref();
 	loadState();
@@ -590,17 +594,14 @@ void MainWindow::setFullScreen(bool full) {
 	if (full) {
 		d->prevWinSize = size();
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
-// 		d->cursorTimer.start();
 	} else {
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
 		resize(d->prevWinSize);
-// 		if (cursor().shape() == Qt::BlankCursor)
-// 			unsetCursor();
 	}
 }
 
-#define isInCenter() (d->player->geometry().contains(event->pos()))
-#define isButton(b) (event->buttons() & (b))
+#define IS_IN_CENTER (d->player->geometry().contains(event->pos()))
+#define IS_BUTTON(b) (event->buttons() & (b))
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
 	if (event->mimeData()->hasUrls())
@@ -626,13 +627,13 @@ void MainWindow::dropEvent(QDropEvent *event) {
 
 void MainWindow::mousePressEvent(QMouseEvent *event) {
 	QMainWindow::mouseMoveEvent(event);
-	if (!isInCenter())
+	if (!IS_IN_CENTER)
 		return;
-	if (isButton(Qt::LeftButton) && !isFullScreen() && isInCenter())
+	if (IS_BUTTON(Qt::LeftButton) && !isFullScreen() && IS_IN_CENTER)
 		d->dragPos = event->globalPos() - frameGeometry().topLeft();
 	else
 		d->dragPos.setX(-1);
-	if (isButton(Qt::MidButton)) {
+	if (IS_BUTTON(Qt::MidButton)) {
 		QAction *action = getTriggerAction(event->modifiers()
 				, d->pref->middleClickMap(), d->clickAction, 0);
 		if (action)
@@ -641,19 +642,25 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event) {
+	d->hider.stop();
+	if (cursor().shape() == Qt::BlankCursor)
+		unsetCursor();
 	QMainWindow::mouseMoveEvent(event);
-	if (isFullScreen()) {
+	const bool full = isFullScreen();
+	if (full) {
 		static const int h = d->control->height();
 		QRect r = rect();
 		r.setTop(r.height() - h);
 		d->control->setVisible(r.contains(event->pos()));
-	} else if (d->dragPos.x() >= 0 && isButton(Qt::LeftButton) && isInCenter())
+	} else if (d->dragPos.x() >= 0 && IS_BUTTON(Qt::LeftButton) && IS_IN_CENTER)
 		move(event->globalPos() - d->dragPos);
+	if (IS_IN_CENTER && d->pref->hideCursor() && (!d->pref->hideInFullScreen() || full))
+		d->hider.start(d->pref->hideDelay());
 }
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 	QMainWindow::mouseDoubleClickEvent(event);
-	if (isButton(Qt::LeftButton) && isInCenter()) {
+	if (IS_BUTTON(Qt::LeftButton) && IS_IN_CENTER) {
 		QAction *action = getTriggerAction(event->modifiers()
 				, d->pref->doubleClickMap(), d->clickAction, 0);
 		if (action)
@@ -662,7 +669,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 void MainWindow::wheelEvent(QWheelEvent *event) {
-	if (isInCenter() && event->delta()) {
+	if (IS_IN_CENTER && event->delta()) {
 		ActionPair pair(0, 0);
 		pair = getTriggerAction(event->modifiers()
 				, d->pref->wheelScrollMap(), d->wheelAction, pair);
@@ -923,4 +930,9 @@ DEC_DIFF_SETTER_MSG(setAmplifyingRate, amplifyingRate, MainWindow::tr("Amp.: %2%
 void MainWindow::showAbout() {
 	AboutDialog dlg;
 	dlg.exec();
+}
+
+void MainWindow::hideCursor() {
+	if (cursor().shape() != Qt::BlankCursor)
+		setCursor(Qt::BlankCursor);
 }

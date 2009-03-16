@@ -46,6 +46,9 @@ public:
 	bool pauseWhenMinimized() const;
 	bool pauseVideoOnly() const;
 	bool playWhenRestored() const;
+	bool hideCursor() const;
+	int hideDelay() const;
+	bool hideInFullScreen() const;
 	UiLanguage uiLanuage() const;
 	
 	const QString &backendPath() const;
@@ -80,6 +83,9 @@ private:
 	void setPauseWhenMinimized(bool enabled);
 	void setPauseVideoOnly(bool enabled);
 	void setPlayWhenRestored(bool enabled);
+	void setHideCursor(bool enabled);
+	void setHideDelay(int delay);
+	void setHideInFullScreen(bool enabled);
 	void setUiLanuage(UiLanguage lang);
 	
 	void setBackendPath(const QString &path);

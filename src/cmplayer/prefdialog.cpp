@@ -253,6 +253,9 @@ PrefDialog::PrefDialog(QWidget *parent)
 	d->stack.playRestored->setChecked(p->playWhenRestored());
 	d->stack.pauseVideoOnly->setChecked(p->pauseVideoOnly());
 	d->stack.startStopped->setChecked(p->rememberStopped());
+	d->stack.hideCursor->setChecked(p->hideCursor());
+	d->stack.hideDelay->setValue(p->hideDelay()/1000);
+	d->stack.hideInFullScreen->setChecked(p->hideInFullScreen());
 	
 	QList<QAction *> acts = Menu::get().actions();
 	for (int i=0; i<acts.size(); ++i)
@@ -359,6 +362,9 @@ void PrefDialog::apply() {
 	p->setPauseVideoOnly(d->stack.pauseVideoOnly->isChecked());
 	p->setPlayWhenRestored(d->stack.playRestored->isChecked());
 	p->setRememberStopped(d->stack.startStopped->isChecked());
+	p->setHideCursor(d->stack.hideCursor->isChecked());
+	p->setHideDelay(d->stack.hideDelay->value()*1000);
+	p->setHideInFullScreen(d->stack.hideInFullScreen->isChecked());
 	
 	for (int i=0; i<d->stack.shortcutTree->topLevelItemCount(); ++i)
 		((MenuTreeItem*)(d->stack.shortcutTree->topLevelItem(i)))->applyShortcut();

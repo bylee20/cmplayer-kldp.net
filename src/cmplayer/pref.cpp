@@ -27,6 +27,9 @@ struct Pref::General {
 		SAVE(playRestored);
 		SAVE(pauseMinimized);
 		SAVE(pauseVideoOnly);
+		SAVE(hideCursor);
+		SAVE(hideInFullScreen);
+		SAVE(hideDelay);
 		SAVE_ENUM(autoAddFiles);
 		set->endGroup();
 	}
@@ -36,10 +39,15 @@ struct Pref::General {
 		LOAD(playRestored, true, toBool);
 		LOAD(pauseMinimized, true, toBool);
 		LOAD(pauseVideoOnly, true, toBool);
+		LOAD(hideCursor, true, toBool);
+		LOAD(hideInFullScreen, true, toBool);
+		LOAD(hideDelay, 3000, toInt);
 		LOAD_ENUM(autoAddFiles, AllFiles);
 		set->endGroup();
 	}
 	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
+	bool hideCursor, hideInFullScreen;
+	int hideDelay;
 	AutoAddFilesEnum autoAddFiles;
 };
 
@@ -493,3 +501,28 @@ void Pref::setPauseVideoOnly(bool enabled) {
 bool Pref::pauseVideoOnly() const {
 	return gen->pauseVideoOnly;
 }
+
+void Pref::setHideCursor(bool enabled) {
+	gen->hideCursor = enabled;
+}
+
+void Pref::setHideDelay(int delay) {
+	gen->hideDelay = delay;
+}
+
+void Pref::setHideInFullScreen(bool enabled) {
+	gen->hideInFullScreen = enabled;
+}
+
+bool Pref::hideCursor() const {
+	return gen->hideCursor;
+}
+
+int Pref::hideDelay() const {
+	return gen->hideDelay;
+}
+
+bool Pref::hideInFullScreen() const {
+	return gen->hideInFullScreen;
+}
+
