@@ -435,7 +435,7 @@ bool PlayEngine::updateVideoRenderer(const QString &name) {
 bool PlayEngine::updateAudioRenderer(const QString &name) {
 	stop();
 	d->stream.close();
-	const int idx = d->info.videoRenderer().indexOf(name);
+	const int idx = d->info.audioRenderer().indexOf(name);
 	if (idx == -1)
 		return false;
 	d->stream.audioDriver = idx == 0? "auto" : name;
