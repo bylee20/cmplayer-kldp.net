@@ -445,7 +445,7 @@ e.g.: English, Korean</string>
     <item>
      <widget class="QTabWidget" name="tabWidget" >
       <property name="currentIndex" >
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="widget_5" >
        <attribute name="title" >
@@ -686,6 +686,9 @@ e.g.: English, Korean</string>
              <property name="suffix" >
               <string>%</string>
              </property>
+             <property name="minimum" >
+              <number>1</number>
+             </property>
              <property name="value" >
               <number>10</number>
              </property>
@@ -799,6 +802,9 @@ e.g.: English, Korean</string>
              <property name="suffix" >
               <string>%</string>
              </property>
+             <property name="minimum" >
+              <number>1</number>
+             </property>
              <property name="value" >
               <number>1</number>
              </property>
@@ -815,6 +821,9 @@ e.g.: English, Korean</string>
             <widget class="QSpinBox" name="spinBox_3" >
              <property name="suffix" >
               <string>%</string>
+             </property>
+             <property name="minimum" >
+              <number>1</number>
              </property>
              <property name="value" >
               <number>1</number>
@@ -846,6 +855,9 @@ e.g.: English, Korean</string>
              <property name="suffix" >
               <string>%</string>
              </property>
+             <property name="minimum" >
+              <number>1</number>
+             </property>
              <property name="value" >
               <number>1</number>
              </property>
@@ -862,6 +874,9 @@ e.g.: English, Korean</string>
             <widget class="QSpinBox" name="spinBox_4" >
              <property name="suffix" >
               <string>%</string>
+             </property>
+             <property name="minimum" >
+              <number>1</number>
              </property>
              <property name="value" >
               <number>1</number>
@@ -902,6 +917,9 @@ e.g.: English, Korean</string>
              <property name="suffix" >
               <string>%</string>
              </property>
+             <property name="minimum" >
+              <number>1</number>
+             </property>
              <property name="value" >
               <number>1</number>
              </property>
@@ -931,6 +949,9 @@ e.g.: English, Korean</string>
             <widget class="QDoubleSpinBox" name="sync" >
              <property name="suffix" >
               <string>sec.</string>
+             </property>
+             <property name="minimum" >
+              <double>0.010000000000000</double>
              </property>
              <property name="singleStep" >
               <double>0.100000000000000</double>
