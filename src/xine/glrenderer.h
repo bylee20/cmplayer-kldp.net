@@ -1,8 +1,17 @@
 #ifndef XINE_GLRENDERER_H
 #define XINE_GLRENDERER_H
 
-#include <core/openglvideorendereriface.h>
 #include <xine.h>
+
+#if (XINE_MAJOR_VERSION >= 1 && XINE_MINOR_VERSION >= 1 && XINE_SUB_VERSION >= 12)
+#define HAS_RAW_OUTPUT 1
+#else
+#define HAS_RAW_OUTPUT 0
+#endif
+
+#if HAS_RAW_OUTPUT
+
+#include <core/openglvideorendereriface.h>
 #include "xinevideoiface.h"
 
 namespace Xine {
@@ -29,5 +38,7 @@ private:
 };
 
 }
+
+#endif
 
 #endif

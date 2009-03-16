@@ -1,5 +1,8 @@
-#include "xinestream.h"
 #include "glrenderer.h"
+
+#if HAS_RAW_OUTPUT
+
+#include "xinestream.h"
 #include <QtCore/QDebug>
 #include <QtGui/QWidget>
 #include <core/newframeevent.h>
@@ -137,3 +140,5 @@ void GLRenderer::mousePressEvent(const QPoint &pos, Qt::MouseButton button) {
 }
 
 }
+
+#endif
