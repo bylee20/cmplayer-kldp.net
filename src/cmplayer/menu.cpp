@@ -210,25 +210,62 @@ Menu &Menu::create(QWidget *parent) {
 		
 	audio->addSeparator();
 		
-	audio->addActionToGroup("volume up", false, "volume")->setShortcut(Qt::Key_Up);
-	audio->addActionToGroup("volume down", false, "volume")->setShortcut(Qt::Key_Down);
+	QAction *volUp = audio->addActionToGroup("volume up", false, "volume");
+	volUp->setShortcut(Qt::Key_Up);
+	QAction *volDown = audio->addActionToGroup("volume down", false, "volume");
+	volDown->setShortcut(Qt::Key_Down);
 	QAction *mute = audio->addAction("mute", true);
 	mute->setIcon(QIcon(":/img/player-volume.png"));
 	mute->setShortcut(Qt::Key_M);
 		
 	audio->addSeparator();
+	
+	QAction *ampUp = audio->addActionToGroup("amp up", false, "amp");
+	QAction *ampDown = audio->addActionToGroup("amp down", false, "amp");
+	ampUp->setShortcut(Qt::CTRL + Qt::Key_Up);
+	ampDown->setShortcut(Qt::CTRL + Qt::Key_Down);
 		
-	audio->addActionToGroup("amp up", false, "amp")->setShortcut(Qt::CTRL + Qt::Key_Up);
-	audio->addActionToGroup("amp down", false, "amp")->setShortcut(Qt::CTRL + Qt::Key_Down);
-		
-	root->addAction("pref")->setIcon(QIcon(":/img/preferences-system.png"));
+	QAction *pref = root->addAction("pref");
+	pref->setIcon(QIcon(":/img/preferences-system.png"));
 // 	root->addAction("help")->setIcon(QIcon(":/img/help-contents.png"));
-	root->addAction("about")->setIcon(QIcon(":/img/help-about.png"));
+	QAction *about = root->addAction("about");
+	about->setIcon(QIcon(":/img/help-about.png"));
 	
 	QAction *exit = root->addAction("exit");
 	exit->setShortcut(Qt::CTRL + Qt::Key_Q);
 	exit->setIcon(QIcon(":/img/application-exit.png"));
 	
+
+	root->m_click[OpenFile] = file;
+	root->m_click[ToggleFullScreen] = toFull;
+	root->m_click[TogglePlayPause] = pause;
+	root->m_click[ToggleMute] = mute;
+	root->m_click[TogglePlaylist] = list;
+	root->m_wheel[Seek1] = WheelActionPair(forward1, backward2);
+	root->m_wheel[Seek2] = WheelActionPair(forward2, backward2);
+	root->m_wheel[Seek3] = WheelActionPair(forward3, backward2);
+	root->m_wheel[NextPrevious] = WheelActionPair(next, prev);
+	root->m_wheel[VolumeUpDown] = WheelActionPair(volUp, volDown);
+	root->m_wheel[AmpUpDown] = WheelActionPair(ampUp, ampDown);
+
+	root->m_context = new QMenu(parent);
+	root->m_context->addAction(file);
+	root->m_context->addMenu(open);
+	root->m_context->addAction(list);
+	root->m_context->addSeparator();
+	root->m_context->addMenu(screen);
+	root->m_context->addMenu(play);
+	root->m_context->addMenu(subtitle);
+	root->m_context->addMenu(video);
+	root->m_context->addMenu(audio);
+	root->m_context->addSeparator();
+	root->m_context->addAction(pref);
+// 	root->m_context->addAction(help);
+	root->m_context->addAction(about);
+	root->m_context->addSeparator();
+	root->m_context->addAction(exit);
+	parent->addActions(root->m_context->actions());
+
 	return *(obj = root);
 }
 

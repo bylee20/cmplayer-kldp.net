@@ -41,11 +41,8 @@ struct MainWindow::Data {
 	DockWidget *dock;
 	QList<Core::Subtitle> subs;
 	QList<int> subIdxes;
-	QMenu *contextMenu;
 	QSize prevWinSize;
 	QPoint dragPos;
-	QMap<ClickAction, QAction*> clickAction;
-	QMap<WheelAction, ActionPair> wheelAction;
 	RecentInfo *recent;
 	bool pausedByHiding;
 	VideoPlayer *player;
@@ -65,7 +62,6 @@ MainWindow::MainWindow()
 	d->pref = Pref::get();
 	
 	setupUi();
-	initIface();
 	updateRecentActions(d->recent->sources());
 	
 	Menu &menu = d->menu;
@@ -248,6 +244,8 @@ void MainWindow::loadState() {
 }
 
 void MainWindow::setupUi() {
+	menuBar()->hide();
+	
 	d->dock = new DockWidget(d->model, this);
 	addDockWidget(Qt::RightDockWidgetArea, d->dock);
 	d->dock->hide();
@@ -264,49 +262,10 @@ void MainWindow::setupUi() {
 	setMouseTracking(true);
 	setAcceptDrops(true);
 	d->center->setMouseTracking(true);
-
 }
 
 void MainWindow::showContextMenu(const QPoint &pos) {
-	d->contextMenu->exec(mapToGlobal(pos));
-}
-
-void MainWindow::initIface() {
-	Menu &menu = d->menu;
-	d->clickAction[OpenFile] = menu("open")["file"];
-	d->clickAction[ToggleFullScreen] = menu("screen")("size")["full"];
-	d->clickAction[TogglePlayPause] = menu("play")["pause"];
-	d->clickAction[ToggleMute] = menu("audio")["mute"];
-	d->clickAction[TogglePlaylist] = menu("play")["list"];
-	
-#define ADD_PAIR(pair, m, a1, a2) ((pair) = qMakePair(((m)[(a1)]), ((m)[(a2)])))
-	ADD_PAIR(d->wheelAction[Seek1], menu("play")("seek"), "forward1", "backward1");
-	ADD_PAIR(d->wheelAction[Seek2], menu("play")("seek"), "forward2", "backward2");
-	ADD_PAIR(d->wheelAction[Seek3], menu("play")("seek"), "forward3", "backward3");
-	ADD_PAIR(d->wheelAction[NextPrevious], menu("play"), "next", "prev");
-	ADD_PAIR(d->wheelAction[VolumeUpDown], menu("audio"), "volume up", "volume down");
-	ADD_PAIR(d->wheelAction[AmpUpDown], menu("audio"), "amp up", "amp down");
-#undef ADD_PAIR
-	
-	d->contextMenu = new QMenu(this);
-	d->contextMenu->addAction(menu("open")["file"]);
-	d->contextMenu->addMenu(menu.m("open"));
-	d->contextMenu->addAction(menu("play")["list"]);
-	d->contextMenu->addSeparator();
-	d->contextMenu->addMenu(menu.m("screen"));
-	d->contextMenu->addMenu(menu.m("play"));
-	d->contextMenu->addMenu(menu.m("subtitle"));
-	d->contextMenu->addMenu(menu.m("video"));
-	d->contextMenu->addMenu(menu.m("audio"));
-	d->contextMenu->addSeparator();
-	d->contextMenu->addAction(menu["pref"]);
-// 	d->contextMenu->addAction(menu["help"]);
-	d->contextMenu->addAction(menu["about"]);
-	d->contextMenu->addSeparator();
-	d->contextMenu->addAction(menu["exit"]);
-	
-	addActions(d->contextMenu->actions());
-	menuBar()->hide();
+	d->menu.contextMenu()->exec(mapToGlobal(pos));
 }
 
 void MainWindow::setVideoSize(double rate) {
@@ -641,7 +600,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 		d->dragPos.setX(-1);
 	if (IS_BUTTON(Qt::MidButton)) {
 		QAction *action = getTriggerAction(event->modifiers()
-				, d->pref->middleClickMap(), d->clickAction, 0);
+				, d->pref->middleClickMap(), d->menu.clickAction(), 0);
 		if (action)
 			action->trigger();
 	}
@@ -668,7 +627,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 	QMainWindow::mouseDoubleClickEvent(event);
 	if (IS_BUTTON(Qt::LeftButton) && IS_IN_CENTER) {
 		QAction *action = getTriggerAction(event->modifiers()
-				, d->pref->doubleClickMap(), d->clickAction, 0);
+				, d->pref->doubleClickMap(), d->menu.clickAction(), 0);
 		if (action)
 			action->trigger();
 	}
@@ -676,11 +635,11 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 
 void MainWindow::wheelEvent(QWheelEvent *event) {
 	if (IS_IN_CENTER && event->delta()) {
-		ActionPair pair(0, 0);
+		Menu::WheelActionPair pair;
 		pair = getTriggerAction(event->modifiers()
-				, d->pref->wheelScrollMap(), d->wheelAction, pair);
-		if (pair.first) {
-			((event->delta() > 0) ? pair.first : pair.second)->trigger();
+				, d->pref->wheelScrollMap(), d->menu.wheelAction(), pair);
+		if (!pair.isNull()) {
+			((event->delta() > 0) ? pair.up : pair.down)->trigger();
 			event->accept();
 			return;
 		}

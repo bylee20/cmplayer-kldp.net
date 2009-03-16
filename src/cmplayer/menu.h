@@ -1,6 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 
+#include "enum.h"
 #include <QtGui/QMenu>
 #include <QtGui/QActionGroup>
 #include <QtCore/QHash>
@@ -45,6 +46,14 @@ private slots:
 class Menu : public QMenu {
 	Q_OBJECT
 public:
+	struct WheelActionPair {
+		WheelActionPair(QAction *up, QAction *down): up(up), down(down) {}
+		WheelActionPair(): up(0), down(0) {}
+		bool isNull() const {return !up || !down;}
+		QAction *up, *down;
+	};
+	typedef QMap<ClickAction, QAction*> ClickActionMap;
+	typedef QMap<WheelAction, WheelActionPair> WheelActionMap;
 	template <typename N>
 	static QString toString(N value, bool sign = true) {
 		if (!sign || value < 0)
@@ -59,16 +68,6 @@ public:
 	static QString key(QAction *action) {return keys.value(action);}
 	static void updatePref();
 	static void retranslate();
-	Menu(const QString &key, QWidget *parent)
-	: QMenu(parent), m_key(key), m_upper(0) {
-		addGroup("");
-		m_unique = key;
-	}
-	Menu(const QString &key, Menu *parent)
-	: QMenu(parent), m_key(key), m_upper(parent) {
-		addGroup("");
-		m_unique = parent->m_unique + "." + key;
-	}
 	~Menu() {}
 	Menu &operator() (const QString &key) const {return *m(key);}
 	QAction *operator[] (const QString &key) const {return a(key);}
@@ -106,12 +105,28 @@ public:
 	ActionGroup *g(const QString &key = "") const {return m_group[key];}
 	QAction *a(const QString &key) const {return m_act[key];}
 	Menu *m(const QString &key) const {return m_menu[key];}
+	QMenu *contextMenu() const {return m_context;}
+	const ClickActionMap &clickAction() const {return m_click;}
+	const WheelActionMap &wheelAction() const {return m_wheel;}
 private:
+	Menu(const QString &key, QWidget *parent)
+	: QMenu(parent), m_key(key), m_upper(0) {
+		addGroup("");
+		m_unique = key;
+	}
+	Menu(const QString &key, Menu *parent)
+	: QMenu(parent), m_key(key), m_upper(parent) {
+		addGroup("");
+		m_unique = parent->m_unique + "." + key;
+	}
 	static Menu *obj;
+	QMenu *m_context;
 	static QHash<QAction*, QString> keys;
 	QHash<QString, ActionGroup*> m_group;
 	QHash<QString, QAction*> m_act;
 	QHash<QString, Menu*> m_menu;
+	QMap<ClickAction, QAction*> m_click;
+	QMap<WheelAction, WheelActionPair> m_wheel;
 	QString m_key;
 	QString m_unique;
 	Menu *m_upper;
