@@ -77,12 +77,27 @@ VideoPlayer::VideoPlayer(QWidget *main, QWidget *parent)
 	setMinimumSize(320, 240);
 	setMouseTracking(true);
 	setContextMenuPolicy(Qt::CustomContextMenu);
-	setBackend(d->dummy, true);
 
 	connect(d->dummy, SIGNAL(currentSourceChanged(const Core::MediaSource&))
 		, this, SIGNAL(currentSourceChanged(const Core::MediaSource&)));
 	connect(d->dummy, SIGNAL(volumeChanged(int)), this, SIGNAL(volumeChanged(int)));
 	connect(d->dummy, SIGNAL(mutedChanged(bool)), this, SIGNAL(mutedChanged(bool)));
+	
+	d->dummy->widget()->setContextMenuPolicy(Qt::CustomContextMenu);	
+	connect(d->dummy->widget(), SIGNAL(customContextMenuRequested(const QPoint&))
+			, this, SIGNAL(customContextMenuRequested(const QPoint&)));
+// 	connect(engine, SIGNAL(tracksChanged(const QStringList&))
+// 			, this, SIGNAL(tracksChanged(const QStringList&)));
+// 	connect(engine, SIGNAL(currentTrackChanged(const QString&))
+// 			, this, SIGNAL(currentTrackChanged(const QString&)));
+// 	connect(engine, SIGNAL(spusChanged(const QStringList&))
+// 			, this, SIGNAL(spusChanged(const QStringList&)));
+// 	connect(engine, SIGNAL(currentSpuChanged(const QString&))
+// 			, this, SIGNAL(currentSpuChanged(const QString&)));
+	d->stack->addWidget(d->dummy->widget());
+	d->stack->setCurrentWidget(d->dummy->widget());
+	
+	d->engine = d->dummy;
 }
 
 VideoPlayer::~VideoPlayer() {
@@ -120,45 +135,48 @@ void VideoPlayer::resizeEvent(QResizeEvent */*event*/) {
 		resize();
 }
 
-void VideoPlayer::setBackend(Core::PlayEngine *engine, bool add) {
+void VideoPlayer::setBackend(const QString &name) {
+	if (d->engine->info().name() == name)
+		return;
 	int time = -1;
-	if (d->engine) {
-		if (d->engine == engine)
-			return;
-		if (!d->engine->isStopped()) {
-			time = d->engine->currentTime();
-			d->engine->stop();
-		}
+	if (!d->engine->isStopped()) {
+		time = d->engine->currentTime();
+		d->engine->stop();
 	}
-	const QString name = engine->info().name();
-	if (add) {
+	
+	QMap<QString, Core::PlayEngine*>::iterator it = d->engines.find(name);
+	if (it == d->engines.end()) {
+		Core::BackendIface *backend = Data::backend.map.value(name, 0);
+		if (!backend)
+			return;
+		Core::PlayEngine *engine = backend->createPlayEngine();
 		engine->widget()->setContextMenuPolicy(Qt::CustomContextMenu);
 		connect(engine->widget(), SIGNAL(customContextMenuRequested(const QPoint&))
-			, this, SIGNAL(customContextMenuRequested(const QPoint&)));
+				, this, SIGNAL(customContextMenuRequested(const QPoint&)));
 		connect(engine, SIGNAL(stateChanged(Core::State, Core::State))
-			, this, SIGNAL(stateChanged(Core::State, Core::State)));
+				, this, SIGNAL(stateChanged(Core::State, Core::State)));
 		connect(engine, SIGNAL(finished(Core::MediaSource))
-			, this, SLOT(slotFinished(Core::MediaSource)));
+				, this, SLOT(slotFinished(Core::MediaSource)));
 		connect(engine, SIGNAL(stopped(Core::MediaSource, int))
-			, this, SLOT(slotStopped(Core::MediaSource, int)));
+				, this, SLOT(slotStopped(Core::MediaSource, int)));
 		connect(engine, SIGNAL(started()), this, SIGNAL(started()));
 		connect(engine, SIGNAL(durationChanged(int))
-			, this, SIGNAL(durationChanged(int)));
+				, this, SIGNAL(durationChanged(int)));
 		connect(engine, SIGNAL(seekableChanged(bool))
-			, this, SIGNAL(seekableChanged(bool)));
+				, this, SIGNAL(seekableChanged(bool)));
 		connect(engine, SIGNAL(tick(int)), this, SIGNAL(tick(int)));
 		connect(engine, SIGNAL(tracksChanged(const QStringList&))
-			, this, SIGNAL(tracksChanged(const QStringList&)));
+				, this, SIGNAL(tracksChanged(const QStringList&)));
 		connect(engine, SIGNAL(currentTrackChanged(const QString&))
-			, this, SIGNAL(currentTrackChanged(const QString&)));
+				, this, SIGNAL(currentTrackChanged(const QString&)));
 		connect(engine, SIGNAL(spusChanged(const QStringList&))
-			, this, SIGNAL(spusChanged(const QStringList&)));
+				, this, SIGNAL(spusChanged(const QStringList&)));
 		connect(engine, SIGNAL(currentSpuChanged(const QString&))
-			, this, SIGNAL(currentSpuChanged(const QString&)));
+				, this, SIGNAL(currentSpuChanged(const QString&)));
 		d->stack->addWidget(engine->widget());
-		d->engines.insert(name, engine);
+		it = d->engines.insert(name, engine);
 	}
-	d->engine = engine;
+	d->engine = it.value();
 	d->stack->setCurrentWidget(d->engine->widget());
 	if (d->engine != d->dummy) {
 		d->engine->setSpeed(d->dummy->speed());
@@ -177,20 +195,6 @@ void VideoPlayer::setBackend(Core::PlayEngine *engine, bool add) {
 			d->engine->play(time);
 	}
 	emit backendChanged(name);
-}
-
-void VideoPlayer::setBackend(const QString &name) {
-	if (d->engine && (d->engine->info().name() == name))
-		return;
-	QMap<QString, Core::PlayEngine*>::iterator it = d->engines.find(name);
-	if (it == d->engines.end()) {
-		Core::BackendIface *backend = Data::backend.map.value(name, 0);
-		if (backend)
-			setBackend(backend->createPlayEngine(), true);
-		else
-			setBackend(d->dummy, false);
-	} else
-		setBackend(it.value(), false);
 }
 
 const VideoPlayer::Map &VideoPlayer::engines() const {
@@ -233,8 +237,22 @@ int VideoPlayer::videoProperty(Core::VideoProperty prop) const {
 	return d->engine->videoProperty(prop);
 }
 
+
 DEC_ENGINE_PROP(const QString &, setVideoRenderer, videoRenderer)
-DEC_ENGINE_PROP(const QString &, setAudioRenderer, audioRenderer)
+
+void VideoPlayer::setAudioRenderer(const QString &renderer) {
+	d->dummy->setAudioRenderer(renderer);
+	if (d->dummy != d->engine)
+		d->engine->setAudioRenderer(renderer);
+// 	ENGINE_SET(setAudioRenderer, renderer);
+}
+
+const QString &VideoPlayer::audioRenderer() const {
+	return d->dummy->audioRenderer();
+}
+
+
+// DEC_ENGINE_PROP(const QString &, setAudioRenderer, audioRenderer)
 DEC_ENGINE_PROP_CHECK(int, setSyncDelay, syncDelay)
 DEC_ENGINE_PROP_CHECK(double, setAspectRatio, aspectRatio)
 DEC_ENGINE_PROP_CHECK(double, setCropRatio, cropRatio)

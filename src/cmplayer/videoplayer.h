@@ -89,7 +89,7 @@ private slots:
 	void slotFinished(Core::MediaSource source);
 	void slotStopped(Core::MediaSource source, int time);
 private:
-	void setBackend(Core::PlayEngine *engine, bool add);
+	void setBackend(Core::PlayEngine *engine);
 	void resize();
 	void resizeEvent(QResizeEvent *event);
 	struct Backend;

@@ -47,8 +47,8 @@ private:
 //	virtual bool updateCurrentTrack(const QString &/*track*/) {return false;}
 	virtual void updateVolume() {}
 	virtual void updateSpeed(double /*speed*/) {}
-	virtual bool updateVideoRenderer(const QString &/*name*/) {return false;}
-	virtual bool updateAudioRenderer(const QString &/*name*/) {return false;}
+	virtual bool updateVideoRenderer(const QString &/*name*/) {return true;}
+	virtual bool updateAudioRenderer(const QString &/*name*/) {return true;}
 // private:
 	class Renderer;
 	class Osd;

@@ -146,12 +146,13 @@ MainWindow::MainWindow()
 			, this, SLOT(updateRecentActions(const RecentStack&)));
 	connect(d->recent, SIGNAL(rememberCountChanged(int)), this, SLOT(updateRecentSize(int)));
 	
+	updatePref();
+	loadState();
+	
 	const BackendMap &backend = VideoPlayer::load();
 	Menu &engine = play("engine");
 	for (BackendMap::const_iterator it = backend.begin(); it != backend.end(); ++it)
 		engine.addActionToGroupWithoutKey(it.key(), true)->setData(it.key());
-	updatePref();
-	loadState();
 	
 	const QStringList args = QCoreApplication::arguments();
 	if (args.size() > 1) {
@@ -446,7 +447,6 @@ void MainWindow::open() {
 			if (dlg.exec()) {
 				if (dlg.isPlaylist()) {
 					d->model->setPlaylist(dlg.playlist());
-					qDebug() << d->model->rowCount();
 					if (d->model->rowCount() > 0)
 						d->model->play(0);
 				} else
@@ -500,7 +500,6 @@ void MainWindow::open(const QUrl &url) {
 	} else
 		list.append(source);
 	d->model->setPlaylist(list);
-	qDebug() << list[0].toMrl() << source.toMrl();
 	d->model->play(list.indexOf(source));
 	RecentInfo::get()->stackSource(source);
 }
@@ -817,8 +816,6 @@ void MainWindow::slotBackendChanged() {
 	Menu &aMenu = d->menu("audio")("renderer");
 	vMenu.g()->clear();
 	aMenu.g()->clear();
-// 	if (!d->player->engine())
-// 		return;
 	const Core::Info &info = d->player->engine()->info();
 	d->menu("play")("engine").g()->trigger(info.name());
 	const QStringList audios = info.audioRenderer();
@@ -829,10 +826,14 @@ void MainWindow::slotBackendChanged() {
 		aMenu.addActionToGroupWithoutKey(audios[i], true)->setData(audios[i]);
 	State state;
 	const QString video = state[State::VideoRenderer].toMap()[info.name()].toString();
-	if (!video.isEmpty())
+	if (video.isEmpty())
+		vMenu.g()->trigger(d->player->videoRenderer());
+	else
 		vMenu.g()->trigger(video);
 	const QString audio = state[State::AudioRenderer].toMap()[info.name()].toString();
-	if (!audio.isEmpty())
+	if (audio.isEmpty())
+		aMenu.g()->trigger(d->player->audioRenderer());
+	else
 		aMenu.g()->trigger(audio);
 }
 
