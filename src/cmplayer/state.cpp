@@ -16,6 +16,7 @@ State::Data::Data()
 	INIT(VideoRenderer, Map());
 	INIT(SubtitlePos, 100);
 	INIT(SubtitleSync, 0);
+	INIT(LastOpenFile, QString());
 #undef INIT
 }
 

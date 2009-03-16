@@ -441,11 +441,14 @@ void MainWindow::open() {
 	else {
 		const int key = action->data().toInt();
 		if (key == 'f') {
+			State s;
 			const QString filter = Helper::mediaExtensionFilter();
 			const QString filePath = QFileDialog::getOpenFileName(this
-					, tr("Open File"), "", filter);
-			if (!filePath.isEmpty())
+					, tr("Open File"), s[State::LastOpenFile].toString(), filter);
+			if (!filePath.isEmpty()) {
+				s[State::LastOpenFile] = QFileInfo(filePath).absolutePath();
 				open(QUrl::fromLocalFile(filePath));
+			}
 		} else if (key == 'u') {
 			GetUrlDialog dlg(this);
 			if (dlg.exec()) {
@@ -524,11 +527,15 @@ void MainWindow::seek(int diff) {
 void MainWindow::openSubFile() {
 	const QString filter = tr("Subtitle Files") +' '+ Core::Info::subtitleExtension().toFilter();
 	const QString enc = d->pref->subtitleEncoding();
-	EncodingFileDialog dlg(this, tr("Open Subtitle"), QString(), filter, enc);
+	const Core::MediaSource source = d->player->currentSource();
+	QString dir;
+	if (source.isLocalFile())
+		dir = QFileInfo(source.filePath()).absolutePath();
+	EncodingFileDialog dlg(this, tr("Open Subtitle"), dir, filter, enc);
 	dlg.setFileMode(QFileDialog::ExistingFiles);
-	if (!dlg.exec())
-		return;
 	const QStringList files = dlg.selectedFiles();
+	if (!dlg.exec() || files.isEmpty())
+		return;
 	int idx = d->subs.size();
 	Menu &list = d->menu("subtitle")("list");
 	for (int i=0; i<files.size(); ++i) {

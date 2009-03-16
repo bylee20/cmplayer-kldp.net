@@ -21,6 +21,8 @@ public:
 		AudioAmp,
 		SubtitlePos,
 		SubtitleSync,
+		LastOpenFile,
+		TypeMax
 	};
 	const QString &key(Type type) const {return d.keys[type];}
 	QVariant &operator[](Type type) {return d.values[type];}
@@ -28,7 +30,6 @@ public:
 	void save() const;
 	void load();
 private:
-	static const int TypeMax = SubtitleSync + 1;
 	struct Data {
 		Data();
 		QVector<QString> keys;
