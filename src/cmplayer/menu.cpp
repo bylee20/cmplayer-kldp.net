@@ -76,11 +76,9 @@ Menu &Menu::create(QWidget *parent) {
 	to200->setShortcut(Qt::Key_2);
 	to300->setShortcut(Qt::Key_3);
 	to400->setShortcut(Qt::Key_4);
-	QList<QKeySequence> keys;
-	keys.append(Qt::Key_Enter);
-	keys.append(Qt::Key_Return);
-	keys.append(Qt::Key_F);
-	toFull->setShortcuts(keys);
+	toFull->setShortcuts(QList<QKeySequence>()
+			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
+	
 
 	Menu *aspect = screen->addMenu("aspect");
 	aspect->setIcon(QIcon(":/img/zoom-fit-best.png"));
@@ -125,8 +123,11 @@ Menu &Menu::create(QWidget *parent) {
 		
 	Menu *speed = play->addMenu("speed");
 	speed->addActionToGroup("slower", false)->setShortcut(Qt::Key_Minus);
-	speed->addActionToGroup("reset", false, "reset")->setShortcut(Qt::Key_Backspace);
-	speed->addActionToGroup("faster", false)->setShortcut(Qt::Key_Plus);
+	QAction *reset = speed->addActionToGroup("reset", false);
+	reset->setShortcut(Qt::Key_Backspace);
+	reset->setData(0);
+	QAction *faster = speed->addActionToGroup("faster", false);
+	faster->setShortcuts(QList<QKeySequence>() << Qt::Key_Plus << Qt::Key_Equal);
 
 	play->addSeparator();
 		

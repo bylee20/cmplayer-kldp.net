@@ -84,7 +84,6 @@ MainWindow::MainWindow()
 	connect(play["dvd menu"], SIGNAL(triggered()), d->player, SLOT(toggleDvdMenu()));
 	connect(play["stop"], SIGNAL(triggered()), d->player, SLOT(stop()));
 	connect(play("speed").g(), SIGNAL(triggered(int)), this, SLOT(setSpeed(int)));
-	connect(play("speed")["reset"], SIGNAL(triggered()), d->player, SLOT(resetSpeed()));
 	connect(play["prev"], SIGNAL(triggered()), d->model, SLOT(playPrevious()));
 	connect(play["next"], SIGNAL(triggered()), d->model, SLOT(playNext()));
 	connect(play["pause"], SIGNAL(triggered()), this, SLOT(togglePlayPause()));
@@ -718,6 +717,15 @@ void MainWindow::setVideoProperty(QAction *action) {
 	d->player->showMessage(msg);
 }
 
+void MainWindow::setSpeed(int diff) {
+	if (diff)
+		d->player->setSpeed(d->player->speed() + diff);
+	else
+		d->player->resetSpeed();
+	const QString speed = Menu::toString(d->player->speed()*0.01, false);
+	d->player->showMessage(trUtf8("Speed: \303\227%1").arg(speed));
+}
+
 void MainWindow::slotStateChanged(Core::State state, Core::State /*old*/) {
 	if (state == Core::Playing) {
 		d->menu("play")["pause"]->setIcon(QIcon(":/img/media-playback-pause.png"));
@@ -927,7 +935,6 @@ d->player->showMessage(msg.arg(Menu::toString(d->player->getter()*factor, sign))
 DEC_DIFF_SETTER_MSG(setSyncDelay, syncDelay, MainWindow::tr("Subtitle Sync: %1sec."), 0.001, true)
 DEC_DIFF_SETTER_MSG(setVolume, volume, MainWindow::tr("Volume: %1%"), 1, false)
 DEC_DIFF_SETTER_MSG(setSubtitlePos, subtitlePos, MainWindow::tr("Subtitle Position: %1%"), 1, false)
-DEC_DIFF_SETTER_MSG(setSpeed, speed, MainWindow::trUtf8("Speed: \303\227%1"), 0.01, false)
 DEC_DIFF_SETTER_MSG(setAmplifyingRate, amplifyingRate, MainWindow::tr("Amp.: %2% (Max.: %1%)")
 		.arg(qRound(d->player->engine()->info().maximumAmplifyingRate()*100.0)), 1, false)
 
