@@ -31,7 +31,7 @@ void SubtitleRenderer::setRenderer(AbstractOsdRenderer *renderer) {
 void SubtitleRenderer::show(int time) {
 	if (!d->available())
 		return;
-	time -= d->delay;
+	time += d->delay;
 	d->subIt = d->sub->find(time);
 	if (d->subIt == d->sub->end()) {
 		d->subIt = d->sub->upperBound(time);

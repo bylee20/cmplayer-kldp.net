@@ -148,7 +148,9 @@ bool PlayEngine::start(int time) {
 	else if (subtitleStyle().scale == Core::OsdStyle::FitToWidth)
 		mode = 2;
 	QStringList args = getDefaultArgs();
-	args << "-font" << subtitleStyle().font.family() << "-subfont-autoscale" << QString::number(mode)
+	args << "-font" << subtitleStyle().font.family()
+			<< "-subfont-autoscale" << QString::number(mode)
+			<< "-subdelay" << QString::number(syncDelay()*0.001)
 			<< "-wid" << QString::number(d->renderer->screenWinId());
 	if (!d->gotInfo)
 		args << "-identify";
