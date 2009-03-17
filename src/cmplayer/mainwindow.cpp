@@ -203,10 +203,15 @@ QWidget *MainWindow::createControl(QWidget *parent) {
 	return control;
 }
 
+void MainWindow::updateWindowTitle() {
+	setWindowTitle(QString("CMPlayer - %1").arg(Core::Info::coreVersion()));
+}
+
 void MainWindow::saveState() {
 	State state;
 	const VideoPlayer::Map engines = d->player->engines();
-	State::Map vmap, amap;
+	State::Map vmap = state[State::VideoRenderer].toMap();
+	State::Map amap = state[State::AudioRenderer].toMap();
 	for (VideoPlayer::Map::const_iterator it = engines.begin(); it != engines.end(); ++it) {
 		const Core::PlayEngine *engine = it.value();
 		if (engine) {
@@ -244,14 +249,12 @@ void MainWindow::loadState() {
 }
 
 void MainWindow::setupUi() {
-	menuBar()->hide();
-	
 	d->dock = new DockWidget(d->model, this);
 	addDockWidget(Qt::RightDockWidgetArea, d->dock);
 	d->dock->hide();
 	
 	d->center = new QWidget(this);
-	setCentralWidget(d->center);
+	d->center->setMouseTracking(true);
 	d->control = createControl(d->center);
 	QVBoxLayout *vbox = new QVBoxLayout(d->center);
 	vbox->addWidget(d->player);
@@ -259,9 +262,11 @@ void MainWindow::setupUi() {
 	vbox->setMargin(0);
 	vbox->setSpacing(0);
 	
+	updateWindowTitle();
+	menuBar()->hide();
 	setMouseTracking(true);
 	setAcceptDrops(true);
-	d->center->setMouseTracking(true);
+	setCentralWidget(d->center);
 }
 
 void MainWindow::showContextMenu(const QPoint &pos) {
@@ -525,11 +530,13 @@ void MainWindow::updateOnTop() {
 			flags |= Qt::WindowStaysOnTopHint;
 		else
 			flags &= ~Qt::WindowStaysOnTopHint;
-		QByteArray geo = saveGeometry();
 		const bool wasVisible = isVisible();
+		const QPoint p = pos();
+		hide();
 		setWindowFlags(flags);
-		restoreGeometry(geo);
 		setVisible(wasVisible);
+		if (pos() != p)
+			move(p);pos();
 	}
 	setting = false;
 }

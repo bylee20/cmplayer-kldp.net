@@ -445,7 +445,7 @@ e.g.: English, Korean</string>
     <item>
      <widget class="QTabWidget" name="tabWidget" >
       <property name="currentIndex" >
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="widget_5" >
        <attribute name="title" >

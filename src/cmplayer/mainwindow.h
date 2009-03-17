@@ -65,6 +65,7 @@ private:
 	void loadState();
 	void showEvent(QShowEvent *event);
 	void hideEvent(QHideEvent *event);
+	void updateWindowTitle();
 	template<typename M, typename A>
 	static typename A::mapped_type getTriggerAction(uint mod, const M &map
 			, const A &act, const typename A::mapped_type &def) {
