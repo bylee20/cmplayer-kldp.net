@@ -181,6 +181,7 @@ void VideoPlayer::setBackend(const QString &name) {
 	if (d->engine != d->dummy) {
 		d->engine->setSpeed(d->dummy->speed());
 		d->engine->setMuted(d->dummy->isMuted());
+		d->engine->setVolume(d->dummy->volume());
 		d->engine->setAmplifyingRate(d->dummy->amplifyingRate());
 		d->engine->setAspectRatio(d->dummy->aspectRatio());
 		d->engine->setCropRatio(d->dummy->cropRatio());
@@ -240,24 +241,38 @@ int VideoPlayer::videoProperty(Core::VideoProperty prop) const {
 
 DEC_ENGINE_PROP(const QString &, setVideoRenderer, videoRenderer)
 
-void VideoPlayer::setAudioRenderer(const QString &renderer) {
-	d->dummy->setAudioRenderer(renderer);
-	if (d->dummy != d->engine)
-		d->engine->setAudioRenderer(renderer);
-// 	ENGINE_SET(setAudioRenderer, renderer);
-}
+// void VideoPlayer::setAudioRenderer(const QString &renderer) {
+// 	d->dummy->setAudioRenderer(renderer);
+// 	if (d->dummy != d->engine)
+// 		d->engine->setAudioRenderer(renderer);
+// // 	ENGINE_SET(setAudioRenderer, renderer);
+// }
 
-const QString &VideoPlayer::audioRenderer() const {
-	return d->dummy->audioRenderer();
-}
+// const QString &VideoPlayer::audioRenderer() const {
+// 	return d->dummy->audioRenderer();
+// }
 
 
-// DEC_ENGINE_PROP(const QString &, setAudioRenderer, audioRenderer)
+DEC_ENGINE_PROP(const QString &, setAudioRenderer, audioRenderer)
 DEC_ENGINE_PROP_CHECK(int, setSyncDelay, syncDelay)
 DEC_ENGINE_PROP_CHECK(double, setAspectRatio, aspectRatio)
 DEC_ENGINE_PROP_CHECK(double, setCropRatio, cropRatio)
 DEC_ENGINE_PROP_CHECK(bool, setMuted, isMuted)
+
+// DEC_ENGINE_GETTER(int, volume)
+
+// void VideoPlayer::setVolume(int volume) {
+// 	qDebug() << volume;
+// 	if (volume != d->dummy->volume()) {
+// 		qDebug() << "set";
+// 		ENGINE_SET(setVolume, volume);
+// 	}
+// }
+		
 DEC_ENGINE_PROP_CHECK_CLIP(int, setVolume, volume, 0, 100)
+		
+		
+// DEC_ENGINE_PROP_CHECK_CLIP(int, setVolume, volume, 0, 100)
 DEC_ENGINE_PROP_CHECK_CLIP_RATE(setSpeed, speed, 10, 1000)
 DEC_ENGINE_PROP_CHECK_CLIP_RATE(setSubtitlePos, subtitlePos, 0, 100)
 DEC_ENGINE_PROP_CHECK_CLIP_RATE(setAmplifyingRate, amplifyingRate, 10, 1000)

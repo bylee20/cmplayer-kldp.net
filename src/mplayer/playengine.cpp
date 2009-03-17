@@ -150,7 +150,6 @@ bool PlayEngine::start(int time) {
 	args << "-font" << subtitleStyle().font.family()
 			<< "-subfont-autoscale" << QString::number(mode)
 			<< "-subdelay" << QString::number(syncDelay()*0.001)
-			<< "-subpos" << QString::number(toRealSubPos(subtitlePos()))
 			<< "-wid" << QString::number(d->renderer->screenWinId());
 	if (!d->gotInfo)
 		args << "-identify";
@@ -179,6 +178,7 @@ bool PlayEngine::start(int time) {
 		return false;
 	updateVolume();
 	updateSubtitle(subtitle());
+	updateSubtitlePos(subtitlePos());
 	return true;
 }
 
