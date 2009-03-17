@@ -230,49 +230,23 @@ void VideoPlayer::seek(int time, bool relative, bool show) {
 }
 
 void VideoPlayer::setVideoProperty(Core::VideoProperty prop, int value) {
-	if (IS_DIFF_CLIP(TO_PERCENT(d->engine->videoProperty(prop)), value, -100, 100))
+	if (IS_DIFF_CLIP(TO_PERCENT(d->dummy->videoProperty(prop)), value, -100, 100)) {
+		d->dummy->setVideoProperty(prop, TO_RATE(value));
 		d->engine->setVideoProperty(prop, TO_RATE(value));
+	}
 }
 
 int VideoPlayer::videoProperty(Core::VideoProperty prop) const {
-	return d->engine->videoProperty(prop);
+	return TO_PERCENT(d->dummy->videoProperty(prop));
 }
 
-
 DEC_ENGINE_PROP(const QString &, setVideoRenderer, videoRenderer)
-
-// void VideoPlayer::setAudioRenderer(const QString &renderer) {
-// 	d->dummy->setAudioRenderer(renderer);
-// 	if (d->dummy != d->engine)
-// 		d->engine->setAudioRenderer(renderer);
-// // 	ENGINE_SET(setAudioRenderer, renderer);
-// }
-
-// const QString &VideoPlayer::audioRenderer() const {
-// 	return d->dummy->audioRenderer();
-// }
-
-
 DEC_ENGINE_PROP(const QString &, setAudioRenderer, audioRenderer)
 DEC_ENGINE_PROP_CHECK(int, setSyncDelay, syncDelay)
 DEC_ENGINE_PROP_CHECK(double, setAspectRatio, aspectRatio)
 DEC_ENGINE_PROP_CHECK(double, setCropRatio, cropRatio)
 DEC_ENGINE_PROP_CHECK(bool, setMuted, isMuted)
-
-// DEC_ENGINE_GETTER(int, volume)
-
-// void VideoPlayer::setVolume(int volume) {
-// 	qDebug() << volume;
-// 	if (volume != d->dummy->volume()) {
-// 		qDebug() << "set";
-// 		ENGINE_SET(setVolume, volume);
-// 	}
-// }
-		
 DEC_ENGINE_PROP_CHECK_CLIP(int, setVolume, volume, 0, 100)
-		
-		
-// DEC_ENGINE_PROP_CHECK_CLIP(int, setVolume, volume, 0, 100)
 DEC_ENGINE_PROP_CHECK_CLIP_RATE(setSpeed, speed, 10, 1000)
 DEC_ENGINE_PROP_CHECK_CLIP_RATE(setSubtitlePos, subtitlePos, 0, 100)
 DEC_ENGINE_PROP_CHECK_CLIP_RATE(setAmplifyingRate, amplifyingRate, 10, 1000)
