@@ -62,6 +62,7 @@ private:
 	virtual bool updateAudioRenderer(const QString &name);
 // 	virtual void updateVideo();
 // 	virtual void updateAudio();
+	int toRealSubPos(double pos) const;
 	void exiting();
 	bool start(int time = 0);
 	void updateInfo();

@@ -266,8 +266,8 @@ void PlayEngine::play(int time) {
 	if (xine_open(d->stream.stream, mrl.toLocal8Bit())) {
 		updateStreamInfo();
 		xine_play(d->stream.stream, 0, time);
-		if (qAbs(speed() - 1.0) > 1.0e-5)
-			updateSpeed(speed());
+		updateSpeed(speed());
+		updateVolume();
 		setState(Core::Playing);
 	}
 }
@@ -277,8 +277,8 @@ void PlayEngine::play() {
 		return;
 	if (isPaused()) {
 		xine_set_param(d->stream.stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
-		if (qAbs(speed() - 1.0) > 1.0e-5)
-			updateSpeed(speed());
+		updateSpeed(speed());
+		updateVolume();
 		setState(Core::Playing);
 	} else
 		play(0);

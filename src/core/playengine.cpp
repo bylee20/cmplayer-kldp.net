@@ -87,7 +87,6 @@ PlayEngine::PlayEngine(QObject *parent)
 	d->timeStyle->bgColor.setAlphaF(0.8);
 	d->tracks.append("Auto Track");
 	d->track = d->tracks[0];
-	connect(this, SIGNAL(started()), this, SLOT(update()));
 }
 
 PlayEngine::~PlayEngine() {
@@ -258,6 +257,7 @@ void PlayEngine::setSubtitleOsd(AbstractOsdRenderer *osd) {
 	else
 		d->subRenderer->setRenderer(osd);
 	osd->setStyle(*d->subStyle);
+	updateSubtitlePos(d->pos);
 	connect(this, SIGNAL(tick(int)), this, SLOT(slotTick(int)));
 }
 
@@ -337,6 +337,8 @@ void PlayEngine::setState(State state) {
 	if (d->state != state) {
 		const State old = d->state;
 		emit stateChanged(d->state = state, old);
+		if (old == Stopped && d->state == Playing)
+			emit started();
 	}
 }
 
@@ -441,14 +443,15 @@ void PlayEngine::setAudioRenderer(const QString &name) {
 	}
 }
 
+void PlayEngine::updateAudio() {
+	updateVolume();
+}
+
 void PlayEngine::updateVideo() {
 	updateAspectRatio(d->aspect);
 	updateCropRatio(d->crop);
 	updateVideoProperties(d->videoProps[Brightness], d->videoProps[Contrast]
 			, d->videoProps[Saturation], d->videoProps[Hue]);
-}
-void PlayEngine::updateAudio() {
-	updateVolume();
 }
 
 void PlayEngine::setTracks(const QStringList &tracks, const QString &track) {

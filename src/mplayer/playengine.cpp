@@ -41,7 +41,6 @@ PlayEngine::PlayEngine(QObject *parent)
 		, this, SLOT(slotProcFinished()));
 	connect(this, SIGNAL(stateChanged(Core::State, Core::State))
 		, this, SLOT(slotStateChanged(Core::State, Core::State)));
-	connect(this, SIGNAL(started()), this, SLOT(update()));
 	connect(d->renderer, SIGNAL(osdRectChanged(const QRect&))
 		, this, SLOT(slotOsdRectChanged()));
 }
@@ -151,6 +150,7 @@ bool PlayEngine::start(int time) {
 	args << "-font" << subtitleStyle().font.family()
 			<< "-subfont-autoscale" << QString::number(mode)
 			<< "-subdelay" << QString::number(syncDelay()*0.001)
+			<< "-subpos" << QString::number(toRealSubPos(subtitlePos()))
 			<< "-wid" << QString::number(d->renderer->screenWinId());
 	if (!d->gotInfo)
 		args << "-identify";
@@ -170,7 +170,6 @@ bool PlayEngine::start(int time) {
 		args << "-af" << "scaletempo";
 	if (time > 1000)
 		args << "-ss" << QString::number(double(time)/1000.);
-
 // 	if (!d->config.options().isEmpty())
 // 		args += d->config.options();
 	args << (source.isDisc() ? "dvd://" : source.url().toString());
@@ -178,6 +177,8 @@ bool PlayEngine::start(int time) {
 	d->proc->start("mplayer", args);
 	if (!d->proc->waitForStarted())
 		return false;
+	updateVolume();
+	updateSubtitle(subtitle());
 	return true;
 }
 
@@ -207,9 +208,7 @@ void PlayEngine::slotOsdRectChanged() {
 }
 
 void PlayEngine::update() {
-	updateSpeed(speed());
-	updateSubtitle(subtitle());
-	updateSubtitlePos(subtitlePos());
+
 }
 
 void PlayEngine::setOsdLevel(int level) {
@@ -353,10 +352,14 @@ void PlayEngine::updateSubtitleVisiblity(bool visible) {
 	tellmp(visible ? "sub_visibility 1" : "sub_visibility 0");
 }
 
-void PlayEngine::updateSubtitlePos(double pos) {
+int PlayEngine::toRealSubPos(double pos) const {
 	const QRect r = d->renderer->osdRect();
 	const double h = (double)r.bottom() + (double)r.top();
-	tellmp("sub_pos", qBound(0, qRound(pos*((double)r.height() + h)/(2.*h)*100.), 100), 1);
+	return qBound(0, qRound(pos*((double)r.height() + h)/(2.*h)*100.), 100);
+}
+
+void PlayEngine::updateSubtitlePos(double pos) {
+	tellmp("sub_pos", toRealSubPos(pos), 1);
 }
 
 void PlayEngine::updateSyncDelay(int delay) {
