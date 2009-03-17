@@ -536,7 +536,7 @@ void MainWindow::updateOnTop() {
 		setWindowFlags(flags);
 		setVisible(wasVisible);
 		if (pos() != p)
-			move(p);pos();
+			move(p);
 	}
 	setting = false;
 }
