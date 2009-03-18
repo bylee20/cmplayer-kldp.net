@@ -1,5 +1,10 @@
 <RCC>
   <qresource prefix="/" >
+    <file>img/logo/cmplayer-logo8.png</file>
+    <file>img/logo/cmplayer-logo16.png</file>
+    <file>img/logo/cmplayer-logo32.png</file>
+    <file>img/logo/cmplayer-logo64.png</file>
+    <file>img/logo/cmplayer-logo128.png</file>
     <file>img/subtitle.png</file>
     <file>img/system-run.png</file>
     <file>img/format-text-color.png</file>
@@ -56,6 +61,6 @@
     <file>img/view-media-equalizer.png</file>
     <file>img/view-media-playlist.png</file>
     <file>img/window-close.png</file>
-	<file>img/network-workgroup.png</file>
+    <file>img/network-workgroup.png</file>
   </qresource>
 </RCC>

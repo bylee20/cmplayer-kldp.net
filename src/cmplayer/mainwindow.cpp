@@ -153,7 +153,7 @@ MainWindow::MainWindow()
 	for (BackendMap::const_iterator it = backend.begin(); it != backend.end(); ++it)
 		engine.addActionToGroupWithoutKey(it.key(), true)->setData(it.key());
 	
-	const QStringList args = QCoreApplication::arguments();
+	const QStringList args = QApplication::arguments();
 	if (args.size() > 1) {
 		QUrl url(args.last());
 		if (url.scheme().isEmpty())
@@ -267,6 +267,8 @@ void MainWindow::setupUi() {
 	setMouseTracking(true);
 	setAcceptDrops(true);
 	setCentralWidget(d->center);
+	QApplication::setWindowIcon(QIcon(":/img/logo/cmplayer-logo32.png"));
+	setWindowIcon(QIcon(":/img/logo/cmplayer-logo32.png"));
 }
 
 void MainWindow::showContextMenu(const QPoint &pos) {
