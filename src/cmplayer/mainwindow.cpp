@@ -50,6 +50,7 @@ struct MainWindow::Data {
 	Menu &menu;
 	ABRepeatDialog *repeater;
 	QTimer hider;
+	QSystemTrayIcon *tray;
 };
 
 MainWindow::MainWindow()
@@ -57,9 +58,14 @@ MainWindow::MainWindow()
 	d->pausedByHiding = false;
 	d->player = new VideoPlayer(this);
 	d->repeater = new ABRepeatDialog(this);
+	
 	d->model = new PlaylistModel(d->player);
 	d->recent = RecentInfo::get();
 	d->pref = Pref::get();
+	
+	QApplication::setWindowIcon(defaultIcon());
+	d->tray = new QSystemTrayIcon(defaultIcon(), this);
+	d->tray->show();
 	
 	setupUi();
 	updateRecentActions(d->recent->sources());
@@ -144,7 +150,8 @@ MainWindow::MainWindow()
 	connect(d->recent, SIGNAL(rememberCountChanged(int)), this, SLOT(updateRecentSize(int)));
 	connect(&d->hider, SIGNAL(timeout()), this, SLOT(hideCursor()));
 	d->hider.setSingleShot(true);
-	
+	connect(d->tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
+			, this, SLOT(slotTrayActivated(QSystemTrayIcon::ActivationReason)));
 	updatePref();
 	loadState();
 	
@@ -248,6 +255,10 @@ void MainWindow::loadState() {
 	d->player->setSyncDelay(state[State::SubtitleSync].toInt());
 }
 
+QIcon MainWindow::defaultIcon() {
+	return QIcon(":/img/logo/cmplayer-logo128.png");
+}
+
 void MainWindow::setupUi() {
 	d->dock = new DockWidget(d->model, this);
 	addDockWidget(Qt::RightDockWidgetArea, d->dock);
@@ -267,8 +278,7 @@ void MainWindow::setupUi() {
 	setMouseTracking(true);
 	setAcceptDrops(true);
 	setCentralWidget(d->center);
-	QApplication::setWindowIcon(QIcon(":/img/logo/cmplayer-logo32.png"));
-	setWindowIcon(QIcon(":/img/logo/cmplayer-logo32.png"));
+	setWindowIcon(defaultIcon());
 }
 
 void MainWindow::showContextMenu(const QPoint &pos) {
@@ -474,6 +484,7 @@ void MainWindow::open(const QUrl &url) {
 	d->model->setPlaylist(list);
 	d->model->play(list.indexOf(source));
 	RecentInfo::get()->stackSource(source);
+	show();
 }
 
 void MainWindow::togglePlayPause() {
@@ -917,4 +928,16 @@ void MainWindow::showAbout() {
 void MainWindow::hideCursor() {
 	if (cursor().shape() != Qt::BlankCursor)
 		setCursor(Qt::BlankCursor);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+	hide();
+	event->ignore();
+}
+
+void MainWindow::slotTrayActivated(QSystemTrayIcon::ActivationReason reason) {
+	if (reason == QSystemTrayIcon::Trigger)
+		setVisible(!isVisible());
+	else if (reason == QSystemTrayIcon::Context)
+		d->menu.contextMenu()->exec(QCursor::pos());
 }

@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QtGui/QMainWindow>
+#include <QtGui/QSystemTrayIcon>
 #include <core/namespace.h>
 
 class RecentStack;				class QUrl;
@@ -50,10 +51,12 @@ private slots:
 	void slotHelp();
 	void showAbout();
 	void hideCursor();
+	void slotTrayActivated(QSystemTrayIcon::ActivationReason reason);
 private:
 	typedef QPair<QAction*, QAction*> ActionPair;
 	QWidget *createControl(QWidget *parent);
 	void setupUi();
+	void closeEvent(QCloseEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);
 	void dropEvent(QDropEvent *event);
 	void mousePressEvent(QMouseEvent *event);
@@ -66,6 +69,7 @@ private:
 	void showEvent(QShowEvent *event);
 	void hideEvent(QHideEvent *event);
 	void updateWindowTitle();
+	static QIcon defaultIcon();
 	template<typename M, typename A>
 	static typename A::mapped_type getTriggerAction(uint mod, const M &map
 			, const A &act, const typename A::mapped_type &def) {
