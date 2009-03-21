@@ -160,16 +160,12 @@ MainWindow::MainWindow()
 	for (BackendMap::const_iterator it = backend.begin(); it != backend.end(); ++it)
 		engine.addActionToGroupWithoutKey(it.key(), true)->setData(it.key());
 	
-	const QStringList args = QApplication::arguments();
-	if (args.size() > 1) {
-		QUrl url(args.last());
-		if (url.scheme().isEmpty())
-			url = QUrl::fromLocalFile(QFileInfo(args.last()).absoluteFilePath());
-		this->open(url);
-	} else {
+	const QUrl url = getUrlFromCommandLine();
+	if (url.isEmpty()) {
 		d->model->setPlaylist(d->recent->lastPlaylist());
 		d->model->setCurrentSource(d->recent->lastSource());
-	}
+	} else
+		this->open(url);
 }
 
 MainWindow::~MainWindow() {
@@ -407,6 +403,24 @@ void MainWindow::autoLoadSubtitles() {
 	}
 }
 
+QUrl MainWindow::getUrlFromCommandLine() {
+	const QStringList args = QApplication::arguments();
+	if (args.size() > 1) {
+		QUrl url(args.last());
+		if (url.scheme().isEmpty())
+			url = QUrl::fromLocalFile(QFileInfo(args.last()).absoluteFilePath());
+		return url;
+	} else
+		return QUrl();
+}
+
+void MainWindow::openArgument(const QString &arg) {
+	QUrl url(arg);
+	if (url.scheme().isEmpty())
+		url = QUrl::fromLocalFile(QFileInfo(arg).absoluteFilePath());
+	open(url);
+}
+
 void MainWindow::open() {
 	QAction *action = qobject_cast<QAction*>(sender());
 	if (!action)
@@ -537,7 +551,7 @@ void MainWindow::updateOnTop() {
 	const bool onTop = !top["disable"]->isChecked() && (top["always"]->isChecked()
 			|| (top["playing"]->isChecked() && d->player->isPlaying()));
 	Qt::WindowFlags flags = windowFlags();
-	const bool wasOnTop =  flags & Qt::WindowStaysOnTopHint;
+	const bool wasOnTop =  isOnTop();
 	if (wasOnTop != onTop) {
 		if (onTop)
 			flags |= Qt::WindowStaysOnTopHint;

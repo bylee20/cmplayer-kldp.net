@@ -24,7 +24,8 @@ SOURCES += main.cpp \
  dummyengine.cpp \
  translator.cpp \
  geturldialog.cpp \
- aboutdialog.cpp
+ aboutdialog.cpp \
+ appconnection.cpp
 HEADERS += mainwindow.h \
     abrepeatdialog.h \
     playinfowidget.h \
@@ -50,7 +51,8 @@ HEADERS += mainwindow.h \
  dummyengine.h \
  translator.h \
  geturldialog.h \
- aboutdialog.h
+ aboutdialog.h \
+ appconnection.h
 FORMS += ./ui/abrepeatdialog.ui \
     ./ui/playlistwidget.ui \
     ./ui/prefdialog.ui \
@@ -59,7 +61,8 @@ FORMS += ./ui/abrepeatdialog.ui \
  ui/geturldialog.ui \
  ui/aboutdialog.ui
 CONFIG += debug \
-    debug_and_release
+    debug_and_release \
+ qdbus
 
 RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE){

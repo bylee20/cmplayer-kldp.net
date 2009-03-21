@@ -14,8 +14,12 @@ class MainWindow : public QMainWindow {
 public:
 	MainWindow();
 	~MainWindow();
-private slots:
+	bool isOnTop() const {return windowFlags() & Qt::WindowStaysOnTopHint;}
+	void openArgument(const QString &arg);
+	static QUrl getUrlFromCommandLine();
+public slots:
 	void open(const QUrl &url);
+private slots:
 	void open();
 	void openSubFile();
 	void togglePlayPause();
