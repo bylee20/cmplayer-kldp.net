@@ -39,6 +39,8 @@ public:
 	const OsdStyle &subtitleStyle() const {return *d->subStyle;}
 	const OsdStyle &messageStyle() const {return *d->msgStyle;}
 	const OsdStyle &timeLineStyle() const {return *d->timeStyle;}
+	bool isVolumeNormalized() const {return d->volnorm;}
+	void setVolumeNormalized(bool enabled);
 	void setSubtitleStyle(const OsdStyle &style);
 	void setMessageStyle(const OsdStyle &style);
 	void setTimeLineStyle(const OsdStyle &style);
@@ -56,6 +58,7 @@ public:
 	const QString &audioRenderer() const {return d->audioRenderer;}
 	ABRepeater *repeater() {return d->repeater;}
 	bool hasVideo() const {return d->hasVideo;}
+	const Subtitle &subtitle() const {return *d->sub;}
 	virtual QWidget *widget();
 	virtual int currentTime() const = 0;
 	virtual const Info &info() const = 0;
@@ -83,7 +86,6 @@ public slots:
 	void showTimeLine(int duration = 2000);
 	void setSubtitlePos(double pos);
 	void setSpeed(double speed);
-	const Subtitle &subtitle() const {return *d->sub;}
 	void setVideoProperty(VideoProperty prop, double value);
 signals:
 	void hasVideoChanged(bool has);
@@ -141,7 +143,7 @@ private slots:
 private:
 	class Screen;
 	struct Data {
-		bool gotInfo, muted, subVisible, seekable, hasVideo;
+		bool gotInfo, muted, subVisible, seekable, hasVideo, volnorm;
 		int prevTick, prevSubTime, duration, volume, syncDelay;
 		double ampRate, aspect, crop, pos, speed;
 		QList<double> videoProps;

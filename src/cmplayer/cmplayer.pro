@@ -25,7 +25,8 @@ SOURCES += main.cpp \
  translator.cpp \
  geturldialog.cpp \
  aboutdialog.cpp \
- appconnection.cpp
+ appconnection.cpp \
+ application.cpp
 HEADERS += mainwindow.h \
     abrepeatdialog.h \
     playinfowidget.h \
@@ -52,7 +53,8 @@ HEADERS += mainwindow.h \
  translator.h \
  geturldialog.h \
  aboutdialog.h \
- appconnection.h
+ appconnection.h \
+ application.h
 FORMS += ./ui/abrepeatdialog.ui \
     ./ui/playlistwidget.ui \
     ./ui/prefdialog.ui \
@@ -64,21 +66,13 @@ CONFIG += debug \
     debug_and_release \
  qdbus
 
-RELEASE = $$(CMPLAYER_RELEASE)
-!isEmpty(RELEASE){
-    CONFIG -= debug
-    CONFIG += release
-}
+LIBS += -L../bin
 
 RESOURCES += rsclist.qrc
 INCLUDEPATH += ../
 
 TRANSLATIONS += translations/cmplayer_ko.ts \
 translations/cmplayer_en.ts
-LIBS += -L../bin \
-  -lcmplayer_core
-
-CONFIG -= release
 
 TARGET = ../bin/cmplayer
 
@@ -86,3 +80,11 @@ DEFINES += CMPLAYER_TRANSLATION_DIR=$(CMPLAYER_TRANSLATION_PATH)
 
 QT += network
 
+RELEASE = $$(CMPLAYER_RELEASE)
+!isEmpty(RELEASE){
+    CONFIG -= debug
+    CONFIG += release
+    LIBS += -lcmplayer_core
+} else {
+    LIBS += -lcmplayer_cored
+}

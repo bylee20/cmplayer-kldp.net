@@ -166,7 +166,9 @@ bool PlayEngine::start(int time) {
 	} else
 		d->renderer->setFrameSize(d->renderer->videoSize());
 	if (d->info.audioFilter().contains("scaletempo"))
-		args << "-af" << "scaletempo";
+		args << "-af-add" << "scaletempo";
+	if (isVolumeNormalized() && d->info.audioFilter().contains("volnorm"))
+		args << "-af-add" << "volnorm";
 	if (time > 1000)
 		args << "-ss" << QString::number(double(time)/1000.);
 // 	if (!d->config.options().isEmpty())

@@ -30,6 +30,7 @@ struct Pref::General {
 		SAVE(hideCursor);
 		SAVE(hideInFullScreen);
 		SAVE(hideDelay);
+		SAVE(volumeNormalized);
 		SAVE_ENUM(autoAddFiles);
 		set->endGroup();
 	}
@@ -42,11 +43,12 @@ struct Pref::General {
 		LOAD(hideCursor, true, toBool);
 		LOAD(hideInFullScreen, true, toBool);
 		LOAD(hideDelay, 3000, toInt);
+		LOAD(volumeNormalized, true, toBool);
 		LOAD_ENUM(autoAddFiles, AllFiles);
 		set->endGroup();
 	}
 	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
-	bool hideCursor, hideInFullScreen;
+	bool hideCursor, hideInFullScreen, volumeNormalized;
 	int hideDelay;
 	AutoAddFilesEnum autoAddFiles;
 };
@@ -524,5 +526,13 @@ int Pref::hideDelay() const {
 
 bool Pref::hideInFullScreen() const {
 	return gen->hideInFullScreen;
+}
+
+bool Pref::isVolumeNormalized() const {
+	return gen->volumeNormalized;
+}
+
+void Pref::setVolumeNormalized(bool on) {
+	gen->volumeNormalized = on;
 }
 

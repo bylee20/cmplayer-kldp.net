@@ -10,19 +10,22 @@ class AppConnection : public QObject {
 public:
 	AppConnection();
 	~AppConnection();
-	void createConnection();
 	bool isUnique() const;
+	void requestToRaise();
+	void requestToOpen(const QString &url);
 signals:
-	void connected();
-	void alreadyCreated();
-	void gotNewSource(const QString &url);
-	void rasingRequested();
+	void raiseRequested();
+	void openRequested(const QString &url);
+signals: // private:
+	void connect();
+	void alreadyExists();
+	void open(const QString &url);
+	void raise();
 private slots:
-	void slotConnected();
-	void slotCreated();
-	void createMainWindow();
-	void slotGotNewSource(const QString &url);
-	void slotRasingRequestetd();
+	void slotConnect();
+	void slotExists();
+	void slotOpen(const QString &url);
+	void slotRaise();
 private:
 	class Iface;
 	class Adaptor;
@@ -35,22 +38,22 @@ class AppConnection::Adaptor : public QDBusAbstractAdaptor {
 	Q_CLASSINFO("D-Bus Interface", "net.xylosper.CMPlayer.AppConnection")
 	Q_CLASSINFO("D-Bus Introspection", ""
 "  <interface name=\"net.xylosper.CMPlayer.AppConnection\" >\n"
-"    <signal name=\"connected\" />\n"
-"    <signal name=\"alreadyCreated\" />\n"
-"    <signal name=\"gotNewSource\" >\n"
+"    <signal name=\"connect\" />\n"
+"    <signal name=\"alreadyExists\" />\n"
+"    <signal name=\"open\" >\n"
 "      <arg direction=\"out\" type=\"s\" name=\"url\" />\n"
 "    </signal>\n"
-"    <signal name=\"rasingRequested\" />\n"
+"    <signal name=\"raise\" />\n"
 "  </interface>\n"
         "")
 public:
 	Adaptor(AppConnection *parent);
 public slots:
 signals:
-	void connected();
-	void alreadyCreated();
-	void gotNewSource(const QString &url);
-	void rasingRequested();
+	void connect();
+	void alreadyExists();
+	void open(const QString &url);
+	void raise();
 private:
 	
 };
@@ -62,10 +65,10 @@ public:
 	Iface(AppConnection *parent);
 public slots:
 signals:
-	void connected();
-	void alreadyCreated();
-	void gotNewSource(const QString &url);
-	void rasingRequested();
+	void connect();
+	void alreadyExists();
+	void open(const QString &url);
+	void raise();
 private:
 	
 };

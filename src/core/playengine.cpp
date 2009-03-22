@@ -57,7 +57,7 @@ private:
 PlayEngine::PlayEngine(QObject *parent)
 : QObject(parent), d(new Data) {
 	d->hasVideo = d->gotInfo = d->muted = d->seekable = false;
-	d->subVisible = true;
+	d->volnorm = d->subVisible = true;
 	d->prevTick = d->prevSubTime = -1;
 	d->ampRate = d->pos = d->speed = 1.0;
 	d->videoProps.append(0.0);
@@ -87,6 +87,8 @@ PlayEngine::PlayEngine(QObject *parent)
 	d->timeStyle->bgColor.setAlphaF(0.8);
 	d->tracks.append("Auto Track");
 	d->track = d->tracks[0];
+	
+// 	setVolumeNormalized(true);
 }
 
 PlayEngine::~PlayEngine() {
@@ -495,6 +497,13 @@ double PlayEngine::realVolume() const {
 void PlayEngine::setHasVideo(bool has) {
 	if (d->hasVideo != has)
 		emit hasVideoChanged(d->hasVideo = has);
+}
+
+void PlayEngine::setVolumeNormalized(bool enabled) {
+	if (d->volnorm != enabled) {
+		d->volnorm = enabled;
+		updateVolume();
+	}
 }
 
 }

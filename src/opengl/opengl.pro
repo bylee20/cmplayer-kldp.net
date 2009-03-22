@@ -6,12 +6,6 @@ opengl \
  debug \
  debug_and_release
 
-RELEASE = $$(CMPLAYER_RELEASE)
-!isEmpty(RELEASE){
-    CONFIG -= debug
-    CONFIG += release
-}
-
 QT += opengl
 
 TARGET = cmplayer_opengl
@@ -31,5 +25,13 @@ osdrenderer.cpp \
 pixelbufferosdrenderer.cpp
 INCLUDEPATH += ../
 
-CONFIG -= release
+RELEASE = $$(CMPLAYER_RELEASE)
+!isEmpty(RELEASE){
+    CONFIG -= debug
+    CONFIG += release
+    LIBS += -lcmplayer_core
+} else {
+    LIBS += -lcmplayer_cored
+}
+
 

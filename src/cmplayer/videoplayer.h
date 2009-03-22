@@ -55,6 +55,7 @@ public:
 	void setSpeed(int speed);
 	void setSubtitlePos(int pos);
 	void setSyncDelay(int delay);
+	void setVolumeNormalized(bool enabled);
 	static const BackendMap &load(const QString &path = QString());
 	static const BackendMap &backend();
 public slots:

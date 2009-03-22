@@ -18,7 +18,7 @@ namespace Xine {
 
 struct PlayEngine::Data {
 	QMap<QString, int> tracks, spus;
-	bool sos, eos, gotInfo, expanded;
+	bool sos, eos, gotInfo, expanded, volnorm;
 	int prevTick, prevSeekTime, seekCount;
 	QTimer ticker;
 	XineStream stream;
@@ -29,7 +29,7 @@ struct PlayEngine::Data {
 
 PlayEngine::PlayEngine(QObject *parent)
 : Core::PlayEngine(parent), d(new Data) {
-	d->expanded = d->sos = d->eos = false;
+	d->volnorm = d->expanded = d->sos = d->eos = false;
 	d->prevTick = d->prevSeekTime = -1;
 	d->seekCount = 0;
 	d->video = 0;
@@ -320,6 +320,13 @@ void PlayEngine::seek(int time) {
 void PlayEngine::updateVolume() {
 	xine_stream_t *const stream = d->stream.stream;
 	if (stream) {
+		if (d->volnorm != isVolumeNormalized()) {
+			if ((d->volnorm = isVolumeNormalized())) {
+				XinePost *post = d->stream.addPost(XineStream::AudioPost, "volnorm");
+			} else {
+				d->stream.removePost(XineStream::AudioPost, "volnorm");
+			}
+		}
 		xine_set_param(stream, XINE_PARAM_AUDIO_AMP_LEVEL, qRound(realVolume()*100.0));
 		xine_set_param(stream, XINE_PARAM_AUDIO_AMP_MUTE, isMuted() ? 1 : 0);
 	}

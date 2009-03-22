@@ -50,6 +50,7 @@ public:
 	int hideDelay() const;
 	bool hideInFullScreen() const;
 	UiLanguage uiLanuage() const;
+	bool isVolumeNormalized() const;
 	
 	const QString &backendPath() const;
 	const QString &backendName(Core::MediaType media) const;
@@ -87,6 +88,7 @@ private:
 	void setHideDelay(int delay);
 	void setHideInFullScreen(bool enabled);
 	void setUiLanuage(UiLanguage lang);
+	void setVolumeNormalized(bool on);
 	
 	void setBackendPath(const QString &path);
 	void setBackendName(Core::MediaType media, const QString &name);

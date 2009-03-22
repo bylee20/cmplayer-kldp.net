@@ -15,5 +15,5 @@ public:
 
 }
 
-Q_DECLARE_INTERFACE(Core::OpenGLIface, "CMPlayer.Core.OpenGLIface/3.0");
+Q_DECLARE_INTERFACE(Core::OpenGLIface, "net.xylosper.CMPlayer.Core.OpenGLIface/0.2.7");
 #endif

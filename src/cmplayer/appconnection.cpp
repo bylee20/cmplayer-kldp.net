@@ -1,8 +1,8 @@
 #include "appconnection.h"
 #include "mainwindow.h"
+#include "application.h"
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
-#include <QtGui/QApplication>
 #include <QtCore/QUrl>
 
 struct AppConnection::Data {
@@ -10,77 +10,59 @@ struct AppConnection::Data {
 	Iface *iface;
 	bool connected;
 	bool unique;
-	QTimer timer;
-	MainWindow *main;
 };
 
 AppConnection::AppConnection()
 : d(new Data) {
-	d->main = 0;
-	d->timer.setSingleShot(true);
 	d->unique = true;
 	d->connected = false;
 	d->adaptor = new Adaptor(this);
 	QDBusConnection::sessionBus().registerObject("/", this);
 	d->iface = new Iface(this);
 	
-	connect(d->iface, SIGNAL(alreadyCreated()), this, SLOT(slotCreated()));
-	connect(d->iface, SIGNAL(gotNewSource(QString))
-			, this, SLOT(slotGotNewSource(QString)));
-	connect(d->iface, SIGNAL(rasingRequested()), this, SLOT(slotRasingRequestetd()));
-	connect(&d->timer, SIGNAL(timeout()), this, SLOT(createMainWindow()));
+	QObject::connect(d->iface, SIGNAL(alreadyExists()), this, SLOT(slotExists()));
+	QObject::connect(d->iface, SIGNAL(open(QString)), this, SLOT(slotOpen(QString)));
+	QObject::connect(d->iface, SIGNAL(raise()), this, SLOT(slotRaise()));
 	
-	emit connected();
-	d->timer.start(100);
+	emit connect();
+	
+	QObject::connect(d->iface, SIGNAL(connect()), this, SLOT(slotConnect()));
 }
 
 AppConnection::~AppConnection() {
-	delete d->main;
 	delete d;
 }
 
-void AppConnection::createMainWindow() {
-	if (isUnique()) {
-		d->main = new MainWindow;
-		d->main->show();
-	}
-}
-
-void AppConnection::slotConnected() {
+void AppConnection::slotConnect() {
 	d->connected = true;
-	emit alreadyCreated();
+	emit alreadyExists();
 }
 
-void AppConnection::slotCreated() {
-	if (!d->connected) {
+void AppConnection::slotExists() {
+	if (!d->connected)
 		d->unique = false;
-		d->timer.stop();
-		const QUrl url = MainWindow::getUrlFromCommandLine();
-		if (!url.isEmpty())
-			emit gotNewSource(url.toString());
-		emit rasingRequested();
-		qApp->quit();
-	}
+}
+
+void AppConnection::requestToRaise() {
+	emit raise();
+}
+
+void AppConnection::requestToOpen(const QString &url) {
+	emit open(url);
 }
 
 bool AppConnection::isUnique() const {
 	return d->unique;
 }
 
-void AppConnection::slotGotNewSource(const QString &url) {
+void AppConnection::slotOpen(const QString &url) {
 	if (isUnique())
-		d->main->open(QUrl(url));
+		emit openRequested(url);
 }
 
-void AppConnection::slotRasingRequestetd() {
-	if (isUnique() && !d->main->hasFocus() && !d->main->isOnTop()) {
-		d->main->hide();
-		d->main->show();
-	}
-}
-
-void AppConnection::createConnection() {
-	connect(d->iface, SIGNAL(connected()), this, SLOT(slotConnected()));
+void AppConnection::slotRaise() {
+	if (isUnique())
+		emit raiseRequested();
 }
 
 AppConnection::Adaptor::Adaptor(AppConnection *parent)

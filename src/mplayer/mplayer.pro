@@ -18,17 +18,18 @@ CONFIG += debug \
     dll \
     plugin
 
+INCLUDEPATH += ../
+TARGET = ../bin/cmplayer_engine_mplayer
+
+LIBS += -L../bin
+
 RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE){
     CONFIG -= debug
     CONFIG += release
+    LIBS += -lcmplayer_core
+} else {
+    LIBS += -lcmplayer_cored
 }
 
-INCLUDEPATH += ../
-TARGET = ../bin/cmplayer_engine_mplayer
-
-LIBS += -L../bin \
-  -lcmplayer_core
-
-CONFIG -= release
 

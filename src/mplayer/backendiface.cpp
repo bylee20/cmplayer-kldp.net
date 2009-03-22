@@ -21,4 +21,4 @@ Core::Info *BackendIface::info() const {
 
 }
 
-Q_EXPORT_PLUGIN2(cmplayer_backend_mplayer, MPlayer::BackendIface);
+Q_EXPORT_PLUGIN2(cmplayer_engine_mplayer, MPlayer::BackendIface);

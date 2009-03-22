@@ -48,14 +48,14 @@ RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE){
     CONFIG -= debug
     CONFIG += release
+    TARGET = ../bin/cmplayer_core
+} else {
+	TARGET = ../bin/cmplayer_cored
 }
 
 TEMPLATE = lib
-TARGET = ../bin/cmplayer_core
 
-VERSION = 0.2.6
-
-CONFIG -= release
+VERSION = 0.2.7
 
 DEFINES += CMPLAYER_PLUGIN_DIR=$(CMPLAYER_PLUGIN_PATH)
 

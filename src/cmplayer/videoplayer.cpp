@@ -256,6 +256,7 @@ DEC_ENGINE_SETTER(const Core::OsdStyle &, setSubtitleStyle)
 DEC_ENGINE_SETTER(const Core::Subtitle &, setSubtitle)
 DEC_ENGINE_SETTER(const QString &, setCurrentTrack)
 DEC_ENGINE_SETTER(const QString &, setCurrentSpu)
+DEC_ENGINE_SETTER_CHECK(bool, setVolumeNormalized, isVolumeNormalized)
 DEC_ENGINE_SETTER_CHECK(bool, setSubtitleVisible, isSubtitleVisible)
 
 DEC_ENGINE_CALL0(play)

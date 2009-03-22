@@ -6,14 +6,14 @@
     <x>0</x>
     <y>0</y>
     <width>491</width>
-    <height>440</height>
+    <height>588</height>
    </rect>
   </property>
   <property name="currentIndex" >
    <number>0</number>
   </property>
   <widget class="QWidget" name="general" >
-   <layout class="QVBoxLayout" name="verticalLayout_17" >
+   <layout class="QVBoxLayout" name="verticalLayout_18" >
     <item>
      <widget class="QGroupBox" name="groupBox_4" >
       <property name="title" >
@@ -210,6 +210,22 @@
           </widget>
          </item>
         </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBox_14" >
+      <property name="title" >
+       <string>Audio</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_17" >
+       <item>
+        <widget class="QCheckBox" name="volnorm" >
+         <property name="text" >
+          <string>Normalize volume</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

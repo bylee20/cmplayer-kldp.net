@@ -12,6 +12,7 @@ namespace Core {class BackendIface;}
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
+	MainWindow(const QUrl &url);
 	MainWindow();
 	~MainWindow();
 	bool isOnTop() const {return windowFlags() & Qt::WindowStaysOnTopHint;}
@@ -59,6 +60,7 @@ private slots:
 private:
 	typedef QPair<QAction*, QAction*> ActionPair;
 	QWidget *createControl(QWidget *parent);
+	void commonInitialize();
 	void setupUi();
 	void closeEvent(QCloseEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);

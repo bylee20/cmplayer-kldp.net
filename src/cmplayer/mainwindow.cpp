@@ -53,8 +53,32 @@ struct MainWindow::Data {
 	QSystemTrayIcon *tray;
 };
 
-MainWindow::MainWindow()
-: d(new Data(Menu::create(this))) {
+MainWindow::MainWindow(const QUrl &url) {
+	commonInitialize();
+	open(url);
+}
+
+MainWindow::MainWindow() {
+	commonInitialize();
+	d->model->setPlaylist(d->recent->lastPlaylist());
+	d->model->setCurrentSource(d->recent->lastSource());
+}
+
+MainWindow::~MainWindow() {
+	d->player->stop();
+	RecentInfo *recent = RecentInfo::get();
+	saveState();
+	recent->setLastSource(d->player->currentSource());
+	recent->setLastPlaylist(d->model->playlist());
+	RecentInfo::get()->save();
+	delete d->model;
+	delete d->player;
+	delete d;
+}
+
+void MainWindow::commonInitialize() {
+	d = new Data(Menu::create(this));
+	
 	d->pausedByHiding = false;
 	d->player = new VideoPlayer(this);
 	d->repeater = new ABRepeatDialog(this);
@@ -155,7 +179,8 @@ MainWindow::MainWindow()
 	updatePref();
 	loadState();
 	
-	const BackendMap &backend = VideoPlayer::load();
+// 	const BackendMap &backend = VideoPlayer::load();
+	const BackendMap &backend = VideoPlayer::backend();
 	Menu &engine = play("engine");
 	for (BackendMap::const_iterator it = backend.begin(); it != backend.end(); ++it)
 		engine.addActionToGroupWithoutKey(it.key(), true)->setData(it.key());
@@ -166,18 +191,6 @@ MainWindow::MainWindow()
 		d->model->setCurrentSource(d->recent->lastSource());
 	} else
 		this->open(url);
-}
-
-MainWindow::~MainWindow() {
-	d->player->stop();
-	RecentInfo *recent = RecentInfo::get();
-	saveState();
-	recent->setLastSource(d->player->currentSource());
-	recent->setLastPlaylist(d->model->playlist());
-	RecentInfo::get()->save();
-	delete d->model;
-	delete d->player;
-	delete d;
 }
 
 QWidget *MainWindow::createControl(QWidget *parent) {
@@ -574,6 +587,7 @@ void MainWindow::updatePref() {
 	if (media != Core::Unknown)
 		d->menu("play")("engine").g()->trigger(d->pref->backendName(media));
 	d->player->setSubtitleStyle(d->pref->subtitleStyle());
+	d->player->setVolumeNormalized(d->pref->isVolumeNormalized());
 	d->menu.updatePref();
 	d->playInfo->setState(d->player->state());
 	if (!d->player->isStopped()) {

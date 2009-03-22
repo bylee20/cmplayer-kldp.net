@@ -15,4 +15,4 @@ Core::Info *BackendIface::info() const {
 
 }
 
-Q_EXPORT_PLUGIN2(cmplayer_xine, Xine::BackendIface);
+Q_EXPORT_PLUGIN2(cmplayer_engine_xine, Xine::BackendIface);

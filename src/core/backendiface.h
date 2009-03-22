@@ -16,6 +16,6 @@ public:
 
 }
 
-Q_DECLARE_INTERFACE(Core::BackendIface, "CMPlayer.Backend.BackendIface/3.1");
+Q_DECLARE_INTERFACE(Core::BackendIface, "net.xylosper.CMPlayer.Core.BackendIface/0.2.7");
 
 #endif
