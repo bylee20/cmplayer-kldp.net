@@ -75,6 +75,7 @@ private:
 	void showEvent(QShowEvent *event);
 	void hideEvent(QHideEvent *event);
 	void updateWindowTitle();
+	void showMessage(const QString &text);
 	static QIcon defaultIcon();
 	template<typename M, typename A>
 	static typename A::mapped_type getTriggerAction(uint mod, const M &map

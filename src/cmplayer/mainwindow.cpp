@@ -272,6 +272,7 @@ void MainWindow::setupUi() {
 	d->dock = new DockWidget(d->model, this);
 	addDockWidget(Qt::RightDockWidgetArea, d->dock);
 	d->dock->hide();
+	d->player->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	
 	d->center = new QWidget(this);
 	d->center->setMouseTracking(true);
@@ -721,7 +722,7 @@ void MainWindow::setVideoProperty(QAction *action) {
 		msg = msg.arg(tr("Contrast"));
 		break;
 	}
-	d->player->showMessage(msg);
+	showMessage(msg);
 }
 
 void MainWindow::setSpeed(int diff) {
@@ -730,7 +731,7 @@ void MainWindow::setSpeed(int diff) {
 	else
 		d->player->resetSpeed();
 	const QString speed = Menu::toString(d->player->speed()*0.01, false);
-	d->player->showMessage(trUtf8("Speed: \303\227%1").arg(speed));
+	showMessage(trUtf8("Speed: \303\227%1").arg(speed));
 }
 
 void MainWindow::slotStateChanged(Core::State state, Core::State /*old*/) {
@@ -908,7 +909,7 @@ void MainWindow::slotRepeat(int key) {
 			const int at = repeater->setAToCurrentTime();
 			QString a = Core::Utility::msecsToString(at, "h:mm:ss.zzz");
 			a.chop(2);
-			d->player->showMessage(msg.arg(tr("Set A to %1").arg(a)));
+			showMessage(msg.arg(tr("Set A to %1").arg(a)));
 		} else if (!repeater->hasB()) {
 			const int at = repeater->setBToCurrentTime();
 			if ((at - repeater->a()) < 100) {
@@ -917,8 +918,8 @@ void MainWindow::slotRepeat(int key) {
 			} else {
 				QString b = Core::Utility::msecsToString(at, "h:mm:ss.zzz");
 				b.chop(2);
-				d->player->showMessage(msg
-						.arg(tr("Set B to %1. Start to repeat!").arg(b)));
+				showMessage(msg.arg(tr("Set B to %1. "
+						"Start to repeat!").arg(b)));
 				repeater->start();
 			}
 		}
@@ -926,18 +927,18 @@ void MainWindow::slotRepeat(int key) {
 		repeater->stop();
 		repeater->setA(-1);
 		repeater->setB(-1);
-		d->player->showMessage(msg.arg(tr("Quit repeating")));
+		showMessage(msg.arg(tr("Quit repeating")));
 	} else if (key == 's') {
 		repeater->setAToSubtitleTime();
 		repeater->setBToSubtitleTime();
-		d->player->showMessage(msg.arg(tr("Repeat current subtitle")));
+		showMessage(msg.arg(tr("Repeat current subtitle")));
 		repeater->start();
 	}
 }
 
 #define DEC_DIFF_SETTER_MSG(setter, getter, msg, factor, sign)\
 void MainWindow::setter(int diff) {d->player->setter(d->player->getter() + diff);\
-d->player->showMessage(msg.arg(Menu::toString(d->player->getter()*factor, sign)));}
+showMessage(msg.arg(Menu::toString(d->player->getter()*factor, sign)));}
 
 DEC_DIFF_SETTER_MSG(setSyncDelay, syncDelay, MainWindow::tr("Subtitle Sync: %1sec."), 0.001, true)
 DEC_DIFF_SETTER_MSG(setVolume, volume, MainWindow::tr("Volume: %1%"), 1, false)
@@ -968,4 +969,9 @@ void MainWindow::slotTrayActivated(QSystemTrayIcon::ActivationReason reason) {
 		setVisible(!isVisible());
 	else if (reason == QSystemTrayIcon::Context)
 		d->menu.contextMenu()->exec(QCursor::pos());
+}
+
+void MainWindow::showMessage(const QString &text) {
+	d->player->showMessage(text);
+	d->playInfo->showMessage(text);
 }
