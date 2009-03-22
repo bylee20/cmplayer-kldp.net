@@ -192,6 +192,8 @@ void VideoPlayer::setBackend(const QString &name) {
 		d->engine->setSubtitleStyle(d->dummy->subtitleStyle());
 		d->engine->setCurrentSource(d->dummy->currentSource());
 		d->dummy->info().copy(d->engine->info());
+		d->dummy->setVideoRenderer(d->engine->videoRenderer());
+		d->dummy->setAudioRenderer(d->engine->audioRenderer());
 		if (time != -1)
 			d->engine->play(time);
 	}

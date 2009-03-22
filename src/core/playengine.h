@@ -54,8 +54,8 @@ public:
 	const QString &currentSpu() const {return d->spu;}
 	void setVideoRenderer(const QString &name);
 	void setAudioRenderer(const QString &name);
-	const QString &videoRenderer() const {return d->videoRenderer;}
-	const QString &audioRenderer() const {return d->audioRenderer;}
+	const QString &videoRenderer() const;
+	const QString &audioRenderer() const;
 	ABRepeater *repeater() {return d->repeater;}
 	bool hasVideo() const {return d->hasVideo;}
 	const Subtitle &subtitle() const {return *d->sub;}

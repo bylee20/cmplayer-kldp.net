@@ -506,4 +506,12 @@ void PlayEngine::setVolumeNormalized(bool enabled) {
 	}
 }
 
+const QString &PlayEngine::videoRenderer() const {
+	return d->videoRenderer.isEmpty() ? info().defaultVideoRenderer() : d->videoRenderer;
+}
+
+const QString &PlayEngine::audioRenderer() const {
+	return d->audioRenderer.isEmpty() ? info().defaultAudioRenderer() : d->audioRenderer;
+}
+
 }

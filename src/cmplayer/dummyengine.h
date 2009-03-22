@@ -10,6 +10,8 @@ public:
 	public:
 		const QStringList &videoRenderer() const {return d.vr;}
 		const QStringList &audioRenderer() const {return d.ar;}
+		const QString &defaultVideoRenderer() const {return d.dv;}
+		const QString &defaultAudioRenderer() const {return d.da;}
 		QString name() const {return d.name;}
 		double maximumAmplifyingRate() const {return d.maxAmp;}
 		QString compileVersion() const {return d.cv;}
@@ -21,13 +23,15 @@ public:
 			d.maxAmp = other.maximumAmplifyingRate();
 			d.cv = other.compileVersion();
 			d.rv = other.runtimeVersion();
+			d.dv = other.defaultVideoRenderer();
+			d.da = other.defaultAudioRenderer();
 		}
 	private:
 		struct Data {
 			Data();
 			QStringList vr, ar;
 			double maxAmp;
-			QString name, cv, rv;
+			QString name, cv, rv, dv, da;
 		};
 		static Data d;
 	};
