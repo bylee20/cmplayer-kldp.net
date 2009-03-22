@@ -1,6 +1,8 @@
 #include "menu.h"
 #include "pref.h"
+#include <core/info.h>
 #include <QtCore/QUrl>
+#include <QtCore/QSettings>
 
 void ActionGroup::emitData(QAction *action) {
 	const QVariant data = action->data();
@@ -17,6 +19,7 @@ void ActionGroup::emitData(QAction *action) {
 
 Menu *Menu::obj = 0;
 QHash<QAction*, QString> Menu::keys;
+QHash<QString, QAction*> Menu::acts;
 
 Menu &Menu::create(QWidget *parent) {
 	if (obj)
@@ -266,6 +269,7 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_context->addAction(exit);
 	parent->addActions(root->m_context->actions());
 
+	loadShortcut();
 	return *(obj = root);
 }
 
@@ -420,4 +424,45 @@ void Menu::updatePref() {
 // 	root["help"]->setText(tr("Help"));
 	root["about"]->setText(tr("About..."));
 	root["exit"]->setText(tr("Exit"));
+	
+	saveShortcut();
+}
+
+QString Menu::configFile() {
+	return Core::Info::privatePath() + "/menu.ini";
+}
+
+void Menu::saveShortcut() {
+	QSettings set(configFile(), QSettings::IniFormat);
+	set.beginGroup("Menu");
+	QHash<QAction*, QString>::iterator it = keys.begin();
+	for (; it != keys.end(); ++it) {
+		const QList<QKeySequence> shortcut = it.key()->shortcuts();
+		set.beginWriteArray(it.value(), shortcut.size());
+		for (int i=0; i<shortcut.size(); ++i) {
+			set.setArrayIndex(i);
+			set.setValue("Shortcut", shortcut[i]);
+		}
+		set.endArray();
+	}
+	set.endGroup();
+}
+
+void Menu::loadShortcut() {
+	QSettings set(configFile(), QSettings::IniFormat);
+	set.beginGroup("Menu");
+	QHash<QAction*, QString>::iterator it = keys.begin();
+	for (; it != keys.end(); ++it) {
+		const int count = set.beginReadArray(it.value());
+		QList<QKeySequence> shortcut = it.key()->shortcuts();
+		while (shortcut.size() < count)
+			shortcut.push_back(QKeySequence());
+		for (int i=0; i<count; ++i) {
+			set.setArrayIndex(i);
+			shortcut << set.value("Shortcut", shortcut[i]).value<QKeySequence>();
+		}
+		set.endArray();
+		it.key()->setShortcuts(shortcut);
+	}
+	set.endGroup();
 }

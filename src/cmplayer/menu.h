@@ -66,6 +66,9 @@ public:
 	static Menu &get() {return *obj;}
 	static Menu &create(QWidget *parent);
 	static QString key(QAction *action) {return keys.value(action);}
+// 	static QString key(QAction *action) {return keys.value(action);}
+	static void saveShortcut();
+	static void loadShortcut();
 	static void updatePref();
 	static void retranslate();
 	~Menu() {}
@@ -86,7 +89,9 @@ public:
 	QAction *addAction(const QString &key, bool checkable = false) {
 		QAction *action = QMenu::addAction(key);
 		action->setCheckable(checkable);
-		keys[action] = m_unique + "." + key;
+		const QString k = m_unique + "." + key;
+		keys[action] = k;
+		acts[k] = action;
 		return m_act[key] = action;
 	}
 	QAction *addActionToGroupWithoutKey(const QString &name
@@ -109,6 +114,7 @@ public:
 	const ClickActionMap &clickAction() const {return m_click;}
 	const WheelActionMap &wheelAction() const {return m_wheel;}
 private:
+	static QString configFile();
 	Menu(const QString &key, QWidget *parent)
 	: QMenu(parent), m_key(key), m_upper(0) {
 		addGroup("");
@@ -122,6 +128,7 @@ private:
 	static Menu *obj;
 	QMenu *m_context;
 	static QHash<QAction*, QString> keys;
+	static QHash<QString, QAction*> acts;
 	QHash<QString, ActionGroup*> m_group;
 	QHash<QString, QAction*> m_act;
 	QHash<QString, Menu*> m_menu;
