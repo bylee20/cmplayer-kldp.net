@@ -459,7 +459,7 @@ void Menu::loadShortcut() {
 			shortcut.push_back(QKeySequence());
 		for (int i=0; i<count; ++i) {
 			set.setArrayIndex(i);
-			shortcut << set.value("Shortcut", shortcut[i]).value<QKeySequence>();
+			shortcut[i] = set.value("Shortcut", shortcut[i]).value<QKeySequence>();
 		}
 		set.endArray();
 		it.key()->setShortcuts(shortcut);

@@ -167,6 +167,7 @@ void MainWindow::commonInitialize() {
 			, d->recent, SLOT(setFinished(const Core::MediaSource&)));
 	connect(d->player, SIGNAL(customContextMenuRequested(const QPoint&))
 			, this, SLOT(showContextMenu(const QPoint&)));
+	connect(d->dock, SIGNAL(hidingRequested()), this, SLOT(toggleDockVisibility()));
 	connect(d->model, SIGNAL(currentRowChanged(int)), this, SLOT(updatePlaylistInfo()));
 	connect(d->model, SIGNAL(rowCountChanged(int)), this, SLOT(updatePlaylistInfo()));
 	connect(d->recent, SIGNAL(sourcesChanged(const RecentStack&))
@@ -947,7 +948,6 @@ DEC_DIFF_SETTER_MSG(setAmplifyingRate, amplifyingRate, MainWindow::tr("Amp.: %2%
 		.arg(qRound(d->player->engine()->info().maximumAmplifyingRate()*100.0)), 1, false)
 
 #undef DEC_DIFF_SETTER_MSG
-
 
 void MainWindow::showAbout() {
 	AboutDialog dlg;

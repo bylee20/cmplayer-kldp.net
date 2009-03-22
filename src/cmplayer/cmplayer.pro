@@ -56,12 +56,12 @@ HEADERS += mainwindow.h \
  appconnection.h \
  application.h
 FORMS += ./ui/abrepeatdialog.ui \
-    ./ui/playlistwidget.ui \
     ./ui/prefdialog.ui \
     ./ui/prefosdwidget.ui \
  ui/prefstack.ui \
  ui/geturldialog.ui \
- ui/aboutdialog.ui
+ ui/aboutdialog.ui \
+ ui/dockwidget.ui
 CONFIG += debug \
     debug_and_release \
  qdbus
@@ -85,6 +85,6 @@ RELEASE = $$(CMPLAYER_RELEASE)
     CONFIG -= debug
     CONFIG += release
     LIBS += -lcmplayer_core
-} else {
+}else {
     LIBS += -lcmplayer_cored
 }

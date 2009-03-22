@@ -26,8 +26,8 @@ public:
 public slots:
 	void checkRoot(bool checked);
 	void setAutoShutdown(bool shut);
-protected:
-	void showEvent(QShowEvent *event);
+signals:
+	void hidingRequested();
 private slots:
 	void add();
 	void erase();
@@ -39,6 +39,8 @@ private slots:
 	void slotActivated(const QModelIndex &index);
 	void adjustCellSize();
 private:
+	void showEvent(QShowEvent *event);
+	void closeEvent(QCloseEvent *event);
 	struct Data;
 	friend struct Data;
 	Data *d;

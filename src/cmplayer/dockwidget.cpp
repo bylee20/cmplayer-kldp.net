@@ -1,7 +1,7 @@
 #include "dockwidget.h"
 #include "playlistmodel.h"
 #include "encodingfiledialog.h"
-#include "ui_playlistwidget.h"
+#include "ui_dockwidget.h"
 #include <core/info.h>
 #include <core/playlist.h>
 #include <QtCore/QProcess>
@@ -9,6 +9,7 @@
 #include <QtGui/QComboBox>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
+#include <QtGui/QCloseEvent>
 #include "helper.h"
 
 ShutdownDialog::ShutdownDialog(QWidget *parent)
@@ -52,7 +53,7 @@ struct DockWidget::Data {
 		if (model->swap(row, target))
 			ui.list->setCurrentIndex(model->index(target, 0));
 	}
-	Ui::PlaylistWidget ui;
+	Ui::DockWidget ui;
 	PlaylistModel *model;
 	bool checking, adding;
 	bool identified;
@@ -63,8 +64,9 @@ DockWidget::DockWidget(PlaylistModel *model, QWidget *parent)
 : QDockWidget(parent), d(new Data) {
 	d->checking = d->adding = d->identified = false;
 	d->model = model;
-	setWidget(new QWidget(this));
-	d->ui.setupUi(widget());
+// 	setWidget(new QWidget(this));
+	d->ui.setupUi(this);
+// 	d->ui.setupUi(widget());
 	setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	d->dlg = new ShutdownDialog(this);
 	connect(d->ui.open_button, SIGNAL(clicked()), this, SLOT(open()));
@@ -73,7 +75,6 @@ DockWidget::DockWidget(PlaylistModel *model, QWidget *parent)
 	connect(d->ui.up_button, SIGNAL(clicked()), this, SLOT(up()));
 	connect(d->ui.down_button, SIGNAL(clicked()), this, SLOT(down()));
 	connect(d->ui.clear_button, SIGNAL(clicked()), d->model, SLOT(clear()));
-	connect(d->ui.close_button, SIGNAL(clicked()), this, SLOT(hide()));
 	connect(d->ui.list, SIGNAL(activated(const QModelIndex&)),
 		this, SLOT(slotActivated(const QModelIndex&)));
 	connect(d->ui.shutdown_check, SIGNAL(toggled(bool)), this, SLOT(checkRoot(bool)));
@@ -180,3 +181,7 @@ void DockWidget::showEvent(QShowEvent *event) {
 	adjustCellSize();
 }
 
+void DockWidget::closeEvent(QCloseEvent *event) {
+	event->ignore();
+	emit hidingRequested();
+}
