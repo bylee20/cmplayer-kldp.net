@@ -180,7 +180,6 @@ void MainWindow::commonInitialize() {
 	updatePref();
 	loadState();
 	
-// 	const BackendMap &backend = VideoPlayer::load();
 	const BackendMap &backend = VideoPlayer::backend();
 	Menu &engine = play("engine");
 	for (BackendMap::const_iterator it = backend.begin(); it != backend.end(); ++it)
@@ -229,7 +228,8 @@ void MainWindow::saveState() {
 	const VideoPlayer::Map engines = d->player->engines();
 	State::Map vmap = state[State::VideoRenderer].toMap();
 	State::Map amap = state[State::AudioRenderer].toMap();
-	for (VideoPlayer::Map::const_iterator it = engines.begin(); it != engines.end(); ++it) {
+	VideoPlayer::Map::const_iterator it = engines.begin();
+	for (; it != engines.end(); ++it) {
 		const Core::PlayEngine *engine = it.value();
 		if (engine) {
 			const QString name = engine->info().name();
@@ -275,7 +275,8 @@ void MainWindow::setupUi() {
 	d->dock->hide();
 	d->player->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	
-	d->center = new QWidget(this);
+	QWidget *widget = new QWidget(this);
+	d->center = new QWidget(widget);
 	d->center->setMouseTracking(true);
 	d->control = createControl(d->center);
 	QVBoxLayout *vbox = new QVBoxLayout(d->center);
@@ -284,11 +285,18 @@ void MainWindow::setupUi() {
 	vbox->setMargin(0);
 	vbox->setSpacing(0);
 	
+	QHBoxLayout *hbox = new QHBoxLayout(widget);
+	hbox->setMargin(0);
+	hbox->setSpacing(0);
+	hbox->addWidget(d->center);
+	hbox->addItem(new QSpacerItem(0, 0));
+
 	updateWindowTitle();
 	menuBar()->hide();
 	setMouseTracking(true);
 	setAcceptDrops(true);
-	setCentralWidget(d->center);
+// 	setCentralWidget(d->center);
+	setCentralWidget(widget);
 	setWindowIcon(defaultIcon());
 }
 
@@ -753,17 +761,15 @@ void MainWindow::updatePlaylistInfo() {
 }
 
 void MainWindow::toggleDockVisibility() {
-	const bool visible = d->dock->isVisible();
-	if (!d->dock->isFloating() && !isFullScreen()) {
-		d->player->keepSize(true);
-		QSize size = this->size();
-		if (visible)
-			size.rwidth() -= d->dock->width();
-		else
-			size.rwidth() += d->dock->width();
-		resize(size);
+	d->player->keepSize(true);
+	const int w = d->dock->width();
+	if (d->dock->isVisible()) {
+		d->dock->hide();
+		resize(width() - w, height());
+	} else {
+		resize(width() + w, height());
+		d->dock->show();
 	}
-	d->dock->setVisible(!visible);
 	d->player->keepSize(false);
 }
 
