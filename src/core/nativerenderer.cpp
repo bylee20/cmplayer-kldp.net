@@ -66,7 +66,7 @@ void NativeRenderer::setFrameInfo(const VideoFrame::Info &frame) {
 }
 
 int NativeRenderer::screenWinId() const {
-	return d->screen->winId();
+	return (int)d->screen->winId();
 }
 
 void NativeRenderer::rerender() {
