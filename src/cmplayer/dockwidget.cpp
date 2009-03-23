@@ -146,7 +146,7 @@ void DockWidget::add() {
 	QStringList files = QFileDialog::getOpenFileNames(this, tr("Open File"), QString(), filter);
 	Core::Playlist pl;
 	for (int i=0; i<files.size(); ++i)
-		pl.append(QUrl::fromLocalFile(files[i]));
+		pl.append(Core::MediaSource(QUrl::fromLocalFile(files[i])));
 	d->model->append(pl);
 }
 

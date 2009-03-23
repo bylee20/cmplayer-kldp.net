@@ -30,13 +30,18 @@ private slots:
 	void emitTick();
 	void slotStateChanged(Core::State state, Core::State old);
 private:
+	static int convertColorProperty(double value) {
+		return Core::ColorProperty::isSame(value, 0.0) ? 32768
+			: qBound(0, qRound((value + 1.0)/2.0*65535), 65535);
+	}
 	void updateTracks();
 	void updateSpus();
 	virtual bool updateCurrentSpu(const QString &spu);
 	virtual bool updateCurrentTrack(const QString &track);
 	virtual void updateSpeed(double speed);
 	virtual void updateVolume();
-	virtual void updateVideoProperty(Core::VideoProperty prop, double value);
+	virtual void updateColorProperty(Core::ColorProperty::Value prop, double value);
+	virtual void updateColorProperty();
 	int getStreamTime() const;
 	bool updateStreamInfo();
 	bool updateDuration();

@@ -53,6 +53,8 @@ private:
 	virtual void updateSpeed(double /*speed*/) {}
 	virtual bool updateVideoRenderer(const QString &/*name*/) {return true;}
 	virtual bool updateAudioRenderer(const QString &/*name*/) {return true;}
+	virtual void updateColorProperty(Core::ColorProperty::Value /*prop*/, double /*value*/) {}
+	virtual void updateColorProperty() {}
 // private:
 	class Renderer;
 	class Osd;

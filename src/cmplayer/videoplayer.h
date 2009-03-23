@@ -37,8 +37,8 @@ public:
 	int volume() const;
 	void setAmplifyingRate(int amp);
 	int amplifyingRate() const;
-	void setVideoProperty(Core::VideoProperty prop, int value);
-	int videoProperty(Core::VideoProperty prop) const;
+	void setColorProperty(Core::ColorProperty::Value prop, int value);
+	int colorProperty(Core::ColorProperty::Value prop) const;
 	void showMessage(const QString &message);
 	void setVideoRenderer(const QString &renderer);
 	void setAudioRenderer(const QString &renderer);
@@ -56,6 +56,7 @@ public:
 	void setSubtitlePos(int pos);
 	void setSyncDelay(int delay);
 	void setVolumeNormalized(bool enabled);
+	void setUseSoftwareEqualizer(bool use);
 	static const BackendMap &load(const QString &path = QString());
 	static const BackendMap &backend();
 public slots:

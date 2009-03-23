@@ -191,6 +191,9 @@ void VideoPlayer::setBackend(const QString &name) {
 		d->engine->setSubtitleVisible(d->dummy->isSubtitleVisible());
 		d->engine->setSubtitleStyle(d->dummy->subtitleStyle());
 		d->engine->setCurrentSource(d->dummy->currentSource());
+		d->engine->setVolumeNormalized(d->dummy->isVolumeNormalized());
+		d->engine->setUseSoftwareEqualizer(d->dummy->useSoftwareEqualizer());
+		d->engine->setColorProperty(d->dummy->colorProperty());
 		d->dummy->info().copy(d->engine->info());
 		d->dummy->setVideoRenderer(d->engine->videoRenderer());
 		d->dummy->setAudioRenderer(d->engine->audioRenderer());
@@ -231,15 +234,15 @@ void VideoPlayer::seek(int time, bool relative, bool show) {
 	d->engine->seek(time, relative, show);
 }
 
-void VideoPlayer::setVideoProperty(Core::VideoProperty prop, int value) {
-	if (IS_DIFF_CLIP(TO_PERCENT(d->dummy->videoProperty(prop)), value, -100, 100)) {
-		d->dummy->setVideoProperty(prop, TO_RATE(value));
-		d->engine->setVideoProperty(prop, TO_RATE(value));
+void VideoPlayer::setColorProperty(Core::ColorProperty::Value prop, int value) {
+	if (IS_DIFF_CLIP(TO_PERCENT(d->dummy->colorProperty()[prop]), value, -100, 100)) {
+		d->dummy->setColorProperty(prop, TO_RATE(value));
+		d->engine->setColorProperty(prop, TO_RATE(value));
 	}
 }
 
-int VideoPlayer::videoProperty(Core::VideoProperty prop) const {
-	return TO_PERCENT(d->dummy->videoProperty(prop));
+int VideoPlayer::colorProperty(Core::ColorProperty::Value prop) const {
+	return TO_PERCENT(d->dummy->colorProperty()[prop]);
 }
 
 DEC_ENGINE_PROP(const QString &, setVideoRenderer, videoRenderer)
@@ -260,6 +263,7 @@ DEC_ENGINE_SETTER(const QString &, setCurrentTrack)
 DEC_ENGINE_SETTER(const QString &, setCurrentSpu)
 DEC_ENGINE_SETTER_CHECK(bool, setVolumeNormalized, isVolumeNormalized)
 DEC_ENGINE_SETTER_CHECK(bool, setSubtitleVisible, isSubtitleVisible)
+DEC_ENGINE_SETTER_CHECK(bool, setUseSoftwareEqualizer, useSoftwareEqualizer);
 
 DEC_ENGINE_CALL0(play)
 DEC_ENGINE_CALL0(pause)

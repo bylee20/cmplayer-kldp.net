@@ -50,8 +50,8 @@ private:
 	virtual bool updateCurrentTrack(const QString &track);
 	virtual void updateVolume();
 	virtual void updateSpeed(double speed);
-	virtual void updateVideoProperty(Core::VideoProperty prop, double value);
-	virtual void updateVideoProperties(double b, double c, double s, double h);
+	virtual void updateColorProperty(Core::ColorProperty::Value prop, double value);
+	virtual void updateColorProperty();
 	virtual void updateSubtitleStyle(const Core::OsdStyle &style);
 	virtual void updateSubtitle(const Core::Subtitle &subtitle);
 	virtual void updateSubtitleVisiblity(bool visible);

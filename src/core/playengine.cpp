@@ -57,13 +57,10 @@ private:
 PlayEngine::PlayEngine(QObject *parent)
 : QObject(parent), d(new Data) {
 	d->hasVideo = d->gotInfo = d->muted = d->seekable = false;
+	d->softEq = false;
 	d->volnorm = d->subVisible = true;
 	d->prevTick = d->prevSubTime = -1;
 	d->ampRate = d->pos = d->speed = 1.0;
-	d->videoProps.append(0.0);
-	d->videoProps.append(0.0);
-	d->videoProps.append(0.0);
-	d->videoProps.append(0.0);
 	d->aspect = d->crop = -1.0;
 	d->msgOsd = d->timeOsd = 0;
 	d->renderer = 0;
@@ -87,8 +84,6 @@ PlayEngine::PlayEngine(QObject *parent)
 	d->timeStyle->bgColor.setAlphaF(0.8);
 	d->tracks.append("Auto Track");
 	d->track = d->tracks[0];
-	
-// 	setVolumeNormalized(true);
 }
 
 PlayEngine::~PlayEngine() {
@@ -368,51 +363,6 @@ double PlayEngine::speed() const {
 	return d->speed;
 }
 
-void PlayEngine::setVideoProperty(VideoProperty prop, double value) {
-	value = isSame(value, 0.0) ? 0.0 : qBound(-1.0, value, 1.0);
-	if (!isSame(d->videoProps[prop], value)) {
-		if (d->renderer && d->renderer->type() == OpenGL)
-			PlayEngine::updateVideoProperty(prop, value);
-		else
-			updateVideoProperty(prop, value);
-		d->videoProps[prop] = value;
-	}
-}
-
-void PlayEngine::updateVideoProperty(VideoProperty prop, double value) {
-	if (!d->renderer || d->renderer->type() != OpenGL)
-		return;
-	switch(prop) {
-	case Brightness:
-		updateVideoProperties(value, d->videoProps[Contrast]
-				, d->videoProps[Saturation], d->videoProps[Hue]);
-		break;
-	case Contrast:
-		updateVideoProperties(d->videoProps[Brightness], value
-				, d->videoProps[Saturation], d->videoProps[Hue]);
-		break;
-	case Saturation:
-		updateVideoProperties(d->videoProps[Brightness], d->videoProps[Contrast]
-				, value, d->videoProps[Hue]);
-		break;
-	case Hue:
-		updateVideoProperties(d->videoProps[Brightness], d->videoProps[Contrast]
-				, d->videoProps[Saturation], value);
-		break;
-	default:
-		break;
-	}
-}
-
-void PlayEngine::updateVideoProperties(double b, double c, double s, double h) {
-	Q_UNUSED(b);
-	Q_UNUSED(c);
-	Q_UNUSED(s);
-	Q_UNUSED(h);
-//	if (d->renderer && d->renderer->type() == OpenGL)
-//		static_cast<GLRenderer*>(d->renderer)->setVideoProperties(b, c, s, h);
-}
-
 void PlayEngine::setVideoRenderer(const QString &name) {
 	if (d->videoRenderer != name) {
 		int time = -1;
@@ -452,8 +402,7 @@ void PlayEngine::updateAudio() {
 void PlayEngine::updateVideo() {
 	updateAspectRatio(d->aspect);
 	updateCropRatio(d->crop);
-	updateVideoProperties(d->videoProps[Brightness], d->videoProps[Contrast]
-			, d->videoProps[Saturation], d->videoProps[Hue]);
+	updateColorProperty();
 }
 
 void PlayEngine::setTracks(const QStringList &tracks, const QString &track) {
@@ -514,4 +463,27 @@ const QString &PlayEngine::audioRenderer() const {
 	return d->audioRenderer.isEmpty() ? info().defaultAudioRenderer() : d->audioRenderer;
 }
 
+void PlayEngine::setUseSoftwareEqualizer(bool use) {
+	if (d->softEq != use) {
+		d->softEq = use;
+		updateColorProperty();
+	}
 }
+
+void PlayEngine::setColorProperty(ColorProperty::Value p, double v) {
+	if (!ColorProperty::isSame(v, d->colorProp[p])) {
+		d->colorProp[p] = v;
+		updateColorProperty(p, v);
+	}
+}
+
+void PlayEngine::setColorProperty(const ColorProperty &prop) {
+	if (prop != d->colorProp) {
+		d->colorProp = prop;
+		updateColorProperty();
+	}
+}
+
+}
+
+

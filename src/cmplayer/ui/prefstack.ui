@@ -6,268 +6,341 @@
     <x>0</x>
     <y>0</y>
     <width>491</width>
-    <height>588</height>
+    <height>506</height>
    </rect>
   </property>
   <property name="currentIndex" >
    <number>0</number>
   </property>
   <widget class="QWidget" name="general" >
-   <layout class="QVBoxLayout" name="verticalLayout_18" >
+   <layout class="QVBoxLayout" name="verticalLayout_19" >
+    <property name="margin" >
+     <number>0</number>
+    </property>
     <item>
-     <widget class="QGroupBox" name="groupBox_4" >
-      <property name="title" >
-       <string>Generate Play List</string>
+     <widget class="QTabWidget" name="tabWidget_2" >
+      <property name="currentIndex" >
+       <number>0</number>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout" >
-       <item>
-        <widget class="QLabel" name="label_6" >
-         <property name="text" >
-          <string>Add next files to play list when a file is open</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="autoAdd" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-      </layout>
+      <widget class="QWidget" name="tab" >
+       <attribute name="title" >
+        <string>General</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_18" >
+        <item>
+         <widget class="QGroupBox" name="groupBox_4" >
+          <property name="title" >
+           <string>Generate Play List</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout" >
+           <item>
+            <widget class="QLabel" name="label_6" >
+             <property name="text" >
+              <string>Add next files to play list when a file is open</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="autoAdd" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_5" >
+          <property name="title" >
+           <string>Play</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4" >
+           <item>
+            <widget class="QCheckBox" name="pauseMinimized" >
+             <property name="text" >
+              <string>Pause when minimized</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QGridLayout" name="gridLayout_6" >
+             <item row="0" column="0" >
+              <spacer name="spacer" >
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>30</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="1" >
+              <widget class="QCheckBox" name="playRestored" >
+               <property name="enabled" >
+                <bool>false</bool>
+               </property>
+               <property name="text" >
+                <string>Start to play when restored</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0" >
+              <spacer name="horizontalSpacer_7" >
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>30</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="1" column="1" >
+              <widget class="QCheckBox" name="pauseVideoOnly" >
+               <property name="enabled" >
+                <bool>false</bool>
+               </property>
+               <property name="text" >
+                <string>Apply on video only</string>
+               </property>
+               <property name="checked" >
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="Line" name="line" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="startStopped" >
+             <property name="text" >
+              <string>When a file is stopped, play it from there next time</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_10" >
+          <property name="title" >
+           <string>Screen</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_5" >
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout" >
+             <item>
+              <widget class="QCheckBox" name="hideCursor" >
+               <property name="text" >
+                <string>Hide cursor when it doesn't move during next time:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="hideDelay" >
+               <property name="enabled" >
+                <bool>false</bool>
+               </property>
+               <property name="accelerated" >
+                <bool>true</bool>
+               </property>
+               <property name="suffix" >
+                <string>sec.</string>
+               </property>
+               <property name="minimum" >
+                <number>1</number>
+               </property>
+               <property name="value" >
+                <number>3</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_8" >
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_2" >
+             <item>
+              <spacer name="horizontalSpacer_9" >
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeType" >
+                <enum>QSizePolicy::Fixed</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>30</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="hideInFullScreen" >
+               <property name="enabled" >
+                <bool>false</bool>
+               </property>
+               <property name="text" >
+                <string>Hide in only full screen mode</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_9" >
+          <property name="title" >
+           <string>Language</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_5" >
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_22" >
+             <property name="text" >
+              <string>Language</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QComboBox" name="lang" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="spacer_11" >
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0" >
+           <size>
+            <width>0</width>
+            <height>31</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2" >
+       <attribute name="title" >
+        <string>Video</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_22" >
+        <item>
+         <widget class="QGroupBox" name="groupBox_14" >
+          <property name="title" >
+           <string>Equalizer</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_20" >
+           <item>
+            <widget class="QCheckBox" name="softEq" >
+             <property name="text" >
+              <string>Use software equalizer when it is supported by play engine</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="spacer_10" >
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0" >
+           <size>
+            <width>0</width>
+            <height>183</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_3" >
+       <attribute name="title" >
+        <string>Audio</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_23" >
+        <item>
+         <widget class="QGroupBox" name="groupBox_15" >
+          <property name="title" >
+           <string>Volume</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_17" >
+           <item>
+            <widget class="QCheckBox" name="volnorm" >
+             <property name="text" >
+              <string>Normalize volume</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="spacer_8" >
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0" >
+           <size>
+            <width>0</width>
+            <height>288</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
      </widget>
-    </item>
-    <item>
-     <widget class="QGroupBox" name="groupBox_5" >
-      <property name="title" >
-       <string>Play</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_4" >
-       <item>
-        <widget class="QCheckBox" name="pauseMinimized" >
-         <property name="text" >
-          <string>Pause when minimized</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QGridLayout" name="gridLayout_6" >
-         <item row="0" column="0" >
-          <spacer name="spacer" >
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType" >
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0" >
-            <size>
-             <width>30</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="0" column="1" >
-          <widget class="QCheckBox" name="playRestored" >
-           <property name="enabled" >
-            <bool>false</bool>
-           </property>
-           <property name="text" >
-            <string>Start to play when restored</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" >
-          <spacer name="horizontalSpacer_7" >
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType" >
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0" >
-            <size>
-             <width>30</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="1" column="1" >
-          <widget class="QCheckBox" name="pauseVideoOnly" >
-           <property name="enabled" >
-            <bool>false</bool>
-           </property>
-           <property name="text" >
-            <string>Apply on video only</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="Line" name="line" >
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="startStopped" >
-         <property name="text" >
-          <string>When a file is stopped, play it from there next time</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QGroupBox" name="groupBox_10" >
-      <property name="title" >
-       <string>Screen</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_5" >
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout" >
-         <item>
-          <widget class="QCheckBox" name="hideCursor" >
-           <property name="text" >
-            <string>Hide cursor when it doesn't move during next time:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="hideDelay" >
-           <property name="enabled" >
-            <bool>false</bool>
-           </property>
-           <property name="accelerated" >
-            <bool>true</bool>
-           </property>
-           <property name="suffix" >
-            <string>sec.</string>
-           </property>
-           <property name="minimum" >
-            <number>1</number>
-           </property>
-           <property name="value" >
-            <number>3</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_8" >
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0" >
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2" >
-         <item>
-          <spacer name="horizontalSpacer_9" >
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType" >
-            <enum>QSizePolicy::Fixed</enum>
-           </property>
-           <property name="sizeHint" stdset="0" >
-            <size>
-             <width>30</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="hideInFullScreen" >
-           <property name="enabled" >
-            <bool>false</bool>
-           </property>
-           <property name="text" >
-            <string>Hide in only full screen mode</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QGroupBox" name="groupBox_14" >
-      <property name="title" >
-       <string>Audio</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_17" >
-       <item>
-        <widget class="QCheckBox" name="volnorm" >
-         <property name="text" >
-          <string>Normalize volume</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QGroupBox" name="groupBox_9" >
-      <property name="title" >
-       <string>Language</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_5" >
-       <item row="0" column="0" >
-        <widget class="QLabel" name="label_22" >
-         <property name="text" >
-          <string>Language</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" >
-        <widget class="QComboBox" name="lang" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <spacer name="spacer_8" >
-      <property name="orientation" >
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0" >
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-     </spacer>
     </item>
    </layout>
   </widget>
@@ -461,7 +534,7 @@ e.g.: English, Korean</string>
     <item>
      <widget class="QTabWidget" name="tabWidget" >
       <property name="currentIndex" >
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="widget_5" >
        <attribute name="title" >
@@ -1099,70 +1172,5 @@ e.g.: English, Korean</string>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>pauseMinimized</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>playRestored</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>93</x>
-     <y>145</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>103</x>
-     <y>163</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pauseMinimized</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>pauseVideoOnly</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>67</x>
-     <y>147</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>87</x>
-     <y>196</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>hideCursor</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>hideInFullScreen</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>113</x>
-     <y>306</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>125</x>
-     <y>331</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>hideCursor</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>hideDelay</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>344</x>
-     <y>308</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>374</x>
-     <y>305</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

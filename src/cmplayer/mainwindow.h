@@ -35,7 +35,7 @@ private slots:
 	void setVideoSize(double rate);
 	void slotSubtitle(QAction *action);
 	void setBackend(QAction *action);
-	void setVideoProperty(QAction *action);
+	void setColorProperty(QAction *action);
 	void setRenderer(QAction *action);
 	void setFullScreen(bool full);
 	void showContextMenu(const QPoint &pos);

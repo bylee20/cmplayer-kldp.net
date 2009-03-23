@@ -31,6 +31,7 @@ struct Pref::General {
 		SAVE(hideInFullScreen);
 		SAVE(hideDelay);
 		SAVE(volumeNormalized);
+		SAVE(useSoftwareEqualizer);
 		SAVE_ENUM(autoAddFiles);
 		set->endGroup();
 	}
@@ -44,11 +45,12 @@ struct Pref::General {
 		LOAD(hideInFullScreen, true, toBool);
 		LOAD(hideDelay, 3000, toInt);
 		LOAD(volumeNormalized, true, toBool);
+		LOAD(useSoftwareEqualizer, false, toBool);
 		LOAD_ENUM(autoAddFiles, AllFiles);
 		set->endGroup();
 	}
 	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
-	bool hideCursor, hideInFullScreen, volumeNormalized;
+	bool hideCursor, hideInFullScreen, volumeNormalized, useSoftwareEqualizer;
 	int hideDelay;
 	AutoAddFilesEnum autoAddFiles;
 };
@@ -534,5 +536,13 @@ bool Pref::isVolumeNormalized() const {
 
 void Pref::setVolumeNormalized(bool on) {
 	gen->volumeNormalized = on;
+}
+
+bool Pref::useSoftwareEqualizer() const {
+	return gen->useSoftwareEqualizer;
+}
+
+void Pref::setUseSoftwareEqualizer(bool use) {
+	gen->useSoftwareEqualizer = use;
 }
 

@@ -56,10 +56,13 @@ PlayEngine::~PlayEngine() {
 }
 
 const QStringList &PlayEngine::getDefaultArgs() {
-	static const QStringList args = QStringList() << "-slave" << "-noquiet" << "-nofs"
-		<< "-input" << ("conf=\"" + getDontMessUp() + '"') << "-fontconfig" << "-zoom"
-		<< "-nokeepaspect" << "-noautosub" << "-osdlevel" << QString::number(0)
-		<< "-utf8" << "-subcp" << "UFT-8" << "-softvol" << "-softvol-max" << QString::number(1000.0);
+	static const QStringList args = QStringList()
+			<< "-slave" << "-noquiet" << "-nofs"
+			<< "-input" << ("conf=\"" + getDontMessUp() + '"')
+			<< "-fontconfig" << "-zoom" << "-nokeepaspect"
+			<< "-noautosub" << "-osdlevel" << QString::number(0)
+			<< "-utf8" << "-subcp" << "UFT-8" << "-softvol"
+			<< "-softvol-max" << QString::number(1000.0);
 	return args;
 }
 
@@ -171,6 +174,8 @@ bool PlayEngine::start(int time) {
 		args << "-af-add" << "scaletempo";
 	if (isVolumeNormalized() && d->info.audioFilter().contains("volnorm"))
 		args << "-af-add" << "volnorm";
+	if (useSoftwareEqualizer() && d->info.videoFilters().contains("eq2"))
+		args << "-vf-add" << "eq2";
 	if (time > 1000)
 		args << "-ss" << QString::number(double(time)/1000.);
 // 	if (!d->config.options().isEmpty())
@@ -181,6 +186,8 @@ bool PlayEngine::start(int time) {
 	if (!d->proc->waitForStarted())
 		return false;
 	updateVolume();
+	qDebug() << "started";
+	updateColorProperty();
 	updateSubtitle(subtitle());
 	updateSubtitlePos(subtitlePos());
 	return true;
@@ -313,19 +320,19 @@ void PlayEngine::updateSpeed(double speed) {;
 	tellmp("speed_set", speed);
 }
 
-void PlayEngine::updateVideoProperty(Core::VideoProperty prop, double value) {
+void PlayEngine::updateColorProperty(Core::ColorProperty::Value prop, double value) {
 	const int temp = qBound(-100, qRound(value*100.), 100);
 	switch(prop) {
-	case Core::Brightness:
+	case Core::ColorProperty::Brightness:
 		tellmp("brightness", temp, 1);
 		break;
-	case Core::Contrast:
+	case Core::ColorProperty::Contrast:
 		tellmp("contrast", temp, 1);
 		break;
-	case Core::Saturation:
+	case Core::ColorProperty::Saturation:
 		tellmp("saturation", temp, 1);
 		break;
-	case Core::Hue:
+	case Core::ColorProperty::Hue:
 		tellmp("hue", temp, 1);
 		break;
 	default:
@@ -333,11 +340,12 @@ void PlayEngine::updateVideoProperty(Core::VideoProperty prop, double value) {
 	}
 }
 
-void PlayEngine::updateVideoProperties(double b, double c, double s, double h) {
-	tellmp("brightness", qBound(-100, qRound(b*100.), 100), 1);
-	tellmp("contrast", qBound(-100, qRound(c*100.), 100), 1);
-	tellmp("saturation", qBound(-100, qRound(s*100.), 100), 1);
-	tellmp("hue", qBound(-100, qRound(h*100.), 100), 1);
+void PlayEngine::updateColorProperty() {
+	const Core::ColorProperty &prop = colorProperty();
+	tellmp("brightness", qBound(-100, qRound(prop.brightness()*100.), 100), 1);
+	tellmp("contrast", qBound(-100, qRound(prop.contrast()*100.), 100), 1);
+	tellmp("saturation", qBound(-100, qRound(prop.saturation()*100.), 100), 1);
+	tellmp("hue", qBound(-100, qRound(prop.hue()*100.), 100), 1);
 }
 
 void PlayEngine::updateSubtitle(const Core::Subtitle &subtitle) {

@@ -3,6 +3,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
+#include "colorproperty.h"
 #include "mediasource.h"
 #include "namespace.h"
 
@@ -47,7 +48,10 @@ public:
 	int syncDelay() const {return d->syncDelay;}
 	double subtitlePos() const;
 	double speed() const;
-	double videoProperty(VideoProperty prop) const {return d->videoProps[prop];}
+	const ColorProperty &colorProperty() const {return d->colorProp;}
+	void setColorProperty(ColorProperty::Value p, double v);
+	void setColorProperty(const ColorProperty &prop);
+// 	double videoProperty(VideoProperty prop) const {return d->videoProps[prop];}
 	const QStringList &tracks() const {return d->tracks;}
 	const QString &currentTrack() const {return d->track;}
 	const QStringList &spus() const {return d->spus;}
@@ -59,6 +63,8 @@ public:
 	ABRepeater *repeater() {return d->repeater;}
 	bool hasVideo() const {return d->hasVideo;}
 	const Subtitle &subtitle() const {return *d->sub;}
+	void setUseSoftwareEqualizer(bool use);
+	bool useSoftwareEqualizer() const {return d->softEq;}
 	virtual QWidget *widget();
 	virtual int currentTime() const = 0;
 	virtual const Info &info() const = 0;
@@ -86,7 +92,7 @@ public slots:
 	void showTimeLine(int duration = 2000);
 	void setSubtitlePos(double pos);
 	void setSpeed(double speed);
-	void setVideoProperty(VideoProperty prop, double value);
+// 	void setVideoProperty(VideoProperty prop, double value);
 signals:
 	void hasVideoChanged(bool has);
 	void stateChanged(Core::State state, Core::State old);
@@ -122,8 +128,10 @@ protected:
 	virtual bool updateCurrentTrack(const QString &/*track*/) {return false;}
 	virtual void updateVolume() = 0;
 	virtual void updateSpeed(double speed) = 0;
-	virtual void updateVideoProperty(VideoProperty prop, double value);
-	virtual void updateVideoProperties(double b, double c, double s, double h);
+	virtual void updateColorProperty(ColorProperty::Value prop, double value) = 0;
+	virtual void updateColorProperty() = 0;
+// 	virtual void updateVideoProperty(VideoProperty prop, double value);
+// 	virtual void updateVideoProperties(double b, double c, double s, double h);
 	virtual void updateAspectRatio(double ratio);
 	virtual void updateCropRatio(double ratio);
 	virtual void updateSubtitle(const Subtitle &subtitle);
@@ -144,9 +152,11 @@ private:
 	class Screen;
 	struct Data {
 		bool gotInfo, muted, subVisible, seekable, hasVideo, volnorm;
+		bool softEq;
 		int prevTick, prevSubTime, duration, volume, syncDelay;
 		double ampRate, aspect, crop, pos, speed;
-		QList<double> videoProps;
+		ColorProperty colorProp;
+// 		QList<double> videoProps;
 		AbstractOsdRenderer *msgOsd, *timeOsd;
 		VideoRendererIface *renderer;
 		SubtitleRenderer *subRenderer;

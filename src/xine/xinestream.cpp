@@ -24,6 +24,15 @@ bool XineStream::open(int video, void *visual, XineEventFunc event, void *data) 
 	stream = xine_stream_new(xine, audioPort, videoPort);
 	eventQueue = xine_event_new_queue(stream);
 	xine_event_create_listener_thread(eventQueue, event, data);
+
+	for (int i=0; i<post.size(); ++i) {
+		QMap<QString, XinePost*>::iterator it;
+		for (it = post[i].begin(); it != post[i].end(); ++it) {
+			it.value() = makePost(it.key());
+		}
+	}
+	wireAllPosts();
+	
 	emit opened();
 	return true;
 }
@@ -41,6 +50,13 @@ void XineStream::close() {
 		stream = 0;
 	}
 	unwireAllPosts();
+	for (int i=0; i<post.size(); ++i) {
+		QMap<QString, XinePost*>::iterator it;
+		for (it = post[i].begin(); it != post[i].end(); ++it) {
+			delete it.value();
+			it.value() = 0;
+		}
+	}
 	if (audioPort) {
 		xine_close_audio_driver(XineEngine::xine(), audioPort);
 		audioPort = 0;
@@ -59,16 +75,20 @@ XinePost *XineStream::makePost(const QString &name) {
 	return 0;
 }
 
+XinePost *XineStream::setPost(PostType type, const QString &name, bool on) {
+	if (on)
+		return addPost(type, name);
+	else
+		removePost(type, name);
+	return 0;
+}
+
 XinePost *XineStream::addPost(PostType type, const QString &name) {
 	QMap<QString, XinePost*>::const_iterator it = post[type].find(name);
 	if (it == post[type].end()) {
-		XinePost *post = makePost(name);
-		if (post) {
-			unwirePosts(type);
-			it = this->post[type].insert(name, post);
-			wirePosts(type);
-		} else
-			return 0;
+		unwirePosts(type);
+		it = this->post[type].insert(name, makePost(name));
+		wirePosts(type);
 	}
 	return *it;
 }
@@ -85,16 +105,18 @@ void XineStream::removePost(PostType type, const QString &name) {
 void XineStream::wirePosts(PostType type) {
 	if (!stream || post[type].isEmpty())
 		return;
-	QMapIterator<QString, XinePost*> it(post[type]);
-	it.toBack();
+	QMap<QString, XinePost*>::iterator it = --post[type].end();
 	if (type == AudioPost)
-		xine_post_wire_audio_port(it.peekPrevious().value()->output(), audioPort);
+		xine_post_wire_audio_port(it.value()->output(), audioPort);
 	else
-		xine_post_wire_video_port(it.peekPrevious().value()->output(), videoPort);
-	xine_post_in_t *input = it.previous().value()->input();
-	while (it.hasPrevious()) {
-		xine_post_wire(it.peekPrevious().value()->output(), input);
-		input = it.previous().value()->input();
+		xine_post_wire_video_port(it.value()->output(), videoPort);
+	xine_post_in_t *input = it.value()->input();
+	while (it != post[type].begin()) {
+		if (!(--it).value())
+			continue;
+		xine_post_out_t *output = it.value()->output();
+		xine_post_wire(output, input);
+		input = it.value()->input();
 	}
 	if (type == AudioPost)
 		xine_post_wire(xine_get_audio_source(stream), input);

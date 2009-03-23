@@ -257,6 +257,7 @@ PrefDialog::PrefDialog(QWidget *parent)
 	d->stack.hideDelay->setValue(p->hideDelay()/1000);
 	d->stack.hideInFullScreen->setChecked(p->hideInFullScreen());
 	d->stack.volnorm->setChecked(p->isVolumeNormalized());
+	d->stack.softEq->setChecked(p->useSoftwareEqualizer());
 	
 	QList<QAction *> acts = Menu::get().actions();
 	for (int i=0; i<acts.size(); ++i)
@@ -367,6 +368,7 @@ void PrefDialog::apply() {
 	p->setHideDelay(d->stack.hideDelay->value()*1000);
 	p->setHideInFullScreen(d->stack.hideInFullScreen->isChecked());
 	p->setVolumeNormalized(d->stack.volnorm->isChecked());
+	p->setUseSoftwareEqualizer(d->stack.softEq->isChecked());
 	
 	for (int i=0; i<d->stack.shortcutTree->topLevelItemCount(); ++i)
 		((MenuTreeItem*)(d->stack.shortcutTree->topLevelItem(i)))->applyShortcut();

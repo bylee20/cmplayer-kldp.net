@@ -18,7 +18,7 @@ namespace Xine {
 
 struct PlayEngine::Data {
 	QMap<QString, int> tracks, spus;
-	bool sos, eos, gotInfo, expanded, volnorm;
+	bool sos, eos, gotInfo, expanded, volnorm, eq2;
 	int prevTick, prevSeekTime, seekCount;
 	QTimer ticker;
 	XineStream stream;
@@ -29,7 +29,7 @@ struct PlayEngine::Data {
 
 PlayEngine::PlayEngine(QObject *parent)
 : Core::PlayEngine(parent), d(new Data) {
-	d->volnorm = d->expanded = d->sos = d->eos = false;
+	d->eq2 = d->volnorm = d->expanded = d->sos = d->eos = false;
 	d->prevTick = d->prevSeekTime = -1;
 	d->seekCount = 0;
 	d->video = 0;
@@ -321,11 +321,8 @@ void PlayEngine::updateVolume() {
 	xine_stream_t *const stream = d->stream.stream;
 	if (stream) {
 		if (d->volnorm != isVolumeNormalized()) {
-			if ((d->volnorm = isVolumeNormalized())) {
-				XinePost *post = d->stream.addPost(XineStream::AudioPost, "volnorm");
-			} else {
-				d->stream.removePost(XineStream::AudioPost, "volnorm");
-			}
+			d->volnorm = isVolumeNormalized();
+			d->stream.setPost(XineStream::AudioPost, "volnorm", d->volnorm);
 		}
 		xine_set_param(stream, XINE_PARAM_AUDIO_AMP_LEVEL, qRound(realVolume()*100.0));
 		xine_set_param(stream, XINE_PARAM_AUDIO_AMP_MUTE, isMuted() ? 1 : 0);
@@ -367,32 +364,54 @@ const Core::Info &PlayEngine::info() const {
 	return d->info;
 }
 
-void PlayEngine::updateVideoProperty(Core::VideoProperty prop, double value) {
+void PlayEngine::updateColorProperty(Core::ColorProperty::Value prop, double value) {
 	if (!d->renderer)
 		return;
 	if (d->renderer->type() == Core::Native) {
 		int param = -1;
 		switch (prop) {
-		case Core::Brightness:
+			case Core::ColorProperty::Brightness:
 			param = XINE_PARAM_VO_BRIGHTNESS;
 			break;
-		case Core::Saturation:
+		case Core::ColorProperty::Saturation:
 			param = XINE_PARAM_VO_SATURATION;
 			break;
-		case Core::Hue:
+		case Core::ColorProperty::Hue:
 			param = XINE_PARAM_VO_HUE;
 			break;
-		case Core::Contrast:
+		case Core::ColorProperty::Contrast:
 			param = XINE_PARAM_VO_CONTRAST;
 			break;
 		default:
 			return;
 		}
-		const int v = isSame(value, 0.0) ? 32768
-			: qBound(0, qRound((value + 1.0)/2.0*65535), 65535);
-		xine_set_param(d->stream.stream, param, v);
-	} else if (d->renderer->type() == Core::OpenGL)
-		Core::PlayEngine::updateVideoProperty(prop, value);
+		if (d->eq2 != useSoftwareEqualizer()) {
+			d->eq2 = useSoftwareEqualizer();
+			d->stream.setPost(XineStream::VideoPost, "eq2", d->eq2);
+		}
+		xine_set_param(d->stream.stream, param, convertColorProperty(value));
+	}/* else if (d->renderer->type() == Core::OpenGL)
+		Core::PlayEngine::updateVideoProperty(prop, value);*/
+}
+
+void PlayEngine::updateColorProperty() {
+	if (!d->renderer)
+		return;
+	if (d->renderer->type() == Core::Native && d->stream.stream) {
+		if (d->eq2 != useSoftwareEqualizer()) {
+			d->eq2 = useSoftwareEqualizer();
+			d->stream.setPost(XineStream::VideoPost, "eq2", d->eq2);
+		}
+		const Core::ColorProperty &prop = colorProperty();
+		xine_set_param(d->stream.stream, XINE_PARAM_VO_BRIGHTNESS
+				, convertColorProperty(prop.brightness()));
+		xine_set_param(d->stream.stream, XINE_PARAM_VO_SATURATION
+				, convertColorProperty(prop.saturation()));
+		xine_set_param(d->stream.stream, XINE_PARAM_VO_HUE
+				, convertColorProperty(prop.hue()));
+		xine_set_param(d->stream.stream, XINE_PARAM_VO_CONTRAST
+				, convertColorProperty(prop.contrast()));
+	}
 }
 
 void PlayEngine::expand(bool activated) {

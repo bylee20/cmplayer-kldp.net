@@ -1,6 +1,7 @@
 #include "menu.h"
 #include "pref.h"
 #include <core/info.h>
+#include <core/colorproperty.h>
 #include <QtCore/QUrl>
 #include <QtCore/QSettings>
 
@@ -193,14 +194,14 @@ Menu &Menu::create(QWidget *parent) {
 		
 	video->addSeparator();
 		
-	video->addActionToGroup("brightness+", false, "prop")->setShortcut(Qt::Key_T);
-	video->addActionToGroup("brightness-", false, "prop")->setShortcut(Qt::Key_G);
-	video->addActionToGroup("contrast+", false, "prop")->setShortcut(Qt::Key_Y);
-	video->addActionToGroup("contrast-", false, "prop")->setShortcut(Qt::Key_H);
-	video->addActionToGroup("saturation+", false, "prop")->setShortcut(Qt::Key_U);
-	video->addActionToGroup("saturation-", false, "prop")->setShortcut(Qt::Key_J);
-	video->addActionToGroup("hue+", false, "prop")->setShortcut(Qt::Key_I);
-	video->addActionToGroup("hue-", false, "prop")->setShortcut(Qt::Key_K);
+	video->addActionToGroup("brightness+", false, "color")->setShortcut(Qt::Key_T);
+	video->addActionToGroup("brightness-", false, "color")->setShortcut(Qt::Key_G);
+	video->addActionToGroup("contrast+", false, "color")->setShortcut(Qt::Key_Y);
+	video->addActionToGroup("contrast-", false, "color")->setShortcut(Qt::Key_H);
+	video->addActionToGroup("saturation+", false, "color")->setShortcut(Qt::Key_U);
+	video->addActionToGroup("saturation-", false, "color")->setShortcut(Qt::Key_J);
+	video->addActionToGroup("hue+", false, "color")->setShortcut(Qt::Key_I);
+	video->addActionToGroup("hue-", false, "color")->setShortcut(Qt::Key_K);
 
 	Menu *audio = root->addMenu("audio");
 	audio->setIcon(QIcon(":/img/speaker.png"));
@@ -294,7 +295,7 @@ inline static void setActionStep(QAction *plus, QAction *minus
 }
 
 inline static void setVideoPropStep(Menu &menu, const QString &key
-		, Core::VideoProperty prop, const QString &text, int step) {
+		, Core::ColorProperty::Value prop, const QString &text, int step) {
 	setActionAttr(menu[key + "+"], QList<QVariant>() << prop << step, text, step);
 	setActionAttr(menu[key + "-"], QList<QVariant>() << prop << -step, text, -step);		
 }
@@ -401,13 +402,13 @@ void Menu::updatePref() {
 	Menu &video = root("video");
 	video.setTitle(tr("Video"));
 	video("renderer").setTitle(tr("Renderer"));
-	setVideoPropStep(video, "brightness", Core::Brightness
+	setVideoPropStep(video, "brightness", Core::ColorProperty::Brightness
 			, tr("Brightness %1%"), p->brightnessStep());
-	setVideoPropStep(video, "saturation", Core::Saturation
+	setVideoPropStep(video, "saturation", Core::ColorProperty::Saturation
 			, tr("Saturation %1%"), p->brightnessStep());
-	setVideoPropStep(video, "contrast", Core::Contrast
+	setVideoPropStep(video, "contrast", Core::ColorProperty::Contrast
 			, tr("Contrast %1%"), p->brightnessStep());
-	setVideoPropStep(video, "hue", Core::Hue
+	setVideoPropStep(video, "hue", Core::ColorProperty::Hue
 			, tr("Hue %1%"), p->brightnessStep());
 
 	Menu &audio = root("audio");

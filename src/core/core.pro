@@ -16,7 +16,8 @@ SOURCES += abrepeater.cpp \
     subtitle_parser.cpp \
  openglfactory.cpp \
  openglvideorendereriface.cpp \
- downloader.cpp
+ downloader.cpp \
+ colorproperty.cpp
 HEADERS += abrepeater.h \
     playengine.h \
     mediasource.h \
@@ -40,7 +41,8 @@ HEADERS += abrepeater.h \
  opengliface.h \
  openglfactory.h \
  openglvideorendereriface.h \
- downloader.h
+ downloader.h \
+ colorproperty.h
 
 CONFIG += debug \
     debug_and_release \

@@ -44,7 +44,7 @@ struct MainWindow::Data {
 	QSize prevWinSize;
 	QPoint dragPos;
 	RecentInfo *recent;
-	bool pausedByHiding;
+	bool pausedByHiding, changingOnTop;
 	VideoPlayer *player;
 	Pref *pref;
 	Menu &menu;
@@ -79,7 +79,7 @@ MainWindow::~MainWindow() {
 void MainWindow::commonInitialize() {
 	d = new Data(Menu::create(this));
 	
-	d->pausedByHiding = false;
+	d->changingOnTop = d->pausedByHiding = false;
 	d->player = new VideoPlayer(this);
 	d->repeater = new ABRepeatDialog(this);
 	
@@ -118,7 +118,8 @@ void MainWindow::commonInitialize() {
 	connect(play("repeat").g(), SIGNAL(triggered(int)), this, SLOT(slotRepeat(int)));
 	connect(play("seek").g(), SIGNAL(triggered(int)), this, SLOT(seek(int)));
 	Menu &video = menu("video");
-	connect(video.g("prop"), SIGNAL(triggered(QAction*)), this, SLOT(setVideoProperty(QAction*)));
+	connect(video.g("color"), SIGNAL(triggered(QAction*))
+			, this, SLOT(setColorProperty(QAction*)));
 	connect(video("renderer").g(), SIGNAL(triggered(QAction*)), this, SLOT(setRenderer(QAction*)));
 	Menu &audio = menu("audio");
 	connect(audio.g("volume"), SIGNAL(triggered(int)), this, SLOT(setVolume(int)));
@@ -555,10 +556,9 @@ void MainWindow::openSubFile() {
 }
 
 void MainWindow::updateOnTop() {
-	static bool setting = false;
-	if (setting)
+	if (d->changingOnTop)
 		return;
-	setting = true;
+	d->changingOnTop = true;
 	Menu &top = d->menu("screen")("on top");
 	const bool onTop = !top["disable"]->isChecked() && (top["always"]->isChecked()
 			|| (top["playing"]->isChecked() && d->player->isPlaying()));
@@ -577,7 +577,7 @@ void MainWindow::updateOnTop() {
 		if (pos() != p)
 			move(p);
 	}
-	setting = false;
+	d->changingOnTop = false;
 }
 
 void MainWindow::updatePref() {
@@ -587,6 +587,7 @@ void MainWindow::updatePref() {
 		d->menu("play")("engine").g()->trigger(d->pref->backendName(media));
 	d->player->setSubtitleStyle(d->pref->subtitleStyle());
 	d->player->setVolumeNormalized(d->pref->isVolumeNormalized());
+	d->player->setUseSoftwareEqualizer(d->pref->useSoftwareEqualizer());
 	d->menu.updatePref();
 	d->playInfo->setState(d->player->state());
 	if (!d->player->isStopped()) {
@@ -699,24 +700,24 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 #undef isInCenter
 #undef isButton
 
-void MainWindow::setVideoProperty(QAction *action) {
+void MainWindow::setColorProperty(QAction *action) {
 	const QList<QVariant> data = action->data().toList();
-	const Core::VideoProperty prop = Core::VideoProperty(data[0].toInt());
-	const int value = d->player->videoProperty(prop) + data[1].toInt();
-	d->player->setVideoProperty(prop, value);
+	const Core::ColorProperty::Value prop = Core::ColorProperty::Value(data[0].toInt());
+	const int value = d->player->colorProperty(prop) + data[1].toInt();
+	d->player->setColorProperty(prop, value);
 	static const QString format("%2: %1%");
-	QString msg = format.arg(Menu::toString(d->player->videoProperty(prop)));
+	QString msg = format.arg(Menu::toString(d->player->colorProperty(prop)));
 	switch(prop) {
-	case Core::Brightness:
+	case Core::ColorProperty::Brightness:
 		msg = msg.arg(tr("Brightness"));
 		break;
-	case Core::Saturation:
+	case Core::ColorProperty::Saturation:
 		msg = msg.arg(tr("Saturation"));
 		break;
-	case Core::Hue:
+	case Core::ColorProperty::Hue:
 		msg = msg.arg(tr("Hue"));
 		break;
-	case Core::Contrast:
+	case Core::ColorProperty::Contrast:
 		msg = msg.arg(tr("Contrast"));
 		break;
 	}
@@ -877,19 +878,18 @@ void MainWindow::showPrefDialog() {
 
 void MainWindow::showEvent(QShowEvent *event) {
 	QMainWindow::showEvent(event);
-	if (d->pausedByHiding && d->player && d->player->isPaused())
-		d->player->play();
-	d->pausedByHiding = false;
+	if (!d->changingOnTop) {
+		if (d->pausedByHiding && d->player && d->player->isPaused())
+			d->player->play();
+		d->pausedByHiding = false;
+	}
 }
 
 void MainWindow::hideEvent(QHideEvent *event) {
 	QMainWindow::hideEvent(event);
-	if (d->pref->pauseWhenMinimized()) {
-		qDebug() << "hide";
-		qDebug() << (d->pref->pauseVideoOnly() && !d->player->hasVideo());
+	if (!d->changingOnTop && d->pref->pauseWhenMinimized()) {
 		if (d->pref->pauseVideoOnly() && !d->player->hasVideo())
 			return;
-		qDebug() << (d->player && d->player->isPlaying());
 		if (d->player && d->player->isPlaying()) {
 			d->pausedByHiding = true;
 			d->player->pause();

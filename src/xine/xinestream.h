@@ -19,6 +19,7 @@ public:
 	XineStream();
 	bool open(int video, void *visual, XineEventFunc event, void *data);
 	void close();
+	XinePost *setPost(PostType type, const QString &name, bool on);
 	XinePost *addPost(PostType type, const QString &name);
 	void removePost(PostType type, const QString &name);
 	void wirePosts(PostType type);
