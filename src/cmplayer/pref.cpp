@@ -195,7 +195,6 @@ struct Pref::Backend {
 	Backend() {}
 	void save(QSettings *set) const {
 		set->beginGroup("Backend");
-		SAVE(path);
 		const int count = names.size();
 		set->beginWriteArray("Engine", count);
 		QMap<Core::MediaType, QString>::const_iterator it = names.begin();
@@ -213,20 +212,21 @@ struct Pref::Backend {
 	}
 	void load(QSettings *set) {
 		set->beginGroup("Backend");
-		LOAD(path, QString::fromLocal8Bit(qgetenv("CMPLAYER_PLUGIN_PATH")), toString);
 		const int count = set->beginReadArray("Engine");
 		MediaTypeEnum media;
-		QString name;
+		QString name, defName;
+		const BackendMap &map = VideoPlayer::load();
+		if (!map.isEmpty())
+			defName = map.begin().key();
 		for (int i=0; i<count; ++i) {
 			set->setArrayIndex(i);
 			LOAD_ENUM(media, ::Core::Unknown);
-			LOAD(name, QString(), toString);
+			LOAD(name, defName, toString);
 			names[media] = name;
 		}
 		set->endArray();
 		set->endGroup();
 	}
-	QString path;
 	QMap< ::Core::MediaType, QString> names;
 };
 
@@ -236,16 +236,6 @@ Pref::Pref() {
 	gen = new General;
 	back = new Backend;
 	load();
-	const BackendMap &map = VideoPlayer::load(back->path);
-	if (!map.isEmpty()) {
-		const QString name = map.begin().key();
-		if (back->names[Core::LocalFile].isEmpty())
-			back->names[Core::LocalFile] = name;
-		if (back->names[Core::Url].isEmpty())
-			back->names[Core::Url] = name;
-		if (back->names[Core::Dvd].isEmpty())
-			back->names[Core::Dvd] = name;
-	}
 }
 
 Pref::~Pref() {
@@ -378,16 +368,8 @@ const QStringList &Pref::subtitlePriority() const {
 	return sub->priority;
 }
 
-const QString &Pref::backendPath() const {
-	return back->path;
-}
-
 const QString &Pref::backendName(::Core::MediaType media) const {
 	return back->names[media];
-}
-
-void Pref::setBackendPath(const QString &path) {
-	back->path = path;
 }
 
 void Pref::setBackendName(::Core::MediaType media, const QString &name) {

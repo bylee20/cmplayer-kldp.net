@@ -5,10 +5,9 @@
 #include "videoplayer.h"
 #include "ui_prefdialog.h"
 #include "ui_prefstack.h"
-#include <QtGui/QFileDialog>
+#include <QtCore/QMap>
 #include <QtCore/QCoreApplication>
 #include <QtGui/QHeaderView>
-#include <QtCore/QMap>
 
 struct PrefDialog::Data {
 	Ui::PrefDialog ui;
@@ -235,7 +234,6 @@ PrefDialog::PrefDialog(QWidget *parent)
 	connect(d->stack.shortcutTree
 			, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*))
 			, this, SLOT(slotCurrentItemChanged(QTreeWidgetItem*)));
-	connect(d->stack.pathButton, SIGNAL(clicked()), this, SLOT(getBackendPath()));
 	
 	Pref *p = Pref::get();
 	
@@ -312,8 +310,6 @@ PrefDialog::PrefDialog(QWidget *parent)
 	
 	const BackendMap map = VideoPlayer::backend();
 	const QStringList backends = map.keys();
-	d->stack.pathEdit->setText(p->backendPath());
-
 	QTreeWidgetItem *header = d->stack.media->headerItem();
 	for (int i=0; i<backends.size(); ++i)
 		header->setText(i+1, backends[i]);
@@ -392,7 +388,6 @@ void PrefDialog::apply() {
 	p->setSubtitleStyle(d->stack.subOsd->style());
 	p->setSubtitlePriority(d->stack.priority->values());
 	
-	p->setBackendPath(d->stack.pathEdit->text());
 	for (int i=0; i<d->media.size(); ++i) {
 		MediaTreeItem *item = static_cast<MediaTreeItem*>(d->stack.media->topLevelItem(i));
 		p->setBackendName(d->media[i], item->checkedBackend());
@@ -403,13 +398,6 @@ void PrefDialog::apply() {
 void PrefDialog::accept() {
 	apply();
 	QDialog::accept();
-}
-
-void PrefDialog::getBackendPath() {
-	const QString dir = QFileDialog::getExistingDirectory(this
-			, tr("Choose Play Engine Path"), d->stack.pathEdit->text(), 0);
-	if (!dir.isEmpty())
-		d->stack.pathEdit->setText(dir);
 }
 
 void PrefDialog::slotMediaItemClicked(QTreeWidgetItem *item, int column) {

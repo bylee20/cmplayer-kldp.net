@@ -53,7 +53,6 @@ public:
 	bool isVolumeNormalized() const;
 	bool useSoftwareEqualizer() const;
 	
-	const QString &backendPath() const;
 	const QString &backendName(Core::MediaType media) const;
 	
 	void load();
@@ -92,7 +91,6 @@ private:
 	void setVolumeNormalized(bool on);
 	void setUseSoftwareEqualizer(bool use);
 	
-	void setBackendPath(const QString &path);
 	void setBackendName(Core::MediaType media, const QString &name);
 	
 	void save() const;

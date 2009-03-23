@@ -15,7 +15,6 @@ private slots:
 	void getShortcut(int id);
 	void slotCurrentItemChanged(QTreeWidgetItem *current);
 	void slotMediaItemClicked(QTreeWidgetItem *item, int column);
-	void getBackendPath();
 private:
 	static int currentComboData(QComboBox *combo);
 	static void setComboIndex(QComboBox *combo, int value);

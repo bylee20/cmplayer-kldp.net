@@ -270,13 +270,29 @@
       </widget>
       <widget class="QWidget" name="tab_2" >
        <attribute name="title" >
-        <string>Video</string>
+        <string>Audio / Video</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_22" >
+       <layout class="QVBoxLayout" name="verticalLayout_14" >
+        <item>
+         <widget class="QGroupBox" name="groupBox_15" >
+          <property name="title" >
+           <string>Audio</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_17" >
+           <item>
+            <widget class="QCheckBox" name="volnorm" >
+             <property name="text" >
+              <string>Normalize volume</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
         <item>
          <widget class="QGroupBox" name="groupBox_14" >
           <property name="title" >
-           <string>Equalizer</string>
+           <string>Video</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_20" >
            <item>
@@ -297,43 +313,7 @@
           <property name="sizeHint" stdset="0" >
            <size>
             <width>0</width>
-            <height>183</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab_3" >
-       <attribute name="title" >
-        <string>Audio</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_23" >
-        <item>
-         <widget class="QGroupBox" name="groupBox_15" >
-          <property name="title" >
-           <string>Volume</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_17" >
-           <item>
-            <widget class="QCheckBox" name="volnorm" >
-             <property name="text" >
-              <string>Normalize volume</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="spacer_8" >
-          <property name="orientation" >
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0" >
-           <size>
-            <width>0</width>
-            <height>288</height>
+            <height>0</height>
            </size>
           </property>
          </spacer>
@@ -1074,47 +1054,6 @@ e.g.: English, Korean</string>
   </widget>
   <widget class="QWidget" name="widget" >
    <layout class="QVBoxLayout" name="verticalLayout_16" >
-    <item>
-     <widget class="QGroupBox" name="groupBox" >
-      <property name="title" >
-       <string>Location</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_14" >
-       <item>
-        <widget class="QLabel" name="label_4" >
-         <property name="text" >
-          <string>Path where play engine plugins are located</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="_11" >
-         <item>
-          <widget class="QLineEdit" name="pathEdit" >
-           <property name="readOnly" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pathButton" >
-           <property name="text" >
-            <string>Choose</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QLabel" name="label_21" >
-         <property name="text" >
-          <string>Warning: You must restart this application if the path changed.</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
     <item>
      <widget class="QGroupBox" name="groupBox_8" >
       <property name="title" >
