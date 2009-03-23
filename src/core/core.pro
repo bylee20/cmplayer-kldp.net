@@ -15,7 +15,8 @@ SOURCES += abrepeater.cpp \
     nativerenderer.cpp \
     subtitle_parser.cpp \
  openglfactory.cpp \
- openglvideorendereriface.cpp
+ openglvideorendereriface.cpp \
+ downloader.cpp
 HEADERS += abrepeater.h \
     playengine.h \
     mediasource.h \
@@ -38,7 +39,8 @@ HEADERS += abrepeater.h \
     subtitle_parser.h \
  opengliface.h \
  openglfactory.h \
- openglvideorendereriface.h
+ openglvideorendereriface.h \
+ downloader.h
 
 CONFIG += debug \
     debug_and_release \
@@ -49,8 +51,8 @@ RELEASE = $$(CMPLAYER_RELEASE)
     CONFIG -= debug
     CONFIG += release
     TARGET = ../bin/cmplayer_core
-} else {
-	TARGET = ../bin/cmplayer_cored
+}else {
+    TARGET = ../bin/cmplayer_cored
 }
 
 TEMPLATE = lib
@@ -58,4 +60,8 @@ TEMPLATE = lib
 VERSION = 0.2.7
 
 DEFINES += CMPLAYER_PLUGIN_DIR=$(CMPLAYER_PLUGIN_PATH)
+
+CONFIG -= release
+
+QT += network
 

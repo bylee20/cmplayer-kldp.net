@@ -1,6 +1,8 @@
 #include "playlist.h"
 #include "mediasource.h"
-#include <QtCore/QFile>
+#include "downloader.h"
+#include "info.h"
+#include <QtCore/QTemporaryFile>
 #include <QtCore/QTextStream>
 #include <QtCore/QRegExp>
 #include <QtCore/QUrl>
@@ -53,6 +55,15 @@ bool Playlist::load(QFile *file, const QString &enc) {
 			append(MediaSource(QUrl(rxFile.cap(1))));
 	}
 	return true;
+}
+
+bool Playlist::load(const QUrl &url, const QString &enc) {
+	if (url.scheme().toLower() == "file")
+		return load(url.toLocalFile(), enc);
+	QTemporaryFile file(Core::Info::privatePath() + "/temp_XXXXXX.pls");
+	if (!file.open() || !Downloader::get(url, &file, 30000))
+		return false;
+	return load(&file, enc);
 }
 
 }

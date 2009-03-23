@@ -10,7 +10,7 @@ namespace Core {
 
 class MediaSource {
 public:
-	MediaSource(const QUrl &url);
+	explicit MediaSource(const QUrl &url);
 	MediaSource();
 	MediaSource(const MediaSource &other);
 	bool operator != (const MediaSource &rhs) const;
