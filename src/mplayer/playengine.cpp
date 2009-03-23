@@ -149,6 +149,8 @@ bool PlayEngine::start(int time) {
 	QStringList args = getDefaultArgs();
 	args << "-font" << subtitleStyle().font.family()
 			<< "-subfont-autoscale" << QString::number(mode)
+			<< "-subfont-osd-scale" << QString::number(messageStyle().textSize*100.0)
+			<< "-subfont-text-scale" << QString::number(subtitleStyle().textSize*100.0)
 			<< "-subdelay" << QString::number(syncDelay()*0.001)
 			<< "-wid" << QString::number(d->renderer->screenWinId());
 	if (!d->gotInfo)
