@@ -90,7 +90,7 @@ struct XineOsd::Data {
 	xine_osd_t *osd;
 	QRect rect;
 	XineStream *stream;
-        bool cleared;
+	bool cleared;
 	TimeLineBox bar, dot;
 };
 
@@ -137,7 +137,7 @@ void XineOsd::updateStyle(const Core::OsdStyle &style) {
 	color = style.fgColor;
 	color.setAlpha(255);
 	d->bar.fg = d->dot.fg = color;
-	
+	updateFontSize(d->rect.width(), d->rect.height());
 }
 
 void XineOsd::drawTimeLine(QPainter *painter, const QRectF &rect) {
@@ -223,4 +223,3 @@ void XineOsd::clear() {
 }
 
 }
-
