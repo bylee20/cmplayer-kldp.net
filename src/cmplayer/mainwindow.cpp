@@ -275,8 +275,7 @@ void MainWindow::setupUi() {
 	d->dock->hide();
 	d->player->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	
-	QWidget *widget = new QWidget(this);
-	d->center = new QWidget(widget);
+	d->center = new QWidget(this);
 	d->center->setMouseTracking(true);
 	d->control = createControl(d->center);
 	QVBoxLayout *vbox = new QVBoxLayout(d->center);
@@ -285,18 +284,11 @@ void MainWindow::setupUi() {
 	vbox->setMargin(0);
 	vbox->setSpacing(0);
 	
-	QHBoxLayout *hbox = new QHBoxLayout(widget);
-	hbox->setMargin(0);
-	hbox->setSpacing(0);
-	hbox->addWidget(d->center);
-	hbox->addItem(new QSpacerItem(0, 0));
-
 	updateWindowTitle();
 	menuBar()->hide();
 	setMouseTracking(true);
 	setAcceptDrops(true);
-// 	setCentralWidget(d->center);
-	setCentralWidget(widget);
+	setCentralWidget(d->center);
 	setWindowIcon(defaultIcon());
 }
 
@@ -437,13 +429,6 @@ QUrl MainWindow::getUrlFromCommandLine() {
 		return QUrl();
 }
 
-void MainWindow::openArgument(const QString &arg) {
-	QUrl url(arg);
-	if (url.scheme().isEmpty())
-		url = QUrl::fromLocalFile(QFileInfo(arg).absoluteFilePath());
-	open(url);
-}
-
 void MainWindow::open() {
 	QAction *action = qobject_cast<QAction*>(sender());
 	if (!action)
@@ -463,20 +448,13 @@ void MainWindow::open() {
 			}
 		} else if (key == 'u') {
 			GetUrlDialog dlg(this);
-			if (dlg.exec()) {
-				if (dlg.isPlaylist()) {
-					d->model->setPlaylist(dlg.playlist());
-					if (d->model->rowCount() > 0)
-						d->model->play(0);
-				} else
-					open(dlg.url());
-			}
+			if (dlg.exec())
+				open(dlg.url(), dlg.encoding());
 		}
 	}
 }
 
-void MainWindow::open(const QUrl &url) {
-	const Core::MediaSource source(url);
+Core::Playlist MainWindow::open(const Core::MediaSource &source) {
 	Core::Playlist list;
 	const AutoAddFiles mode = d->pref->autoAddFiles();
 	if (source.isLocalFile() && mode != DoNotAddFiles) {
@@ -512,15 +490,26 @@ void MainWindow::open(const QUrl &url) {
 						continue;
 				}
 			}
-			list.append(QUrl::fromLocalFile(it->absoluteFilePath()));
+			const QUrl url = QUrl::fromLocalFile(it->absoluteFilePath());
+			list.append(Core::MediaSource(url));
 		}
 		if (list.isEmpty())
 			list.append(source);
 	} else
 		list.append(source);
-	d->model->setPlaylist(list);
-	d->model->play(list.indexOf(source));
 	RecentInfo::get()->stackSource(source);
+	return list;
+}
+
+void MainWindow::open(const QUrl &url, const QString &enc) {
+	Core::Playlist list;
+	const bool isPlaylist = (QFileInfo(url.path()).suffix().toLower() == "pls");
+	if (isPlaylist)
+		list.load(url, enc);
+	else
+		list = open(Core::MediaSource(url));
+	d->model->setPlaylist(list);
+	d->model->play(isPlaylist ? 0 : list.indexOf(Core::MediaSource(url)));
 	show();
 }
 
@@ -636,14 +625,14 @@ void MainWindow::dropEvent(QDropEvent *event) {
 		return;
 	QList<QUrl> urls = event->mimeData()->urls();
 	if (!urls.isEmpty()) {
-		if (urls.size() > 1) {
-			Core::Playlist pl;
-			for (int i=0; i<urls.size(); ++i)
-				pl.append(urls[i]);
-			d->model->setPlaylist(pl);
-			d->model->play(0);
-			RecentInfo::get()->stackSource(urls[0]);
-		} else
+// 		if (urls.size() > 1) {
+// 			Core::Playlist pl;
+// 			for (int i=0; i<urls.size(); ++i)
+// 				pl.append(urls[i]);
+// 			d->model->setPlaylist(pl);
+// 			d->model->play(0);
+// 			RecentInfo::get()->stackSource(urls[0]);
+// 		} else
 			open(urls[0]);
 	}
 }
@@ -761,16 +750,22 @@ void MainWindow::updatePlaylistInfo() {
 }
 
 void MainWindow::toggleDockVisibility() {
-	d->player->keepSize(true);
-	const int w = d->dock->width();
-	if (d->dock->isVisible()) {
-		d->dock->hide();
-		resize(width() - w, height());
-	} else {
-		resize(width() + w, height());
-		d->dock->show();
-	}
-	d->player->keepSize(false);
+	const bool visible = d->dock->isVisible();
+	if (!d->dock->isFloating() && !isFullScreen()) {
+		QSize size = this->size();
+		const int w = d->dock->frameGeometry().width();
+		size.rwidth() += visible ? -w : w;
+		d->player->keepSize(true);
+		if (visible) {
+			d->dock->setVisible(!visible);
+			resize(size);
+		} else {
+			resize(size);
+			d->dock->setVisible(!visible);
+		}
+		d->player->keepSize(false);
+	} else
+		d->dock->setVisible(!visible);
 }
 
 void MainWindow::updateRecentSize(int size) {
@@ -890,8 +885,11 @@ void MainWindow::showEvent(QShowEvent *event) {
 void MainWindow::hideEvent(QHideEvent *event) {
 	QMainWindow::hideEvent(event);
 	if (d->pref->pauseWhenMinimized()) {
+		qDebug() << "hide";
+		qDebug() << (d->pref->pauseVideoOnly() && !d->player->hasVideo());
 		if (d->pref->pauseVideoOnly() && !d->player->hasVideo())
 			return;
+		qDebug() << (d->player && d->player->isPlaying());
 		if (d->player && d->player->isPlaying()) {
 			d->pausedByHiding = true;
 			d->player->pause();

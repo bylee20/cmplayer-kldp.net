@@ -15,9 +15,7 @@ public:
 	QUrl url() const;
 	bool isPlaylist() const;
 	Core::Playlist playlist() const;
-private slots:
-	void slotTimeout();
-	void slotFinished(int id);
+	QString encoding() const;
 private:
 	void showEvent(QShowEvent *event);
 	void accept();

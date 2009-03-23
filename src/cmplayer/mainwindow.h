@@ -7,7 +7,10 @@
 
 class RecentStack;				class QUrl;
 
-namespace Core {class BackendIface;}
+namespace Core {
+class BackendIface;				class MediaSource;
+class Playlist;
+}
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -16,10 +19,9 @@ public:
 	MainWindow();
 	~MainWindow();
 	bool isOnTop() const {return windowFlags() & Qt::WindowStaysOnTopHint;}
-	void openArgument(const QString &arg);
 	static QUrl getUrlFromCommandLine();
 public slots:
-	void open(const QUrl &url);
+	void open(const QUrl &url, const QString &enc = QString());
 private slots:
 	void open();
 	void openSubFile();
@@ -76,6 +78,7 @@ private:
 	void hideEvent(QHideEvent *event);
 	void updateWindowTitle();
 	void showMessage(const QString &text);
+	Core::Playlist open(const Core::MediaSource &source);
 	static QIcon defaultIcon();
 	template<typename M, typename A>
 	static typename A::mapped_type getTriggerAction(uint mod, const M &map

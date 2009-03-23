@@ -78,7 +78,6 @@ TARGET = ../bin/cmplayer
 
 DEFINES += CMPLAYER_TRANSLATION_DIR=$(CMPLAYER_TRANSLATION_PATH)
 
-QT += network
 
 RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE){
@@ -88,3 +87,5 @@ RELEASE = $$(CMPLAYER_RELEASE)
 }else {
     LIBS += -lcmplayer_cored
 }
+
+
