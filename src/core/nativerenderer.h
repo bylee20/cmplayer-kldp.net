@@ -29,7 +29,10 @@ protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 	void resizeEvent(QResizeEvent *event);
 	void calculate();
+	virtual bool screenX11Event(XEvent *event);
 private:
+	class Screen;
+	friend class Screen;
 	struct Data {
 		PlayEngine *engine;
 		QWidget *video;

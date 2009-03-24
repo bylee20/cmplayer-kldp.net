@@ -529,21 +529,16 @@ void MainWindow::seek(int diff) {
 
 void MainWindow::openSubFile() {
 	const QString filter = tr("Subtitle Files") +' '+ Core::Info::subtitleExtension().toFilter();
-	const QString enc = d->pref->subtitleEncoding();
-	const Core::MediaSource source = d->player->currentSource();
-	QString dir;
-	if (source.isLocalFile())
-		dir = QFileInfo(source.filePath()).absolutePath();
-	EncodingFileDialog dlg(this, tr("Open Subtitle"), dir, filter, enc);
-	dlg.setFileMode(QFileDialog::ExistingFiles);
-	const QStringList files = dlg.selectedFiles();
-	if (!dlg.exec() || files.isEmpty())
+	QString enc = d->pref->subtitleEncoding();
+	const QStringList files = EncodingFileDialog::getOpenFileNames(this, tr("Open Subtitle"), QString(), filter, &enc);
+	if (files.isEmpty())
 		return;
 	int idx = d->subs.size();
 	Menu &list = d->menu("subtitle")("list");
 	for (int i=0; i<files.size(); ++i) {
 		QList<Core::Subtitle> subs;
-		if (!Core::Subtitle::parse(files[i], &subs, dlg.encoding()) || subs.isEmpty())
+		qDebug() << files[i];
+		if (!Core::Subtitle::parse(files[i], &subs, enc) || subs.isEmpty())
 			continue;
 		for (int j=0; j<subs.size(); ++j, ++idx) {
 			d->subIdxes.append(idx);

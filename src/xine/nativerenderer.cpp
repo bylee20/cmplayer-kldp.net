@@ -1,10 +1,8 @@
 #include "nativerenderer.h"
-#include "xinestream.h"
 #include "xinepost.h"
 #include "xineosd.h"
 #include <core/newframeevent.h>
 #include <core/videoframe.h>
-#include <core/playengine.h>
 #include <core/utility.h>
 #include <QtGui/QApplication>
 #include <QtGui/QPainter>
@@ -23,31 +21,12 @@ NativeRenderer::NativeRenderer(Core::PlayEngine *engine, XineStream *stream)
 	d->destAspect = 1.;
 	d->engine = engine;
 	screen()->installEventFilter(this);
-	
-	int screen_nbr = 0;
-	if (!(m_connection = xcb_connect(NULL, &screen_nbr)))
-		return;
-	m_visual.connection = m_connection;
-	xcb_screen_iterator_t screenIt = xcb_setup_roots_iterator(xcb_get_setup(m_connection));
-	while ((screenIt.rem > 1) && (screen_nbr > 0)) {
-		xcb_screen_next(&screenIt);
-		--screen_nbr;
-	}
-	m_visual.screen = screenIt.data;
-	m_visual.window = screenWinId();
-	m_visual.user_data = this;
-	m_visual.dest_size_cb = cbDestSize;
-	m_visual.frame_output_cb = cbFrameOutput;
-	QApplication::syncX();
-	
 	connect(this, SIGNAL(osdRectChanged(const QRect&)), this, SLOT(updateOsdRect(const QRect&)));
 }
 
 NativeRenderer::~NativeRenderer() {
 	for (int i=0; i<d->osds.size(); ++i)
 		delete d->osds[i];
-	if (m_connection)
-		xcb_disconnect(m_connection);
 	delete d;
 }
 
@@ -146,6 +125,10 @@ void NativeRenderer::setVideoSize(const QSize &size) {
 void NativeRenderer::rerender() {
 	d->destAspect = videoRatio() / aspectRatioF();
 	Core::NativeRenderer::rerender();
+}
+
+const Core::PlayEngine *NativeRenderer::engine() const {
+	return d->engine;
 }
 
 }

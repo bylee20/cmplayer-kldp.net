@@ -3,8 +3,39 @@
 #include <QtCore/QTextCodec>
 #include <QtCore/QRegExp>
 #include <QtCore/QFile>
+#include <QtCore/QDebug>
 
 namespace Core {
+
+class Subtitle::Parser::TMPlayer : public Subtitle::Parser {
+	bool parse(const QString &file, QList<Subtitle> *subs) {
+		QFile dev(file);
+		if (!dev.open(QFile::ReadOnly))
+			return false;
+		setDevice(&dev);
+		QTextStream &in = stream();
+
+		subs->clear();
+		QString line;
+		subs->append(Subtitle(file));
+		Subtitle &sub = (*subs)[0];
+		while (!in.atEnd()) {
+			line = in.readLine().trimmed();
+			static QRegExp rxLine("^\\s*(\\d?\\d)\\s*:\\s*(\\d\\d)\\s*:\\s*(\\d\\d)\\s*:\\s*(.*)$");
+			if (rxLine.indexIn(line) == -1)
+				continue;
+			const int time = Utility::timeToMSecs(QTime(rxLine.cap(1).toInt()
+					, rxLine.cap(2).toInt(), rxLine.cap(3).toInt()));
+			QString text = rxLine.cap(4);
+			text.replace('|', "<BR>");
+			sub.insert(time, text);
+		}
+		dev.close();
+		return true;
+	}
+};
+class Subtitle::Parser::MicroDVD {
+};
 
 class Subtitle::Parser::Sami : public Subtitle::Parser {
 	bool parse(const QString &path, QList<Subtitle> *subs) {
@@ -260,6 +291,8 @@ Subtitle::Parser *Subtitle::Parser::create(const QString &ext) {
 		p = new SubRip;
 	else if (EXT_IS("ssa") || EXT_IS("ass"))
 		p = new SubStationAlpha;
+	else if (EXT_IS("txt"))
+		p = new TMPlayer;
 #undef EXT_IS
 	return p;
 }

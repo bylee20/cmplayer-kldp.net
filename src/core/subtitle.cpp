@@ -1,6 +1,7 @@
 #include "subtitle.h"
 #include "subtitle_parser.h"
 #include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
 
 namespace Core {
 

@@ -47,7 +47,7 @@ Info::Data::Data() {
 			<< "mp4" << "mpeg" << "mpg" << "vob"
 			<< "ogg" << "ogm"<< "qt" << "rm" << "wmv";
 	audioExt << "mp3" << "ogg" << "ra" << "wav" << "wma";
-	subExt << "smi" << "srt";
+	subExt << "smi" << "srt" << "txt";
 }
 
 

@@ -3,6 +3,8 @@
 #include "xinestream.h"
 #include "xineengine.h"
 #include "nativerenderer.h"
+#include "xcbnativerenderer.h"
+#include "x11nativerenderer.h"
 #include "xinepost.h"
 #include "glrenderer.h"
 #include "info.h"
@@ -442,7 +444,7 @@ bool PlayEngine::updateVideoRenderer(const QString &name) {
 		d->video = renderer;
 	} else {
 #endif
-		NativeRenderer *renderer = new NativeRenderer(this, &d->stream);
+		NativeRenderer *renderer = new XcbNativeRenderer(this, &d->stream);
 		d->renderer = renderer;
 		d->video = renderer;
 #if HAS_RAW

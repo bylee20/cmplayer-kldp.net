@@ -7,7 +7,9 @@ SOURCES += playengine.cpp \
     xinevideoiface.cpp \
     xinepost.cpp \
     xineosd.cpp \
-    nativerenderer.cpp
+    nativerenderer.cpp \
+ xcbnativerenderer.cpp \
+ x11nativerenderer.cpp
 HEADERS += playengine.h \
     events.h \
     backendiface.h \
@@ -18,7 +20,9 @@ HEADERS += playengine.h \
     info.h \
     xinepost.h \
     xineosd.h \
-    nativerenderer.h
+    nativerenderer.h \
+ xcbnativerenderer.h \
+ x11nativerenderer.h
 
 CONFIG += debug \
     debug_and_release \
@@ -29,7 +33,7 @@ TEMPLATE = lib
 INCLUDEPATH += ../
 TARGET = ../bin/cmplayer_engine_xine
 LIBS += -L../bin \
-  -lxcb \
+  -lxcb -lX11 \
   -lxine
 
 RELEASE = $$(CMPLAYER_RELEASE)
@@ -37,6 +41,6 @@ RELEASE = $$(CMPLAYER_RELEASE)
     CONFIG -= debug
     CONFIG += release
     LIBS += -lcmplayer_core
-} else {
+}else {
     LIBS += -lcmplayer_cored
 }

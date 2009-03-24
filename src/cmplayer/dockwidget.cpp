@@ -114,16 +114,12 @@ void DockWidget::down() {
 }
 
 void DockWidget::open() {
-	EncodingFileDialog dlg(this, tr("Open File")
-			, QString(), tr("Play List") + " (*.pls)");
-	dlg.setFileMode(QFileDialog::ExistingFile);
-	if (!dlg.exec())
-		return;
-	const QStringList file = dlg.selectedFiles();
-	if (file.isEmpty() || file[0].isEmpty())
-		return;
+	QString enc;
+	const QString file = EncodingFileDialog::getOpenFileName(this, tr("Open File")
+			, QString(), tr("Play List") + " (*.pls)", &enc);
+	qDebug() << file << enc;
 	Core::Playlist list;
-	list.load(file[0], dlg.encoding());
+	list.load(file, enc);
 	d->model->setPlaylist(list);
 }
 

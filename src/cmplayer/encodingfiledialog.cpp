@@ -23,3 +23,29 @@ void EncodingFileDialog::setEncoding(const QString &encoding) {
 QString EncodingFileDialog::encoding() const {
 	return combo->encoding();
 }
+
+QString EncodingFileDialog::getOpenFileName(QWidget *parent
+		, const QString &caption, const QString &dir
+		, const QString &filter, QString *enc) {
+	const QStringList files = getOpenFileNames(parent
+			, caption, dir, filter, enc, ExistingFile);
+	return files.isEmpty() ? QString() : files[0];
+}
+
+QStringList EncodingFileDialog::getOpenFileNames(QWidget *parent
+		, const QString &caption
+		, const QString &dir
+		, const QString &filter
+		, QString *enc, FileMode mode) {
+	EncodingFileDialog dlg(parent, caption, dir, filter);
+	if (enc && !enc->isEmpty())
+		dlg.setEncoding(*enc);
+	dlg.setFileMode(mode);
+	if (dlg.exec()) {
+		if (enc)
+			*enc = dlg.encoding();
+		return dlg.selectedFiles();
+	}
+	return QStringList();
+}
+

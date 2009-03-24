@@ -6,11 +6,25 @@
 
 namespace Core {
 
+class NativeRenderer::Screen : public QWidget {
+public:
+	Screen(NativeRenderer *renderer, QWidget *parent)
+	: QWidget(parent), renderer(renderer) {}
+	bool originalX11Event(XEvent *event) {
+		return QWidget::x11Event(event);
+	}
+private:
+	bool x11Event(XEvent *event) {
+		return renderer->screenX11Event(event);
+	}
+	NativeRenderer *renderer;
+};
+	
 NativeRenderer::NativeRenderer(PlayEngine *engine)
 : QWidget(), VideoRendererIface(this), d(new Data) {
 	d->engine = engine;
 	d->video = new QWidget(this);
-	d->screen = new QWidget(d->video);
+	d->screen = new Screen(this, d->video);
 	d->screen->show();
 	d->screen->move(0, 0);
 	d->screen->setAutoFillBackground(true);
@@ -117,7 +131,8 @@ void NativeRenderer::calculate() {
 	rerender();
 }
 
-
-
+bool NativeRenderer::screenX11Event(XEvent *event) {
+	return static_cast<Screen*>(d->screen)->originalX11Event(event);
+}
 
 }
