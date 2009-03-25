@@ -101,6 +101,10 @@ const QString &PlayEngine::getDontMessUp() {
 
 void PlayEngine::updateInfo() {
 	if (d->mediaInfo.isValid()) {
+		const double oldFrameRate = d->mediaInfo.frameRate();
+		setFrameRate(d->mediaInfo.frameRate());
+		if (qAbs(oldFrameRate - d->mediaInfo.frameRate()) < 1.0e-5)
+			updateSubtitle(subtitle());
 		setDuration(d->mediaInfo.length());
 		setHasVideo(d->mediaInfo.hasVideo());
 		if (d->mediaInfo.hasVideo()) {
@@ -348,9 +352,9 @@ void PlayEngine::updateColorProperty() {
 	tellmp("hue", qBound(-100, qRound(prop.hue()*100.), 100), 1);
 }
 
-void PlayEngine::updateSubtitle(const Core::Subtitle &subtitle) {
+void PlayEngine::updateSubtitle(const Core::Subtitle &sub) {
 	tellmp("sub_select -1") && tellmp("sub_remove");
-	Core::Subtitle::save(d->tempsub, subtitle, "UTF-8") && !subtitle.isEmpty()
+	sub.save(d->tempsub, "UTF-8", frameRate()) && !sub.isEmpty()
 		&& tellmp("sub_load \"" + d->tempsub + '\"') && tellmp("sub_select 0");
 }
 

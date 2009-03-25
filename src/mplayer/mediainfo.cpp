@@ -10,11 +10,12 @@ namespace MPlayer {
 
 MediaInfo::MediaInfo()
 : m_length(0), m_videoSize(-1, -1), m_valid(false), m_hasVideo(true)
-, m_disc(false) {}
+, m_disc(false), m_frameRate(-1.0) {}
 
 MediaInfo::MediaInfo(const MediaInfo &other)
-: m_length(other.m_length), m_videoSize(other.m_videoSize), m_valid(other.m_valid)
-, m_hasVideo(other.m_hasVideo), m_disc(other.m_disc), m_dvd(other.m_dvd) {}
+: m_length(other.m_length), m_videoSize(other.m_videoSize)
+, m_valid(other.m_valid), m_hasVideo(other.m_hasVideo), m_disc(other.m_disc)
+, m_frameRate(other.m_frameRate), m_dvd(other.m_dvd) {}
 
 MediaInfo &MediaInfo::operator = (const MediaInfo &rhs) {
 	if (this != &rhs) {
@@ -23,6 +24,7 @@ MediaInfo &MediaInfo::operator = (const MediaInfo &rhs) {
 		m_valid = rhs.m_valid;
 		m_hasVideo = rhs.m_hasVideo;
 		m_disc = rhs.m_disc;
+		m_frameRate = rhs.m_frameRate;
 		m_dvd = rhs.m_dvd;
 		m_tracks = rhs.m_tracks;
 	}

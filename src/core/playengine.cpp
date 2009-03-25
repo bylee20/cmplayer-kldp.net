@@ -62,6 +62,7 @@ PlayEngine::PlayEngine(QObject *parent)
 	d->prevTick = d->prevSubTime = -1;
 	d->ampRate = d->pos = d->speed = 1.0;
 	d->aspect = d->crop = -1.0;
+	d->frameRate = -1.0;
 	d->msgOsd = d->timeOsd = 0;
 	d->renderer = 0;
 	d->subRenderer = 0;
@@ -181,7 +182,6 @@ void PlayEngine::setMuted(bool muted) {
 
 void PlayEngine::setSubtitle(const Subtitle &subtitle) {
 	*d->sub = subtitle;
-	d->sub->end();
 	updateSubtitle(*d->sub);
 }
 
@@ -249,9 +249,10 @@ void PlayEngine::setTimeLineStyle(const OsdStyle &style) {
 }
 
 void PlayEngine::setSubtitleOsd(AbstractOsdRenderer *osd) {
-	if (!d->subRenderer)
+	if (!d->subRenderer) {
 		d->subRenderer = new SubtitleRenderer(osd);
-	else
+		d->subRenderer->setFrameRate(d->frameRate);
+	} else
 		d->subRenderer->setRenderer(osd);
 	osd->setStyle(*d->subStyle);
 	updateSubtitlePos(d->pos);
@@ -275,7 +276,7 @@ void PlayEngine::slotTick(int time) {
 
 void PlayEngine::updateSubtitle(const Subtitle &subtitle) {
 	if (d->subRenderer) {
-		d->subRenderer->setSubtitle(&subtitle);
+		d->subRenderer->setSubtitle(&subtitle, d->frameRate);
 		if (subtitle.isEmpty() || !isSubtitleVisible())
 			d->subRenderer->clear();
 		else
@@ -482,6 +483,12 @@ void PlayEngine::setColorProperty(const ColorProperty &prop) {
 		d->colorProp = prop;
 		updateColorProperty();
 	}
+}
+
+void PlayEngine::setFrameRate(double rate) {
+	d->frameRate = rate > 0.0 ? rate : -1.0;
+	if (d->subRenderer)
+		d->subRenderer->setFrameRate(d->frameRate);
 }
 
 }

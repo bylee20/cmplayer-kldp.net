@@ -170,6 +170,8 @@ bool PlayEngine::updateDuration() {
 bool PlayEngine::updateStreamInfo() {
 	if (!d->stream.stream || !currentSource().isValid())
 		return false;
+	const int len = xine_get_stream_info(d->stream.stream, XINE_STREAM_INFO_FRAME_DURATION);
+	setFrameRate(len > 0 ? (90000.0 / len) : -1.0);
 	setHasVideo(xine_get_stream_info(d->stream.stream, XINE_STREAM_INFO_HAS_VIDEO));
 	setSeekable(xine_get_stream_info(d->stream.stream, XINE_STREAM_INFO_SEEKABLE));
 	updateVideoSize();

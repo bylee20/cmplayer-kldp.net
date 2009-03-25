@@ -13,6 +13,16 @@ public:
 	: QActionGroup(parent) {
 		connect(this, SIGNAL(triggered(QAction*)), this, SLOT(emitData(QAction*)));
 	}
+// 	QAction *addAction(QAction *action) {
+// 		QAction *act = QActionGroup::addAction(action);
+// 		connect(act, SIGNAL(toggled(bool)), this, SLOT(emitToggled(bool)));
+// 		return act;
+// 	}
+// 	QAction *addAction(const QString &text) {
+// 		QAction *act = QActionGroup::addAction(text);
+// 		connect(act, SIGNAL(toggled(bool)), this, SLOT(emitToggled(bool)));
+// 		return act;
+// 	}
 	void trigger(const QVariant &data) {
 		const QList<QAction*> acts = actions();
 		for (int i=0; i<acts.size(); ++i) {
@@ -34,6 +44,7 @@ public:
 		}
 	}
 signals:
+// 	void toggled(QAction *action, bool checked);
 	void triggered(const QVariant &data);
 	void triggered(int data);
 	void triggered(double data);
@@ -41,6 +52,11 @@ signals:
 	void triggered(const QUrl &data);
 private slots:
 	void emitData(QAction *action);
+// 	void emitToggled(bool checked) {
+// 		QAction *action = static_cast<QAction*>(sender());
+// 		if (action)
+// 			emit toggled(action, checked);
+// 	}
 };
 
 class Menu : public QMenu {
@@ -66,11 +82,9 @@ public:
 	static Menu &get() {return *obj;}
 	static Menu &create(QWidget *parent);
 	static QString key(QAction *action) {return keys.value(action);}
-// 	static QString key(QAction *action) {return keys.value(action);}
 	static void saveShortcut();
 	static void loadShortcut();
 	static void updatePref();
-	static void retranslate();
 	~Menu() {}
 	Menu &operator() (const QString &key) const {return *m(key);}
 	QAction *operator[] (const QString &key) const {return a(key);}

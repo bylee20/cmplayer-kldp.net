@@ -39,12 +39,12 @@ struct MainWindow::Data {
 	PlayInfoWidget *playInfo;
 	PlaylistModel *model;
 	DockWidget *dock;
-	QList<Core::Subtitle> subs;
+	Core::Subtitle sub;
 	QList<int> subIdxes;
 	QSize prevWinSize;
 	QPoint dragPos;
 	RecentInfo *recent;
-	bool pausedByHiding, changingOnTop;
+	bool pausedByHiding, changingOnTop, changingSubtitle;
 	VideoPlayer *player;
 	Pref *pref;
 	Menu &menu;
@@ -79,7 +79,7 @@ MainWindow::~MainWindow() {
 void MainWindow::commonInitialize() {
 	d = new Data(Menu::create(this));
 	
-	d->changingOnTop = d->pausedByHiding = false;
+	d->changingSubtitle = d->changingOnTop = d->pausedByHiding = false;
 	d->player = new VideoPlayer(this);
 	d->repeater = new ABRepeatDialog(this);
 	
@@ -314,47 +314,44 @@ void MainWindow::slotHelp() {
 }
 
 void MainWindow::clearSubs() {
-	d->subs.clear();
+	d->sub.clear();
 	d->subIdxes.clear();
 	QList<QAction*> acts = d->menu("subtitle")("list").g()->actions();
 	for (int i=0; i<acts.size(); ++i)
 		delete acts[i];
-	if (d->player)
-		d->player->setSubtitle(Core::Subtitle());
+	d->player->setSubtitle(d->sub);
 }
 
 void MainWindow::updateSubtitle() {
-	if (d->player) {
-		QList<int> merge = d->subIdxes;
-		const QStringList priority = d->pref->subtitlePriority();
-		QList<int> order;
-		QList<int> indexes = d->subIdxes;
-		QList<int>::iterator it;
-		for (int i=0; i<priority.size(); ++i) {
-			it = indexes.begin();
-			while(it != indexes.end()) {
-				if (d->subs[*it].language().language() == priority[i]) {
-					order.append(*it);
-					it = indexes.erase(it);
-				} else
-					++it;
-			}
+	QList<int> merge = d->subIdxes;
+	const QStringList priority = d->pref->subtitlePriority();
+	QList<int> order;
+	QList<int> indexes = d->subIdxes;
+	QList<int>::iterator it;
+	for (int i=0; i<priority.size(); ++i) {
+		it = indexes.begin();
+		while(it != indexes.end()) {
+			if (d->sub[*it].language().id() == priority[i]) {
+				order.append(*it);
+				it = indexes.erase(it);
+			} else
+				++it;
 		}
-		order += indexes;
-		Core::Subtitle sub;
-		for (int i=0; i<order.size(); ++i)
-			sub |= d->subs[order[i]];
-		d->player->setSubtitle(sub);
 	}
+	order += indexes;
+	Core::Subtitle sub;
+	for (int i=0; i<order.size(); ++i)
+		sub.append(d->sub[order[i]]);
+	d->player->setSubtitle(sub);
 }
 
 void MainWindow::slotSubtitle(QAction *action) {
-	if (d->player->currentSource().isDisc()) {
-		if (action->isChecked())
-			d->player->setCurrentSpu(action->data().toString());
-		else
-			d->player->setCurrentSpu(QString::null);
-	} else {
+	if (d->changingSubtitle)
+		return;
+	if (d->player->currentSource().isDisc())
+		d->player->setCurrentSpu(action->isChecked()
+				? action->data().toString() : QString());
+	else {
 		const int idx = action->data().toInt();
 		d->subIdxes.removeAll(idx);
 		if (action->isChecked())
@@ -388,8 +385,8 @@ void MainWindow::autoLoadSubtitles() {
 				add = all[i].fileName().contains(base);
 			if (!add)
 				continue;
-			QList<Core::Subtitle> subs;
-			if (!Core::Subtitle::parse(all[i].absoluteFilePath(), &subs, enc) || subs.isEmpty())
+			Core::Subtitle sub;
+			if (!sub.load(all[i].absoluteFilePath(), enc))
 				continue;
 			bool select = false;
 			if (autoSelect == SameName)
@@ -397,24 +394,26 @@ void MainWindow::autoLoadSubtitles() {
 			else if (autoSelect == AllLoaded)
 				select = true;
 			else if (autoSelect == EachLanguage) {
-				const QString lang = d->subs[i].language().language();
+				const QString lang = d->sub[i].language().id();
 				if ((select = (!langs.contains(lang))))
 					langs.insert(lang);
 			}
 			if (select) {
-				for (int j=0; j<subs.size(); ++j) {
-					d->subIdxes.append(d->subs.size());
-					d->subs.append(subs[j]);
+				for (int j=0; j<sub.size(); ++j) {
+					d->subIdxes.append(d->sub.size());
+					d->sub.append(sub[j]);
 				}
 			} else
-				d->subs += subs;
+				d->sub += sub;
 		}
 		Menu &list = d->menu("subtitle")("list");
-		for (int i=0; i<d->subs.size(); ++i) {
-			QAction *action = list.addActionToGroupWithoutKey(d->subs[i].name(), true);
+		d->changingSubtitle = true;
+		for (int i=0; i<d->sub.size(); ++i) {
+			QAction *action = list.addActionToGroupWithoutKey(d->sub[i].name(), true);
 			action->setData(i);
 			action->setChecked(d->subIdxes.contains(i));
 		}
+		d->changingSubtitle = false;
 		updateSubtitle();
 	}
 }
@@ -533,20 +532,25 @@ void MainWindow::openSubFile() {
 	const QStringList files = EncodingFileDialog::getOpenFileNames(this, tr("Open Subtitle"), QString(), filter, &enc);
 	if (files.isEmpty())
 		return;
-	int idx = d->subs.size();
+	int idx = d->sub.size();
 	Menu &list = d->menu("subtitle")("list");
 	for (int i=0; i<files.size(); ++i) {
-		QList<Core::Subtitle> subs;
-		qDebug() << files[i];
-		if (!Core::Subtitle::parse(files[i], &subs, enc) || subs.isEmpty())
-			continue;
-		for (int j=0; j<subs.size(); ++j, ++idx) {
-			d->subIdxes.append(idx);
-			d->subs.append(subs[j]);
-			QAction *action = list.addActionToGroupWithoutKey(d->subs[idx].name(), true);
-			action->setData(idx);
-			action->setChecked(true);
+		Core::Subtitle sub;
+		if (sub.load(files[i], enc)) {
+			for (int j=0; j<sub.size(); ++j, ++idx) {
+				d->subIdxes.append(idx);
+				d->sub.append(sub[j]);
+				QAction *action = list.addActionToGroupWithoutKey(
+						d->sub[idx].name(), true);
+				action->setData(idx);
+				d->changingSubtitle = true;
+				action->setChecked(true);
+			}
 		}
+	}
+	if (d->changingSubtitle) {
+		d->changingSubtitle = false;
+		updateSubtitle();
 	}
 }
 
@@ -593,6 +597,7 @@ void MainWindow::updatePref() {
 		if (paused)
 			d->player->pause();
 	}
+	
 }
 
 void MainWindow::setFullScreen(bool full) {

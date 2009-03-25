@@ -117,7 +117,6 @@ void DockWidget::open() {
 	QString enc;
 	const QString file = EncodingFileDialog::getOpenFileName(this, tr("Open File")
 			, QString(), tr("Play List") + " (*.pls)", &enc);
-	qDebug() << file << enc;
 	Core::Playlist list;
 	list.load(file, enc);
 	d->model->setPlaylist(list);

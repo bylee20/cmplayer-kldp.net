@@ -1,15 +1,18 @@
 #include "subtitlerenderer.h"
 #include "subtitle.h"
 #include "abstractosdrenderer.h"
+#include <QtCore/QDebug>
 
 namespace Core {
 
 struct SubtitleRenderer::Data {
-	bool available() const {return sub && renderer && !sub->isEmpty();}
+	bool available() const {return sub && renderer && !comp.isEmpty();}
 	AbstractOsdRenderer *renderer;
 	const Subtitle *sub;
+	Subtitle::Component comp;
 	int prevTime, delay;
-	Core::Subtitle::ConstIterator subIt;
+	Subtitle::Component::const_iterator it;
+	double frameRate;
 };
 
 SubtitleRenderer::SubtitleRenderer(AbstractOsdRenderer *renderer)
@@ -17,7 +20,9 @@ SubtitleRenderer::SubtitleRenderer(AbstractOsdRenderer *renderer)
 	d->renderer = renderer;
 	d->sub = 0;
 	d->delay = 0;
+	d->frameRate = -1.0;
 	d->prevTime = -1;
+	d->it = d->comp.end();
 }
 
 SubtitleRenderer::~SubtitleRenderer() {
@@ -31,17 +36,10 @@ void SubtitleRenderer::setRenderer(AbstractOsdRenderer *renderer) {
 void SubtitleRenderer::show(int time) {
 	if (!d->available())
 		return;
-	time += d->delay;
-	d->subIt = d->sub->find(time);
-	if (d->subIt == d->sub->end()) {
-		d->subIt = d->sub->upperBound(time);
-		if (d->subIt == d->sub->begin())
-			return;
-		--d->subIt;
-	}
-	if (d->subIt.key() != d->prevTime) {
-		d->prevTime = d->subIt.key();
-		d->renderer->renderText(d->subIt.value());
+	d->it = d->comp.start(time + d->delay, d->frameRate);
+	if (d->it.key() != d->prevTime) {
+		d->prevTime = d->it.key();
+		d->renderer->renderText(d->it.value());
 	}
 }
 
@@ -49,11 +47,12 @@ AbstractOsdRenderer *SubtitleRenderer::renderer() {
 	return d->renderer;
 }
 
-void SubtitleRenderer::setSubtitle(const Subtitle *subtitle) {
+void SubtitleRenderer::setSubtitle(const Subtitle *sub, double frameRate) {
 	d->prevTime = -1;
-	d->sub = subtitle;
-	if (d->sub)
-		d->subIt = d->sub->begin();
+	d->sub = sub;
+	d->comp = d->sub->component(frameRate);
+	d->frameRate = frameRate;
+	d->it = d->comp.end();
 }
 
 int SubtitleRenderer::delay() const {
@@ -69,6 +68,14 @@ void SubtitleRenderer::clear() {
 	d->prevTime = -1;
 	if (d->renderer)
 		d->renderer->clear();
+}
+
+void SubtitleRenderer::setFrameRate(double frameRate) {
+	if (qAbs(frameRate - d->frameRate) > 1.0e-5) {
+		d->frameRate = frameRate;
+		if (d->sub)
+			d->comp = d->sub->component(frameRate);
+	}
 }
 
 }

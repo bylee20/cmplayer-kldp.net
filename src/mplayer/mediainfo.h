@@ -37,6 +37,7 @@ public:
 	const QMap<int, QString> &tracks() const {return m_tracks;}
 	bool get(const Core::MediaSource &source);
 	bool get(const QString &parse, const Core::MediaSource &source, QProcess *proc = 0);
+	double frameRate() const {return m_frameRate;}
 private:
 	MediaInfo();
 	friend class MediaSource;
@@ -45,6 +46,7 @@ private:
 	qint64 m_length;
 	QSize m_videoSize;
 	bool m_valid, m_hasVideo, m_disc;
+	double m_frameRate;
 	QMap<int, QString> m_tracks;
 	DVDInfo m_dvd;
 };

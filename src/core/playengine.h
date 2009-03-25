@@ -36,6 +36,7 @@ public:
 	bool isMuted() const;
 	double aspectRatio() const;
 	double cropRatio() const;
+	double frameRate() const {return d->frameRate;}
 	bool isSubtitleVisible() const;
 	const OsdStyle &subtitleStyle() const {return *d->subStyle;}
 	const OsdStyle &messageStyle() const {return *d->msgStyle;}
@@ -124,6 +125,7 @@ protected:
 	void setSeekable(bool seekable);
 	void setTracks(const QStringList &tracks, const QString &track = QString::null);
 	void setSpus(const QStringList &spus, const QString &spu = QString::null);
+	void setFrameRate(double rate);
 	virtual bool updateCurrentSpu(const QString &/*spu*/) {return false;}
 	virtual bool updateCurrentTrack(const QString &/*track*/) {return false;}
 	virtual void updateVolume() = 0;
@@ -154,7 +156,7 @@ private:
 		bool gotInfo, muted, subVisible, seekable, hasVideo, volnorm;
 		bool softEq;
 		int prevTick, prevSubTime, duration, volume, syncDelay;
-		double ampRate, aspect, crop, pos, speed;
+		double ampRate, aspect, crop, pos, speed, frameRate;
 		ColorProperty colorProp;
 // 		QList<double> videoProps;
 		AbstractOsdRenderer *msgOsd, *timeOsd;

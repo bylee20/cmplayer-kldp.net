@@ -281,6 +281,7 @@ DEC_ENGINE_CALL_RETURN(int, currentTime)
 DEC_ENGINE_CALL_RETURN(bool, hasVideo);
 DEC_ENGINE_CALL_RETURN(Core::State, state)
 DEC_ENGINE_CALL_RETURN(Core::ABRepeater*, repeater)
+DEC_ENGINE_CALL_RETURN(double, frameRate);
 
 #undef ENGINE_SET
 #undef TO_PERCENT

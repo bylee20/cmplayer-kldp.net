@@ -30,6 +30,7 @@ public:
 	static const QTime &nullTime() {return get()->zero;}
 	static double desktopRatio();
 	static const QSize &desktopSize();
+	static bool isEmpty(const QString &str);
 private:
 	static Utility *get() {static Utility obj; return &obj;}
 	Utility(): zero() {}

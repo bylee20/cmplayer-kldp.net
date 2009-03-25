@@ -26,6 +26,7 @@ public:
 	bool isSeekable() const;
 	bool isMuted() const;
 	bool hasVideo() const;
+	double frameRate() const;
 	void seek(int time, bool relative, bool show);
 	int duration() const;
 	int currentTime() const;

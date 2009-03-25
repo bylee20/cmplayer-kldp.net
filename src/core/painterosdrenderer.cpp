@@ -44,7 +44,7 @@ PainterOsdRenderer::~PainterOsdRenderer() {
 }
 
 QSizeF PainterOsdRenderer::textSize(const QSizeF &area) {
-	if (d->px < 1)
+	if (d->px < 1 || text().isEmpty())
 		return QSizeF();
 	d->doc.setTextWidth(area.width() - 2.0*d->bw - leftMargin() - rightMargin());
 	d->doc.setHtml(text());
@@ -55,12 +55,13 @@ QSizeF PainterOsdRenderer::textSize(const QSizeF &area) {
 void PainterOsdRenderer::drawText(QPainter *painter, const QSizeF &visual, const QSizeF &device) {
 	if (!text().isEmpty()) {
 		const QSizeF box = textSize(visual);
-		if (box.height() > 1.0 && box.width() > 1.0)
-			drawText(painter, QRectF(getPos(box, device), box));
+		drawText(painter, QRectF(getPos(box, device), box));
 	}
 }
 
 void PainterOsdRenderer::drawText(QPainter *painter, const QRectF &rect) {
+	if (text().isEmpty() || rect.width() < 0.5 || rect.height() < 0.5)
+		return;
 	painter->save();
 	static QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
 	QString bgText = text();

@@ -173,29 +173,31 @@ void XineOsd::render() {
 	if (!d->osd)
 		return;
 	d->cleared = false;
+	QPixmap pixmap;
 	if (!text().isEmpty()) {
 		const QSizeF size = textSize(d->rect.size());
-		if (size.height() < 1.0 || size.width() < 1.0)
-			return;
-		QPixmap pixmap(size.toSize());
-		pixmap.fill(Qt::transparent);
-		QPainter painter(&pixmap);
-		drawText(&painter, QRectF(QPointF(0.0, 0.0), size));
-		painter.end();
-		drawPixmap(pixmap);
-	}
-	if (timeLineRate() >= 0.0) {
+		if (size.height() > 0.5 && size.width() > 0.5) {
+			pixmap = QPixmap(size.toSize());
+			pixmap.fill(Qt::transparent);
+			QPainter painter(&pixmap);
+			drawText(&painter, QRectF(QPointF(0.0, 0.0), size));
+		}
+	} else if (timeLineRate() >= 0.0) {
 		const QSizeF size = timeLineSize(d->rect.size());
-		if (size.height() < 1.0 || size.width() < 1.0)
-			return;
-		QPixmap pixmap(size.toSize());
-		pixmap.fill(Qt::transparent);
-		QPainter painter(&pixmap);
-		drawTimeLine(&painter, pixmap.rect());
-		painter.end();
-		drawPixmap(pixmap);
+		if (size.height() > 0.5 && size.width() > 0.5) {
+			pixmap = QPixmap(size.toSize());
+			pixmap.fill(Qt::transparent);
+			QPainter painter(&pixmap);
+			drawTimeLine(&painter, pixmap.rect());
+		}
 	}
-	xine_osd_show(d->osd, 0);
+	if (pixmap.isNull()) {
+		xine_osd_hide(d->osd, 0);
+		xine_osd_clear(d->osd);
+	} else {
+		drawPixmap(pixmap);
+		xine_osd_show(d->osd, 0);
+	}
 }
 
 void XineOsd::setRect(const QRect &rect) {
@@ -217,7 +219,7 @@ void XineOsd::setRect(const QRect &rect) {
 void XineOsd::clear() {
 	if (d->osd) {
 		xine_osd_hide(d->osd, 0);
-                xine_osd_clear(d->osd);
+		xine_osd_clear(d->osd);
 	}
 	d->cleared = true;
 }

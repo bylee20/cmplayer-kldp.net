@@ -29,8 +29,6 @@ QStringList Info::ExtensionList::toNameFilter() const {
 	return nameFilter;
 }
 
-// #define TO_STRING(str) str
-
 Info::Data::Data() {
 	pluginPath = QString::fromLocal8Bit(qgetenv("CMPLAYER_PLUGIN_PATH"));
 	privatePath = QString::fromLocal8Bit(qgetenv("CMPLAYER_PRIVATE_PATH"));
@@ -47,7 +45,7 @@ Info::Data::Data() {
 			<< "mp4" << "mpeg" << "mpg" << "vob"
 			<< "ogg" << "ogm"<< "qt" << "rm" << "wmv";
 	audioExt << "mp3" << "ogg" << "ra" << "wav" << "wma";
-	subExt << "smi" << "srt" << "txt";
+	subExt << "smi" << "srt" << "sub" << "txt";
 }
 
 

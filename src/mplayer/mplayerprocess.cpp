@@ -58,6 +58,8 @@ void MPlayerProcess::interpretMessages() {
 				const QString id = rxID.cap(1);
 				if (id == "LENGTH") {
 					d->info->m_length = rxID.cap(2).toDouble()*1000.0;
+				} else if (id == "VIDEO_FPS") {
+					d->info->m_frameRate = rxID.cap(2).toDouble();
 				} else if (id == "AUDIO_ID") {
 					d->info->m_tracks[rxID.cap(2).toInt()] = QString();
 				} else if (rxAudio.indexIn(id) != -1) {
