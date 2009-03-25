@@ -44,14 +44,16 @@ int ABRepeater::setAToSubtitleTime() {
 	const Subtitle &sub = m_engine->subtitle();
 	if (sub.isEmpty())
 		return m_a = -1;
-	return m_a = sub.start(m_engine->currentTime(), m_engine->frameRate());
+	m_a = sub.start(m_engine->currentTime(), m_engine->frameRate());
+	return m_a;
 }
 
 int ABRepeater::setBToSubtitleTime() {
 	const Subtitle &sub = m_engine->subtitle();
 	if (sub.isEmpty())
 		return m_b = -1;
-	return m_b = sub.end(m_engine->currentTime(), m_engine->frameRate());
+	m_b = sub.end(m_engine->currentTime(), m_engine->frameRate());
+	return m_b;
 }
 
 bool ABRepeater::start(int times) {
