@@ -158,7 +158,7 @@ bool PlayEngine::start(int time) {
 			<< "-subfont-autoscale" << QString::number(mode)
 			<< "-subfont-osd-scale" << QString::number(messageStyle().textSize*100.0)
 			<< "-subfont-text-scale" << QString::number(subtitleStyle().textSize*100.0)
-			<< "-subdelay" << QString::number(syncDelay()*0.001)
+			<< "-subdelay" << QString::number(-syncDelay()*0.001)
 			<< "-wid" << QString::number(d->renderer->screenWinId());
 	if (!d->gotInfo)
 		args << "-identify";
@@ -379,7 +379,7 @@ void PlayEngine::updateSubtitlePos(double pos) {
 }
 
 void PlayEngine::updateSyncDelay(int delay) {
-	tellmp("sub_delay", double(delay)/1000.0, 1);
+	tellmp("sub_delay", -double(delay)*0.001, 1);
 }
 
 void PlayEngine::updateCurrentSource(const Core::MediaSource &source) {

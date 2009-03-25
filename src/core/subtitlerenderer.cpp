@@ -10,8 +10,8 @@ struct SubtitleRenderer::Data {
 	AbstractOsdRenderer *renderer;
 	const Subtitle *sub;
 	Subtitle::Component comp;
-	int prevTime, delay;
-	Subtitle::Component::const_iterator it;
+	int delay;
+	Subtitle::Component::const_iterator prev;
 	double frameRate;
 };
 
@@ -21,8 +21,7 @@ SubtitleRenderer::SubtitleRenderer(AbstractOsdRenderer *renderer)
 	d->sub = 0;
 	d->delay = 0;
 	d->frameRate = -1.0;
-	d->prevTime = -1;
-	d->it = d->comp.end();
+	d->prev = d->comp.end();
 }
 
 SubtitleRenderer::~SubtitleRenderer() {
@@ -36,10 +35,11 @@ void SubtitleRenderer::setRenderer(AbstractOsdRenderer *renderer) {
 void SubtitleRenderer::show(int time) {
 	if (!d->available())
 		return;
-	d->it = d->comp.start(time + d->delay, d->frameRate);
-	if (d->it.key() != d->prevTime) {
-		d->prevTime = d->it.key();
-		d->renderer->renderText(d->it.value());
+	Subtitle::Component::const_iterator it = d->comp.start(time - d->delay, d->frameRate);
+	if (it != d->prev) {
+		d->prev = it;
+		if (it != d->comp.end())
+			d->renderer->renderText(it.value());
 	}
 }
 
@@ -48,11 +48,10 @@ AbstractOsdRenderer *SubtitleRenderer::renderer() {
 }
 
 void SubtitleRenderer::setSubtitle(const Subtitle *sub, double frameRate) {
-	d->prevTime = -1;
 	d->sub = sub;
 	d->comp = d->sub->component(frameRate);
 	d->frameRate = frameRate;
-	d->it = d->comp.end();
+	d->prev = d->comp.end();
 }
 
 int SubtitleRenderer::delay() const {
@@ -60,12 +59,12 @@ int SubtitleRenderer::delay() const {
 }
 
 void SubtitleRenderer::setDelay(int delay) {
-	d->prevTime = -1;
+	d->prev = d->comp.end();
 	d->delay = delay;
 }
 
 void SubtitleRenderer::clear() {
-	d->prevTime = -1;
+	d->prev = d->comp.end();
 	if (d->renderer)
 		d->renderer->clear();
 }
@@ -73,8 +72,10 @@ void SubtitleRenderer::clear() {
 void SubtitleRenderer::setFrameRate(double frameRate) {
 	if (qAbs(frameRate - d->frameRate) > 1.0e-5) {
 		d->frameRate = frameRate;
-		if (d->sub)
+		if (d->sub) {
 			d->comp = d->sub->component(frameRate);
+			d->prev = d->comp.end();
+		}
 	}
 }
 
