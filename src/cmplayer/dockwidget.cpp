@@ -151,11 +151,13 @@ void DockWidget::add() {
 }
 
 void DockWidget::erase() {
-	const int row = d->ui.list->currentIndex().row();
-	if (row < 0)
+	QList<int> rows = d->ui.list->selectedRows();
+	if (rows.isEmpty())
 		return;
-	d->model->remove(row);
-	d->ui.list->setCurrentIndex(d->model->index(row, 0));
+	qSort(rows);
+	for (int i=rows.size() - 1; i >= 0; --i)
+		d->model->remove(rows[i]);
+	d->ui.list->setCurrentIndex(d->model->index(rows.first(), 0));
 }
 
 void DockWidget::checkShutdown() {
