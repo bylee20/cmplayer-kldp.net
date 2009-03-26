@@ -6,6 +6,8 @@
 #include <QtNetwork/QHttp>
 #include <QtCore/QTimer>
 
+namespace Core {
+
 struct Downloader::Data {
 	QHttp *http;
 	int id;
@@ -63,4 +65,6 @@ void Downloader::slotHttpFinished(int id) {
 void Downloader::slotTimeout() {
 	d->http->abort();
 	d->loop.quit();
+}
+
 }

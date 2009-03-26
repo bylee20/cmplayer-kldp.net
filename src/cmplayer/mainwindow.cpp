@@ -249,6 +249,7 @@ void MainWindow::saveState() {
 	state[State::PlaySpeed] = d->player->speed();
 	state[State::SubtitlePos] = d->player->subtitlePos();
 	state[State::SubtitleSync] = d->player->syncDelay();
+	state[State::DockWidth] = d->dock->width();
 	state.save();
 }
 
@@ -264,6 +265,7 @@ void MainWindow::loadState() {
 	d->player->setSpeed(state[State::PlaySpeed].toInt());
 	d->player->setSubtitlePos(state[State::SubtitlePos].toInt());
 	d->player->setSyncDelay(state[State::SubtitleSync].toInt());
+	d->dock->setWidth(state[State::DockWidth].toInt());
 }
 
 QIcon MainWindow::defaultIcon() {
@@ -751,18 +753,21 @@ void MainWindow::updatePlaylistInfo() {
 }
 
 void MainWindow::toggleDockVisibility() {
+	static int frameWidth = -1;
+	if (frameWidth < 0)
+		frameWidth = (width() - (d->player->width() + d->dock->width()));
 	const bool visible = d->dock->isVisible();
 	if (!d->dock->isFloating() && !isFullScreen()) {
-		QSize size = this->size();
-		const int w = d->dock->frameGeometry().width();
-		size.rwidth() += visible ? -w : w;
+		int w = d->dock->frameGeometry().width();
+		if (frameWidth >= 0)
+			w += frameWidth;
 		d->player->keepSize(true);
 		if (visible) {
-			d->dock->setVisible(!visible);
-			resize(size);
+			d->dock->hide();
+			resize(width() - w, height());
 		} else {
-			resize(size);
-			d->dock->setVisible(!visible);
+			resize(width() + w, height());
+			d->dock->show();
 		}
 		d->player->keepSize(false);
 	} else

@@ -1,6 +1,7 @@
 #include "state.h"
 #include "helper.h"
 #include <QtCore/QSettings>
+#include <QtCore/QSize>
 
 State::Data::Data()
 : keys(TypeMax), values(TypeMax) {
@@ -17,6 +18,7 @@ State::Data::Data()
 	INIT(SubtitlePos, 100);
 	INIT(SubtitleSync, 0);
 	INIT(LastOpenFile, QString());
+	INIT(DockWidth, 100);
 #undef INIT
 }
 

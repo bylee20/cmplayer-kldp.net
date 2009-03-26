@@ -23,12 +23,14 @@ class DockWidget : public QDockWidget {
 public:
 	DockWidget(PlaylistModel *model, QWidget *parent = 0);
 	~DockWidget();
+	void setWidth(int width);
 public slots:
 	void checkRoot(bool checked);
 	void setAutoShutdown(bool shut);
 signals:
 	void hidingRequested();
 private slots:
+	void recoverWidthRange();
 	void add();
 	void erase();
 	void up();
@@ -40,6 +42,7 @@ private slots:
 	void adjustCellSize();
 private:
 	void showEvent(QShowEvent *event);
+	void hideEvent(QHideEvent *event);
 	void closeEvent(QCloseEvent *event);
 	struct Data;
 	friend struct Data;

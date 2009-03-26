@@ -11,6 +11,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QCloseEvent>
 #include "helper.h"
+#include <QtCore/QTimer>
 
 ShutdownDialog::ShutdownDialog(QWidget *parent)
 : QDialog(parent) {
@@ -57,16 +58,17 @@ struct DockWidget::Data {
 	PlaylistModel *model;
 	bool checking, adding;
 	bool identified;
+	int width, max, min;
 	ShutdownDialog *dlg;
 };
 
+
+
 DockWidget::DockWidget(PlaylistModel *model, QWidget *parent)
 : QDockWidget(parent), d(new Data) {
+	d->ui.setupUi(this);
 	d->checking = d->adding = d->identified = false;
 	d->model = model;
-// 	setWidget(new QWidget(this));
-	d->ui.setupUi(this);
-// 	d->ui.setupUi(widget());
 	setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 	d->dlg = new ShutdownDialog(this);
 	connect(d->ui.open_button, SIGNAL(clicked()), this, SLOT(open()));
@@ -83,6 +85,9 @@ DockWidget::DockWidget(PlaylistModel *model, QWidget *parent)
 	connect(d->model, SIGNAL(rowCountChanged(int)), this, SLOT(adjustCellSize()));
 	d->ui.list->setModel(model);
 	setWindowTitle(tr("Play List"));
+	d->width = width();
+	d->max = maximumWidth();
+	d->min = minimumWidth();
 }
 
 DockWidget::~DockWidget() {
@@ -174,9 +179,26 @@ void DockWidget::adjustCellSize() {
 void DockWidget::showEvent(QShowEvent *event) {
 	QDockWidget::showEvent(event);
 	adjustCellSize();
+	setFixedWidth(d->width);
+	QTimer::singleShot(1, this, SLOT(recoverWidthRange()));
+}
+
+void DockWidget::hideEvent(QHideEvent *event) {
+	QDockWidget::hideEvent(event);
+	d->width = width();
 }
 
 void DockWidget::closeEvent(QCloseEvent *event) {
 	event->ignore();
 	emit hidingRequested();
+}
+
+void DockWidget::recoverWidthRange() {
+	setMinimumWidth(d->min);
+	setMaximumWidth(d->max);
+}
+
+void DockWidget::setWidth(int width) {
+	d->width = width;
+	
 }

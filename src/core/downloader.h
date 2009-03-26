@@ -1,9 +1,11 @@
-#ifndef DOWNLOADER_H
-#define DOWNLOADER_H
+#ifndef CORE_DOWNLOADER_H
+#define CORE_DOWNLOADER_H
 
 #include <QtCore/QObject>
 
 class QUrl;					class QFile;
+
+namespace Core {
 
 class Downloader : public QObject {
 	Q_OBJECT
@@ -21,5 +23,7 @@ private:
 	struct Data;
 	Data *d;
 };
+
+}
 
 #endif

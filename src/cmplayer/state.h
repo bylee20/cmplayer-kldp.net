@@ -22,6 +22,7 @@ public:
 		SubtitlePos,
 		SubtitleSync,
 		LastOpenFile,
+		DockWidth,
 		TypeMax
 	};
 	const QString &key(Type type) const {return d.keys[type];}
