@@ -26,7 +26,8 @@ SOURCES += main.cpp \
  geturldialog.cpp \
  aboutdialog.cpp \
  appconnection.cpp \
- application.cpp
+ application.cpp \
+ playlistview.cpp
 HEADERS += mainwindow.h \
     abrepeatdialog.h \
     playinfowidget.h \
@@ -54,7 +55,8 @@ HEADERS += mainwindow.h \
  geturldialog.h \
  aboutdialog.h \
  appconnection.h \
- application.h
+ application.h \
+ playlistview.h
 FORMS += ./ui/abrepeatdialog.ui \
     ./ui/prefdialog.ui \
     ./ui/prefosdwidget.ui \

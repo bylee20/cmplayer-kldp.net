@@ -1,8 +1,7 @@
 #include "playlistmodel.h"
 #include "recentinfo.h"
 #include <QtCore/QUrl>
-#include <QDebug>
-#include <QTime>
+#include <QtCore/QMimeData>
 #include <QtGui/QFont>
 #include <core/mediasource.h>
 #include <core/playlist.h>
@@ -219,10 +218,114 @@ void PlaylistModel::insert(int row, const Core::MediaSource &source) {
 	emitDataChanged(row);
 }
 
+void PlaylistModel::insert(int row, const QList<Core::MediaSource> &sources) {
+	if (row < 0 || row >= d->list.size())
+		row = d->list.size();
+	qDebug() << row;
+	const int begin = row;
+	emit layoutAboutToBeChanged();
+	for (int i=0; i<sources.size(); ++i) {
+		d->list.insert(row, sources[i]);
+		++row;
+	}
+	emit rowCountChanged(d->list.size());
+	emit layoutChanged();
+	emit dataChanged(index(begin, 0), index(row, columnCount()-1));
+}
+
 void PlaylistModel::setPlaylist(const Core::Playlist &list, int current) {
 	d->list = list;
 	reset();
 	emit rowCountChanged(d->list.size());
 	d->row = -2;
 	setCurrentRow(current);
+}
+
+Qt::DropActions PlaylistModel::supportedDropActions() const {
+	return Qt::MoveAction;
+}
+
+Qt::ItemFlags PlaylistModel::flags(const QModelIndex &index) const {
+	Qt::ItemFlags f = QAbstractTableModel::flags(index) | Qt::ItemIsDropEnabled;
+	if (index.isValid())
+		f |= Qt::ItemIsDragEnabled;
+	return f;
+}
+
+QStringList PlaylistModel::mimeTypes() const {
+	QStringList types;
+	types << mimeType();
+	return types;
+}
+
+QMimeData *PlaylistModel::mimeData(const QModelIndexList &indexes) const {
+	QMimeData *mime = new QMimeData();
+	QByteArray data;
+	QDataStream stream(&data, QIODevice::WriteOnly);
+	QSet<int> rows;
+	for (int i=0; i<indexes.size(); ++i) {
+		const int row = indexes[i].row();
+		if (row != -1 && !rows.contains(row)) {
+			stream << row << d->list[row].url() << (currentRow() == row);
+			rows << row;
+		}
+	}
+	mime->setData(mimeType(), data);
+	return mime;
+}
+
+bool PlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action
+		, int row, int /*column*/, const QModelIndex &parent) {
+	if (action == Qt::IgnoreAction)
+		return true;
+	if (!data->hasFormat(mimeType()))
+		return false;
+	if (row == -1)
+		row = parent.isValid() ? parent.row() : rowCount();
+	QByteArray encoded = data->data(mimeType());
+	QDataStream stream(&encoded, QIODevice::ReadOnly);
+	QMap<int, Core::MediaSource> list;
+	int curRow = -1;
+	while (!stream.atEnd()) {
+		QUrl url;
+		bool current = false;
+		int r = -1;
+		stream >> r >> url >> current;
+		list.insert(r, Core::MediaSource(url));
+		if (current)
+			curRow = r;
+	}
+	if (!list.isEmpty()) {
+		emit layoutAboutToBeChanged();
+		QMapIterator<int, Core::MediaSource> it(list);
+		it.toBack();
+		int begin = row;
+		while (it.hasPrevious()) {
+			const int row = it.previous().key();
+			d->list.removeAt(row);
+			emitDataChanged(row);
+			if (row < begin)
+				--begin;
+		}
+		int end = begin;
+		it.toFront();
+		QList<int> rows;
+		while (it.hasNext()) {
+			it.next();
+			d->list.insert(end, it.value());
+			if (it.key() == curRow)
+				setCurrentRow(end);
+			rows.push_back(end);
+			++end;
+		}
+		emit layoutChanged();
+		emit rowCountChanged(d->list.size());
+		emit dataChanged(index(begin, 0), index(end, columnCount()-1));
+		emit dropped(rows);
+	}
+	return true;
+}
+
+bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+	return QAbstractTableModel::setData(index, value, role);
 }

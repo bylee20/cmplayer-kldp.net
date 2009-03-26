@@ -77,8 +77,8 @@ DockWidget::DockWidget(PlaylistModel *model, QWidget *parent)
 	connect(d->ui.up_button, SIGNAL(clicked()), this, SLOT(up()));
 	connect(d->ui.down_button, SIGNAL(clicked()), this, SLOT(down()));
 	connect(d->ui.clear_button, SIGNAL(clicked()), d->model, SLOT(clear()));
-	connect(d->ui.list, SIGNAL(activated(const QModelIndex&)),
-		this, SLOT(slotActivated(const QModelIndex&)));
+	connect(d->ui.list, SIGNAL(doubleClicked(const QModelIndex&)),
+		this, SLOT(slotDblClicked(const QModelIndex&)));
 	connect(d->ui.shutdown_check, SIGNAL(toggled(bool)), this, SLOT(checkRoot(bool)));
 	connect(d->ui.save_button, SIGNAL(clicked()), this, SLOT(save()));
 	connect(d->model, SIGNAL(playlistFinished()), this, SLOT(checkShutdown()));
@@ -166,7 +166,7 @@ void DockWidget::checkShutdown() {
 		qApp->quit();
 }
 
-void DockWidget::slotActivated(const QModelIndex &index) {
+void DockWidget::slotDblClicked(const QModelIndex &index) {
 	if (index.isValid())
 		d->model->play(index.row());
 }

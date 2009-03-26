@@ -38,7 +38,7 @@ private slots:
 	void checkShutdown();
 	void open();
 	void save();
-	void slotActivated(const QModelIndex &index);
+	void slotDblClicked(const QModelIndex &index);
 	void adjustCellSize();
 private:
 	void showEvent(QShowEvent *event);

@@ -172,20 +172,7 @@
      </layout>
     </item>
     <item>
-     <widget class="QTableView" name="list" >
-      <property name="alternatingRowColors" >
-       <bool>true</bool>
-      </property>
-      <property name="selectionBehavior" >
-       <enum>QAbstractItemView::SelectRows</enum>
-      </property>
-      <property name="verticalScrollMode" >
-       <enum>QAbstractItemView::ScrollPerPixel</enum>
-      </property>
-      <property name="horizontalScrollMode" >
-       <enum>QAbstractItemView::ScrollPerPixel</enum>
-      </property>
-     </widget>
+     <widget class="PlaylistView" name="list" />
     </item>
     <item>
      <widget class="QCheckBox" name="shutdown_check" >
@@ -197,6 +184,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PlaylistView</class>
+   <extends>QTableView</extends>
+   <header>playlistview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../rsclist.qrc" />
  </resources>
