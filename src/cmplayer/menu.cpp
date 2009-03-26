@@ -62,6 +62,7 @@ Menu &Menu::create(QWidget *parent) {
 		
 	Menu *size = screen->addMenu("size");
 	size->setIcon(QIcon(":/img/transform-scale.png"));
+	QAction *to25 = size->addActionToGroup("25%", false);
 	QAction *to50 = size->addActionToGroup("50%", false);
 	QAction *to100 = size->addActionToGroup("100%", false);
 	QAction *to200 = size->addActionToGroup("200%", false);
@@ -69,12 +70,14 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *to400 = size->addActionToGroup("400%", false);
 	QAction *toFull = size->addActionToGroup("full", true);
 	size->g()->setExclusive(false);
+	to25->setData(0.25);
 	to50->setData(0.5);
 	to100->setData(1.0);
 	to200->setData(2.0);
 	to300->setData(3.0);
 	to400->setData(4.0);
 	toFull->setData(-1.0);
+	to25->setShortcut(QKeySequence("Shift+`"));
 	to50->setShortcut(QKeySequence("`"));
 	to100->setShortcut(Qt::Key_1);
 	to200->setShortcut(Qt::Key_2);
@@ -82,7 +85,6 @@ Menu &Menu::create(QWidget *parent) {
 	to400->setShortcut(Qt::Key_4);
 	toFull->setShortcuts(QList<QKeySequence>()
 			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
-	
 
 	Menu *aspect = screen->addMenu("aspect");
 	aspect->setIcon(QIcon(":/img/zoom-fit-best.png"));
@@ -185,6 +187,9 @@ Menu &Menu::create(QWidget *parent) {
 	subtitle->addSeparator();
 		
 	subtitle->addActionToGroup("sync add", false, "sync")->setShortcut(Qt::Key_D);
+	QAction *syncReset = subtitle->addActionToGroup("sync reset", false, "sync");
+	syncReset->setShortcut(Qt::Key_Q);
+	syncReset->setData(0);
 	subtitle->addActionToGroup("sync sub", false, "sync")->setShortcut(Qt::Key_A);
 
 	Menu *video = root->addMenu("video");
@@ -396,6 +401,7 @@ void Menu::updatePref() {
 			, tr("Up %1%"), p->subtitlePosStep(), false);
 	setActionAttr(sub["pos down"], p->subtitlePosStep()
 			, tr("Down %1%"), p->subtitlePosStep(), false);
+	sub["sync reset"]->setText(tr("Reset Sync"));
 	setActionStep(sub["sync add"], sub["sync sub"]
 			, tr("Sync %1sec."), p->syncDelayStep(), 0.001);
 	

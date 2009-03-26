@@ -946,11 +946,19 @@ void MainWindow::slotRepeat(int key) {
 	}
 }
 
+void MainWindow::setSyncDelay(int diff) {
+	if (diff)
+		d->player->setSyncDelay(d->player->syncDelay() + diff);
+	else
+		d->player->setSyncDelay(0);
+	const QString sync = Menu::toString(d->player->syncDelay()*0.001, true);
+	showMessage(tr("Subtitle Sync: %1sec.").arg(sync));
+}
+
 #define DEC_DIFF_SETTER_MSG(setter, getter, msg, factor, sign)\
 void MainWindow::setter(int diff) {d->player->setter(d->player->getter() + diff);\
 showMessage(msg.arg(Menu::toString(d->player->getter()*factor, sign)));}
 
-DEC_DIFF_SETTER_MSG(setSyncDelay, syncDelay, MainWindow::tr("Subtitle Sync: %1sec."), 0.001, true)
 DEC_DIFF_SETTER_MSG(setVolume, volume, MainWindow::tr("Volume: %1%"), 1, false)
 DEC_DIFF_SETTER_MSG(setSubtitlePos, subtitlePos, MainWindow::tr("Subtitle Position: %1%"), 1, false)
 DEC_DIFF_SETTER_MSG(setAmplifyingRate, amplifyingRate, MainWindow::tr("Amp.: %2% (Max.: %1%)")
