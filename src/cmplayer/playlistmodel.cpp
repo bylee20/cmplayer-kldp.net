@@ -90,23 +90,11 @@ void PlaylistModel::play(int row) {
 }
 
 void PlaylistModel::playNext() {
-	const int row = d->row + 1;
-	if (d->list.isEmpty() || row >= d->list.size())
-		return;
-	if (d->player->nextSource() != d->list[row])
-		d->player->setNextSource(d->list[row]);
-	d->player->playNext(RecentInfo::get()->stoppedTime(d->list[row]));
-	setCurrentRow(row, false);
+	play(d->row + 1);
 }
 
 void PlaylistModel::playPrevious() {
-	const int row = d->row - 1;
-	if (d->list.isEmpty() || row < 0)
-		return;
-	if (d->player->nextSource() != d->list[row])
-		d->player->setNextSource(d->list[row]);
-	d->player->playNext(RecentInfo::get()->stoppedTime(d->list[row]));
-	setCurrentRow(row, false);
+	play(d->row - 1);
 }
 
 void PlaylistModel::setLoopEnabled(bool enabled) {

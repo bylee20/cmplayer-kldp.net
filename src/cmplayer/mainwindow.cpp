@@ -737,7 +737,7 @@ void MainWindow::setSpeed(int diff) {
 	showMessage(trUtf8("Speed: \303\227%1").arg(speed));
 }
 
-void MainWindow::slotStateChanged(Core::State state, Core::State old) {
+void MainWindow::slotStateChanged(Core::State state, Core::State /*old*/) {
 	if (state == Core::Playing) {
 		d->menu("play")["pause"]->setIcon(QIcon(":/img/media-playback-pause.png"));
 		d->menu("play")["pause"]->setText(tr("Pause"));
