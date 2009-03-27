@@ -275,7 +275,7 @@ void MainWindow::loadState() {
 }
 
 QIcon MainWindow::defaultIcon() {
-	return QIcon(":/img/logo/cmplayer-logo128.png");
+	return QIcon(":/img/cmplayer-icon.png");
 }
 
 void MainWindow::setupUi() {
