@@ -62,6 +62,7 @@ void PlayEngine::slotStateChanged(Core::State state, Core::State old) {
 			d->video->activateMouseTracking(currentSource().isDisc());
 		break;
 	case Core::Stopped:
+	case Core::Finished:
 		d->ticker.stop();
 		break;
 	case Core::Paused:
@@ -116,7 +117,7 @@ void PlayEngine::eventListener(void *userData, const xine_event_t *event) {
 void PlayEngine::customEvent(QEvent *event) {
 	Core::BaseEvent *be = static_cast<Core::BaseEvent*>(event);
 	if (be->type() == Core::BaseEvent::EndOfStream) {
-		setState(Core::Stopped);
+		setState(Core::Finished);
 		emit finished(currentSource());
 	} else if (be->type() == Core::BaseEvent::UpdateInfo) {
 		updateStreamInfo();

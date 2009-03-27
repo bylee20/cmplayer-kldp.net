@@ -27,7 +27,7 @@ public:
 	MediaSource currentSource() const {return *d->source;}
 	State state() const {return d->state;}
 	bool isPlaying() const {return d->state == Playing;}
-	bool isStopped() const {return d->state == Stopped;}
+	bool isStopped() const {return d->state == Stopped || d->state == Finished;}
 	bool isPaused() const {return d->state == Paused;}
 	int duration() const {return d->duration;}
 	bool isSeekable() const {return d->seekable;}

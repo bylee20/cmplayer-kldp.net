@@ -184,11 +184,12 @@ void PlayEngine::slotStateChanged(Core::State /*state*/, Core::State /*old*/){
 }
 
 void PlayEngine::slotProcFinished() {
-	setState(Core::Stopped);
 	if (d->justFinished) {
+		setState(Core::Finished);
 		emit finished(currentSource());
 		d->justFinished = false;
-	}
+	} else
+		setState(Core::Stopped);
 }
 
 void PlayEngine::replay() {

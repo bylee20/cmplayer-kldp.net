@@ -168,10 +168,6 @@ void MainWindow::commonInitialize() {
 			, this, SLOT(slotSpusChanged(const QStringList&)));
 	connect(d->player, SIGNAL(currentSpuChanged(const QString&))
 			, this, SLOT(slotCurrentSpuChanged(const QString&)));
-	connect(d->player, SIGNAL(stopped(Core::MediaSource, int))
-			, d->recent, SLOT(setStopped(const Core::MediaSource&, int)));
-	connect(d->player, SIGNAL(finished(Core::MediaSource))
-			, d->recent, SLOT(setFinished(const Core::MediaSource&)));
 	connect(d->player, SIGNAL(customContextMenuRequested(const QPoint&))
 			, this, SLOT(showContextMenu(const QPoint&)));
 	connect(d->dock, SIGNAL(hidingRequested()), this, SLOT(toggleDockVisibility()));
@@ -741,7 +737,7 @@ void MainWindow::setSpeed(int diff) {
 	showMessage(trUtf8("Speed: \303\227%1").arg(speed));
 }
 
-void MainWindow::slotStateChanged(Core::State state, Core::State /*old*/) {
+void MainWindow::slotStateChanged(Core::State state, Core::State old) {
 	if (state == Core::Playing) {
 		d->menu("play")["pause"]->setIcon(QIcon(":/img/media-playback-pause.png"));
 		d->menu("play")["pause"]->setText(tr("Pause"));

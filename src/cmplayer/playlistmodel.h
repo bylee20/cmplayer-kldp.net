@@ -45,7 +45,7 @@ public:
 	bool setData(const QModelIndex &index, const QVariant &value, int role);
 public slots:
 	void setCurrentSource(const Core::MediaSource &source);
-	void setCurrentRow(int row);
+	void setCurrentRow(int row, bool setSource = true);
 	void playNext();
 	void playPrevious();
 	void clear();
@@ -59,12 +59,13 @@ signals:
 	void dropped(const QList<int> &row);
 private slots:
 	void slotFinished(const Core::MediaSource &source);
+	void updateNext();
 private:
 	static QString mimeType() {
 		return QString("application/net.xylosper.cmplayer.playlist");
 	}
-	void emitDataChanged(int row) {
-		emit dataChanged(index(row, 0), index(row, columnCount()-1));
+	void emitDataChanged(int from, int to = -1) {
+		emit dataChanged(index(from, 0), index(to == -1 ? from : to, columnCount()-1));
 	}
 	struct Data;
 	Data *d;

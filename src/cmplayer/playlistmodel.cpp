@@ -25,6 +25,9 @@ PlaylistModel::PlaylistModel(VideoPlayer *player, QObject *parent)
 	d->font.setBold(true);
 	connect(d->player, SIGNAL(finished(Core::MediaSource))
 	        , this, SLOT(slotFinished(const Core::MediaSource&)));
+	connect(this, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&))
+			, this, SLOT(updateNext()));
+	connect(this, SIGNAL(rowCountChanged(int)), this, SLOT(updateNext()));
 }
 
 PlaylistModel::~PlaylistModel() {
@@ -81,20 +84,29 @@ void PlaylistModel::remove(int row) {
 void PlaylistModel::play(int row) {
 	if (row < 0 || row >= d->list.size())
 		return;
-	setCurrentRow(row);
-	d->player->play(RecentInfo::get()->stoppedTime(d->list[row]));
+	d->player->setNextSource(d->list[row]);
+	d->player->playNext(RecentInfo::get()->stoppedTime(d->list[row]));
+	setCurrentRow(row, false);
 }
 
 void PlaylistModel::playNext() {
-	if (d->list.isEmpty())
+	const int row = d->row + 1;
+	if (d->list.isEmpty() || row >= d->list.size())
 		return;
-	play(d->row + 1);
+	if (d->player->nextSource() != d->list[row])
+		d->player->setNextSource(d->list[row]);
+	d->player->playNext(RecentInfo::get()->stoppedTime(d->list[row]));
+	setCurrentRow(row, false);
 }
 
 void PlaylistModel::playPrevious() {
-	if (d->list.isEmpty())
+	const int row = d->row - 1;
+	if (d->list.isEmpty() || row < 0)
 		return;
-	play(d->row - 1);
+	if (d->player->nextSource() != d->list[row])
+		d->player->setNextSource(d->list[row]);
+	d->player->playNext(RecentInfo::get()->stoppedTime(d->list[row]));
+	setCurrentRow(row, false);
 }
 
 void PlaylistModel::setLoopEnabled(bool enabled) {
@@ -182,7 +194,7 @@ void PlaylistModel::setCurrentSource(const Core::MediaSource &source) {
 	setCurrentRow(idx);
 }
 
-void PlaylistModel::setCurrentRow(int row) {
+void PlaylistModel::setCurrentRow(int row, bool setSource) {
 	if (row < 0 || row >= d->list.size())
 		row = -1;
 	if (row == d->row)
@@ -193,7 +205,8 @@ void PlaylistModel::setCurrentRow(int row) {
 		emitDataChanged(old);
 	if (d->row != -1) {
 		emitDataChanged(d->row);
-		d->player->setCurrentSource(d->list[d->row]);
+		if (setSource)
+			d->player->setCurrentSource(d->list[d->row]);
 	}
 }
 
@@ -230,7 +243,7 @@ void PlaylistModel::insert(int row, const QList<Core::MediaSource> &sources) {
 	}
 	emit rowCountChanged(d->list.size());
 	emit layoutChanged();
-	emit dataChanged(index(begin, 0), index(row, columnCount()-1));
+	emitDataChanged(begin, row);
 }
 
 void PlaylistModel::setPlaylist(const Core::Playlist &list, int current) {
@@ -320,7 +333,7 @@ bool PlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 		}
 		emit layoutChanged();
 		emit rowCountChanged(d->list.size());
-		emit dataChanged(index(begin, 0), index(end, columnCount()-1));
+		emitDataChanged(begin, end);
 		emit dropped(rows);
 	}
 	return true;
@@ -328,4 +341,8 @@ bool PlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 
 bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int role) {
 	return QAbstractTableModel::setData(index, value, role);
+}
+
+void PlaylistModel::updateNext() {
+	d->player->setNextSource(d->list.value(d->row + 1));
 }

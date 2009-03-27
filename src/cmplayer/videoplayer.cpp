@@ -1,6 +1,7 @@
 #include "videoplayer.h"
 #include "pref.h"
 #include "dummyengine.h"
+#include "recentinfo.h"
 #include <core/info.h>
 #include <core/backendiface.h>
 #include <QtGui/QStackedWidget>
@@ -49,11 +50,11 @@ struct VideoPlayer::Data {
 	QWidget *main;
 	QStackedWidget *stack;
 	QSize minSize, maxSize;
-	bool keepSize;
+	bool keepSize, changing;
 	QMap<QString, Core::PlayEngine*> engines;
 	DummyEngine *dummy;
 	Core::PlayEngine *engine;
-	Core::MediaSource next;
+	Core::MediaSource *next;
 	static Backend backend;
 };
 
@@ -72,8 +73,9 @@ VideoPlayer::VideoPlayer(QWidget *main, QWidget *parent)
 	d->dummy = new DummyEngine;
 	d->minSize = minimumSize();
 	d->maxSize = maximumSize();
-	d->keepSize = false;
-
+	d->changing = d->keepSize = false;
+	d->next = 0;
+	
 	setMinimumSize(320, 240);
 	setMouseTracking(true);
 	setContextMenuPolicy(Qt::CustomContextMenu);
@@ -104,6 +106,7 @@ VideoPlayer::~VideoPlayer() {
 	QMap<QString, Core::PlayEngine*>::iterator it = d->engines.begin();
 	for (; it != d->engines.end(); ++it)
 		delete it.value();
+	delete d->next;
 	delete d;
 }
 
@@ -154,7 +157,7 @@ void VideoPlayer::setBackend(const QString &name) {
 		connect(engine->widget(), SIGNAL(customContextMenuRequested(const QPoint&))
 				, this, SIGNAL(customContextMenuRequested(const QPoint&)));
 		connect(engine, SIGNAL(stateChanged(Core::State, Core::State))
-				, this, SIGNAL(stateChanged(Core::State, Core::State)));
+				, this, SLOT(slotStateChanged(Core::State, Core::State)));
 		connect(engine, SIGNAL(finished(Core::MediaSource))
 				, this, SLOT(slotFinished(Core::MediaSource)));
 		connect(engine, SIGNAL(stopped(Core::MediaSource, int))
@@ -213,11 +216,51 @@ const Core::PlayEngine *VideoPlayer::engine() const {
 	return d->engine;
 }
 
+Core::MediaSource VideoPlayer::nextSource() const {
+	return d->next ? *d->next : Core::MediaSource();
+}
+
+void VideoPlayer::setNextSource(const Core::MediaSource &source) {
+	if (!d->next)
+		d->next = new Core::MediaSource(source);
+	else if (*d->next != source)
+		*d->next = source;
+}
+
+bool VideoPlayer::hasNextSource() const {
+	return d->next != 0;
+}
+
+void VideoPlayer::playNext(int time) {
+	if (d->next) {
+		d->changing = true;
+		setCurrentSource(*d->next);
+		delete d->next;
+		d->next = 0;
+		play(time);
+	}
+}
+
+bool VideoPlayer::changingSource() const {
+	return d->changing;
+}
+
+void VideoPlayer::slotStateChanged(Core::State state, Core::State old) {
+	if (state == Core::Finished && d->next) {
+		playNext(RecentInfo::get()->stoppedTime(*d->next));
+	} else if (d->changing && state == Core::Stopped)
+		d->changing = false;
+	else
+		emit stateChanged(state, old);
+}
+
 void VideoPlayer::slotFinished(Core::MediaSource source) {
+	RecentInfo::get()->setFinished(source);
 	emit finished(source);
 }
 
 void VideoPlayer::slotStopped(Core::MediaSource source, int time) {
+	RecentInfo::get()->setStopped(source, time);
 	emit stopped(source, time);
 }
 
@@ -226,10 +269,6 @@ void VideoPlayer::setCurrentSource(const Core::MediaSource &source) {
 		setBackend(Pref::get()->backendName(source.type()));
 		ENGINE_SET(setCurrentSource, source);
 	}
-}
-
-void VideoPlayer::setNextSource(const Core::MediaSource &source) {
-	d->next = source;
 }
 
 void VideoPlayer::seek(int time, bool relative, bool show) {

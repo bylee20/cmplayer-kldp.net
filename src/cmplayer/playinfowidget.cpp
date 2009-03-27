@@ -79,6 +79,8 @@ void PlayInfoWidget::setState(Core::State state) {
 	QString text;
 	if (state == Core::Stopped)
 		text += tr("Stopped");
+	else if (state == Core::Finished)
+		text += tr("Finished");
 	else if (state == Core::Playing)
 		text += tr("Playing");
 	else
