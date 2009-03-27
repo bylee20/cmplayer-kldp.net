@@ -3,6 +3,7 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
+#include <QtCore/QTime>
 
 namespace Core {
 

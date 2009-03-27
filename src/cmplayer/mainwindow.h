@@ -59,6 +59,7 @@ private slots:
 	void showAbout();
 	void hideCursor();
 	void slotTrayActivated(QSystemTrayIcon::ActivationReason reason);
+	void takeSnapshot();
 private:
 	typedef QPair<QAction*, QAction*> ActionPair;
 	QWidget *createControl(QWidget *parent);

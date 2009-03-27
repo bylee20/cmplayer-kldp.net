@@ -7,13 +7,13 @@
 #include "mediasource.h"
 #include "namespace.h"
 
-class QSize;
+class QSize;				class QImage;
 
 namespace Core {
 
 class Subtitle;				class OsdStyle;
 class AbstractOsdRenderer;		class VideoRendererIface;
-class Info;				class SubtitleRenderer;
+class Info;					class SubtitleRenderer;
 class DummyWidget;			class ABRepeater;
 
 class PlayEngine : public QObject {
@@ -71,6 +71,7 @@ public:
 	virtual const Info &info() const = 0;
 public slots:
 	virtual void play(int time);
+	virtual void triggerSnapshot();
 	virtual void play() = 0;
 	virtual void stop() = 0;
 	virtual void pause() = 0;
@@ -93,7 +94,6 @@ public slots:
 	void showTimeLine(int duration = 2000);
 	void setSubtitlePos(double pos);
 	void setSpeed(double speed);
-// 	void setVideoProperty(VideoProperty prop, double value);
 signals:
 	void hasVideoChanged(bool has);
 	void stateChanged(Core::State state, Core::State old);
@@ -112,6 +112,7 @@ signals:
 	void currentTrackChanged(const QString &track);
 	void spusChanged(const QStringList &spus);
 	void currentSpuChanged(const QString &spu);
+	void snapshotTaken(const QImage &image);
 protected:
 	static bool isSame(double v1, double v2) {return qAbs(v1-v2) < 1.0e-5;}
 	double realVolume() const;

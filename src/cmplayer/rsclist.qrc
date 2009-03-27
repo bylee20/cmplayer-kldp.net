@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="/" >
+    <file>img/zoom-original.png</file>
+    <file>img/zoom-in.png</file>
+    <file>img/zoom-out.png</file>
+    <file>img/snapshot.png</file>
     <file>img/logo/cmplayer-logo8.png</file>
     <file>img/logo/cmplayer-logo16.png</file>
     <file>img/logo/cmplayer-logo32.png</file>

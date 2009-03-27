@@ -26,6 +26,8 @@ private:
 	virtual void render();
 	class Clut;
 	void drawPixmap(const QPixmap &pixmap);
+	void drawImage(const QImage &image);
+	void drawImage(const QImage &image, const QRect &rect);
 	struct Data;
 	Data *d;
 };

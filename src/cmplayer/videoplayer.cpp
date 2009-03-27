@@ -173,6 +173,8 @@ void VideoPlayer::setBackend(const QString &name) {
 				, this, SIGNAL(spusChanged(const QStringList&)));
 		connect(engine, SIGNAL(currentSpuChanged(const QString&))
 				, this, SIGNAL(currentSpuChanged(const QString&)));
+		connect(engine, SIGNAL(snapshotTaken(const QImage&))
+				, this, SIGNAL(snapshotTaken(const QImage&)));
 		d->stack->addWidget(engine->widget());
 		it = d->engines.insert(name, engine);
 	}
@@ -265,6 +267,7 @@ DEC_ENGINE_SETTER_CHECK(bool, setVolumeNormalized, isVolumeNormalized)
 DEC_ENGINE_SETTER_CHECK(bool, setSubtitleVisible, isSubtitleVisible)
 DEC_ENGINE_SETTER_CHECK(bool, setUseSoftwareEqualizer, useSoftwareEqualizer);
 
+DEC_ENGINE_CALL0(triggerSnapshot)
 DEC_ENGINE_CALL0(play)
 DEC_ENGINE_CALL0(pause)
 DEC_ENGINE_CALL0(stop)

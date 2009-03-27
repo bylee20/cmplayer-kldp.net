@@ -15,6 +15,7 @@
 #include "translator.h"
 #include "geturldialog.h"
 #include "aboutdialog.h"
+#include "snapshotdialog.h"
 #include <core/info.h>
 #include <core/backendiface.h>
 #include <core/playlist.h>
@@ -49,6 +50,7 @@ struct MainWindow::Data {
 	Pref *pref;
 	Menu &menu;
 	ABRepeatDialog *repeater;
+	SnapshotDialog *snapshot;
 	QTimer hider;
 	QSystemTrayIcon *tray;
 };
@@ -82,6 +84,8 @@ void MainWindow::commonInitialize() {
 	d->changingSubtitle = d->changingOnTop = d->pausedByHiding = false;
 	d->player = new VideoPlayer(this);
 	d->repeater = new ABRepeatDialog(this);
+	d->snapshot = new SnapshotDialog(this);
+	d->snapshot->setVideoPlayer(d->player);
 	
 	d->model = new PlaylistModel(d->player);
 	d->recent = RecentInfo::get();
@@ -106,6 +110,7 @@ void MainWindow::commonInitialize() {
 	connect(screen("aspect").g(), SIGNAL(triggered(double)), d->player, SLOT(setAspectRatio(double)));
 	connect(screen("crop").g(), SIGNAL(triggered(double)), d->player, SLOT(setCropRatio(double)));
 	connect(screen("on top").g(), SIGNAL(triggered(QAction*)), this, SLOT(updateOnTop()));
+	connect(screen["snapshot"], SIGNAL(triggered()), this, SLOT(takeSnapshot()));
 	Menu &play = menu("play");
 	connect(play["dvd menu"], SIGNAL(triggered()), d->player, SLOT(toggleDvdMenu()));
 	connect(play["stop"], SIGNAL(triggered()), d->player, SLOT(stop()));
@@ -120,7 +125,8 @@ void MainWindow::commonInitialize() {
 	Menu &video = menu("video");
 	connect(video.g("color"), SIGNAL(triggered(QAction*))
 			, this, SLOT(setColorProperty(QAction*)));
-	connect(video("renderer").g(), SIGNAL(triggered(QAction*)), this, SLOT(setRenderer(QAction*)));
+	connect(video("renderer").g(), SIGNAL(triggered(QAction*))
+			, this, SLOT(setRenderer(QAction*)));
 	Menu &audio = menu("audio");
 	connect(audio.g("volume"), SIGNAL(triggered(int)), this, SLOT(setVolume(int)));
 	connect(audio["mute"], SIGNAL(toggled(bool)), d->player, SLOT(setMuted(bool)));
@@ -991,4 +997,10 @@ void MainWindow::slotTrayActivated(QSystemTrayIcon::ActivationReason reason) {
 void MainWindow::showMessage(const QString &text) {
 	d->player->showMessage(text);
 	d->playInfo->showMessage(text);
+}
+
+void MainWindow::takeSnapshot() {
+	d->snapshot->take();
+	d->snapshot->show();
+	
 }

@@ -4,6 +4,7 @@
 #include <core/videorendereriface.h>
 #include <QtGui/QWidget>
 #include <QtGui/QPainter>
+#include <QtGui/QImage>
 
 class DummyEngine::Osd : public Core::PainterOsdRenderer {
 public:
@@ -43,6 +44,7 @@ public:
 		return osd;
 	}
 	Core::VideoType type() const {return Core::AutoVideo;}
+	QImage grabCurrentFrame() const {return QImage();}
 private:
 	void paintEvent(QPaintEvent */*event*/) {
 		QPainter painter(this);

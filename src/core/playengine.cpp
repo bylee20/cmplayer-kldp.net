@@ -491,6 +491,13 @@ void PlayEngine::setFrameRate(double rate) {
 		d->subRenderer->setFrameRate(d->frameRate);
 }
 
+void PlayEngine::triggerSnapshot() {
+	QImage image;
+	if (d->renderer)
+		image = d->renderer->grabCurrentFrame();
+	emit snapshotTaken(image);
+}
+
 }
 
 

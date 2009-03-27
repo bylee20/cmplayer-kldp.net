@@ -21,7 +21,7 @@ public:
 	bool tellmp(const QString &command, T value) {
 		return tellmp(command, QString::number(value));
 	}
-	bool tellmp(const QString &command, const QString &value, const QString &option = QString::null);
+	bool tellmp(const QString &command, const QString &value, const QString &option = QString());
 	virtual int currentTime() const {return m_time;}
 	virtual const Core::Info &info() const;
 	virtual void play(int time);
@@ -32,21 +32,23 @@ public:
 	virtual void seek(int time, bool relative, bool showTimeLinee, int duration);
 	virtual void showMessage(const QString &message, int duration);
 	virtual void showTimeLine(int time, int duration);
+	virtual void triggerSnapshot();
 public slots:
 	void replay();
 // 	void seekChapter(int number);
 // 	void playTitle(int number);
-protected slots:
-	void update();
 private slots:
+	void update();
 	void slotOsdRectChanged();
 	void slotStateChanged(Core::State state, Core::State old);
 	void slotProcFinished();
+	void slotGotSnapshot(const QString &file);
 private:
 	static const QString &getDontMessUp();
 	static const QStringList &getDefaultArgs();
 	void setOsdLevel(int level);
 	void setCurrentTime(int time) {if (m_time != time) emit tick(m_time = time);}
+	void customEvent(QEvent *event);
 	virtual bool updateCurrentTrack(const QString &track);
 	virtual void updateVolume();
 	virtual void updateSpeed(double speed);
@@ -67,6 +69,7 @@ private:
 	bool start(int time = 0);
 	void updateInfo();
 	class Data;
+	class Thread;
 	friend class MPlayerProcess;
 	int m_time;
 	Data *d;

@@ -27,7 +27,8 @@ SOURCES += main.cpp \
  aboutdialog.cpp \
  appconnection.cpp \
  application.cpp \
- playlistview.cpp
+ playlistview.cpp \
+ snapshotdialog.cpp
 HEADERS += mainwindow.h \
     abrepeatdialog.h \
     playinfowidget.h \
@@ -56,14 +57,16 @@ HEADERS += mainwindow.h \
  aboutdialog.h \
  appconnection.h \
  application.h \
- playlistview.h
+ playlistview.h \
+ snapshotdialog.h
 FORMS += ./ui/abrepeatdialog.ui \
     ./ui/prefdialog.ui \
     ./ui/prefosdwidget.ui \
  ui/prefstack.ui \
  ui/geturldialog.ui \
  ui/aboutdialog.ui \
- ui/dockwidget.ui
+ ui/dockwidget.ui \
+ ui/snapshotdialog.ui
 CONFIG += debug \
     debug_and_release \
  qdbus

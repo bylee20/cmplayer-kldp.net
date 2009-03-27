@@ -7,6 +7,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QImage>
 
 namespace Xine {
 
@@ -129,6 +130,27 @@ void NativeRenderer::rerender() {
 
 const Core::PlayEngine *NativeRenderer::engine() const {
 	return d->engine;
+}
+
+// from kaffeine
+
+QImage NativeRenderer::grabCurrentFrame() const {
+	if (!stream()->stream)
+		return QImage();
+	int width, height, ratio, format, size;
+	uint8_t *buffer = 0;
+	if (!xine_get_current_frame_alloc(stream()->stream, &width, &height
+		    , &ratio, &format, &buffer, &size))
+		return QImage();
+	QByteArray data(reinterpret_cast<char*>(buffer), size);
+	QImage image;
+	if (format == XINE_IMGFMT_YUY2)
+		image = imageFromYuy2(data, width, height);
+	else if (format == XINE_IMGFMT_YV12)
+		image = imageFromYv12(data, width, height);
+	if (image.height() > osdRect().height())
+		image = image.copy(osdRect());
+	return image;
 }
 
 }

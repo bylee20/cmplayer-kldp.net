@@ -7,9 +7,60 @@
 #include <core/utility.h>
 #include <core/osdstyle.h>
 #include <core/nativerenderer.h>
+#include <core/baseevent.h>
+#include <QtGui/QApplication>
 #include <QtCore/QTemporaryFile>
+#include <QtCore/QThread>
+#include <QtCore/QFileInfo>
 
 namespace MPlayer {
+
+class SnapshotEvent : public Core::BaseEvent {
+public:
+	static const int Type = BaseEvent::UserType + 1;
+	SnapshotEvent(): Core::BaseEvent(Type) {}
+	QImage snapshot;
+};
+	
+class PlayEngine::Thread : public QThread {
+public:
+	Thread() {
+		quit = false;
+	}
+	~Thread() {
+		QFile::remove(this->file);
+	}
+	PlayEngine *engine;
+	QString dir;
+	bool quit;
+	void stop() {
+		if (isRunning()) {
+			quit = true;
+			if (!wait(30000))
+				terminate();
+		}
+	}
+	void getSnapshot(const QString &file) {
+		stop();
+		quit = false;
+		if (this->file != file) {
+			QFile::remove(this->file);
+			this->file = file;
+		}
+		start();
+	}
+private:
+	void run() {
+		SnapshotEvent *event = new SnapshotEvent;
+		for (int i = 0; i<1000 && !quit && event->snapshot.isNull(); ++i) {
+			msleep(60);
+			event->snapshot = QImage(file);
+		}
+		if (!quit)
+			QApplication::postEvent(engine, event);
+	}
+	QString file;
+};
 
 struct PlayEngine::Data {
 	Data(): tempsub(getTempSub()) {}
@@ -24,29 +75,34 @@ struct PlayEngine::Data {
 	const QString tempsub;
 	int osdLevel;
 	Core::NativeRenderer *renderer;
-	QString vo, ao;
+	QString vo, ao, snapshot;
 	QMap<QString, int> tracks;
+	Thread thread;
 };
 
 PlayEngine::PlayEngine(QObject *parent)
 : Core::PlayEngine(parent), d(new Data) {
 	d->proc = new MPlayerProcess(this);
+	d->proc->setWorkingDirectory(Info::privatePath());
 	d->seeking = d->justFinished = d->gotInfo = false;
-	d->osdLevel = 0;
-	m_time = 0;
+	d->osdLevel = m_time = 0;
 	d->renderer = new Core::NativeRenderer(this);
+	d->thread.engine = this;
 	setVideoRenderer(d->renderer);
 
 	connect(d->proc, SIGNAL(finished(int, QProcess::ExitStatus))
-		, this, SLOT(slotProcFinished()));
+			, this, SLOT(slotProcFinished()));
+	connect(d->proc, SIGNAL(gotSnapshot(const QString&))
+			, this, SLOT(slotGotSnapshot(const QString&)));
 	connect(this, SIGNAL(stateChanged(Core::State, Core::State))
-		, this, SLOT(slotStateChanged(Core::State, Core::State)));
+			, this, SLOT(slotStateChanged(Core::State, Core::State)));
 	connect(d->renderer, SIGNAL(osdRectChanged(const QRect&))
-		, this, SLOT(slotOsdRectChanged()));
+			, this, SLOT(slotOsdRectChanged()));
 }
 
 PlayEngine::~PlayEngine() {
 	stop();
+	d->thread.stop();
 	d->renderer->hide();
 	setVideoRenderer(0);
 	delete d->renderer;
@@ -62,7 +118,8 @@ const QStringList &PlayEngine::getDefaultArgs() {
 			<< "-fontconfig" << "-zoom" << "-nokeepaspect"
 			<< "-noautosub" << "-osdlevel" << QString::number(0)
 			<< "-utf8" << "-subcp" << "UFT-8" << "-softvol"
-			<< "-softvol-max" << QString::number(1000.0);
+			<< "-softvol-max" << QString::number(1000.0)
+			<< "-vf-add" << "screenshot";
 	return args;
 }
 
@@ -411,6 +468,21 @@ bool PlayEngine::updateAudioRenderer(const QString &name) {
 
 bool PlayEngine::updateCurrentTrack(const QString &track) {
 	return d->tracks.contains(track) && tellmp("switch_audio", d->tracks[track]);
+}
+
+void PlayEngine::triggerSnapshot() {
+	tellmp("screenshot", 0);
+}
+
+void PlayEngine::slotGotSnapshot(const QString &file) {
+	d->thread.getSnapshot(d->proc->workingDirectory() + '/' + file);
+}
+
+void PlayEngine::customEvent(QEvent *event) {
+	if (static_cast<Core::BaseEvent*>(event)->type() == SnapshotEvent::Type)
+		emit snapshotTaken(static_cast<SnapshotEvent*>(event)->snapshot);
+	else
+		Core::PlayEngine::customEvent(event);
 }
 
 // void PlayEngine::updateVideo() {}

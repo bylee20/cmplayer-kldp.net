@@ -61,6 +61,7 @@ public:
 	static const BackendMap &load(const QString &path = QString());
 	static const BackendMap &backend();
 public slots:
+	void triggerSnapshot();
 	void stop();
 	void setMuted(bool muted);
 	void setSubtitleVisible(bool visible);
@@ -88,6 +89,7 @@ signals:
 	void currentTrackChanged(const QString &track);
 	void currentSpuChanged(const QString &spu);
 	void spusChanged(const QStringList &spus);
+	void snapshotTaken(const QImage &image);
 private slots:
 	void slotFinished(Core::MediaSource source);
 	void slotStopped(Core::MediaSource source, int time);

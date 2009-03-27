@@ -48,7 +48,7 @@ XineOsd::Clut::Clut(): m_clut(256) {
 			m_transMap[i] = 0;
 			m_clut[i++] = qRgba(0, 0, 0, 0);
 		} else {
-			m_transMap[i] = 255;
+			m_transMap[i] = 120;
 			m_clut[i++] = rgb;
 		}
 	}}}
@@ -99,7 +99,7 @@ const XineOsd::Clut XineOsd::Data::clut;
 XineOsd::XineOsd(XineStream *stream)
 : d(new Data) {
 	d->osd = 0;
-        d->cleared = false;
+	d->cleared = false;
 	d->stream = stream;
 	connect(stream, SIGNAL(aboutToClose()), this, SLOT(free()));
 	connect(stream, SIGNAL(opened()), this, SLOT(alloc()));
@@ -153,20 +153,38 @@ void XineOsd::drawTimeLine(QPainter *painter, const QRectF &rect) {
 	painter->restore();
 }
 
-void XineOsd::drawPixmap(const QPixmap &pixmap) {
+void XineOsd::drawImage(const QImage &image, const QRect &rect) {
 	if (!d->osd || d->cleared)
 		return;
-	const QImage img
-		= pixmap.toImage().convertToFormat(QImage::Format_Indexed8, d->clut.clut());
+	const QImage img = image.convertToFormat(QImage::Format_Indexed8, d->clut.clut());
+	const int width = rect.width();
+	const int height = rect.height();
+	const int length = width * height;
+	uint8_t bitmap[length];
+	for (int y=0; y<height; ++y) for (int x=0; x<width; ++x)
+			bitmap[y*width+x] = img.pixelIndex(x+rect.x(), y+rect.y());
+	xine_osd_clear(d->osd);
+	const QPoint pos = getPos(rect.size(), d->rect.size()).toPoint() + d->rect.topLeft();
+	xine_osd_draw_bitmap(d->osd, bitmap, qMax(pos.x(), 0), qMax(pos.y(), 0), width, height, 0);
+}
+
+void XineOsd::drawImage(const QImage &image) {
+	if (!d->osd || d->cleared)
+		return;
+	const QImage img = image.convertToFormat(QImage::Format_Indexed8, d->clut.clut());
 	const int width = img.width();
 	const int height = img.height();
 	const int length = width * height;
 	uint8_t bitmap[length];
 	for (int y=0; y<height; ++y) for (int x=0; x<width; ++x)
-		bitmap[y*width+x] = img.pixelIndex(x, y);
+			bitmap[y*width+x] = img.pixelIndex(x, y);
 	xine_osd_clear(d->osd);
 	const QPoint pos = getPos(img.size(), d->rect.size()).toPoint() + d->rect.topLeft();
 	xine_osd_draw_bitmap(d->osd, bitmap, qMax(pos.x(), 0), qMax(pos.y(), 0), width, height, 0);
+}
+
+void XineOsd::drawPixmap(const QPixmap &pixmap) {
+	drawImage(pixmap.toImage());
 }
 
 void XineOsd::render() {

@@ -7,6 +7,7 @@
 #include <QtCore/QSize>
 
 class QWidget;					class QRectF;
+class QImage;
 
 namespace Core {
 
@@ -28,7 +29,12 @@ public:
 	double videoRatio() const {return m_videoRatio;}
 	double aspectRatioF() const {return m_aspectF;}
 	virtual AbstractOsdRenderer *createOsd() {return 0;}
+	virtual QImage grabCurrentFrame() const;
 protected:
+	static QImage imageFromYv12(const QByteArray &yv12, int width, int height);
+	static QImage imageFromYuy2(const QByteArray &yuy2, int width, int height);
+	static QByteArray yuy2ToYv12(const QByteArray &yuy2, int width, int height);
+	static QByteArray yv12ToRgb(const QByteArray &yv12, int width, int height);
 	static double ratio(double w, double h) {return w/h;}
 	static double ratio(const QSize &size) {return ratio(size.width(), size.height());}
 	static double ratio(const QSizeF &size) {return size.width()/size.height();}

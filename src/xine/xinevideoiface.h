@@ -11,7 +11,7 @@ class XineVideoIface {
 public:
 	XineVideoIface(XineStream *stream): m_stream(stream), m_tracking(false) {}
 	virtual ~XineVideoIface() {}
-	XineStream *stream() {return m_stream;}
+	XineStream *stream() const {return m_stream;}
 	virtual int xineType() const = 0;
 	virtual void *visual() = 0;
 	void activateMouseTracking(bool active) {m_tracking = active;}

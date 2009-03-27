@@ -16,6 +16,8 @@ public:
 	bool isRunning() {return state() != QProcess::NotRunning;}
 public slots:
 	void interpretMessages();
+signals:
+	void gotSnapshot(const QString &file);
 private:
 	struct Data;
 	Data *d;

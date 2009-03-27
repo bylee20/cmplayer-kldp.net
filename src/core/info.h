@@ -7,12 +7,15 @@
 namespace Core {
 
 class Info {
+public:
 	class ExtensionList : public QStringList {
 	public:
+		ExtensionList() {}
+		ExtensionList(const QStringList &other): QStringList(other) {}
+		ExtensionList(const ExtensionList &other): QStringList(other) {}
 		QString toFilter() const;
 		QStringList toNameFilter() const;
 	};
-public:
 	Info();
 	virtual ~Info();
 	static const QString &privatePath() {return d.privatePath;}

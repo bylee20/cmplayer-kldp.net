@@ -93,7 +93,7 @@ Menu &Menu::create(QWidget *parent) {
 	aspect->addActionToGroup("16:9", true)->setData(16.0/9.0);
 	aspect->addActionToGroup("1.85:1", true)->setData(1.85);
 	aspect->addActionToGroup("2.35:1", true)->setData(2.35);
-		
+
 	Menu *crop = screen->addMenu("crop");
 	crop->setIcon(QIcon(":/img/transform-crop-and-resize.png"));
 	crop->addActionToGroup("off", true)->setData(-1.0);
@@ -101,6 +101,9 @@ Menu &Menu::create(QWidget *parent) {
 	crop->addActionToGroup("16:9", true)->setData(16.0/9.0);
 	crop->addActionToGroup("1.85:1", true)->setData(1.85);
 	crop->addActionToGroup("2.35:1", true)->setData(2.35);
+	
+	screen->addSeparator();
+	screen->addAction("snapshot")->setIcon(QIcon(":/img/snapshot.png"));
 	
 	Menu *play = root->addMenu("play");
 	play->addMenu("engine");
@@ -363,6 +366,8 @@ void Menu::updatePref() {
 	speed.setTitle(tr("Speed"));
 	speed["reset"]->setText(tr("Reset"));
 	setActionStep(speed["faster"], speed["slower"], "%1%", p->speedStep());
+	
+	screen["snapshot"]->setText(tr("Take Snapshot"));
 
 	play["dvd menu"]->setText(tr("Toggle DVD Menu"));
 
@@ -416,7 +421,7 @@ void Menu::updatePref() {
 			, tr("Contrast %1%"), p->brightnessStep());
 	setVideoPropStep(video, "hue", Core::ColorProperty::Hue
 			, tr("Hue %1%"), p->brightnessStep());
-
+	
 	Menu &audio = root("audio");
 	audio.setTitle(tr("Audio"));
 	audio("renderer").setTitle(tr("Renderer"));

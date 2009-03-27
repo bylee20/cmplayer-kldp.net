@@ -23,6 +23,7 @@ public:
 	virtual void setVideoSize(const QSize &size);
 	Core::AbstractOsdRenderer *createOsd();
 	const Core::PlayEngine *engine() const;
+	QImage grabCurrentFrame() const;
 private slots:
 	void updateOsdRect(const QRect &rect);
 protected:

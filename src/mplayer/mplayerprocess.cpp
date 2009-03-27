@@ -35,6 +35,7 @@ void MPlayerProcess::interpretMessages() {
 		bool matched = false;
 		if (d->engine) {
 			static QRegExp rxAV("^[AV]: *([0-9,:.-]+)");
+			static QRegExp rxSnap("^\\*\\*\\* screenshot '(.*)'");
 			static QRegExp rxStated("^Playing (.+)");
 			static QRegExp rxFinished("^Exiting\\.+\\s+\\(End of file\\)");
 			if ((matched = (rxAV.indexIn(msg) != -1))) {
@@ -48,6 +49,9 @@ void MPlayerProcess::interpretMessages() {
 				emit d->engine->started();
 			} else if ((matched = (rxFinished.indexIn(msg) != -1))) {
 				d->engine->exiting();
+			} else if ((matched = (rxSnap.indexIn(msg) != -1))) {
+				qDebug() << "matched" << rxSnap.cap(1);
+				emit gotSnapshot(rxSnap.cap(1));
 			}
 		} else if (!matched && d->info && !d->info->isValid()) {
 			static QRegExp rxID("^ID_(.*)=(.*)");
