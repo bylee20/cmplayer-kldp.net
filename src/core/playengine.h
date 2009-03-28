@@ -57,8 +57,8 @@ public:
 	const QString &currentTrack() const {return d->track;}
 	const QStringList &spus() const {return d->spus;}
 	const QString &currentSpu() const {return d->spu;}
-	void setVideoRenderer(const QString &name);
-	void setAudioRenderer(const QString &name);
+	bool setVideoRenderer(const QString &name);
+	bool setAudioRenderer(const QString &name);
 	const QString &videoRenderer() const;
 	const QString &audioRenderer() const;
 	ABRepeater *repeater() {return d->repeater;}

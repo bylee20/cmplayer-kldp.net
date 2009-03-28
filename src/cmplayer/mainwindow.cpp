@@ -27,6 +27,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QMenuBar>
+#include <QtGui/QMessageBox>
 #include <QtGui/QApplication>
 #include <QtCore/QTimer>
 #include <QtCore/QSet>
@@ -807,13 +808,20 @@ void MainWindow::updateRecentActions(const RecentStack &stack) {
 
 void MainWindow::setRenderer(QAction *action) {
 	const QString renderer = action->data().toString();
-	if (sender() == d->menu("video")("renderer").g()) {
-		if (d->player->videoRenderer() != renderer)
-			d->player->setVideoRenderer(renderer);
+	ActionGroup *group = static_cast<ActionGroup*>(sender());
+	bool set = false;
+	if (group == d->menu("video")("renderer").g()) {
+		if (!(set = d->player->setVideoRenderer(renderer)))
+			group->setChecked(d->player->videoRenderer(), true);
 	} else if (sender() == d->menu("audio")("renderer").g()) {
-		if (d->player->audioRenderer() != renderer)
-			d->player->setAudioRenderer(renderer);
-	}
+		if (!(set = d->player->setAudioRenderer(renderer)))
+			group->setChecked(d->player->audioRenderer(), true);
+	} else
+		return;
+	if (!set)
+		QMessageBox::warning(this, tr("Change Renderer")
+				, tr("Failed in changing renderer. "
+				"The renderer fell back into previous one."));
 }
 
 void MainWindow::slotTracksChanged(const QStringList &tracks) {

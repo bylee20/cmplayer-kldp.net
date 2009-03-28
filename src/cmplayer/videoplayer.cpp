@@ -200,8 +200,6 @@ void VideoPlayer::setBackend(const QString &name) {
 		d->engine->setUseSoftwareEqualizer(d->dummy->useSoftwareEqualizer());
 		d->engine->setColorProperty(d->dummy->colorProperty());
 		d->dummy->info().copy(d->engine->info());
-		d->dummy->setVideoRenderer(d->engine->videoRenderer());
-		d->dummy->setAudioRenderer(d->engine->audioRenderer());
 		if (time != -1)
 			play(time);
 	}
@@ -315,8 +313,28 @@ int VideoPlayer::colorProperty(Core::ColorProperty::Value prop) const {
 	return TO_PERCENT(d->dummy->colorProperty()[prop]);
 }
 
-DEC_ENGINE_PROP(const QString &, setVideoRenderer, videoRenderer)
-DEC_ENGINE_PROP(const QString &, setAudioRenderer, audioRenderer)
+const QString &VideoPlayer::videoRenderer() const {
+	return d->engine->videoRenderer();
+}
+
+const QString &VideoPlayer::audioRenderer() const {
+	return d->engine->audioRenderer();
+}
+
+bool VideoPlayer::setVideoRenderer(const QString &renderer) {
+	if (d->engine == d->dummy)
+		return false;
+	d->changing = true;
+	return d->engine->setVideoRenderer(renderer);
+}
+
+bool VideoPlayer::setAudioRenderer(const QString &renderer) {
+	if (d->engine == d->dummy)
+		return false;
+	d->changing = true;
+	return d->engine->setAudioRenderer(renderer);
+}
+
 DEC_ENGINE_PROP_CHECK(int, setSyncDelay, syncDelay)
 DEC_ENGINE_PROP_CHECK(double, setAspectRatio, aspectRatio)
 DEC_ENGINE_PROP_CHECK(double, setCropRatio, cropRatio)

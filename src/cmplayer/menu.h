@@ -13,6 +13,15 @@ public:
 	: QActionGroup(parent) {
 		connect(this, SIGNAL(triggered(QAction*)), this, SLOT(emitData(QAction*)));
 	}
+	void setChecked(const QVariant &data, bool checked) {
+		const QList<QAction*> acts = actions();
+		for (int i=0; i<acts.size(); ++i) {
+			if (acts[i]->data() == data) {
+				acts[i]->setChecked(checked);
+				return;
+			}
+		}
+	}
 	void trigger(const QVariant &data) {
 		const QList<QAction*> acts = actions();
 		for (int i=0; i<acts.size(); ++i) {

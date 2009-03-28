@@ -438,6 +438,9 @@ bool PlayEngine::updateVideoRenderer(const QString &name) {
 		return false;
 	stop();
 	setVideoRenderer(0);
+	setSubtitleOsd(0);
+	setMessageOsd(0);
+	setTimeLineOsd(0);
 	d->stream.close();
 	delete d->renderer;
 #if HAS_RAW	
@@ -454,7 +457,8 @@ bool PlayEngine::updateVideoRenderer(const QString &name) {
 	}
 #endif
 	d->stream.videoDriver = name;
-	d->stream.open(d->video->xineType(), d->video->visual(), eventListener, this);
+	if (!d->stream.open(d->video->xineType(), d->video->visual(), eventListener, this))
+		return false;
 	setSubtitleOsd(d->renderer->createOsd());
 	setMessageOsd(d->renderer->createOsd());
 	setTimeLineOsd(d->renderer->createOsd());
@@ -470,8 +474,7 @@ bool PlayEngine::updateAudioRenderer(const QString &name) {
 	if (idx == -1)
 		return false;
 	d->stream.audioDriver = idx == 0? "auto" : name;
-	d->stream.open(d->video->xineType(), d->video->visual(), eventListener, this);
-	return true;
+	return d->stream.open(d->video->xineType(), d->video->visual(), eventListener, this);
 }
 
 }

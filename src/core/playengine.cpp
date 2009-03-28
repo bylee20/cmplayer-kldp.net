@@ -254,19 +254,21 @@ void PlayEngine::setSubtitleOsd(AbstractOsdRenderer *osd) {
 		d->subRenderer->setFrameRate(d->frameRate);
 	} else
 		d->subRenderer->setRenderer(osd);
-	osd->setStyle(*d->subStyle);
-	updateSubtitlePos(d->pos);
-	connect(this, SIGNAL(tick(int)), this, SLOT(slotTick(int)));
+	if (osd) {
+		osd->setStyle(*d->subStyle);
+		updateSubtitlePos(d->pos);
+		connect(this, SIGNAL(tick(int)), this, SLOT(slotTick(int)));
+	}
 }
 
 void PlayEngine::setTimeLineOsd(AbstractOsdRenderer *osd) {
-	d->timeOsd = osd;
-	osd->setStyle(*d->timeStyle);
+	if ((d->timeOsd = osd))
+		osd->setStyle(*d->timeStyle);
 }
 
 void PlayEngine::setMessageOsd(AbstractOsdRenderer *osd) {
-	d->msgOsd = osd;
-	osd->setStyle(*d->msgStyle);
+	if ((d->msgOsd = osd))
+		osd->setStyle(*d->msgStyle);
 }
 
 void PlayEngine::slotTick(int time) {
@@ -364,36 +366,44 @@ double PlayEngine::speed() const {
 	return d->speed;
 }
 
-void PlayEngine::setVideoRenderer(const QString &name) {
-	if (d->videoRenderer != name) {
-		int time = -1;
-		if (!isStopped()) {
-			time = currentTime();
-			stop();
-		}
-		if (updateVideoRenderer(name)) {
-			d->videoRenderer = name;
-			updateVideo();
-			if (time != -1)
-				play(time);
-		}
+bool PlayEngine::setVideoRenderer(const QString &name) {
+	const QString prev = videoRenderer();
+	if (prev == name)
+		return true;
+	int time = -1;
+	if (!isStopped()) {
+		time = currentTime();
+		stop();
 	}
+	const bool changed = updateVideoRenderer(name);
+	if (changed)
+		d->videoRenderer = name;
+	else
+		updateVideoRenderer(prev);
+	updateVideo();
+	if (time != -1)
+		play(time);
+	return changed;
 }
 
-void PlayEngine::setAudioRenderer(const QString &name) {
-	if (d->audioRenderer != name) {
-		int time = -1;
-		if (!isStopped()) {
-			time = currentTime();
-			stop();
-		}
-		if (updateAudioRenderer(name)) {
-			d->audioRenderer = name;
-			updateAudio();
-			if (time != -1)
-				play(time);
-		}
+bool PlayEngine::setAudioRenderer(const QString &name) {
+	const QString prev = audioRenderer();
+	if (prev == name)
+		return true;
+	int time = -1;
+	if (!isStopped()) {
+		time = currentTime();
+		stop();
 	}
+	const bool changed = updateAudioRenderer(name);
+	if (changed)
+		d->audioRenderer = name;
+	else
+		updateAudioRenderer(prev);
+	updateAudio();
+	if (time != -1)
+		play(time);
+	return changed;
 }
 
 void PlayEngine::updateAudio() {

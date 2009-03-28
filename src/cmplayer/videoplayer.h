@@ -43,8 +43,8 @@ public:
 	void setColorProperty(Core::ColorProperty::Value prop, int value);
 	int colorProperty(Core::ColorProperty::Value prop) const;
 	void showMessage(const QString &message);
-	void setVideoRenderer(const QString &renderer);
-	void setAudioRenderer(const QString &renderer);
+	bool setVideoRenderer(const QString &renderer);
+	bool setAudioRenderer(const QString &renderer);
 	const QString &videoRenderer() const;
 	const QString &audioRenderer() const;
 	void setCurrentSpu(const QString &spu);

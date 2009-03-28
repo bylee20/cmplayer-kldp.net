@@ -20,22 +20,37 @@ bool XineStream::open(int video, void *visual, XineEventFunc event, void *data) 
 	if (stream)
 		close();
 	xine_t *xine = XineEngine::xine();
-	videoPort = xine_open_video_driver(xine, videoDriver.toLocal8Bit(), video, visual);
-	audioPort = xine_open_audio_driver(xine, audioDriver.toLocal8Bit(), 0);
-	stream = xine_stream_new(xine, audioPort, videoPort);
-	eventQueue = xine_event_new_queue(stream);
-	xine_event_create_listener_thread(eventQueue, event, data);
+	do {
+		videoPort = xine_open_video_driver(xine, videoDriver.toLocal8Bit(), video, visual);
+		if (!videoPort)
+			break;
+		audioPort = xine_open_audio_driver(xine, audioDriver.toLocal8Bit(), 0);
+		if (!audioPort)
+			break;
+		stream = xine_stream_new(xine, audioPort, videoPort);
+		eventQueue = xine_event_new_queue(stream);
+		xine_event_create_listener_thread(eventQueue, event, data);
 
-	for (int i=0; i<post.size(); ++i) {
-		QMap<QString, XinePost*>::iterator it;
-		for (it = post[i].begin(); it != post[i].end(); ++it) {
-			it.value() = makePost(it.key());
+		for (int i=0; i<post.size(); ++i) {
+			QMap<QString, XinePost*>::iterator it;
+			for (it = post[i].begin(); it != post[i].end(); ++it) {
+				it.value() = makePost(it.key());
+			}
 		}
-	}
-	wireAllPosts();
+		wireAllPosts();
 	
-	emit opened();
-	return true;
+		emit opened();
+		return true;
+	} while (false);
+	if (audioPort) {
+		xine_close_audio_driver(XineEngine::xine(), audioPort);
+		audioPort = 0;
+	}
+	if (videoPort) {
+		xine_close_video_driver(XineEngine::xine(), videoPort);
+		videoPort = 0;
+	}
+	return false;
 }
 
 void XineStream::close() {
