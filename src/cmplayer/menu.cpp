@@ -103,7 +103,9 @@ Menu &Menu::create(QWidget *parent) {
 	crop->addActionToGroup("2.35:1", true)->setData(2.35);
 	
 	screen->addSeparator();
-	screen->addAction("snapshot")->setIcon(QIcon(":/img/snapshot.png"));
+	QAction *snapshot = screen->addAction("snapshot");
+	snapshot->setIcon(QIcon(":/img/snapshot.png"));
+	snapshot->setShortcut(Qt::CTRL + Qt::Key_S);
 	
 	Menu *play = root->addMenu("play");
 	play->addMenu("engine");

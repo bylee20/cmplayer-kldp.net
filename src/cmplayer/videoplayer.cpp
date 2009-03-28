@@ -231,6 +231,13 @@ bool VideoPlayer::hasNextSource() const {
 	return d->next != 0;
 }
 
+void VideoPlayer::showMessage(const QString &message) {
+	if (d->engine->widget() == d->stack->currentWidget())
+		d->engine->showMessage(message);
+	else
+		d->dummy->showMessage(message);
+}
+
 void VideoPlayer::stop() {
 	d->engine->stop();
 }
@@ -331,7 +338,6 @@ DEC_ENGINE_SETTER_CHECK(bool, setUseSoftwareEqualizer, useSoftwareEqualizer);
 DEC_ENGINE_CALL0(triggerSnapshot)
 DEC_ENGINE_CALL0(pause)
 DEC_ENGINE_CALL0(toggleDvdMenu)
-DEC_ENGINE_CALL1(showMessage, const QString &)
 
 DEC_ENGINE_CALL_RETURN(bool, isPlaying)
 DEC_ENGINE_CALL_RETURN(bool, isPaused)
