@@ -39,7 +39,7 @@ BUILD_PLUGIN_ONLY ?= no
 QMAKE ?= qmake
 LRELEASE ?= lrelease
 
-cmplayer_version := 0.2.6
+cmplayer_version := 0.2.7
 install_file := install -m 644
 install_exe := install -m 755
 qmake_env := CMPLAYER_RELEASE=\\\"yes\\\"
