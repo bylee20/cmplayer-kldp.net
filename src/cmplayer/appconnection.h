@@ -62,6 +62,7 @@ class AppConnection::Iface : public QDBusAbstractInterface {
 	Q_OBJECT
 public:
 	static const char *name() {return "net.xylosper.CMPlayer.AppConnection";}
+	static QString uniquePath() {return QString("/xylosper/CMPlayer");}
 	Iface(AppConnection *parent);
 public slots:
 signals:

@@ -1,6 +1,7 @@
 #include "application.h"
 #include "appconnection.h"
 #include "mainwindow.h"
+#include "pref.h"
 #include <QtCore/QTimer>
 #include <QtCore/QUrl>
 #include <QtCore/QFileInfo>
@@ -28,7 +29,7 @@ Application::~Application() {
 
 void Application::initialize() {
 	const QUrl url = MainWindow::getUrlFromCommandLine();
-	if (d->connection.isUnique()) {
+	if (!Pref::get()->singleApplication() || d->connection.isUnique()) {
 		if (url.isEmpty())
 			d->main = new MainWindow;
 		else

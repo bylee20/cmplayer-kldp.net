@@ -52,6 +52,9 @@ public:
 	UiLanguage uiLanuage() const;
 	bool isVolumeNormalized() const;
 	bool useSoftwareEqualizer() const;
+	bool isSystemTrayEnabled() const;
+	bool hideWhenClosed() const;
+	bool singleApplication() const;
 	
 	const QString &backendName(Core::MediaType media) const;
 	
@@ -90,7 +93,10 @@ private:
 	void setUiLanuage(UiLanguage lang);
 	void setVolumeNormalized(bool on);
 	void setUseSoftwareEqualizer(bool use);
-	
+	void setSystemTrayEnabled(bool enabled);
+	void setHideWhenClosed(bool enabled);
+	void setSingleApplication(bool enabled);
+		
 	void setBackendName(Core::MediaType media, const QString &name);
 	
 	void save() const;

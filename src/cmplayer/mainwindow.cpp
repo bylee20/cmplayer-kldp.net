@@ -93,7 +93,6 @@ void MainWindow::commonInitialize() {
 	
 	QApplication::setWindowIcon(defaultIcon());
 	d->tray = new QSystemTrayIcon(defaultIcon(), this);
-	d->tray->show();
 	
 	setupUi();
 	updateRecentActions(d->recent->sources());
@@ -602,7 +601,7 @@ void MainWindow::updatePref() {
 		if (paused)
 			d->player->pause();
 	}
-	
+	d->tray->setVisible(d->pref->isSystemTrayEnabled());
 }
 
 void MainWindow::setFullScreen(bool full) {
@@ -969,8 +968,13 @@ void MainWindow::hideCursor() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-	hide();
-	event->ignore();
+	if (d->pref->isSystemTrayEnabled() && d->pref->hideWhenClosed()) {
+		hide();
+		event->ignore();
+	} else {
+		event->accept();
+		qApp->quit();
+	}
 }
 
 void MainWindow::slotTrayActivated(QSystemTrayIcon::ActivationReason reason) {

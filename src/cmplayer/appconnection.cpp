@@ -17,7 +17,7 @@ AppConnection::AppConnection()
 	d->unique = true;
 	d->connected = false;
 	d->adaptor = new Adaptor(this);
-	QDBusConnection::sessionBus().registerObject("/", this);
+	QDBusConnection::sessionBus().registerObject(Iface::uniquePath(), this);
 	d->iface = new Iface(this);
 	
 	QObject::connect(d->iface, SIGNAL(alreadyExists()), this, SLOT(slotExists()));
@@ -71,6 +71,6 @@ AppConnection::Adaptor::Adaptor(AppConnection *parent)
 }
 
 AppConnection::Iface::Iface(AppConnection *parent)
-: QDBusAbstractInterface(QString(), QString(), name()
+: QDBusAbstractInterface(QString(), uniquePath(), name()
 		, QDBusConnection::sessionBus(), parent) {
 }

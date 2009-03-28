@@ -32,6 +32,9 @@ struct Pref::General {
 		SAVE(hideDelay);
 		SAVE(volumeNormalized);
 		SAVE(useSoftwareEqualizer);
+		SAVE(systemTrayEnabled);
+		SAVE(hideWhenClosed);
+		SAVE(singleApplication);
 		SAVE_ENUM(autoAddFiles);
 		set->endGroup();
 	}
@@ -46,11 +49,15 @@ struct Pref::General {
 		LOAD(hideDelay, 3000, toInt);
 		LOAD(volumeNormalized, true, toBool);
 		LOAD(useSoftwareEqualizer, false, toBool);
+		LOAD(systemTrayEnabled, true, toBool);
+		LOAD(hideWhenClosed, true, toBool);
+		LOAD(singleApplication, true, toBool);
 		LOAD_ENUM(autoAddFiles, AllFiles);
 		set->endGroup();
 	}
 	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
 	bool hideCursor, hideInFullScreen, volumeNormalized, useSoftwareEqualizer;
+	bool systemTrayEnabled, hideWhenClosed, singleApplication;
 	int hideDelay;
 	AutoAddFilesEnum autoAddFiles;
 };
@@ -526,5 +533,29 @@ bool Pref::useSoftwareEqualizer() const {
 
 void Pref::setUseSoftwareEqualizer(bool use) {
 	gen->useSoftwareEqualizer = use;
+}
+
+bool Pref::isSystemTrayEnabled() const {
+	return gen->systemTrayEnabled;
+}
+
+bool Pref::hideWhenClosed() const {
+	return gen->hideWhenClosed;
+}
+
+bool Pref::singleApplication() const {
+	return gen->singleApplication;
+}
+
+void Pref::setSystemTrayEnabled(bool enabled) {
+	gen->systemTrayEnabled = enabled;
+}
+
+void Pref::setHideWhenClosed(bool enabled) {
+	gen->hideWhenClosed = enabled;
+}
+
+void Pref::setSingleApplication(bool enabled) {
+	gen->singleApplication = enabled;
 }
 
