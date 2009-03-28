@@ -52,7 +52,6 @@ public:
 	Core::MediaSource nextSource() const;
 	double aspectRatio() const;
 	double cropRatio() const;
-	void setBackend(const QString &name);
 	const Map &engines() const;
 	void setSubtitleStyle(const Core::OsdStyle &style);
 	void setSpeed(int speed);
@@ -77,6 +76,7 @@ public slots:
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
 	void setCurrentTrack(const QString &track);
+	void setBackend(const QString &name);
 signals:
 	void backendChanged(const QString &name);
 	void stateChanged(Core::State state, Core::State old);

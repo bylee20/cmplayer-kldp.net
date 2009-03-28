@@ -183,7 +183,6 @@ void VideoPlayer::setBackend(const QString &name) {
 		it = d->engines.insert(name, engine);
 	}
 	d->engine = it.value();
-// 	d->stack->setCurrentWidget(d->engine->widget());
 	if (d->engine != d->dummy) {
 		d->engine->setSpeed(d->dummy->speed());
 		d->engine->setMuted(d->dummy->isMuted());
@@ -233,18 +232,15 @@ bool VideoPlayer::hasNextSource() const {
 }
 
 void VideoPlayer::stop() {
-// 	d->changing = false;
 	d->engine->stop();
 }
 
 void VideoPlayer::play(int time) {
 	d->engine->play(time);
-	d->stack->setCurrentWidget(d->engine->widget());
 }
 
 void VideoPlayer::play() {
 	d->engine->play();
-	d->stack->setCurrentWidget(d->engine->widget());
 }
 
 void VideoPlayer::playNext(int time) {
@@ -262,16 +258,21 @@ bool VideoPlayer::changingSource() const {
 }
 
 void VideoPlayer::slotStateChanged(Core::State state, Core::State old) {
-	if (state == Core::Finished && d->next) {
+	bool doEmit = true;
+	if (state == Core::Playing) {
+		d->changing = false;
+		d->stack->setCurrentWidget(d->engine->widget());
+	} else if (state == Core::Finished && d->next) {
 		playNext(RecentInfo::get()->stoppedTime(*d->next));
+		doEmit = false;
 	} else if (state == Core::Stopped) {
-		if (d->changing)
+		if (d->changing) {
 			d->changing = false;
-		else {
+			doEmit = false;
+		} else
 			d->stack->setCurrentWidget(d->dummy->widget());
-			emit stateChanged(state, old);
-		}
-	} else
+	}
+	if (doEmit)
 		emit stateChanged(state, old);
 }
 

@@ -119,7 +119,8 @@ void MainWindow::commonInitialize() {
 	connect(play["next"], SIGNAL(triggered()), d->model, SLOT(playNext()));
 	connect(play["pause"], SIGNAL(triggered()), this, SLOT(togglePlayPause()));
 	connect(play["list"], SIGNAL(triggered()), this, SLOT(toggleDockVisibility()));
-	connect(play("engine").g(), SIGNAL(triggered(QAction*)), this, SLOT(setBackend(QAction*)));
+	connect(play("engine").g(), SIGNAL(triggered(const QString &))
+			, d->player, SLOT(setBackend(const QString &)));
 	connect(play("repeat").g(), SIGNAL(triggered(int)), this, SLOT(slotRepeat(int)));
 	connect(play("seek").g(), SIGNAL(triggered(int)), this, SLOT(seek(int)));
 	Menu &video = menu("video");
@@ -837,17 +838,6 @@ void MainWindow::slotSpusChanged(const QStringList &spus) {
 
 void MainWindow::slotCurrentSpuChanged(const QString &spu) {
 	d->menu("subtitle")("list").g()->trigger(spu);
-}
-
-void MainWindow::setBackend(QAction *action) {
-	int time = -1;
-	if (!d->player->isStopped()) {
-		time = d->player->currentTime();
-		d->player->stop();
-	}
-	d->player->setBackend(action->data().toString());
-	if (time != -1)
-		d->player->play(time);
 }
 
 void MainWindow::slotBackendChanged() {
