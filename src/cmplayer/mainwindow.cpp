@@ -759,7 +759,7 @@ void MainWindow::toggleDockVisibility() {
 	if (frameWidth < 0)
 		frameWidth = (width() - (d->player->width() + d->dock->width()));
 	const bool visible = d->dock->isVisible();
-	if (!d->dock->isFloating() && !isFullScreen()) {
+	if (!d->dock->isFloating() && !isFullScreen() && !isMaximized()) {
 		int w = d->dock->frameGeometry().width();
 		if (frameWidth >= 0)
 			w += frameWidth;

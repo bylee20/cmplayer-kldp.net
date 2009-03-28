@@ -94,3 +94,7 @@ RELEASE = $$(CMPLAYER_RELEASE)
 }
 
 
+CONFIG -= release
+
+QT += svg
+

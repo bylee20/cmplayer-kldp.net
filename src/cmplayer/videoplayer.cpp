@@ -121,7 +121,7 @@ void VideoPlayer::keepSize(bool keep) {
 }
 
 QSize VideoPlayer::sizeHint() const {
-	QSize hint = d->engine->widget()->sizeHint();
+	QSize hint = d->stack->currentWidget()->sizeHint();
 	if (hint.width() < d->minSize.width())
 		hint.setWidth(d->minSize.width());
 	if (hint.height() < d->minSize.height())
@@ -142,6 +142,7 @@ void VideoPlayer::setBackend(const QString &name) {
 	if (d->engine->info().name() == name)
 		return;
 	int time = -1;
+	d->changing = true;
 	if (!d->engine->isStopped()) {
 		time = d->engine->currentTime();
 		d->engine->stop();
@@ -182,7 +183,7 @@ void VideoPlayer::setBackend(const QString &name) {
 		it = d->engines.insert(name, engine);
 	}
 	d->engine = it.value();
-	d->stack->setCurrentWidget(d->engine->widget());
+// 	d->stack->setCurrentWidget(d->engine->widget());
 	if (d->engine != d->dummy) {
 		d->engine->setSpeed(d->dummy->speed());
 		d->engine->setMuted(d->dummy->isMuted());
@@ -203,7 +204,7 @@ void VideoPlayer::setBackend(const QString &name) {
 		d->dummy->setVideoRenderer(d->engine->videoRenderer());
 		d->dummy->setAudioRenderer(d->engine->audioRenderer());
 		if (time != -1)
-			d->engine->play(time);
+			play(time);
 	}
 	emit backendChanged(name);
 }
@@ -231,6 +232,21 @@ bool VideoPlayer::hasNextSource() const {
 	return d->next != 0;
 }
 
+void VideoPlayer::stop() {
+// 	d->changing = false;
+	d->engine->stop();
+}
+
+void VideoPlayer::play(int time) {
+	d->engine->play(time);
+	d->stack->setCurrentWidget(d->engine->widget());
+}
+
+void VideoPlayer::play() {
+	d->engine->play();
+	d->stack->setCurrentWidget(d->engine->widget());
+}
+
 void VideoPlayer::playNext(int time) {
 	if (d->next) {
 		d->changing = true;
@@ -248,9 +264,14 @@ bool VideoPlayer::changingSource() const {
 void VideoPlayer::slotStateChanged(Core::State state, Core::State old) {
 	if (state == Core::Finished && d->next) {
 		playNext(RecentInfo::get()->stoppedTime(*d->next));
-	} else if (d->changing && state == Core::Stopped)
-		d->changing = false;
-	else
+	} else if (state == Core::Stopped) {
+		if (d->changing)
+			d->changing = false;
+		else {
+			d->stack->setCurrentWidget(d->dummy->widget());
+			emit stateChanged(state, old);
+		}
+	} else
 		emit stateChanged(state, old);
 }
 
@@ -307,11 +328,8 @@ DEC_ENGINE_SETTER_CHECK(bool, setSubtitleVisible, isSubtitleVisible)
 DEC_ENGINE_SETTER_CHECK(bool, setUseSoftwareEqualizer, useSoftwareEqualizer);
 
 DEC_ENGINE_CALL0(triggerSnapshot)
-DEC_ENGINE_CALL0(play)
 DEC_ENGINE_CALL0(pause)
-DEC_ENGINE_CALL0(stop)
 DEC_ENGINE_CALL0(toggleDvdMenu)
-DEC_ENGINE_CALL1(play, int)
 DEC_ENGINE_CALL1(showMessage, const QString &)
 
 DEC_ENGINE_CALL_RETURN(bool, isPlaying)
