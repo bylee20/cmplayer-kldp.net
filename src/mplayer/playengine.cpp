@@ -13,6 +13,8 @@
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QThread>
 #include <QtCore/QFileInfo>
+#include <QtCore/QMap>
+#include <QtCore/QVariant>
 
 namespace MPlayer {
 
@@ -71,13 +73,14 @@ struct PlayEngine::Data {
 	Info info;
 	MediaInfo mediaInfo;
 	MPlayerProcess *proc;
-	bool justFinished, gotInfo, seeking;
+	bool justFinished, gotInfo, seeking, needToUpdateMuted, needToUpdateSub;
 	const QString tempsub;
 	int osdLevel;
 	Core::NativeRenderer *renderer;
 	QString vo, ao, snapshot;
 	QMap<QString, int> tracks;
 	Thread thread;
+	QMap<QString, QString> cmd;
 };
 
 PlayEngine::PlayEngine(QObject *parent)
@@ -88,6 +91,7 @@ PlayEngine::PlayEngine(QObject *parent)
 	d->osdLevel = m_time = 0;
 	d->renderer = new Core::NativeRenderer(this);
 	d->thread.engine = this;
+	d->needToUpdateSub = d->needToUpdateMuted = false;
 	setVideoRenderer(d->renderer);
 
 	connect(d->proc, SIGNAL(finished(int, QProcess::ExitStatus))
@@ -112,43 +116,50 @@ PlayEngine::~PlayEngine() {
 
 const QStringList &PlayEngine::getDefaultArgs() {
 	static const QStringList args = QStringList()
-			<< "-slave" << "-noquiet" << "-nofs"
+			<< "-slave" << "-noquiet" << "-nofs" << "-nomouseinput"
 			<< "-input" << ("conf=\"" + getDontMessUp() + '"')
 			<< "-fontconfig" << "-zoom" << "-nokeepaspect"
 			<< "-noautosub" << "-osdlevel" << QString::number(0)
 			<< "-utf8" << "-subcp" << "UFT-8" << "-softvol"
 			<< "-softvol-max" << QString::number(1000.0)
 			<< "-vf-add" << "screenshot";
+	
 	return args;
 }
 
 const QString &PlayEngine::getDontMessUp() {
 	static QString fileName;
 	if (fileName.isEmpty()) {
-		fileName = Info::privatePath() + "/input.conf";
+		fileName = Info::privatePath() + "/input2.conf";
 		QFile file(fileName);
 		if (!file.exists() && file.open(QFile::WriteOnly)) {
-			file.write(
+			file.write(// from smplayer
 				"## prevent mplayer from messing up our shortcuts\n\n"
-				"RIGHT gui_about\nLEFT gui_about\nDOWN gui_about\n"
-				"UP gui_about\nPGUP gui_about\nPGDWN gui_about\n"
-				"- gui_about\n+ gui_about\nESC gui_about\nENTER gui_about\n"
-				"SPACE pausing_keep invalid_command\nHOME gui_about\n"
-				"END gui_about\n> gui_about\n< gui_about\nINS gui_about\n"
-				"DEL gui_about\n[ gui_about\n] gui_about\n{ gui_about\n"
-				"} gui_about\nBS gui_about\nTAB gui_about\n. gui_about\n"
-				"# gui_about\n@ gui_about\n! gui_about\n9 gui_about\n"
-				"/ gui_about\n0 gui_about\n* gui_about\n1 gui_about\n"
-				"2 gui_about\n3 gui_about\n4 gui_about\n5 gui_about\n"
-				"6 gui_about\n7 gui_about\n8 gui_about\na gui_about\n"
-				"b gui_about\nc gui_about\nd gui_about\ne gui_about\n"
-				"F invalid_command\nf invalid_command\ng gui_about\n"
-				"h gui_about\ni gui_about\nj gui_about\nk gui_about\n"
-				"l gui_about\nm gui_about\nn gui_about\no gui_about\n"
-				"p gui_about\nq gui_about\nr gui_about\ns gui_about\n"
-				"t gui_about\nT gui_about\nu gui_about\nv gui_about\n"
-				"w gui_about\nx gui_about\ny gui_about\nz gui_about\n"
-				"S gui_about\n"
+				"RIGHT invalid_command\nLEFT invalid_command\n"
+				"DOWN invalid_command\nUP invalid_command\n"
+				"PGUP invalid_command\nPGDWN invalid_command\n"
+				"- invalid_command\n+ invalid_command\n"
+				"ESC invalid_command\nENTER invalid_command\n"
+				"SPACE pausing_keep invalid_command\nHOME invalid_command\n"
+				"END invalid_command\n> invalid_command\n< invalid_command\n"
+				"INS invalid_command\nDEL invalid_command\n[ invalid_command\n"
+				"] invalid_command\n{ invalid_command\n} invalid_command\n"
+				"BS invalid_command\nTAB invalid_command\n. invalid_command\n"
+				"# invalid_command\n@ invalid_command\n! invalid_command\n"
+				"9 invalid_command\n/ invalid_command\n0 invalid_command\n"
+				"* invalid_command\n1 invalid_command\n2 invalid_command\n"
+				"3 invalid_command\n4 invalid_command\n5 invalid_command\n"
+				"6 invalid_command\n7 invalid_command\n8 invalid_command\n"
+				"a invalid_command\nb invalid_command\nc invalid_command\n"
+				"d invalid_command\ne invalid_command\nF invalid_command\n"
+				"f invalid_command\ng invalid_command\nh invalid_command\n"
+				"i invalid_command\nj invalid_command\nk invalid_command\n"
+				"l invalid_command\nm invalid_command\nn invalid_command\n"
+				"o invalid_command\np invalid_command\nq invalid_command\n"
+				"r invalid_command\ns invalid_command\nt invalid_command\n"
+				"T invalid_command\nu invalid_command\nv invalid_command\n"
+				"w invalid_command\nx invalid_command\ny invalid_command\n"
+				"z invalid_command\nS invalid_command\n"
 			);
 		}
 	}
@@ -177,9 +188,10 @@ void PlayEngine::updateInfo() {
 	}
 }
 
-
-void PlayEngine::slotStateChanged(Core::State /*state*/, Core::State /*old*/){
+void PlayEngine::slotStateChanged(Core::State state, Core::State /*old*/){
 	setSeekable(!isStopped());
+	if (state == Core::Playing)
+		doCommands();
 }
 
 void PlayEngine::slotProcFinished() {
@@ -244,34 +256,49 @@ bool PlayEngine::start(int time) {
 	args << (source.isDisc() ? "dvd://" : source.url().toString());
 	qDebug("%s %s", "mplayer", qPrintable(args.join(" ")));
 	d->proc->start("mplayer", args);
-	if (!d->proc->waitForStarted())
-		return false;
-	updateVolume();
-	updateColorProperty();
-	updateSubtitle(subtitle());
-	updateSubtitlePos(subtitlePos());
-	return true;
+	return d->proc->waitForStarted();
 }
 
-bool PlayEngine::tellmp(const QString &command) {
+bool PlayEngine::enqueueCommand(const QString &cmd, const QString &full) {
+	return isPlaying() ? false : (d->cmd[cmd] = full, true);
+}
+
+void PlayEngine::doCommands() {
+	QMap<QString, QString>::const_iterator it = d->cmd.begin();
+	for (; it != d->cmd.end(); ++it)
+		tellmp(it.value());
+	d->cmd.clear();
+	if (d->needToUpdateMuted)
+		updateMuted();
+	if (d->needToUpdateSub)
+		applySubtitle(subtitle());
+}
+
+bool PlayEngine::tellmp(const QString &cmd) {
 	if (d->proc->isRunning()) {
-		d->proc->write(command.toLocal8Bit() + "\n");
-		qDebug("told: %s", qPrintable(command));
+		d->proc->write(cmd.toLocal8Bit() + "\n");
+		qDebug("told: %s", qPrintable(cmd));
 		return true;
 	} else
-		qDebug("couldn't tell: %s", qPrintable(command));
+		qDebug("couldn't tell: %s", qPrintable(cmd));
 	return false;
 }
 
-bool PlayEngine::tellmp(const QString &command, const QString &value, const QString &option) {
-	QString cmd = command;
-	cmd += " ";
-	cmd += value;
-	if (!option.isEmpty()) {
-		cmd += " ";
-		cmd += option;
-	}
-	return tellmp(cmd);
+bool PlayEngine::tellmp1(const QString &cmd, const QVariant &value, bool enqueue) {
+	QString command = cmd;
+	command += " ";
+	command += value.toString();
+	return (enqueue && enqueueCommand(cmd, command)) ? true : tellmp(command);
+}
+
+bool PlayEngine::tellmp2(const QString &cmd, const QVariant &value
+		, const QVariant &option, bool enqueue) {
+	QString command = cmd;
+	command += " ";
+	command += value.toString();
+	command += " ";
+	command += option.toString();
+	return (enqueue && enqueueCommand(cmd, command)) ? true : tellmp(command);
 }
 
 void PlayEngine::slotOsdRectChanged() {
@@ -283,7 +310,7 @@ void PlayEngine::update() {
 }
 
 void PlayEngine::setOsdLevel(int level) {
-	tellmp("osd", qBound(0, level, 3));
+	tellmp1("osd", qBound(0, level, 3));
 }
 
 void PlayEngine::exiting() {
@@ -344,7 +371,7 @@ void PlayEngine::seek(int time, bool relative, bool showTimeLine, int /*duration
 		setOsdLevel(1);
 	if (!d->seeking) {
 		d->seeking = true;
-		tellmp("seek", double(time)/1000.0, relative ? 0 : 2);
+		tellmp2("seek", time*0.001, relative ? 0 : 2);
 		d->seeking = false;
 	}
 	if (showTimeLine)
@@ -354,14 +381,14 @@ void PlayEngine::seek(int time, bool relative, bool showTimeLine, int /*duration
 void PlayEngine::seek(int time) {
 	if (!d->seeking) {
 		d->seeking = true;
-		tellmp("seek", double(time)/1000.0, 2);
+		tellmp2("seek", time*0.001, 2);
 		d->seeking = false;
 	}
 }
 
 void PlayEngine::showMessage(const QString &message, int duration) {
-	if (!tellmp("osd_show_text", "\"" + message + "\"", QString::number(duration)))
-		Core::PlayEngine::showMessage(message, duration);
+	if (isPlaying())
+		tellmp2("osd_show_text", "\"" + message + "\"", QString::number(duration));
 }
 
 void PlayEngine::showTimeLine(int time, int duration) {
@@ -371,29 +398,36 @@ void PlayEngine::showTimeLine(int time, int duration) {
 	showMessage(text, duration);
 }
 
+void PlayEngine::updateMuted() {
+	d->needToUpdateMuted = !tellmp1("mute",  isMuted() ? 1 : 0);
+}
+
 void PlayEngine::updateVolume() {
-	tellmp("volume", realVolume()*10.0, 1);
-	tellmp("mute",  isMuted() ? 1 : 0);
+	tellmp2("volume", realVolume()*10.0, 1, true);
+	if (isPlaying())
+		updateMuted();
+	else
+		d->needToUpdateMuted = true;
 }
 
 void PlayEngine::updateSpeed(double speed) {;
-	tellmp("speed_set", speed);
+	tellmp1("speed_set", speed, true);
 }
 
 void PlayEngine::updateColorProperty(Core::ColorProperty::Value prop, double value) {
 	const int temp = qBound(-100, qRound(value*100.), 100);
 	switch(prop) {
 	case Core::ColorProperty::Brightness:
-		tellmp("brightness", temp, 1);
+		tellmp2("brightness", temp, 1, true);
 		break;
 	case Core::ColorProperty::Contrast:
-		tellmp("contrast", temp, 1);
+		tellmp2("contrast", temp, 1, true);
 		break;
 	case Core::ColorProperty::Saturation:
-		tellmp("saturation", temp, 1);
+		tellmp2("saturation", temp, 1, true);
 		break;
 	case Core::ColorProperty::Hue:
-		tellmp("hue", temp, 1);
+		tellmp2("hue", temp, 1, true);
 		break;
 	default:
 		break;
@@ -402,16 +436,24 @@ void PlayEngine::updateColorProperty(Core::ColorProperty::Value prop, double val
 
 void PlayEngine::updateColorProperty() {
 	const Core::ColorProperty &prop = colorProperty();
-	tellmp("brightness", qBound(-100, qRound(prop.brightness()*100.), 100), 1);
-	tellmp("contrast", qBound(-100, qRound(prop.contrast()*100.), 100), 1);
-	tellmp("saturation", qBound(-100, qRound(prop.saturation()*100.), 100), 1);
-	tellmp("hue", qBound(-100, qRound(prop.hue()*100.), 100), 1);
+	tellmp2("brightness", qBound(-100, qRound(prop.brightness()*100.), 100), 1, true);
+	tellmp2("contrast", qBound(-100, qRound(prop.contrast()*100.), 100), 1, true);
+	tellmp2("saturation", qBound(-100, qRound(prop.saturation()*100.), 100), 1, true);
+	tellmp2("hue", qBound(-100, qRound(prop.hue()*100.), 100), 1, true);
 }
 
 void PlayEngine::updateSubtitle(const Core::Subtitle &sub) {
-	tellmp("sub_select -1") && tellmp("sub_remove");
-	sub.save(d->tempsub, "UTF-8", frameRate()) && !sub.isEmpty()
-		&& tellmp("sub_load \"" + d->tempsub + '\"') && tellmp("sub_select 0");
+	if (isPlaying())
+		applySubtitle(sub);
+	else
+		d->needToUpdateSub = true;
+}
+
+void PlayEngine::applySubtitle(const Core::Subtitle &sub) {
+	d->needToUpdateSub = !(tellmp("sub_select -1") && tellmp("sub_remove")
+			&& sub.save(d->tempsub, "UTF-8", frameRate())
+			&& tellmp("sub_load \"" + d->tempsub + '\"')
+			&& tellmp("sub_select 0"));
 }
 
 void PlayEngine::updateSubtitleStyle(const Core::OsdStyle &/*style*/) {
@@ -421,7 +463,7 @@ void PlayEngine::updateSubtitleStyle(const Core::OsdStyle &/*style*/) {
 }
 
 void PlayEngine::updateSubtitleVisiblity(bool visible) {
-	tellmp(visible ? "sub_visibility 1" : "sub_visibility 0");
+	tellmp(visible ? " 1" : "sub_visibility 0");
 }
 
 int PlayEngine::toRealSubPos(double pos) const {
@@ -431,11 +473,11 @@ int PlayEngine::toRealSubPos(double pos) const {
 }
 
 void PlayEngine::updateSubtitlePos(double pos) {
-	tellmp("sub_pos", toRealSubPos(pos), 1);
+	tellmp2("sub_pos", toRealSubPos(pos), 1, true);
 }
 
 void PlayEngine::updateSyncDelay(int delay) {
-	tellmp("sub_delay", -double(delay)*0.001, 1);
+	tellmp2("sub_delay", -double(delay)*0.001, 1, true);
 }
 
 void PlayEngine::updateCurrentSource(const Core::MediaSource &source) {
@@ -466,11 +508,11 @@ bool PlayEngine::updateAudioRenderer(const QString &name) {
 }
 
 bool PlayEngine::updateCurrentTrack(const QString &track) {
-	return d->tracks.contains(track) && tellmp("switch_audio", d->tracks[track]);
+	return d->tracks.contains(track) && tellmp1("switch_audio", d->tracks[track]);
 }
 
 void PlayEngine::triggerSnapshot() {
-	tellmp("screenshot", 0);
+	tellmp1("screenshot", 0);
 }
 
 void PlayEngine::slotGotSnapshot(const QString &file) {

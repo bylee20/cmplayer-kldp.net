@@ -10,19 +10,13 @@ namespace MPlayer {
 class PlayEngine : public Core::PlayEngine {
 	Q_OBJECT
 public:
-// 	enum Command {SubPos, Volume, };
+	enum Command {Invalid, SubPos, Volume};
 	PlayEngine(QObject *parent = 0);
 	~PlayEngine();
-	bool tellmp(const QString &command);
-	template<typename T>
-	bool tellmp(const QString &command, T value, int option) {
-		return tellmp(command, QString::number(value), QString::number(option));
-	}
-	template<typename T>
-	bool tellmp(const QString &command, T value) {
-		return tellmp(command, QString::number(value));
-	}
-	bool tellmp(const QString &command, const QString &value, const QString &option = QString());
+	bool tellmp(const QString &cmd);
+	bool tellmp1(const QString &cmd, const QVariant &value, bool queue = false);
+	bool tellmp2(const QString &cmd, const QVariant &value
+			, const QVariant &option, bool queue = false);
 	virtual int currentTime() const {return m_time;}
 	virtual const Core::Info &info() const;
 	virtual void play(int time);
@@ -63,12 +57,14 @@ private:
 	virtual void updateCurrentSource(const Core::MediaSource &source);
 	virtual bool updateVideoRenderer(const QString &name);
 	virtual bool updateAudioRenderer(const QString &name);
-// 	virtual void updateVideo();
-// 	virtual void updateAudio();
 	int toRealSubPos(double pos) const;
 	void exiting();
 	bool start(int time = 0);
 	void updateInfo();
+	bool enqueueCommand(const QString &cmd, const QString &full);
+	void doCommands();
+	void updateMuted();
+	void applySubtitle(const Core::Subtitle &sub);
 	class Data;
 	class Thread;
 	friend class MPlayerProcess;

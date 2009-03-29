@@ -198,6 +198,14 @@ void MainWindow::commonInitialize() {
 		this->open(url);
 }
 
+static QToolButton *addToolButton(QHBoxLayout *hbox) {
+	QToolButton *tb = new QToolButton;
+	tb->setAutoRaise(true);
+	tb->setFocusPolicy(Qt::NoFocus);
+	hbox->addWidget(tb);
+	return tb;
+}
+
 QWidget *MainWindow::createControl(QWidget *parent) {
 	QWidget *control = new QWidget(parent);
 	QVBoxLayout *vbox = new QVBoxLayout(control);
@@ -207,20 +215,19 @@ QWidget *MainWindow::createControl(QWidget *parent) {
 	hbox->setMargin(0);
 	hbox->setSpacing(0);
 	vbox->addLayout(hbox);
-#define addToolButton(act) {\
-	QToolButton *tb = new QToolButton; tb->setAutoRaise(true); \
-	tb->setFocusPolicy(Qt::NoFocus); \
-	tb->setDefaultAction(act); hbox->addWidget(tb);}
 	Menu &play = d->menu("play");
-	addToolButton(play["prev"]);
-	addToolButton(play["pause"]);
-	addToolButton(play["stop"]);
-	addToolButton(play["next"]);
-	addToolButton(d->menu("open")["file"]);
+	addToolButton(hbox)->setDefaultAction(play["prev"]);
+	addToolButton(hbox)->setDefaultAction(play["pause"]);
+	addToolButton(hbox)->setDefaultAction(play["stop"]);
+	addToolButton(hbox)->setDefaultAction(play["next"]);
+	QToolButton *tb = addToolButton(hbox);
+	tb->setIcon(QIcon(":/img/media-eject.png"));
+	tb->setToolTip(tr("Open File"));
+	connect(tb, SIGNAL(clicked()), d->menu("open")["file"], SLOT(trigger()));
+	addToolButton(hbox)->setDefaultAction(play["list"]);
 	hbox->addWidget(new SeekSlider(d->player));
-	addToolButton(d->menu("audio")["mute"]);
+	addToolButton(hbox)->setDefaultAction(d->menu("audio")["mute"]);
 	hbox->addWidget(new VolumeSlider(d->player));
-#undef addToolButton
 	vbox->addWidget(d->playInfo = new PlayInfoWidget);
 	control->setFixedHeight(control->sizeHint().height());
 	return control;
@@ -759,6 +766,9 @@ void MainWindow::updatePlaylistInfo() {
 }
 
 void MainWindow::toggleDockVisibility() {
+	QAction *act = qobject_cast<QAction*>(sender());
+	if (act && act->isChecked() == d->dock->isVisible())
+		return;
 	static int frameWidth = -1;
 	if (frameWidth < 0)
 		frameWidth = (width() - (d->player->width() + d->dock->width()));
@@ -778,6 +788,8 @@ void MainWindow::toggleDockVisibility() {
 		d->player->keepSize(false);
 	} else
 		d->dock->setVisible(!visible);
+	if (!act)
+		d->menu("play")["list"]->setChecked(d->dock->isVisible());
 }
 
 void MainWindow::updateRecentSize(int size) {

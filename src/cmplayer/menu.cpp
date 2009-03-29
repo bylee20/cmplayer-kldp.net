@@ -129,7 +129,8 @@ Menu &Menu::create(QWidget *parent) {
 	next->setShortcut(Qt::CTRL + Qt::Key_Right);
 	list->setIcon(QIcon(":/img/view-media-playlist.png"));
 	list->setShortcut(Qt::Key_L);
-		
+	list->setCheckable(true);
+	
 	play->addSeparator();
 		
 	Menu *speed = play->addMenu("speed");
@@ -263,9 +264,7 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_wheel[AmpUpDown] = WheelActionPair(ampUp, ampDown);
 
 	root->m_context = new QMenu(parent);
-	root->m_context->addAction(file);
 	root->m_context->addMenu(open);
-	root->m_context->addAction(list);
 	root->m_context->addSeparator();
 	root->m_context->addMenu(screen);
 	root->m_context->addMenu(play);
