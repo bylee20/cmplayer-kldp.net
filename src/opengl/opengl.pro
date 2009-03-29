@@ -1,37 +1,30 @@
 TEMPLATE = lib
 
-CONFIG += dll \
-plugin \
-opengl \
- debug \
- debug_and_release
+HEADERS += opengliface.h \
+	videorenderer.h \
+	osdrenderer.h \
+	pixelbufferosdrenderer.h
+SOURCES += opengliface.cpp \
+	videorenderer.cpp \
+	osdrenderer.cpp \
+	pixelbufferosdrenderer.cpp
 
+INCLUDEPATH += ../
+
+CONFIG += dll plugin opengl debug_and_release
 QT += opengl
 
-TARGET = cmplayer_opengl
+TARGET = ../bin/cmplayer_opengl
 
-DESTDIR = ../bin
-
-LIBS += -L../bin \
-  -lcmplayer_core
-
-HEADERS += opengliface.h \
-videorenderer.h \
-osdrenderer.h \
-pixelbufferosdrenderer.h
-SOURCES += opengliface.cpp \
-videorenderer.cpp \
-osdrenderer.cpp \
-pixelbufferosdrenderer.cpp
-INCLUDEPATH += ../
+LIBS += -L../bin
 
 RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE){
-    CONFIG -= debug
-    CONFIG += release
-    LIBS += -lcmplayer_core
+	CONFIG += release
+	LIBS += -lcmplayer_core
 } else {
-    LIBS += -lcmplayer_cored
+	CONFIG += debug
+	LIBS += -lcmplayer_cored
 }
 
 

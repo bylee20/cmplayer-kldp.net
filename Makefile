@@ -22,6 +22,8 @@ ifdef PREFIX
 		CMPLAYER_TRANSLATION_PATH ?= $(PREFIX)/cmplayer/translations
 		CMPLAYER_LIB_PATH ?= $(PREFIX)/cmplayer/lib
 		CMPLAYER_PLUGIN_PATH ?= $(PREFIX)/cmplayer/plugins
+		CMPLAYER_ICON_PATH ?= $(PREFIX)/cmplayer/icons/hicolor
+		CMPLAYER_APP_PATH ?= $(PREFIX)/cmplayer/applications
 	endif
 endif
 
@@ -35,6 +37,8 @@ CMPLAYER_PLUGIN_PATH ?= $(CMPLAYER_LIB_PATH)/cmplayer/plugins
 ENABLE_OPENGL ?= no
 ENGINE_LIST ?= xine mplayer
 BUILD_PLUGIN_ONLY ?= no
+CMPLAYER_ICON_PATH ?= $(CMPLAYER_DATA_PATH)/icons/hicolor
+CMPLAYER_APP_PATH ?= $(CMPLAYER_DATA_PATH)/applications
 
 QMAKE ?= qmake
 LRELEASE ?= lrelease
@@ -182,32 +186,32 @@ endif
 uninstall:
 # uninstall core and player files
 ifeq ($(BUILD_PLUGIN_ONLY),no)
-	rm -f $(CMPLAYER_TRANSLATION_PATH)/cmplayer_*.qm
-	rm -f $(CMPLAYER_LIB_PATH)/libcmplayer_core.so*
-	rm -f $(CMPLAYER_BIN_PATH)/cmplayer
+	-rm -f $(CMPLAYER_TRANSLATION_PATH)/cmplayer_*.qm
+	-rm -f $(CMPLAYER_LIB_PATH)/libcmplayer_core.so*
+	-rm -f $(CMPLAYER_BIN_PATH)/cmplayer
 endif
 # uninstall xine
 ifneq (,$(findstring xine,${ENGINE_LIST}))
-	rm -f $(CMPLAYER_PLUGIN_PATH)/libcmplayer_engine_xine*
+	-rm -f $(CMPLAYER_PLUGIN_PATH)/libcmplayer_engine_xine*
 endif
 # uninstall mplayer
 ifneq (,$(findstring mplayer,${ENGINE_LIST}))
-	rm -f $(CMPLAYER_PLUGIN_PATH)/libcmplayer_engine_mplayer*
+	-rm -f $(CMPLAYER_PLUGIN_PATH)/libcmplayer_engine_mplayer*
 endif
 # uninstall opengl
 ifeq ($(ENABLE_OPENGL),yes)
-	rm -f $(CMPLAYER_PLUGIN_PATH)/libcmplayer_opengl*
+	-rm -f $(CMPLAYER_PLUGIN_PATH)/libcmplayer_opengl*
 endif
 # uninstall directories
 ifeq ($(BUILD_PLUGIN_ONLY),no)
-	rmdir --ignore-fail-on-non-empty $(CMPLAYER_TRANSLATION_PATH)
-	rmdir --ignore-fail-on-non-empty $(CMPLAYER_LIB_PATH)
-	rmdir --ignore-fail-on-non-empty $(CMPLAYER_BIN_PATH)
+	-rmdir $(CMPLAYER_TRANSLATION_PATH)
+	-rmdir $(CMPLAYER_LIB_PATH)
+	-rmdir $(CMPLAYER_BIN_PATH)
 endif
 ifneq ($(strip $(ENGINE_LIST)),)
-	rmdir --ignore-fail-on-non-empty $(CMPLAYER_PLUGIN_PATH)
+	-rmdir $(CMPLAYER_PLUGIN_PATH)
 else
 ifeq ($(ENABLE_OPENGL),yes)
-	rmdir --ignore-fail-on-non-empty $(CMPLAYER_PLUGIN_PATH)
+	-rmdir $(CMPLAYER_PLUGIN_PATH)
 endif
 endif
