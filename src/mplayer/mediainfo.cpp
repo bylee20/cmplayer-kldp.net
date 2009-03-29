@@ -31,8 +31,20 @@ MediaInfo &MediaInfo::operator = (const MediaInfo &rhs) {
 	return *this;
 }
 
-bool MediaInfo::get(const Core::MediaSource &source) {
+void MediaInfo::reset() {
 	m_valid = false;
+	m_hasVideo = false;
+	m_length = 0;
+	m_videoSize = QSize(-1, -1);
+	m_disc = false;
+	m_frameRate = -1.0;
+	m_dvd.titles.clear();
+	m_dvd.channels.clear();
+	m_tracks.clear();
+}
+
+bool MediaInfo::get(const Core::MediaSource &source) {
+	reset();
 	QStringList args;
 	args << "-nosound" << "-vo" << "null" << "-frames" << "1" << "-identify";
 	args << (source.isDisc() ? "dvd://" : source.url().toString());

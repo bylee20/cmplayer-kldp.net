@@ -22,6 +22,7 @@
 #include <core/subtitle.h>
 #include <core/abrepeater.h>
 #include <core/utility.h>
+#include <core/mediainfo.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
@@ -208,12 +209,14 @@ QWidget *MainWindow::createControl(QWidget *parent) {
 	vbox->addLayout(hbox);
 #define addToolButton(act) {\
 	QToolButton *tb = new QToolButton; tb->setAutoRaise(true); \
-	tb->setFocusPolicy(Qt::NoFocus); tb->setDefaultAction(act); hbox->addWidget(tb);}
+	tb->setFocusPolicy(Qt::NoFocus); \
+	tb->setDefaultAction(act); hbox->addWidget(tb);}
 	Menu &play = d->menu("play");
 	addToolButton(play["prev"]);
 	addToolButton(play["pause"]);
 	addToolButton(play["stop"]);
 	addToolButton(play["next"]);
+	addToolButton(d->menu("open")["file"]);
 	hbox->addWidget(new SeekSlider(d->player));
 	addToolButton(d->menu("audio")["mute"]);
 	hbox->addWidget(new VolumeSlider(d->player));
@@ -959,7 +962,8 @@ void MainWindow::setter(int diff) {d->player->setter(d->player->getter() + diff)
 showMessage(msg.arg(Menu::toString(d->player->getter()*factor, sign)));}
 
 DEC_DIFF_SETTER_MSG(setVolume, volume, MainWindow::tr("Volume: %1%"), 1, false)
-DEC_DIFF_SETTER_MSG(setSubtitlePos, subtitlePos, MainWindow::tr("Subtitle Position: %1%"), 1, false)
+DEC_DIFF_SETTER_MSG(setSubtitlePos, subtitlePos
+		, MainWindow::tr("Subtitle Position: %1%"), 1, false)
 DEC_DIFF_SETTER_MSG(setAmplifyingRate, amplifyingRate, MainWindow::tr("Amp.: %2% (Max.: %1%)")
 		.arg(qRound(d->player->engine()->info().maximumAmplifyingRate()*100.0)), 1, false)
 

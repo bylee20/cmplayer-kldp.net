@@ -9,6 +9,7 @@
 #include <core/nativerenderer.h>
 #include <core/baseevent.h>
 #include <QtGui/QApplication>
+#include <QtCore/QDebug>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QThread>
 #include <QtCore/QFileInfo>
@@ -65,8 +66,7 @@ private:
 struct PlayEngine::Data {
 	Data(): tempsub(getTempSub()) {}
 	static QString getTempSub() {
-		QTemporaryFile file(Info::privatePath() + "/cmplayer-mplayer-XXXXXX.smi");
-		return file.open() ? file.fileName() : Info::privatePath() + "/temp.smi";
+		return Info::privatePath() + "/cmplayer-mplayer-temp.smi";
 	}
 	Info info;
 	MediaInfo mediaInfo;
@@ -107,7 +107,6 @@ PlayEngine::~PlayEngine() {
 	setVideoRenderer(0);
 	delete d->renderer;
 	delete d->proc;
-	QFile::remove(d->tempsub);
 	delete d;
 }
 
@@ -248,7 +247,6 @@ bool PlayEngine::start(int time) {
 	if (!d->proc->waitForStarted())
 		return false;
 	updateVolume();
-	qDebug() << "started";
 	updateColorProperty();
 	updateSubtitle(subtitle());
 	updateSubtitlePos(subtitlePos());

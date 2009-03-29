@@ -6,6 +6,7 @@
 #include <core/backendiface.h>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QApplication>
+#include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 #include <QtCore/QPluginLoader>
@@ -196,6 +197,7 @@ void VideoPlayer::setBackend(const QString &name) {
 		d->engine->setSubtitleVisible(d->dummy->isSubtitleVisible());
 		d->engine->setSubtitleStyle(d->dummy->subtitleStyle());
 		d->engine->setCurrentSource(d->dummy->currentSource());
+		qDebug() << d->engine << d->engine->currentSource().url();
 		d->engine->setVolumeNormalized(d->dummy->isVolumeNormalized());
 		d->engine->setUseSoftwareEqualizer(d->dummy->useSoftwareEqualizer());
 		d->engine->setColorProperty(d->dummy->colorProperty());
@@ -266,7 +268,10 @@ void VideoPlayer::slotStateChanged(Core::State state, Core::State old) {
 	bool doEmit = true;
 	if (state == Core::Playing) {
 		d->changing = false;
-		d->stack->setCurrentWidget(d->engine->widget());
+		if (d->engine->hasVideo())
+			d->stack->setCurrentWidget(d->engine->widget());
+		else
+			d->stack->setCurrentWidget(d->dummy->widget());
 	} else if (state == Core::Finished && d->next) {
 		playNext(RecentInfo::get()->stoppedTime(*d->next));
 		doEmit = false;
@@ -293,8 +298,9 @@ void VideoPlayer::slotStopped(Core::MediaSource source, int time) {
 
 void VideoPlayer::setCurrentSource(const Core::MediaSource &source) {
 	if (d->dummy->currentSource() != source) {
+		d->dummy->setCurrentSource(source);
 		setBackend(Pref::get()->backendName(source.type()));
-		ENGINE_SET(setCurrentSource, source);
+		d->engine->setCurrentSource(source);
 	}
 }
 

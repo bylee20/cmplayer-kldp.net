@@ -17,7 +17,8 @@ SOURCES += abrepeater.cpp \
  openglfactory.cpp \
  openglvideorendereriface.cpp \
  downloader.cpp \
- colorproperty.cpp
+ colorproperty.cpp \
+ mediainfo.cpp
 HEADERS += abrepeater.h \
     playengine.h \
     mediasource.h \
@@ -42,7 +43,8 @@ HEADERS += abrepeater.h \
  openglfactory.h \
  openglvideorendereriface.h \
  downloader.h \
- colorproperty.h
+ colorproperty.h \
+ mediainfo.h
 
 CONFIG += debug \
     debug_and_release \
@@ -66,4 +68,7 @@ DEFINES += CMPLAYER_PLUGIN_DIR=$(CMPLAYER_PLUGIN_PATH)
 CONFIG -= release
 
 QT += network
+
+
+
 

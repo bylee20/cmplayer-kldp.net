@@ -25,6 +25,7 @@ MPlayerProcess::~MPlayerProcess() {
 
 void MPlayerProcess::interpretMessages() {
 	static QRegExp rxLineBreak("[\\n\\r]");
+	static QRegExp rxFinished("^Exiting\\.+\\s+\\(End of file\\)");
 	bool skip = false;
 
 	QStringList lines = QString::fromLocal8Bit(readAllStandardOutput()).split(rxLineBreak);
@@ -37,7 +38,6 @@ void MPlayerProcess::interpretMessages() {
 			static QRegExp rxAV("^[AV]: *([0-9,:.-]+)");
 			static QRegExp rxSnap("^\\*\\*\\* screenshot '(.*)'");
 			static QRegExp rxStated("^Playing (.+)");
-			static QRegExp rxFinished("^Exiting\\.+\\s+\\(End of file\\)");
 			if ((matched = (rxAV.indexIn(msg) != -1))) {
 				skip = true;
 				const qint64 msec = static_cast<int>(rxAV.cap(1).toDouble()*1000);
@@ -50,7 +50,6 @@ void MPlayerProcess::interpretMessages() {
 			} else if ((matched = (rxFinished.indexIn(msg) != -1))) {
 				d->engine->exiting();
 			} else if ((matched = (rxSnap.indexIn(msg) != -1))) {
-				qDebug() << "matched" << rxSnap.cap(1);
 				emit gotSnapshot(rxSnap.cap(1));
 			}
 		} else if (!matched && d->info && !d->info->isValid()) {
@@ -64,6 +63,8 @@ void MPlayerProcess::interpretMessages() {
 					d->info->m_length = rxID.cap(2).toDouble()*1000.0;
 				} else if (id == "VIDEO_FPS") {
 					d->info->m_frameRate = rxID.cap(2).toDouble();
+				} else if (id == "VIDEO_ID") {
+					d->info->m_hasVideo = true;
 				} else if (id == "AUDIO_ID") {
 					d->info->m_tracks[rxID.cap(2).toInt()] = QString();
 				} else if (rxAudio.indexIn(id) != -1) {
@@ -109,7 +110,8 @@ void MPlayerProcess::interpretMessages() {
 					for (int i=0; i<size; ++i)
 						chapters[i] = Core::Utility::stringToMSecs(times[i]);
 				}
-			}
+			} else if (rxFinished.indexIn(msg) != -1)
+				d->info->m_valid = true;
 		}
 		if (!skip)
 			qDebug("%s", qPrintable(msg));

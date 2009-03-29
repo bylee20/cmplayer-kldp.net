@@ -1,12 +1,14 @@
 #ifndef BACKEND_MEDIASOURCE_H
 #define BACKEND_MEDIASOURCE_H
-#include <QDebug>
+
 #include "namespace.h"
 #include <QtCore/QUrl>
 #include <QtCore/QString>
-#include <QtCore/QSharedDataPointer>
+#include <QtCore/QSharedData>
 
 namespace Core {
+
+class MediaInfo;
 
 class MediaSource {
 public:
@@ -27,12 +29,12 @@ public:
 private:
 	struct Data : public QSharedData {
 		Data(): type(Unknown) {}
-		Data(const Data &rhs): QSharedData(rhs), type(rhs.type), url(rhs.url) {}
+		Data(const Data &rhs)
+		: QSharedData(rhs), type(rhs.type), url(rhs.url) {}
 		MediaType type;
 		QUrl url;
 	};
 	QSharedDataPointer<Data> d;
-
 };
 
 inline bool MediaSource::operator != (const MediaSource &rhs) const {

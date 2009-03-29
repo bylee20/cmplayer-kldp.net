@@ -417,7 +417,7 @@
     <item>
      <widget class="QTabWidget" name="tabs" >
       <property name="currentIndex" >
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="widget_3" >
        <attribute name="title" >
@@ -596,7 +596,7 @@ e.g.: English, Korean</string>
     <item>
      <widget class="QTabWidget" name="tabWidget" >
       <property name="currentIndex" >
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="widget_5" >
        <attribute name="title" >
@@ -1207,6 +1207,70 @@ e.g.: English, Korean</string>
     <hint type="destinationlabel" >
      <x>161</x>
      <y>99</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pauseMinimized</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>playRestored</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>111</x>
+     <y>170</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>120</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pauseMinimized</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pauseVideoOnly</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>97</x>
+     <y>170</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>97</x>
+     <y>224</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hideCursor</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>hideDelay</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>170</x>
+     <y>343</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>405</x>
+     <y>340</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hideCursor</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>hideInFullScreen</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>223</x>
+     <y>336</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>165</x>
+     <y>355</y>
     </hint>
    </hints>
   </connection>

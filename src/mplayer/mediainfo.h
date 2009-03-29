@@ -38,6 +38,7 @@ public:
 	bool get(const Core::MediaSource &source);
 	bool get(const QString &parse, const Core::MediaSource &source, QProcess *proc = 0);
 	double frameRate() const {return m_frameRate;}
+	void reset();
 private:
 	MediaInfo();
 	friend class MediaSource;

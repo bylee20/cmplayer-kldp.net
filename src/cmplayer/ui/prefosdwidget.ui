@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>301</width>
-    <height>198</height>
+    <height>199</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout" >
@@ -187,7 +187,8 @@
    <item row="5" column="0" colspan="3" >
     <widget class="QLabel" name="label_5" >
      <property name="text" >
-      <string>Some options might be ignored in case that the play engine doesn't support them.</string>
+      <string>*Some options might be ignored in case that the play engine doesn't support them.&lt;br>
+*The size of font is ignored. Use size scale instead.</string>
      </property>
      <property name="wordWrap" >
       <bool>true</bool>

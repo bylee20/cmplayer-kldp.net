@@ -82,7 +82,7 @@ private:
 		painter.fillRect(rect(), m_bgBrush);
 		painter.scale(1.0/w, 1.0/h);
 		
-		const int len = qMin(qRound(qMin(w, h)*0.8), m_logo.width());
+		const int len = qMin(qRound(qMin(w, h)*0.5), m_logo.width());
 		QRect rect;
 		rect.setX((w-len)*0.5 + 0.5);
 		rect.setY((h-len)*0.5 + 0.5);

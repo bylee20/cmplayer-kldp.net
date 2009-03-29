@@ -11,10 +11,11 @@
 #include <core/newframeevent.h>
 #include <core/utility.h>
 #include <core/subtitle.h>
+#include <core/openglfactory.h>
 #include <xine/xineutils.h>
 #include <QtGui/QApplication>
 #include <QtCore/QTimer>
-#include <core/openglfactory.h>
+#include <QtCore/QDebug>
 
 namespace Xine {
 

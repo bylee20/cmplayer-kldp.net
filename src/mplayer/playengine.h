@@ -10,6 +10,7 @@ namespace MPlayer {
 class PlayEngine : public Core::PlayEngine {
 	Q_OBJECT
 public:
+// 	enum Command {SubPos, Volume, };
 	PlayEngine(QObject *parent = 0);
 	~PlayEngine();
 	bool tellmp(const QString &command);
