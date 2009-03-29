@@ -362,7 +362,7 @@
                 <bool>false</bool>
                </property>
                <property name="text" >
-                <string>Hide window when closed</string>
+                <string>Hide window rather than quit when closed </string>
                </property>
               </widget>
              </item>
@@ -417,7 +417,7 @@
     <item>
      <widget class="QTabWidget" name="tabs" >
       <property name="currentIndex" >
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="widget_3" >
        <attribute name="title" >
@@ -596,7 +596,7 @@ e.g.: English, Korean</string>
     <item>
      <widget class="QTabWidget" name="tabWidget" >
       <property name="currentIndex" >
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="widget_5" >
        <attribute name="title" >
