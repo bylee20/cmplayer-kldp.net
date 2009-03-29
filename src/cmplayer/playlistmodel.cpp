@@ -2,6 +2,7 @@
 #include "recentinfo.h"
 #include <QtCore/QUrl>
 #include <QtCore/QMimeData>
+#include <QtCore/QSet>
 #include <QtGui/QFont>
 #include <core/mediasource.h>
 #include <core/playlist.h>
@@ -222,7 +223,6 @@ void PlaylistModel::insert(int row, const Core::MediaSource &source) {
 void PlaylistModel::insert(int row, const QList<Core::MediaSource> &sources) {
 	if (row < 0 || row >= d->list.size())
 		row = d->list.size();
-	qDebug() << row;
 	const int begin = row;
 	emit layoutAboutToBeChanged();
 	for (int i=0; i<sources.size(); ++i) {
