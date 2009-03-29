@@ -191,7 +191,7 @@ endif
 	$(install_file) icons/cmplayer32.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/32x32/apps/cmplayer.png
 	$(install_file) icons/cmplayer64.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/64x64/apps/cmplayer.png
 	$(install_file) icons/cmplayer128.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/128x128/apps/cmplayer.png
-	$(install_file) icons/cmplayer.xpm $(DESTDIR)$(CMPLAYER_DATA_PATH)/pixmaps
+# 	$(install_file) icons/cmplayer.xpm $(DESTDIR)$(CMPLAYER_DATA_PATH)/pixmaps
 endif
 	@echo "\n==================== Installation Finished!! ====================\n\n"\
 "  If you want to execute CMPlayer now, run '$(executable)'.\n"
@@ -208,7 +208,7 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	-rm -f $(CMPLAYER_ICON_PATH)/32x32/apps/cmplayer.png
 	-rm -f $(CMPLAYER_ICON_PATH)/64x64/apps/cmplayer.png
 	-rm -f $(CMPLAYER_ICON_PATH)/128x128/apps/cmplayer.png
-	-rm -f $(CMPLAYER_DATA_PATH)/pixmaps/cmplayer.xpm
+# 	-rm -f $(CMPLAYER_DATA_PATH)/pixmaps/cmplayer.xpm
 endif
 # uninstall xine
 ifneq (,$(findstring xine,${ENGINE_LIST}))
