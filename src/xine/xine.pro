@@ -30,7 +30,8 @@ CONFIG += debug_and_release dll plugin
 
 INCLUDEPATH += ../
 TARGET = ../bin/cmplayer_engine_xine
-LIBS += -L../bin -lxcb -lX11 -lxine
+LIBS += -L../bin -lxcb -lxine
+#LIBS += -lX11
 
 RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE) {
