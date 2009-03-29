@@ -76,13 +76,13 @@ ifneq (,$(findstring xine,${ENGINE_LIST}))
 	cd src/xine && $(qmake_env) $(QMAKE) xine.pro
 endif
 ifneq (,$(findstring mplayer,${ENGINE_LIST}))
-	cd src/mplayer $(qmake_env) $(QMAKE) mplayer.pro
+	cd src/mplayer && $(qmake_env) $(QMAKE) mplayer.pro
 endif
 ifeq ($(ENABLE_OPENGL),yes)
-	cd src/opengl $(qmake_env) $(QMAKE) opengl.pro
+	cd src/opengl && $(qmake_env) $(QMAKE) opengl.pro
 endif
 ifeq ($(BUILD_PLUGIN_ONLY),no)
-	cd src/cmplayer $(qmake_env) $(QMAKE) cmplayer.pro
+	cd src/cmplayer && $(qmake_env) $(QMAKE) cmplayer.pro
 endif
 	cd src && $(make_env) make && cd cmplayer && $(LRELEASE) cmplayer.pro
 ifeq ($(LOAD_CONFIG),yes)
