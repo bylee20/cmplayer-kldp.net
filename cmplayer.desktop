@@ -1,11 +1,10 @@
 [Desktop Entry]
-Version=1.0
 Name=CMPlayer
-Name[pl]=Cmplayer
+Name[pl]=CMPlayer
 GenericName=Media Player
 GenericName[pl]=Odtwarzacz filmów
 Comment=Play your media
-Comment[pl]=Odtwarzaczaj filmy z Cmplayer
+Comment[pl]=Odtwarzaczaj filmy z CMPlayer
 Exec=cmplayer %f
 Icon=cmplayer
 StartupNotify=true

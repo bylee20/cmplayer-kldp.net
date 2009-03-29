@@ -147,10 +147,10 @@ install: cmplayer
 	@echo "\n======================= Start to Install! =======================\n"
 # install plugin directory
 ifneq ($(strip $(ENGINE_LIST)),)
-	install -d $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
+	-install -d $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
 else
 ifeq ($(ENABLE_OPENGL),yes)
-	install -d $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
+	-install -d $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
 endif
 endif
 # install xine
@@ -168,10 +168,15 @@ endif
 
 # install core and player
 ifeq ($(BUILD_PLUGIN_ONLY),no)
-	install -d $(DESTDIR)$(CMPLAYER_BIN_PATH)
-# 	install -d $(DESTDIR)$(CMPLAYER_DATA_PATH)
-	install -d $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
-	install -d $(DESTDIR)$(CMPLAYER_LIB_PATH)
+	-install -d $(DESTDIR)$(CMPLAYER_BIN_PATH)
+	-install -d $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
+	-install -d $(DESTDIR)$(CMPLAYER_LIB_PATH)
+	-install -d $(DESTDIR)$(CMPLAYER_APP_PATH)
+	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/16x16/apps
+	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/22x22/apps
+	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/32x32/apps
+	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/64x64/apps
+	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/128x128/apps
 	$(install_exe) src/bin/cmplayer $(DESTDIR)$(CMPLAYER_BIN_PATH)
 	$(install_file) src/cmplayer/translations/cmplayer_*.qm $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
 ifeq ($(INSTALL_SYMBOLIC),yes)
@@ -179,6 +184,12 @@ ifeq ($(INSTALL_SYMBOLIC),yes)
 else
 	$(install_file) src/bin/libcmplayer_core.so.$(cmplayer_version) $(DESTDIR)$(CMPLAYER_LIB_PATH)
 endif
+	$(install_file) cmplayer.desktop $(DESTDIR)$(CMPLAYER_APP_PATH)
+	$(install_file) icons/cmplayer16.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/16x16/apps/cmplayer.png
+	$(install_file) icons/cmplayer22.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/22x22/apps/cmplayer.png
+	$(install_file) icons/cmplayer32.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/32x32/apps/cmplayer.png
+	$(install_file) icons/cmplayer64.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/64x64/apps/cmplayer.png
+	$(install_file) icons/cmplayer128.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/128x128/apps/cmplayer.png
 endif
 	@echo "\n==================== Installation Finished!! ====================\n\n"\
 "  If you want to execute CMPlayer now, run '$(executable)'.\n"
@@ -189,6 +200,12 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	-rm -f $(CMPLAYER_TRANSLATION_PATH)/cmplayer_*.qm
 	-rm -f $(CMPLAYER_LIB_PATH)/libcmplayer_core.so*
 	-rm -f $(CMPLAYER_BIN_PATH)/cmplayer
+	-rm -f $(CMPLAYER_APP_PATH)/cmplayer.desktop
+	-rm -f $(CMPLAYER_ICON_PATH)/16x16/apps/cmplayer.png
+	-rm -f $(CMPLAYER_ICON_PATH)/22x22/apps/cmplayer.png
+	-rm -f $(CMPLAYER_ICON_PATH)/32x32/apps/cmplayer.png
+	-rm -f $(CMPLAYER_ICON_PATH)/64x64/apps/cmplayer.png
+	-rm -f $(CMPLAYER_ICON_PATH)/128x128/apps/cmplayer.png
 endif
 # uninstall xine
 ifneq (,$(findstring xine,${ENGINE_LIST}))
@@ -207,6 +224,12 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	-rmdir $(CMPLAYER_TRANSLATION_PATH)
 	-rmdir $(CMPLAYER_LIB_PATH)
 	-rmdir $(CMPLAYER_BIN_PATH)
+	-rmdir $(CMPLAYER_ICON_PATH)/16x16/apps
+	-rmdir $(CMPLAYER_ICON_PATH)/22x22/apps
+	-rmdir $(CMPLAYER_ICON_PATH)/32x32/apps
+	-rmdir $(CMPLAYER_ICON_PATH)/64x64/apps
+	-rmdir $(CMPLAYER_ICON_PATH)/128x128/apps
+	-rmdir $(CMPLAYER_APP_PATH)
 endif
 ifneq ($(strip $(ENGINE_LIST)),)
 	-rmdir $(CMPLAYER_PLUGIN_PATH)
