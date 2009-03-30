@@ -84,7 +84,7 @@ DockWidget::DockWidget(PlaylistModel *model, QWidget *parent)
 	connect(d->model, SIGNAL(playlistFinished()), this, SLOT(checkShutdown()));
 	connect(d->model, SIGNAL(rowCountChanged(int)), this, SLOT(adjustCellSize()));
 	d->ui.list->setModel(model);
-	setWindowTitle(tr("Play List"));
+	setWindowTitle(tr("Playlist"));
 	d->width = width();
 	d->max = maximumWidth();
 	d->min = minimumWidth();
@@ -121,7 +121,7 @@ void DockWidget::down() {
 void DockWidget::open() {
 	QString enc;
 	const QString file = EncodingFileDialog::getOpenFileName(this, tr("Open File")
-			, QString(), tr("Play List") + " (*.pls)", &enc);
+			, QString(), tr("Playlist") + " (*.pls)", &enc);
 	Core::Playlist list;
 	list.load(file, enc);
 	d->model->setPlaylist(list);
@@ -129,7 +129,7 @@ void DockWidget::open() {
 
 void DockWidget::save() {
 	QString file = QFileDialog::getSaveFileName(this, tr("Save File"), QString(),
-			tr("Play List") + " (*.pls)");
+			tr("Playlist") + " (*.pls)");
 	if (!file.isEmpty()) {
 		if (QFileInfo(file).suffix().compare("pls", Qt::CaseInsensitive) != 0)
 			file += ".pls";

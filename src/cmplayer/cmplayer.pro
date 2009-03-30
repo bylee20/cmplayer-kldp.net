@@ -78,7 +78,8 @@ RESOURCES += rsclist.qrc
 INCLUDEPATH += ../
 
 TRANSLATIONS += translations/cmplayer_ko.ts \
-	translations/cmplayer_en.ts
+	translations/cmplayer_en.ts \
+	translations/cmplayer_ja.ts
 
 TARGET = ../bin/cmplayer
 

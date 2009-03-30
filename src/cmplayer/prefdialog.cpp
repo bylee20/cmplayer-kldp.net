@@ -271,7 +271,7 @@ PrefDialog::PrefDialog(QWidget *parent)
 			<< ItemPair(tr("Toggle Full Screen"), ToggleFullScreen)
 			<< ItemPair(tr("Toggle Play/Pause"), TogglePlayPause)
 			<< ItemPair(tr("Toggle Mute"), ToggleMute)
-			<< ItemPair(tr("Toggle Play List"), TogglePlaylist);
+			<< ItemPair(tr("Toggle Playlist"), TogglePlaylist);
 	d->dbl->addItems(items);
 	d->mdl->addItems(items);
 	items.clear();

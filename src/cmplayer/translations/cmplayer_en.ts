@@ -201,11 +201,6 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>DockWidget</name>
     <message>
-        <location filename="../dockwidget.cpp" line="132"/>
-        <source>Play List</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../dockwidget.cpp" line="107"/>
         <source>Automatic Shutdown</source>
         <translation type="unfinished"></translation>
@@ -699,11 +694,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="364"/>
-        <source>Toggle Play List</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../menu.cpp" line="367"/>
         <source>Speed</source>
         <translation type="unfinished"></translation>
@@ -873,6 +863,11 @@ p, li { white-space: pre-wrap; }
         <source>Reset Sync</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../menu.cpp" line="364"/>
+        <source>Toggle Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>PlayInfoWidget</name>
@@ -980,11 +975,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../prefdialog.cpp" line="273"/>
         <source>Toggle Mute</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../prefdialog.cpp" line="274"/>
-        <source>Toggle Play List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1110,6 +1100,11 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../prefdialog.cpp" line="242"/>
         <source>Korean</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../prefdialog.cpp" line="274"/>
+        <source>Toggle Playlist</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

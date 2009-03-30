@@ -361,7 +361,7 @@ void Menu::updatePref() {
 		
 	play["prev"]->setText(tr("Previous"));
 	play["next"]->setText(tr("Next"));
-	play["list"]->setText(tr("Toggle Play List"));
+	play["list"]->setText(tr("Toggle Playlist"));
 		
 	Menu &speed = play("speed");
 	speed.setTitle(tr("Speed"));

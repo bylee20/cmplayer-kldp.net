@@ -216,7 +216,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../dockwidget.cpp" line="132"/>
         <source>Play List</source>
-        <translation>재생 목록</translation>
+        <translation type="obsolete">재생 목록</translation>
     </message>
     <message>
         <location filename="../dockwidget.cpp" line="107"/>
@@ -739,7 +739,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../menu.cpp" line="364"/>
         <source>Toggle Play List</source>
-        <translation>재생 목록 전환</translation>
+        <translation type="obsolete">재생 목록 전환</translation>
     </message>
     <message>
         <location filename="../menu.cpp" line="367"/>
@@ -921,6 +921,11 @@ p, li { white-space: pre-wrap; }
         <source>Reset Sync</source>
         <translation>싱크 초기화</translation>
     </message>
+    <message>
+        <location filename="../menu.cpp" line="364"/>
+        <source>Toggle Playlist</source>
+        <translation>재생목록 전환</translation>
+    </message>
 </context>
 <context>
     <name>PlayInfoWidget</name>
@@ -1081,7 +1086,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../prefdialog.cpp" line="274"/>
         <source>Toggle Play List</source>
-        <translation>재생 목록 전환</translation>
+        <translation type="obsolete">재생 목록 전환</translation>
     </message>
     <message>
         <location filename="../prefdialog.cpp" line="278"/>
@@ -1222,6 +1227,11 @@ p, li { white-space: pre-wrap; }
         <location filename="../prefdialog.cpp" line="406"/>
         <source>Choose Play Engine Path</source>
         <translation type="obsolete">재생 엔진 경로 선택</translation>
+    </message>
+    <message>
+        <location filename="../prefdialog.cpp" line="274"/>
+        <source>Toggle Playlist</source>
+        <translation>재생목록 전환</translation>
     </message>
 </context>
 <context>
