@@ -4,15 +4,12 @@
 #include <core/osdstyle.h>
 #include <QtCore/QMap>
 #include <QtCore/QSettings>
+#include <QtCore/QDebug>
 
 #define SAVE(value) (set->setValue((#value), (value)))
 #define LOAD(val, def, converter) (val = set->value(#val, def).converter())
 #define SAVE_ENUM(val) (set->setValue(#val, val.name()))
 #define LOAD_ENUM(val, def) (val = val.value(set->value(#val, #def).toString(), def))
-
-DEC_ENUM_CLASS(Core::MediaType, 4, Core::LocalFile, Core::Url, Core::Dvd, Core::Unknown);
-
-typedef EnumSpace::Enum<Core::MediaType> MediaTypeEnum;
 
 Pref *Pref::get() {
 	static Pref pref;
@@ -202,36 +199,29 @@ struct Pref::Backend {
 	Backend() {}
 	void save(QSettings *set) const {
 		set->beginGroup("Backend");
-		const int count = names.size();
-		set->beginWriteArray("Engine", count);
-		QMap<Core::MediaType, QString>::const_iterator it = names.begin();
-		MediaTypeEnum media;
-		QString name;
-		for (int i=0; it != names.end(); ++it, ++i) {
-			set->setArrayIndex(i);
-			media = it.key();
-			name = it.value();
-			SAVE_ENUM(media);
-			SAVE(name);
-		}
-		set->endArray();
+		set->beginGroup("Priority");
+		
+		set->setValue("File", names[Core::LocalFile]);
+		set->setValue("URL", names[Core::Url]);
+		set->setValue("DVD", names[Core::Dvd]);
+		
+		set->endGroup();
 		set->endGroup();
 	}
 	void load(QSettings *set) {
-		set->beginGroup("Backend");
-		const int count = set->beginReadArray("Engine");
-		MediaTypeEnum media;
-		QString name, defName;
+		QString defName;
 		const BackendMap &map = VideoPlayer::load();
 		if (!map.isEmpty())
 			defName = map.begin().key();
-		for (int i=0; i<count; ++i) {
-			set->setArrayIndex(i);
-			LOAD_ENUM(media, ::Core::Unknown);
-			LOAD(name, defName, toString);
-			names[media] = name;
-		}
-		set->endArray();
+		
+		set->beginGroup("Backend");
+		set->beginGroup("Priority");
+		
+		names[Core::LocalFile] = set->value("File", defName).toString();
+		names[Core::Url] = set->value("URL", defName).toString();
+		names[Core::Dvd] = set->value("DVD", defName).toString();
+		
+		set->endGroup();
 		set->endGroup();
 	}
 	QMap< ::Core::MediaType, QString> names;
