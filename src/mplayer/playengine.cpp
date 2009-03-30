@@ -215,7 +215,8 @@ bool PlayEngine::start(int time) {
 	Core::MediaSource source = currentSource();
 	if (!source.isValid())
 		return false;
-	if ((source.isLocalFile() || source.isDisc()) && !d->gotInfo && (d->gotInfo = d->mediaInfo.get(source)))
+	if ((source.isLocalFile() || source.isDisc())
+			&& !d->gotInfo && (d->gotInfo = d->mediaInfo.get(source)))
 		updateInfo();
 	int mode = 1;
 	if (subtitleStyle().scale == Core::OsdStyle::FitToDiagonal)
@@ -228,7 +229,8 @@ bool PlayEngine::start(int time) {
 			<< "-subfont-osd-scale" << QString::number(messageStyle().textSize*100.0)
 			<< "-subfont-text-scale" << QString::number(subtitleStyle().textSize*100.0)
 			<< "-subdelay" << QString::number(-syncDelay()*0.001)
-			<< "-wid" << QString::number(d->renderer->screenWinId());
+			<< "-wid" << QString::number(d->renderer->screenWinId())
+			<< "-speed" << QString::number(speed());
 	if (!d->gotInfo)
 		args << "-identify";
 	if (!d->vo.isEmpty())
@@ -256,7 +258,16 @@ bool PlayEngine::start(int time) {
 	args << (source.isDisc() ? "dvd://" : source.url().toString());
 	qDebug("%s %s", "mplayer", qPrintable(args.join(" ")));
 	d->proc->start("mplayer", args);
-	return d->proc->waitForStarted();
+	if (d->proc->waitForStarted()) {
+		updateSubtitle(subtitle());
+		updateVolume();
+		updateCurrentTrack(currentTrack());
+		updateColorProperty();
+		updateSubtitleVisiblity(isSubtitleVisible());
+		updateSubtitlePos(subtitlePos());
+		return true;
+	} else
+		return false;
 }
 
 bool PlayEngine::enqueueCommand(const QString &cmd, const QString &full) {
@@ -366,7 +377,7 @@ void PlayEngine::pause() {
 		tellmp("pause");
 }
 
-void PlayEngine::seek(int time, bool relative, bool showTimeLine, int /*duration*/) {
+void PlayEngine::seek(int time, bool relative, bool showTimeLine, int /*timeout*/) {
 	if (showTimeLine)
 		setOsdLevel(1);
 	if (!d->seeking) {
@@ -391,11 +402,11 @@ void PlayEngine::showMessage(const QString &message, int duration) {
 		tellmp2("osd_show_text", "\"" + message + "\"", QString::number(duration));
 }
 
-void PlayEngine::showTimeLine(int time, int duration) {
+void PlayEngine::showTimeLine(int time, int duration, int timeout) {
 	QString text = Core::Utility::msecsToString(time);
 	text += "/";
-	text += Core::Utility::msecsToString(this->duration());
-	showMessage(text, duration);
+	text += Core::Utility::msecsToString(duration);
+	showMessage(text, timeout);
 }
 
 void PlayEngine::updateMuted() {

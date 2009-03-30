@@ -61,7 +61,14 @@ void MPlayerProcess::interpretMessages() {
 				const QString id = rxID.cap(1);
 				if (id == "LENGTH") {
 					d->info->m_length = rxID.cap(2).toDouble()*1000.0;
+				} else if (id == "VIDEO_WIDTH") {
+					d->info->m_hasVideo = true;
+					d->info->m_videoSize.setWidth(rxID.cap(2).toInt());
+				} else if (id == "VIDEO_HEIGHT") {
+					d->info->m_videoSize.setHeight(rxID.cap(2).toInt());
+					d->info->m_hasVideo = true;
 				} else if (id == "VIDEO_FPS") {
+					d->info->m_hasVideo = true;
 					d->info->m_frameRate = rxID.cap(2).toDouble();
 				} else if (id == "VIDEO_ID") {
 					d->info->m_hasVideo = true;
@@ -90,11 +97,6 @@ void MPlayerProcess::interpretMessages() {
 				}
 			} else if (rxNoVideo.indexIn(msg) != -1) {
 				d->info->m_hasVideo = false;
-				d->info->m_valid = true;
-			} else if (rxVO.indexIn(msg) != -1) {
-				d->info->m_videoSize.setWidth(rxVO.cap(4).toInt());
-				d->info->m_videoSize.setHeight(rxVO.cap(5).toInt());
-				d->info->m_hasVideo = true;
 				d->info->m_valid = true;
 			} else if (d->info->isDisc()) {
 				static QRegExp rxSID("^subtitle \\( sid \\): (\\d+) language: (.*)");

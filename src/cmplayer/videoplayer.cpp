@@ -197,15 +197,14 @@ void VideoPlayer::setBackend(const QString &name) {
 		d->engine->setSubtitleVisible(d->dummy->isSubtitleVisible());
 		d->engine->setSubtitleStyle(d->dummy->subtitleStyle());
 		d->engine->setCurrentSource(d->dummy->currentSource());
-		qDebug() << d->engine << d->engine->currentSource().url();
 		d->engine->setVolumeNormalized(d->dummy->isVolumeNormalized());
 		d->engine->setUseSoftwareEqualizer(d->dummy->useSoftwareEqualizer());
 		d->engine->setColorProperty(d->dummy->colorProperty());
 		d->dummy->info().copy(d->engine->info());
-		if (time != -1)
-			play(time);
 	}
 	emit backendChanged(name);
+	if (time != -1)
+		play(time);
 }
 
 const VideoPlayer::Map &VideoPlayer::engines() const {
@@ -231,11 +230,14 @@ bool VideoPlayer::hasNextSource() const {
 	return d->next != 0;
 }
 
-void VideoPlayer::showMessage(const QString &message) {
+Core::PlayEngine *VideoPlayer::osdEngine() {
 	if (d->engine->widget() == d->stack->currentWidget())
-		d->engine->showMessage(message);
-	else
-		d->dummy->showMessage(message);
+		return d->engine;
+	return d->dummy;
+}
+
+void VideoPlayer::showMessage(const QString &message) {
+	osdEngine()->showMessage(message);
 }
 
 void VideoPlayer::stop() {
@@ -305,6 +307,14 @@ void VideoPlayer::setCurrentSource(const Core::MediaSource &source) {
 }
 
 void VideoPlayer::seek(int time, bool relative, bool show) {
+	if (show) {
+		Core::PlayEngine *osd = osdEngine();
+		if (osd != d->engine) {
+			d->engine->seek(time, relative, false);
+			osd->showTimeLine(d->engine->currentTime(), d->engine->duration(), 2000);
+			return;
+		}
+	}
 	d->engine->seek(time, relative, show);
 }
 

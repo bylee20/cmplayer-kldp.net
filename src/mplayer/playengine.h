@@ -24,9 +24,9 @@ public:
 	virtual void stop();
 	virtual void pause();
 	virtual void seek(int time);
-	virtual void seek(int time, bool relative, bool showTimeLinee, int duration);
-	virtual void showMessage(const QString &message, int duration);
-	virtual void showTimeLine(int time, int duration);
+	virtual void seek(int time, bool relative, bool showTimeLinee, int timeout);
+	virtual void showMessage(const QString &message, int timeout);
+	virtual void showTimeLine(int time, int duration, int timeout);
 	virtual void triggerSnapshot();
 public slots:
 	void replay();

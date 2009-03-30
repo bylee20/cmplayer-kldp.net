@@ -46,7 +46,7 @@ void MediaInfo::reset() {
 bool MediaInfo::get(const Core::MediaSource &source) {
 	reset();
 	QStringList args;
-	args << "-nosound" << "-vo" << "null" << "-frames" << "1" << "-identify";
+	args << "-ao" << "null" << "-vo" << "null" << "-frames" << "0" << "-identify";
 	args << (source.isDisc() ? "dvd://" : source.url().toString());
 	MPlayerProcess proc;
 	proc.setMediaInfo(this);

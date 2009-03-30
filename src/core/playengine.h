@@ -76,8 +76,8 @@ public slots:
 	virtual void stop() = 0;
 	virtual void pause() = 0;
 	virtual void seek(int time) = 0;
-	virtual void showMessage(const QString &message, int duration = 3000);
-	virtual void showTimeLine(int time, int duration);
+	virtual void showMessage(const QString &message, int timeout = 3000);
+	virtual void showTimeLine(int time, int duration, int timeout);
 	virtual void toggleDvdMenu() {}
 	virtual void seek(int time, bool relative, bool showTime = false, int d = 2000);
 	void setCurrentTrack(const QString &track);
@@ -91,7 +91,8 @@ public slots:
 	void setSubtitleVisible(bool visible);
 	void setSubtitleHidden(bool hidden) {setSubtitleVisible(!hidden);}
 	void setSyncDelay(int delay);
-	void showTimeLine(int duration = 2000);
+	void showTimeLine(int timeout = 2000);
+	void showTimeLine(int time, int timeout);
 	void setSubtitlePos(double pos);
 	void setSpeed(double speed);
 signals:

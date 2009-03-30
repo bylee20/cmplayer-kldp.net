@@ -6,6 +6,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QImage>
 #include <QtGui/QLinearGradient>
+#include <QtCore/QDebug>
 
 class DummyEngine::Osd : public Core::PainterOsdRenderer {
 public:
@@ -15,15 +16,18 @@ public:
 	void renderContents(QPainter *painter, const QSizeF &widget) {
 		if (cleared)
 			return;
+		if (prev != widget.toSize()) {
+			prev = widget.toSize();
+			updateFontSize(widget.width(), widget.height());
+		}
 		if (!text().isEmpty()) {
-			if (prev != widget.toSize()) {
-				prev = widget.toSize();
-				updateFontSize(widget.width(), widget.height());
-			}
 			const QSizeF size = textSize(widget);
-			if (size.height() < 1.0 || size.width() < 1.0)
-				return;
-			drawText(painter, QRectF(getPos(size, widget), size));
+			if (size.height() > 0.5 && size.width() > 0.5)
+				drawText(painter, QRectF(getPos(size, widget), size));
+		} else if (timeLineRate() > 0.0) {
+			const QSizeF size = timeLineSize(widget);
+			if (size.height() > 0.5 && size.width() > 0.5)
+				drawTimeLine(painter, QRectF(getPos(size, widget), size));
 		}
 	}
 private:
@@ -118,7 +122,6 @@ DummyEngine::Info::Data::Data() {
 
 DummyEngine::DummyEngine(QObject *parent)
 : PlayEngine(parent), m_renderer(new Renderer) {
-	setSubtitleOsd(m_renderer->createOsd());
 	setMessageOsd(m_renderer->createOsd());
 	setTimeLineOsd(m_renderer->createOsd());
 	setVideoRenderer(m_renderer);

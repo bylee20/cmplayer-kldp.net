@@ -879,12 +879,12 @@ void MainWindow::slotBackendChanged() {
 	State state;
 	const QString video = state[State::VideoRenderer].toMap()[info.name()].toString();
 	if (video.isEmpty())
-		vMenu.g()->trigger(d->player->videoRenderer());
+		vMenu.g()->setChecked(d->player->videoRenderer(), true);
 	else
 		vMenu.g()->trigger(video);
 	const QString audio = state[State::AudioRenderer].toMap()[info.name()].toString();
 	if (audio.isEmpty())
-		aMenu.g()->trigger(d->player->audioRenderer());
+		aMenu.g()->setChecked(d->player->audioRenderer(), true);
 	else
 		aMenu.g()->trigger(audio);
 }

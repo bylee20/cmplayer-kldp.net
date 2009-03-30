@@ -99,6 +99,7 @@ private slots:
 	void slotFinished(Core::MediaSource source);
 	void slotStopped(Core::MediaSource source, int time);
 private:
+	Core::PlayEngine *osdEngine();
 	void setBackend(Core::PlayEngine *engine);
 	void resize();
 	void resizeEvent(QResizeEvent *event);

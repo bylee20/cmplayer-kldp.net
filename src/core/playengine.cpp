@@ -120,7 +120,7 @@ void PlayEngine::setCurrentSource(const MediaSource &source) {
 	emit currentSourceChanged(*d->source = source);
 }
 
-void PlayEngine::seek(int time, bool relative, bool showTimeLine, int duration) {
+void PlayEngine::seek(int time, bool relative, bool showTimeLine, int timeout) {
 	if (!isSeekable() || (!isPlaying() && !isPaused()))
 		return;
 	if (relative)
@@ -128,23 +128,27 @@ void PlayEngine::seek(int time, bool relative, bool showTimeLine, int duration) 
 	time = qBound(0, time, d->duration);
 	seek(time);
 	if (showTimeLine)
-		this->showTimeLine(time, duration);
+		this->showTimeLine(time, timeout);
 }
 
-void PlayEngine::showMessage(const QString &message, int duration) {
-	if (duration > 0 && !message.isEmpty() && d->msgOsd)
-		d->msgOsd->renderText(message, duration);
+void PlayEngine::showMessage(const QString &message, int timeout) {
+	if (timeout > 0 && !message.isEmpty() && d->msgOsd)
+		d->msgOsd->renderText(message, timeout);
 }
 
-void PlayEngine::showTimeLine(int time, int duration) {
-	if (d->timeOsd && duration > 0) {
-		const double rate = double(time)/double(this->duration());
-		d->timeOsd->renderTimeLine(rate, duration);
+void PlayEngine::showTimeLine(int time, int duration, int timeout) {
+	if (d->timeOsd && timeout > 0) {
+		const double rate = double(time)/double(duration);
+		d->timeOsd->renderTimeLine(rate, timeout);
 	}
 }
 
-void PlayEngine::showTimeLine(int duration) {
-	showTimeLine(currentTime(), duration);
+void PlayEngine::showTimeLine(int time, int timeout) {
+	showTimeLine(time, duration(), timeout);
+}
+
+void PlayEngine::showTimeLine(int timeout) {
+	showTimeLine(currentTime(), duration(), timeout);
 }
 
 double PlayEngine::amplifyingRate() const {

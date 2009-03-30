@@ -43,7 +43,10 @@ CMPLAYER_APP_PATH ?= $(CMPLAYER_DATA_PATH)/applications
 QMAKE ?= qmake
 LRELEASE ?= lrelease
 
-cmplayer_version := 0.2.7
+cmplayer_major := 0
+cmplayer_minor := 2
+cmplayer_patch := 7
+cmplayer_version := $(cmplayer_major).$(cmplayer_minor).$(cmplayer_patch)
 install_file := install -m 644
 install_exe := install -m 755
 qmake_env := CMPLAYER_RELEASE=\\\"yes\\\"
@@ -182,11 +185,10 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	$(install_file) src/cmplayer/translations/cmplayer_*.qm $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
 	$(install_file) src/bin/libcmplayer_core.so.$(cmplayer_version) $(DESTDIR)$(CMPLAYER_LIB_PATH)
 ifeq ($(INSTALL_SYMBOLIC),yes)
-	ln -s $(DESTDIR)$(CMPLAYER_LIB_PATH)/libcmplayer_core.so.$(cmplayer_version) $(DESTDIR)$(CMPLAYER_LIB_PATH)/libcmplayer_core.so.0
+	cd $(DESTDIR)$(CMPLAYER_LIB_PATH) && ln -s libcmplayer_core.so.$(cmplayer_version) libcmplayer_core.so \
+&& ln -s libcmplayer_core.so.$(cmplayer_version) libcmplayer_core.so.$(cmplayer_major) \
+&& ln -s libcmplayer_core.so.$(cmplayer_version) libcmplayer_core.so.$(cmplayer_major).$(cmplayer_minor)
 endif
-# 	$(install_file) src/bin/libcmplayer_core.so* $(DESTDIR)$(CMPLAYER_LIB_PATH)
-# else
-# 	$(install_file) src/bin/libcmplayer_core.so.$(cmplayer_version) $(DESTDIR)$(CMPLAYER_LIB_PATH)
 	$(install_file) cmplayer.desktop $(DESTDIR)$(CMPLAYER_APP_PATH)
 	$(install_file) icons/cmplayer16.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/16x16/apps/cmplayer.png
 	$(install_file) icons/cmplayer22.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/22x22/apps/cmplayer.png
