@@ -3,7 +3,6 @@
 #include "xinepost.h"
 #include <QtCore/QDebug>
 #include <core/utility.h>
-#include <X11/Xlib.h>
 
 namespace Xine {
 
