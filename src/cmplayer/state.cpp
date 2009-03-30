@@ -19,6 +19,7 @@ State::Data::Data()
 	INIT(SubtitleSync, 0);
 	INIT(LastOpenFile, QString());
 	INIT(DockWidth, 100);
+	INIT(TrayFirst, true);
 #undef INIT
 }
 

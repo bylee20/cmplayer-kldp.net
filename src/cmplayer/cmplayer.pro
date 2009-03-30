@@ -28,7 +28,8 @@ SOURCES += main.cpp \
 	appconnection.cpp \
 	application.cpp \
 	playlistview.cpp \
-	snapshotdialog.cpp
+	snapshotdialog.cpp \
+	checkdialog.cpp
 HEADERS += mainwindow.h \
 	abrepeatdialog.h \
 	playinfowidget.h \
@@ -58,7 +59,8 @@ HEADERS += mainwindow.h \
 	appconnection.h \
 	application.h \
 	playlistview.h \
-	snapshotdialog.h
+	snapshotdialog.h \
+	checkdialog.h
 FORMS += ./ui/abrepeatdialog.ui \
 	./ui/prefdialog.ui \
 	./ui/prefosdwidget.ui \
@@ -87,7 +89,7 @@ RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE){
     CONFIG += release
     LIBS += -lcmplayer_core
-} else {
+}else {
     CONFIG += debug
     LIBS += -lcmplayer_cored
 }

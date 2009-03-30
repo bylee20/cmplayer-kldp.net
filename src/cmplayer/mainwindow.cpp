@@ -1,4 +1,5 @@
 #include "prefdialog.h"
+#include "checkdialog.h"
 #include "state.h"
 #include "playlistmodel.h"
 #include "mainwindow.h"
@@ -994,6 +995,17 @@ void MainWindow::hideCursor() {
 void MainWindow::closeEvent(QCloseEvent *event) {
 	if (d->pref->isSystemTrayEnabled() && d->pref->hideWhenClosed()) {
 		hide();
+		State state;
+		if (state[State::TrayFirst].toBool()) {
+			CheckDialog dlg(this);
+			dlg.setChecked(true);
+			dlg.setLabelText(tr("CMPlayer will be running in the system tray "
+					"when the window closed.<br>"
+					"You can exit CMPlayer with Exit menu."));
+			dlg.setCheckBoxText(tr("Do not display this message again"));
+			dlg.exec();
+			state[State::TrayFirst] = !dlg.isChecked();
+		}
 		event->ignore();
 	} else {
 		event->accept();
