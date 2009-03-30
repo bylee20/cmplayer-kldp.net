@@ -2,6 +2,7 @@
 #define BACKEND_BASEEVENT_H
 
 #include <QtCore/QEvent>
+#include "mediasource.h"
 
 namespace Core {
 
@@ -19,21 +20,25 @@ public:
 };
 
 class DurationEvent : public Core::BaseEvent {
-	public:
-		DurationEvent(int duration): BaseEvent(Duration), m_duration(duration) {}
-		int duration() const {return m_duration;}
-	private:
-		int m_duration;
+public:
+	DurationEvent(int duration): BaseEvent(Duration), m_duration(duration) {}
+	int duration() const {return m_duration;}
+private:
+	int m_duration;
 };
 
 class EndOfStreamEvent : public Core::BaseEvent {
-	public:
-		EndOfStreamEvent(): BaseEvent(EndOfStream) {}
+public:
+	EndOfStreamEvent(const Core::MediaSource &source)
+	: BaseEvent(EndOfStream), m_source(source) {}
+	const MediaSource &source() const {return m_source;}
+private:
+	MediaSource m_source;
 };
 
 class UpdateInfoEvent : public Core::BaseEvent {
-	public:
-		UpdateInfoEvent(): BaseEvent(UpdateInfo) {}
+public:
+	UpdateInfoEvent(): BaseEvent(UpdateInfo) {}
 };
 
 }

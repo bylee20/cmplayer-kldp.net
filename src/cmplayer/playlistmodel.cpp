@@ -4,6 +4,7 @@
 #include <QtCore/QMimeData>
 #include <QtCore/QSet>
 #include <QtGui/QFont>
+#include <QtCore/QDebug>
 #include <core/mediasource.h>
 #include <core/playlist.h>
 #include <core/playengine.h>
@@ -26,6 +27,10 @@ PlaylistModel::PlaylistModel(VideoPlayer *player, QObject *parent)
 	d->font.setBold(true);
 	connect(d->player, SIGNAL(finished(Core::MediaSource))
 	        , this, SLOT(slotFinished(const Core::MediaSource&)));
+	connect(d->player, SIGNAL(currentSourceChanged(const Core::MediaSource&))
+			, this, SLOT(slotCurrentSourceChanged(const Core::MediaSource&)));
+	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
+			, this, SLOT(updateNext()));
 	connect(this, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&))
 			, this, SLOT(updateNext()));
 	connect(this, SIGNAL(rowCountChanged(int)), this, SLOT(updateNext()));
@@ -88,6 +93,7 @@ void PlaylistModel::play(int row) {
 	d->player->setNextSource(d->list[row]);
 	d->player->playNext(RecentInfo::get()->stoppedTime(d->list[row]));
 	setCurrentRow(row, false);
+	updateNext();
 }
 
 void PlaylistModel::playNext() {
@@ -117,10 +123,9 @@ int PlaylistModel::row(const Core::MediaSource &source) const {
 void PlaylistModel::slotFinished(const Core::MediaSource &/*source*/) {
 	if (d->row == d->list.size() - 1) {
 		emit playlistFinished();
-		if (!d->loop)
-			return;
+		if (d->loop && !d->list.isEmpty())
+			play(0);
 	}
-	playNext();
 }
 
 const Core::Playlist &PlaylistModel::playlist() const {
@@ -332,5 +337,13 @@ bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int
 }
 
 void PlaylistModel::updateNext() {
-	d->player->setNextSource(d->list.value(d->row + 1));
+	const Core::MediaSource next = d->list.isEmpty()
+			? Core::MediaSource() : d->list.value(d->row + 1);
+	if (next != d->player->nextSource())
+		d->player->setNextSource(next);
 }
+
+void PlaylistModel::slotCurrentSourceChanged(const Core::MediaSource &source) {
+	setCurrentRow(d->list.indexOf(source), false);
+}
+

@@ -79,7 +79,8 @@ void PlayEngine::eventListener(void *userData, const xine_event_t *event) {
 	switch(event->type) {
 	case XINE_EVENT_UI_PLAYBACK_FINISHED: {
 		qDebug() << "XINE_EVENT_UI_PLAYBACK_FINISHED";
-		QApplication::postEvent(self, new Core::EndOfStreamEvent);
+		QApplication::postEvent(self
+				, new Core::EndOfStreamEvent(self->currentSource()));
 		break;
 	} case XINE_EVENT_FRAME_FORMAT_CHANGE: {
 		qDebug() << "XINE_EVENT_FRAME_FORMAT_CHANGE";
@@ -118,8 +119,8 @@ void PlayEngine::eventListener(void *userData, const xine_event_t *event) {
 void PlayEngine::customEvent(QEvent *event) {
 	Core::BaseEvent *be = static_cast<Core::BaseEvent*>(event);
 	if (be->type() == Core::BaseEvent::EndOfStream) {
+		emit finished(static_cast<Core::EndOfStreamEvent*>(be)->source());
 		setState(Core::Finished);
-		emit finished(currentSource());
 	} else if (be->type() == Core::BaseEvent::UpdateInfo) {
 		updateStreamInfo();
 	} else if (be->type() == Core::BaseEvent::NewFrame) {
@@ -268,7 +269,7 @@ void PlayEngine::play(int time) {
 	if (!d->stream.stream)
 		return;
 	const Core::MediaSource src = currentSource();
-	QString mrl = src.isDisc() ? "dvd:/" : src.url().toString();
+	const QString mrl = src.isDisc() ? "dvd:/" : src.url().toString();
 	if (xine_open(d->stream.stream, mrl.toLocal8Bit())) {
 		updateStreamInfo();
 		xine_play(d->stream.stream, 0, time);
@@ -296,8 +297,8 @@ void PlayEngine::stop() {
 	if (d->stream.stream) {
 		const int time = currentTime();
 		xine_stop(d->stream.stream);
-		setState(Core::Stopped);
 		emit stopped(currentSource(), time);
+		setState(Core::Stopped);
 	} else
 		setState(Core::Stopped);
 }

@@ -71,7 +71,7 @@ public slots:
 	void setSubtitleHidden(bool hidden) {setSubtitleVisible(!hidden);}
 	void toggleDvdMenu();
 	void setVolume(int volume);
-	void setCurrentSource(const Core::MediaSource &source);
+	void setCurrentSource(Core::MediaSource source);
 	void resetSpeed() {setSpeed(100);}
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);

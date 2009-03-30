@@ -196,8 +196,8 @@ void PlayEngine::slotStateChanged(Core::State state, Core::State /*old*/){
 
 void PlayEngine::slotProcFinished() {
 	if (d->justFinished) {
-		setState(Core::Finished);
 		emit finished(currentSource());
+		setState(Core::Finished);
 		d->justFinished = false;
 	} else
 		setState(Core::Stopped);

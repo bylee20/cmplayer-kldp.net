@@ -190,13 +190,6 @@ void MainWindow::commonInitialize() {
 	Menu &engine = play("engine");
 	for (BackendMap::const_iterator it = backend.begin(); it != backend.end(); ++it)
 		engine.addActionToGroupWithoutKey(it.key(), true)->setData(it.key());
-	
-	const QUrl url = getUrlFromCommandLine();
-	if (url.isEmpty()) {
-		d->model->setPlaylist(d->recent->lastPlaylist());
-		d->model->setCurrentSource(d->recent->lastSource());
-	} else
-		this->open(url);
 }
 
 static QToolButton *addToolButton(QHBoxLayout *hbox) {

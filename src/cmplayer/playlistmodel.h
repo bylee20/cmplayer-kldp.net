@@ -58,6 +58,7 @@ signals:
 	void rowCountChanged(int count);
 	void dropped(const QList<int> &row);
 private slots:
+	void slotCurrentSourceChanged(const Core::MediaSource &source);
 	void slotFinished(const Core::MediaSource &source);
 	void updateNext();
 private:

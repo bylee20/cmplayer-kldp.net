@@ -220,10 +220,15 @@ Core::MediaSource VideoPlayer::nextSource() const {
 }
 
 void VideoPlayer::setNextSource(const Core::MediaSource &source) {
-	if (!d->next)
-		d->next = new Core::MediaSource(source);
-	else if (*d->next != source)
-		*d->next = source;
+	if (source.isValid()) {
+		if (!d->next)
+			d->next = new Core::MediaSource(source);
+		else if (*d->next != source)
+			*d->next = source;
+	} else {
+		delete d->next;
+		d->next = 0;
+	}
 }
 
 bool VideoPlayer::hasNextSource() const {
@@ -298,7 +303,8 @@ void VideoPlayer::slotStopped(Core::MediaSource source, int time) {
 	emit stopped(source, time);
 }
 
-void VideoPlayer::setCurrentSource(const Core::MediaSource &source) {
+void VideoPlayer::setCurrentSource(Core::MediaSource source) {
+	const QString mrl = source.toMrl();
 	if (d->dummy->currentSource() != source) {
 		d->dummy->setCurrentSource(source);
 		setBackend(Pref::get()->backendName(source.type()));

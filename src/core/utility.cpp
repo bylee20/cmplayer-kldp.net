@@ -46,7 +46,7 @@ const QSize &Utility::desktopSize() {
 }
 
 bool Utility::isEmpty(const QString &str) {
-	static const QRegExp rx("(</?\\s*[a-z]+[^>]*>|&nbsp;|\\s)");
+	static const QRegExp rx("(</?\\s*[a-z]+[^>]*>|&nbsp;|[\\s\\n\\r]+)");
 	return  str.toLower().remove(rx).isEmpty();
 }
 
