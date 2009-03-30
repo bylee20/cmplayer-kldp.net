@@ -1170,16 +1170,6 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>PrefStack</name>
     <message>
-        <location filename="../ui/prefstack.ui" line="33"/>
-        <source>Generate Play List</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/prefstack.ui" line="39"/>
-        <source>Add next files to play list when a file is open</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../ui/prefstack.ui" line="737"/>
         <source>Play</source>
         <translation type="unfinished"></translation>
@@ -1474,6 +1464,16 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../ui/prefstack.ui" line="365"/>
         <source>Hide window rather than quit when closed </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/prefstack.ui" line="33"/>
+        <source>Generate Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/prefstack.ui" line="39"/>
+        <source>Add next files to playlist when a file is open</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

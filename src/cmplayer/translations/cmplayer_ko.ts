@@ -1304,12 +1304,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../ui/prefstack.ui" line="33"/>
         <source>Generate Play List</source>
-        <translation>재생 목록 생성</translation>
+        <translation type="obsolete">재생 목록 생성</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="39"/>
         <source>Add next files to play list when a file is open</source>
-        <translation>파일을 열때 다음 파일을 재생 목록에 추가</translation>
+        <translation type="obsolete">파일을 열때 다음 파일을 재생 목록에 추가</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="737"/>
@@ -1629,6 +1629,16 @@ e.g.: English, Korean</source>
         <location filename="../ui/prefstack.ui" line="365"/>
         <source>Hide window rather than quit when closed </source>
         <translation>창이 닫힐때 종료하는 대신 창을 숨기기</translation>
+    </message>
+    <message>
+        <location filename="../ui/prefstack.ui" line="33"/>
+        <source>Generate Playlist</source>
+        <translation>재생목록 생성</translation>
+    </message>
+    <message>
+        <location filename="../ui/prefstack.ui" line="39"/>
+        <source>Add next files to playlist when a file is open</source>
+        <translation>파일을 열때 다음 파일을 재생목록에 추가</translation>
     </message>
 </context>
 <context>

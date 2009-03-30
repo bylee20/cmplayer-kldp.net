@@ -30,13 +30,13 @@
         <item>
          <widget class="QGroupBox" name="groupBox_4" >
           <property name="title" >
-           <string>Generate Play List</string>
+           <string>Generate Playlist</string>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout" >
            <item>
             <widget class="QLabel" name="label_6" >
              <property name="text" >
-              <string>Add next files to play list when a file is open</string>
+              <string>Add next files to playlist when a file is open</string>
              </property>
             </widget>
            </item>
