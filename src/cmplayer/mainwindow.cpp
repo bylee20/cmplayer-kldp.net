@@ -1001,7 +1001,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 			dlg.setChecked(true);
 			dlg.setLabelText(tr("CMPlayer will be running in the system tray "
 					"when the window closed.<br>"
-					"You can exit CMPlayer with Exit menu."));
+					"You can change this behavior in the preferences.<br>"
+					"If you want to exit CMPlayer, please use 'Exit' menu."));
 			dlg.setCheckBoxText(tr("Do not display this message again"));
 			dlg.exec();
 			state[State::TrayFirst] = !dlg.isChecked();

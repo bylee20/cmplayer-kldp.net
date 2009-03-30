@@ -191,6 +191,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>CheckDialog</name>
+    <message>
+        <location filename="../checkdialog.cpp" line="19"/>
+        <source>&amp;Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DockWidget</name>
     <message>
         <location filename="../dockwidget.cpp" line="132"/>
@@ -552,6 +560,16 @@ p, li { white-space: pre-wrap; }
         <source>Failed in changing renderer. The renderer fell back into previous one.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1006"/>
+        <source>Do not display this message again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1005"/>
+        <source>CMPlayer will be running in the system tray when the window closed.&lt;br&gt;You can change this behavior in the preferences.&lt;br&gt;If you want to exit CMPlayer, please use &apos;Exit&apos; menu.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Menu</name>
@@ -882,12 +900,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>PlaylistModel</name>
     <message>
-        <location filename="../playlistmodel.cpp" line="150"/>
+        <location filename="../playlistmodel.cpp" line="151"/>
         <source>Name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../playlistmodel.cpp" line="152"/>
+        <location filename="../playlistmodel.cpp" line="153"/>
         <source>Location</source>
         <translation type="unfinished"></translation>
     </message>

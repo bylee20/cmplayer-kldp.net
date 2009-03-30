@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="ko">
+<defaultcodec></defaultcodec>
 <context>
     <name>ABRepeatDialog</name>
     <message>
@@ -200,6 +201,14 @@ p, li { white-space: pre-wrap; }
         <location filename="../ui/aboutdialog.ui" line="134"/>
         <source>Run-time Version</source>
         <translation>런타임 버전</translation>
+    </message>
+</context>
+<context>
+    <name>CheckDialog</name>
+    <message>
+        <location filename="../checkdialog.cpp" line="19"/>
+        <source>&amp;Ok</source>
+        <translation>확인(&amp;O)</translation>
     </message>
 </context>
 <context>
@@ -584,6 +593,21 @@ p, li { white-space: pre-wrap; }
         <source>Failed in changing renderer. The renderer fell back into previous one.</source>
         <translation>렌더러를 변경하는데 실패하였습니다. 이전 렌더러로 돌아갑니다.</translation>
     </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1004"/>
+        <source>CMPlayer will be running in the system tray when the window closed.&lt;br&gt;You can exit CMPlayer with Exit menu.</source>
+        <translation type="obsolete">창이 닫혀도 CMPlayer는 종료되지 않고 시스템 트레이상에서 작동할 것입니다.&lt;br&gt;CMPlayer를 종료하려면 종료 메뉴를 이용해주세요.</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1006"/>
+        <source>Do not display this message again</source>
+        <translation>이 메시지를 다시 표시하지 않기</translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1005"/>
+        <source>CMPlayer will be running in the system tray when the window closed.&lt;br&gt;You can change this behavior in the preferences.&lt;br&gt;If you want to exit CMPlayer, please use &apos;Exit&apos; menu.</source>
+        <translation>창이 닫혀도 CMPlayer는 종료되지 않고 시스템 트레이상에서 작동할 것입니다.&lt;br&gt;환경 설정에서 동작방식을 변경할 수 있습니다.&lt;br&gt;CMPlayer를 종료하려면 종료 메뉴를 이용해주세요.</translation>
+    </message>
 </context>
 <context>
     <name>Menu</name>
@@ -924,12 +948,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>PlaylistModel</name>
     <message>
-        <location filename="../playlistmodel.cpp" line="150"/>
+        <location filename="../playlistmodel.cpp" line="151"/>
         <source>Name</source>
         <translation>이름</translation>
     </message>
     <message>
-        <location filename="../playlistmodel.cpp" line="152"/>
+        <location filename="../playlistmodel.cpp" line="153"/>
         <source>Location</source>
         <translation>위치</translation>
     </message>
