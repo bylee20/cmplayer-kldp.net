@@ -239,6 +239,7 @@ PrefDialog::PrefDialog(QWidget *parent)
 	
 	d->stack.lang->addItem(tr("System Default Locale"), SystemDefault);
 	d->stack.lang->addItem(tr("English"), English);
+	d->stack.lang->addItem(tr("Japanese"), Japanese);
 	d->stack.lang->addItem(tr("Korean"), Korean);
 	setComboIndex(d->stack.lang, p->uiLanuage());
 	

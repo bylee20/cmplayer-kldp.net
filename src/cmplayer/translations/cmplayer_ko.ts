@@ -1049,37 +1049,37 @@ p, li { white-space: pre-wrap; }
         <translation>휠 스크롤</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="245"/>
+        <location filename="../prefdialog.cpp" line="246"/>
         <source>All files in the same path</source>
         <translation>같은 경로내의 모든 파일</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="246"/>
+        <location filename="../prefdialog.cpp" line="247"/>
         <source>Files have similar name</source>
         <translation>비슷한 이름의 파일</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="247"/>
+        <location filename="../prefdialog.cpp" line="248"/>
         <source>Do not add any other files</source>
         <translation>다른 파일을 추가하지 않음</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="270"/>
+        <location filename="../prefdialog.cpp" line="271"/>
         <source>Open File</source>
         <translation>파일 열기</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="271"/>
+        <location filename="../prefdialog.cpp" line="272"/>
         <source>Toggle Full Screen</source>
         <translation>전체화면 전환</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="272"/>
+        <location filename="../prefdialog.cpp" line="273"/>
         <source>Toggle Play/Pause</source>
         <translation>재생/일시정지 전환</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="273"/>
+        <location filename="../prefdialog.cpp" line="274"/>
         <source>Toggle Mute</source>
         <translation>음소거 전환</translation>
     </message>
@@ -1089,72 +1089,72 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">재생 목록 전환</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="278"/>
+        <location filename="../prefdialog.cpp" line="279"/>
         <source>Seek 1 Step</source>
         <translation>1단계 탐색</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="279"/>
+        <location filename="../prefdialog.cpp" line="280"/>
         <source>Seek 2 Step</source>
         <translation>2단계 탐색</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="280"/>
+        <location filename="../prefdialog.cpp" line="281"/>
         <source>Seek 3 Step</source>
         <translation>3단계 탐색</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="281"/>
+        <location filename="../prefdialog.cpp" line="282"/>
         <source>Play Next/Previous</source>
         <translation>다음/이전 재생</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="282"/>
+        <location filename="../prefdialog.cpp" line="283"/>
         <source>Volum Up/Down</source>
         <translation>볼륨 크게/작게</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="283"/>
+        <location filename="../prefdialog.cpp" line="284"/>
         <source>Amp. Up/Down</source>
         <translation>앰프 증가/감소</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="299"/>
+        <location filename="../prefdialog.cpp" line="300"/>
         <source>Subtitle whose name is matched the playing file name</source>
         <translation>재생 파일과 같은 이름의 자막</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="300"/>
+        <location filename="../prefdialog.cpp" line="301"/>
         <source>Subtitles whose names contain the playing file name</source>
         <translation>자막 파일의 이름을 포함한 자막</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="301"/>
+        <location filename="../prefdialog.cpp" line="302"/>
         <source>Subtitles located in the path of the playing file</source>
         <translation>재생 파일과 같은 경로에 있는 자막</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="302"/>
+        <location filename="../prefdialog.cpp" line="303"/>
         <source>Do not load any subtitles automatically</source>
         <translation>자막을 자동으로 불러오지 않음</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="304"/>
+        <location filename="../prefdialog.cpp" line="305"/>
         <source>First subtitle of loaded ones</source>
         <translation>불러온 자막중 첫번째 자막</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="305"/>
+        <location filename="../prefdialog.cpp" line="306"/>
         <source>Subtitle which has the same name as the playing file</source>
         <translation>재생 파일과 같은 이름의 자막</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="306"/>
+        <location filename="../prefdialog.cpp" line="307"/>
         <source>All loaded subtitles</source>
         <translation>불러온 모든 자막</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="307"/>
+        <location filename="../prefdialog.cpp" line="308"/>
         <source>Each language subtitle</source>
         <translation>각 언어별 자막</translation>
     </message>
@@ -1219,7 +1219,7 @@ p, li { white-space: pre-wrap; }
         <translation>영어</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="242"/>
+        <location filename="../prefdialog.cpp" line="243"/>
         <source>Korean</source>
         <translation>한국어</translation>
     </message>
@@ -1229,9 +1229,14 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">재생 엔진 경로 선택</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="274"/>
+        <location filename="../prefdialog.cpp" line="275"/>
         <source>Toggle Playlist</source>
         <translation>재생목록 전환</translation>
+    </message>
+    <message>
+        <location filename="../prefdialog.cpp" line="242"/>
+        <source>Japanese</source>
+        <translation>일본어</translation>
     </message>
 </context>
 <context>

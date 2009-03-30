@@ -39,6 +39,9 @@ bool Translator::load(UiLanguage lang) {
 	case English:
 		locale = "en";
 		break;
+	case Japanese:
+		locale = "ja";
+		break;
 	case Korean:
 		locale = "ko";
 		break;
