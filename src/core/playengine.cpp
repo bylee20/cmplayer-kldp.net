@@ -427,12 +427,13 @@ void PlayEngine::setTracks(const QStringList &tracks, const QString &track) {
 			d->tracks.clear();
 			d->tracks.append("Auto Track");
 			idx = 0;
-		}
-		emit tracksChanged(d->tracks = tracks);
-		if (!track.isEmpty())
+		} else
+			d->tracks = tracks;
+		emit tracksChanged(d->tracks);
+		if (!d->tracks.isEmpty())
 			idx = d->tracks.indexOf(track);
 		if (idx != -1)
-			emit currentTrackChanged(d->track = tracks[idx]);
+			emit currentTrackChanged(d->track = d->tracks[idx]);
 	}
 }
 
