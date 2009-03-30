@@ -6,6 +6,8 @@
 #include <core/mediasource.h>
 #include "enum.h"
 
+class QLocale;
+
 namespace Core {class OsdStyle;}
 
 class Pref {
@@ -49,7 +51,7 @@ public:
 	bool hideCursor() const;
 	int hideDelay() const;
 	bool hideInFullScreen() const;
-	UiLanguage uiLanuage() const;
+	const QLocale &locale() const;
 	bool isVolumeNormalized() const;
 	bool useSoftwareEqualizer() const;
 	bool isSystemTrayEnabled() const;
@@ -90,7 +92,7 @@ private:
 	void setHideCursor(bool enabled);
 	void setHideDelay(int delay);
 	void setHideInFullScreen(bool enabled);
-	void setUiLanuage(UiLanguage lang);
+	void setLocale(const QLocale &locale);
 	void setVolumeNormalized(bool on);
 	void setUseSoftwareEqualizer(bool use);
 	void setSystemTrayEnabled(bool enabled);

@@ -2,6 +2,7 @@
 #include "menu.h"
 #include "pref.h"
 #include "getshortcutdialog.h"
+#include "translator.h"
 #include "videoplayer.h"
 #include "ui_prefdialog.h"
 #include "ui_prefstack.h"
@@ -237,11 +238,10 @@ PrefDialog::PrefDialog(QWidget *parent)
 	
 	Pref *p = Pref::get();
 	
-	d->stack.lang->addItem(tr("System Default Locale"), SystemDefault);
-	d->stack.lang->addItem(tr("English"), English);
-	d->stack.lang->addItem(tr("Japanese"), Japanese);
-	d->stack.lang->addItem(tr("Korean"), Korean);
-	setComboIndex(d->stack.lang, p->uiLanuage());
+	const LocaleList &locale = Translator::availableLocales();
+	for (int i=0; i<locale.size(); ++i)
+		d->stack.lang->addItem(toString(locale[i]), locale[i]);
+	setComboIndex(d->stack.lang, p->locale());
 	
 	d->stack.autoAdd->addItem(tr("All files in the same path"), AllFiles);
 	d->stack.autoAdd->addItem(tr("Files have similar name"), SimilarFiles);
@@ -346,20 +346,20 @@ void PrefDialog::getShortcut(int id) {
 		item->setShortcut(MenuTreeItem::Column(id), dlg.shortcut());
 }
 
-void PrefDialog::setComboIndex(QComboBox *combo, int value) {
+void PrefDialog::setComboIndex(QComboBox *combo, const QVariant &value) {
 	const int idx = combo->findData(value);
 	if (idx != -1)
 		combo->setCurrentIndex(idx);
 }
 
-int PrefDialog::currentComboData(QComboBox *combo) {
-	return combo->itemData(combo->currentIndex()).toInt();
+QVariant PrefDialog::currentComboData(QComboBox *combo) {
+	return combo->itemData(combo->currentIndex());
 }
 
 void PrefDialog::apply() {
 	Pref *p = Pref::get();
-	p->setUiLanuage((UiLanguage)currentComboData(d->stack.lang));
-	p->setAutoAddFiles((AutoAddFiles)currentComboData(d->stack.autoAdd));
+	p->setLocale(currentComboData(d->stack.lang).toLocale());
+	p->setAutoAddFiles((AutoAddFiles)currentComboData(d->stack.autoAdd).toInt());
 	p->setPauseWhenMinimized(d->stack.pauseMinimized->isChecked());
 	p->setPauseVideoOnly(d->stack.pauseVideoOnly->isChecked());
 	p->setPlayWhenRestored(d->stack.playRestored->isChecked());
@@ -389,8 +389,8 @@ void PrefDialog::apply() {
 	p->setSubtitlePosStep(d->stack.subPos->value());
 	p->setSyncDelayStep(qRound(d->stack.sync->value()*1000.0));
 	
-	p->setSubtitleAutoLoad((SubtitleAutoLoad)currentComboData(d->stack.autoLoad));
-	p->setSubtitleAutoSelect((SubtitleAutoSelect)currentComboData(d->stack.autoSelect));
+	p->setSubtitleAutoLoad((SubtitleAutoLoad)currentComboData(d->stack.autoLoad).toInt());
+	p->setSubtitleAutoSelect((SubtitleAutoSelect)currentComboData(d->stack.autoSelect).toInt());
 	p->setSubtitleEncoding(d->stack.encoding->encoding());
 	p->setSubtitleStyle(d->stack.subOsd->style());
 	p->setSubtitlePriority(d->stack.priority->values());
@@ -412,4 +412,28 @@ void PrefDialog::slotMediaItemClicked(QTreeWidgetItem *item, int column) {
 		item->setCheckState(column, Qt::Checked);
 }
 
-
+QString PrefDialog::toString(const QLocale &locale) {
+	QString text;
+	bool addName = true;
+	switch (locale.language()) {
+	case QLocale::C:
+		text = tr("System Default Locale");
+		addName = false;
+		break;
+	case QLocale::English:
+		text = tr("English");
+		break;
+	case QLocale::Japanese:
+		text = tr("Japanese");
+		break;
+	case QLocale::Korean:
+		text = tr("Korean");
+		break;
+	default:
+		text = QLocale::languageToString(locale.language());
+		break;
+	}
+	if (addName)
+		text += " (" + locale.name() + ')';
+	return text;
+}

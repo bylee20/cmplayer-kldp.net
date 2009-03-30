@@ -5,6 +5,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
+#include <QtCore/QLocale>
 
 #define SAVE(value) (set->setValue((#value), (value)))
 #define LOAD(val, def, converter) (val = set->value(#val, def).converter())
@@ -115,7 +116,7 @@ struct Pref::Interface {
 		SAVE(saturationStep);
 		SAVE(contrastStep);
 		SAVE(hueStep);
-		SAVE_ENUM(uiLanguage);
+		SAVE(locale);
 		saveMouse(set, "DoubleClickAction", dbl);
 		saveMouse(set, "MiddleClickAction", mdl);
 		saveMouse(set, "WheelScrollAction", whl);
@@ -135,7 +136,7 @@ struct Pref::Interface {
 		LOAD(saturationStep, DefaultVideoPropStep, toInt);
 		LOAD(contrastStep, DefaultVideoPropStep, toInt);
 		LOAD(hueStep, DefaultVideoPropStep, toInt);
-		LOAD_ENUM(uiLanguage, SystemDefault);
+		LOAD(locale, QLocale::c(), toLocale);
 		loadMouse(set, "DoubleClickAction", dbl
 				, Qt::NoModifier, ClickActionPair(true, ToggleFullScreen));
 		loadMouse(set, "DoubleClickAction", dbl
@@ -167,7 +168,7 @@ struct Pref::Interface {
 	int brightnessStep, saturationStep, contrastStep, hueStep;
 	ClickActionMap dbl, mdl;
 	WheelActionMap whl;
-	UiLanguageEnum uiLanguage;
+	QLocale locale;
 private:
 	template<typename T>
 	void saveMouse(QSettings *set, const QString &group, const T &t) const {
@@ -469,12 +470,12 @@ void Pref::setHueStep(int step) {
 	iface->hueStep = step;
 }
 
-UiLanguage Pref::uiLanuage() const {
-	return iface->uiLanguage;
+const QLocale &Pref::locale() const {
+	return iface->locale;
 }
 
-void Pref::setUiLanuage(UiLanguage lang) {
-	iface->uiLanguage = lang;
+void Pref::setLocale(const QLocale &locale) {
+	iface->locale = locale;
 }
 
 void Pref::setPauseVideoOnly(bool enabled) {

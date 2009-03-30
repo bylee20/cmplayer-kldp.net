@@ -916,52 +916,52 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>PrefDialog</name>
     <message>
-        <location filename="../prefdialog.cpp" line="207"/>
+        <location filename="../prefdialog.cpp" line="208"/>
         <source>Plain</source>
         <translation>クリックのみ</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="208"/>
+        <location filename="../prefdialog.cpp" line="209"/>
         <source>File</source>
         <translation>ファイル</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="209"/>
+        <location filename="../prefdialog.cpp" line="210"/>
         <source>URL</source>
         <translation>URL</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="210"/>
+        <location filename="../prefdialog.cpp" line="211"/>
         <source>DVD</source>
         <translation>DVD</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="218"/>
+        <location filename="../prefdialog.cpp" line="219"/>
         <source>Double Click</source>
         <translation>ダブルクリック</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="219"/>
+        <location filename="../prefdialog.cpp" line="220"/>
         <source>Middle Button Click</source>
         <translation>中ボタンクリック</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="220"/>
+        <location filename="../prefdialog.cpp" line="221"/>
         <source>Wheel Scroll</source>
         <translation>ホイールスクロール</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="240"/>
+        <location filename="../prefdialog.cpp" line="420"/>
         <source>System Default Locale</source>
         <translation>システムデフォルトのロケール</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="241"/>
+        <location filename="../prefdialog.cpp" line="424"/>
         <source>English</source>
         <translation>英語</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="243"/>
+        <location filename="../prefdialog.cpp" line="430"/>
         <source>Korean</source>
         <translation>韓国語</translation>
     </message>
@@ -1116,9 +1116,14 @@ p, li { white-space: pre-wrap; }
         <translation>プレイリスト表示切り替え</translation>
     </message>
     <message>
-        <location filename="../prefdialog.cpp" line="242"/>
+        <location filename="../prefdialog.cpp" line="427"/>
         <source>Japanese</source>
         <translation>日本語</translation>
+    </message>
+    <message>
+        <location filename="../prefdialog.cpp" line="420"/>
+        <source>System Defalut Locale</source>
+        <translation type="obsolete">システムデフォルトのロケール</translation>
     </message>
 </context>
 <context>

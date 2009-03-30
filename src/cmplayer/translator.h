@@ -1,14 +1,19 @@
 #ifndef TRANSLATOR_H
 #define TRANSLATOR_H
 
+#include <QtCore/QObject>
 #include <QtCore/QString>
+#include <QtCore/QLocale>
 #include "enum.h"
 
-class Translator {
+typedef QList<QLocale> LocaleList;
+
+class Translator : public QObject {
+	Q_OBJECT
 public:
 	~Translator();
-	static bool load(const QString &locale = QString());
-	static bool load(UiLanguage lang = SystemDefault);
+	static bool load(const QLocale &locale = QLocale::system());
+	static const LocaleList &availableLocales();
 private:
 	Translator();
 	static Translator &get();

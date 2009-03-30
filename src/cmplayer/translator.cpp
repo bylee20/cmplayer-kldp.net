@@ -2,11 +2,13 @@
 #include <QtCore/QTranslator>
 #include <QtGui/QApplication>
 #include <QtCore/QDebug>
-#include <QtCore/QLocale>
+#include <QtCore/QRegExp>
+#include <QtCore/QDir>
 
 struct Translator::Data {
 	QTranslator trans;
 	QString path;
+	QList<QLocale> locale;
 };
 
 Translator::Translator()
@@ -15,6 +17,15 @@ Translator::Translator()
 	d->path = QString::fromLocal8Bit(qgetenv("CMPLAYER_TRANSLATION_PATH"));
 	if (d->path.isEmpty())
 		d->path = QString(CMPLAYER_TRANSLATION_DIR);
+	QDir dir(d->path);
+	QStringList file = dir.entryList(QStringList() << "*.qm");
+	QRegExp rx("^cmplayer_(.*).qm$");
+	d->locale.push_back(QLocale::c());
+	for (int i=0; i<file.size(); ++i) {
+		if (rx.indexIn(file[i]) == -1)
+			continue;
+		d->locale.push_back(QLocale(rx.cap(1)));
+	}
 }
 
 Translator::~Translator() {
@@ -26,27 +37,15 @@ Translator &Translator::get() {
 	return self;
 }
 
-bool Translator::load(const QString &locale) {
-	QString loc = locale.isEmpty() ? QLocale::system().name() : locale;
-	const QString file = "cmplayer_" + loc;
-	Translator::Data *d = get().d;
-	return d->trans.load(file, d->path);
+const LocaleList &Translator::availableLocales() {
+	return get().d->locale;
 }
 
-bool Translator::load(UiLanguage lang) {
-	QString locale;
-	switch (lang) {
-	case English:
-		locale = "en";
-		break;
-	case Japanese:
-		locale = "ja";
-		break;
-	case Korean:
-		locale = "ko";
-		break;
-	default:
-		break;
-	}
-	return load(locale);
+bool Translator::load(const QLocale &locale) {
+	QString name = locale.name();
+	if (locale.language() == QLocale::C)
+		name = QLocale::system().name();
+	const QString file = "cmplayer_" + name;
+	Translator::Data *d = get().d;
+	return d->trans.load(file, d->path);
 }

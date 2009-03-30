@@ -61,7 +61,7 @@ enum _type {__VA_ARGS__};\
 DEC_ENUM_CLASS(_type, count, __VA_ARGS__)\
 typedef EnumSpace::Enum<_type> _type##Enum;
 
-DEC_ENUM(UiLanguage, 4, SystemDefault, English, Japanese, Korean)
+// DEC_ENUM(UiLanguage, 4, SystemDefault, English, Japanese, Korean)
 DEC_ENUM(AutoAddFiles, 3, AllFiles, SimilarFiles, DoNotAddFiles)
 DEC_ENUM(SeekingStep, 3, SeekingStep1, SeekingStep2, SeekingStep3)
 DEC_ENUM(SubtitleAutoLoad, 4, NoAutoLoad, Matched, Contain, SamePath)

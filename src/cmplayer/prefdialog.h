@@ -4,6 +4,7 @@
 #include <QtGui/QDialog>
 
 class QComboBox;			class QTreeWidgetItem;
+class QLocale;
 
 class PrefDialog : public QDialog {
 	Q_OBJECT
@@ -16,8 +17,9 @@ private slots:
 	void slotCurrentItemChanged(QTreeWidgetItem *current);
 	void slotMediaItemClicked(QTreeWidgetItem *item, int column);
 private:
-	static int currentComboData(QComboBox *combo);
-	static void setComboIndex(QComboBox *combo, int value);
+	static QString toString(const QLocale &locale);
+	static QVariant currentComboData(QComboBox *combo);
+	static void setComboIndex(QComboBox *combo, const QVariant &value);
 	virtual void accept();
 	struct Data;
 	class MenuTreeItem;

@@ -596,7 +596,7 @@ void MainWindow::updateOnTop() {
 }
 
 void MainWindow::updatePref() {
-	Translator::load(d->pref->uiLanuage());
+	Translator::load(d->pref->locale());
 	const Core::MediaType media = d->player->currentSource().type();
 	if (media != Core::Unknown)
 		d->menu("play")("engine").g()->trigger(d->pref->backendName(media));
