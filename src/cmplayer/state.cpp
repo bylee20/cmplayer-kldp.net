@@ -20,6 +20,7 @@ State::Data::Data()
 	INIT(LastOpenFile, QString());
 	INIT(DockWidth, 100);
 	INIT(TrayFirst, true);
+	INIT(BackendName, QString());
 #undef INIT
 }
 

@@ -58,7 +58,7 @@ public:
 	bool hideWhenClosed() const;
 	bool singleApplication() const;
 	
-	const QString &backendName(Core::MediaType media) const;
+// 	const QString &backendName(Core::MediaType media) const;
 	
 	void load();
 private:
@@ -99,13 +99,15 @@ private:
 	void setHideWhenClosed(bool enabled);
 	void setSingleApplication(bool enabled);
 		
-	void setBackendName(Core::MediaType media, const QString &name);
+// 	void setBackendName(Core::MediaType media, const QString &name);
 	
 	void save() const;
 	friend class PrefDialog;
 	Pref();
-	struct Backend; struct Subtitle; struct Interface; struct General;
-	Subtitle *sub; Interface *iface; General *gen; Backend *back;
+// 	struct Backend;
+	struct Subtitle; struct Interface; struct General;
+	Subtitle *sub; Interface *iface; General *gen;
+// 	Backend *back;
 };
 
 #endif

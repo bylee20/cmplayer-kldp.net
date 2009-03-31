@@ -83,7 +83,7 @@ MainWindow::~MainWindow() {
 
 void MainWindow::commonInitialize() {
 	d = new Data(Menu::create(this));
-	
+
 	d->changingSubtitle = d->changingOnTop = d->pausedByHiding = false;
 	d->player = new VideoPlayer(this);
 	d->repeater = new ABRepeatDialog(this);
@@ -105,13 +105,19 @@ void MainWindow::commonInitialize() {
 	connect(open["file"], SIGNAL(triggered()), this, SLOT(open()));
 	connect(open["url"], SIGNAL(triggered()), this, SLOT(open()));
 	connect(open["dvd"], SIGNAL(triggered()), this, SLOT(open()));
-	connect(open("recent").g(), SIGNAL(triggered(const QUrl &)), this, SLOT(open(const QUrl &)));
-	connect(open("recent")["clear"], SIGNAL(triggered()), d->recent, SLOT(clearStack()));
+	connect(open("recent").g(), SIGNAL(triggered(const QUrl &))
+			, this, SLOT(open(const QUrl &)));
+	connect(open("recent")["clear"], SIGNAL(triggered())
+			, d->recent, SLOT(clearStack()));
 	Menu &screen = menu("screen");
-	connect(screen("size").g(), SIGNAL(triggered(double)), this, SLOT(setVideoSize(double)));
-	connect(screen("aspect").g(), SIGNAL(triggered(double)), d->player, SLOT(setAspectRatio(double)));
-	connect(screen("crop").g(), SIGNAL(triggered(double)), d->player, SLOT(setCropRatio(double)));
-	connect(screen("on top").g(), SIGNAL(triggered(QAction*)), this, SLOT(updateOnTop()));
+	connect(screen("size").g(), SIGNAL(triggered(double))
+			, this, SLOT(setVideoSize(double)));
+	connect(screen("aspect").g(), SIGNAL(triggered(double))
+			, d->player, SLOT(setAspectRatio(double)));
+	connect(screen("crop").g(), SIGNAL(triggered(double))
+			, d->player, SLOT(setCropRatio(double)));
+	connect(screen("on top").g(), SIGNAL(triggered(QAction*))
+			, this, SLOT(updateOnTop()));
 	connect(screen["snapshot"], SIGNAL(triggered()), this, SLOT(takeSnapshot()));
 	Menu &play = menu("play");
 	connect(play["dvd menu"], SIGNAL(triggered()), d->player, SLOT(toggleDvdMenu()));
@@ -133,15 +139,19 @@ void MainWindow::commonInitialize() {
 	Menu &audio = menu("audio");
 	connect(audio.g("volume"), SIGNAL(triggered(int)), this, SLOT(setVolume(int)));
 	connect(audio["mute"], SIGNAL(toggled(bool)), d->player, SLOT(setMuted(bool)));
-	connect(audio.g("amp"), SIGNAL(triggered(int)), this, SLOT(setAmplifyingRate(int)));
-	connect(audio("renderer").g(), SIGNAL(triggered(QAction*)), this, SLOT(setRenderer(QAction*)));
+	connect(audio.g("amp"), SIGNAL(triggered(int))
+			, this, SLOT(setAmplifyingRate(int)));
+	connect(audio("renderer").g(), SIGNAL(triggered(QAction*))
+			, this, SLOT(setRenderer(QAction*)));
 	connect(audio("track").g(), SIGNAL(triggered(const QString &))
 			, d->player, SLOT(setCurrentTrack(const QString &)));
 	Menu &sub = menu("subtitle");
-	connect(sub("list")["hide"], SIGNAL(toggled(bool)), d->player, SLOT(setSubtitleHidden(bool)));
+	connect(sub("list")["hide"], SIGNAL(toggled(bool))
+			, d->player, SLOT(setSubtitleHidden(bool)));
 	connect(sub("list")["open"], SIGNAL(triggered()), this, SLOT(openSubFile()));
 	connect(sub("list")["clear"], SIGNAL(triggered()), this, SLOT(clearSubs()));
-	connect(sub("list").g(), SIGNAL(triggered(QAction*)), this, SLOT(slotSubtitle(QAction*)));
+	connect(sub("list").g(), SIGNAL(triggered(QAction*))
+			, this, SLOT(slotSubtitle(QAction*)));
 	connect(sub.g("pos"), SIGNAL(triggered(int)), this, SLOT(setSubtitlePos(int)));
 	connect(sub.g("sync"), SIGNAL(triggered(int)), this, SLOT(setSyncDelay(int)));
 	connect(menu["pref"], SIGNAL(triggered()), this, SLOT(showPrefDialog()));
@@ -155,13 +165,16 @@ void MainWindow::commonInitialize() {
 			, this, SLOT(slotStateChanged(Core::State, Core::State)));
 	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
 			, this, SLOT(slotStateChanged(Core::State, Core::State)));
-	connect(d->player, SIGNAL(mutedChanged(bool)), audio["mute"], SLOT(setChecked(bool)));
+	connect(d->player, SIGNAL(mutedChanged(bool))
+			, audio["mute"], SLOT(setChecked(bool)));
 	connect(d->player, SIGNAL(currentSourceChanged(const Core::MediaSource&))
 			, d->playInfo, SLOT(setCurrentSource(const Core::MediaSource&)));
 	connect(d->player, SIGNAL(currentSourceChanged(const Core::MediaSource&))
 			, this, SLOT(autoLoadSubtitles()));
-	connect(d->player, SIGNAL(backendChanged(const QString&)), this, SLOT(slotBackendChanged()));
-	connect(d->player, SIGNAL(durationChanged(int)), d->playInfo, SLOT(setDuration(int)));
+	connect(d->player, SIGNAL(backendChanged(const QString&))
+			, this, SLOT(slotBackendChanged()));
+	connect(d->player, SIGNAL(durationChanged(int))
+			, d->playInfo, SLOT(setDuration(int)));
 	connect(d->player, SIGNAL(tick(int)), d->playInfo, SLOT(setPlayTime(int)));
 	connect(d->player, SIGNAL(tracksChanged(const QStringList&))
 			, this, SLOT(slotTracksChanged(const QStringList&)));
@@ -174,22 +187,25 @@ void MainWindow::commonInitialize() {
 	connect(d->player, SIGNAL(customContextMenuRequested(const QPoint&))
 			, this, SLOT(showContextMenu(const QPoint&)));
 	connect(d->dock, SIGNAL(hidingRequested()), this, SLOT(toggleDockVisibility()));
-	connect(d->model, SIGNAL(currentRowChanged(int)), this, SLOT(updatePlaylistInfo()));
-	connect(d->model, SIGNAL(rowCountChanged(int)), this, SLOT(updatePlaylistInfo()));
+	connect(d->model, SIGNAL(currentRowChanged(int))
+			, this, SLOT(updatePlaylistInfo()));
+	connect(d->model, SIGNAL(rowCountChanged(int))
+			, this, SLOT(updatePlaylistInfo()));
 	connect(d->recent, SIGNAL(sourcesChanged(const RecentStack&))
 			, this, SLOT(updateRecentActions(const RecentStack&)));
-	connect(d->recent, SIGNAL(rememberCountChanged(int)), this, SLOT(updateRecentSize(int)));
+	connect(d->recent, SIGNAL(rememberCountChanged(int))
+			, this, SLOT(updateRecentSize(int)));
 	connect(&d->hider, SIGNAL(timeout()), this, SLOT(hideCursor()));
 	d->hider.setSingleShot(true);
 	connect(d->tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
 			, this, SLOT(slotTrayActivated(QSystemTrayIcon::ActivationReason)));
-	updatePref();
-	loadState();
 	
-	const BackendMap &backend = VideoPlayer::backend();
+	const BackendMap &backend = VideoPlayer::load();
 	Menu &engine = play("engine");
 	for (BackendMap::const_iterator it = backend.begin(); it != backend.end(); ++it)
 		engine.addActionToGroupWithoutKey(it.key(), true)->setData(it.key());
+	loadState();
+	updatePref();
 }
 
 static QToolButton *addToolButton(QHBoxLayout *hbox) {
@@ -247,6 +263,7 @@ void MainWindow::saveState() {
 	}
 	state[State::VideoRenderer] = vmap;
 	state[State::AudioRenderer] = amap;
+	state[State::BackendName] = d->menu("play")("engine").g()->data();
 	state[State::ScreenAspectRatio] = d->player->aspectRatio();
 	state[State::ScreenCrop] = d->player->cropRatio();
 	state[State::ScreenOnTop] = d->menu("screen")("on top").g()->data();
@@ -263,6 +280,9 @@ void MainWindow::saveState() {
 void MainWindow::loadState() {
 	State state;
 	state.load();
+	const QString name = state[State::BackendName].toString();
+	if (VideoPlayer::backend().contains(name))
+		d->menu("play")("engine").g()->trigger(name);
 	d->menu("screen")("aspect").g()->trigger(state[State::ScreenAspectRatio]);
 	d->menu("screen")("crop").g()->trigger(state[State::ScreenCrop]);
 	d->menu("screen")("on top").g()->trigger(state[State::ScreenOnTop]);
@@ -273,6 +293,7 @@ void MainWindow::loadState() {
 	d->player->setSubtitlePos(state[State::SubtitlePos].toInt());
 	d->player->setSyncDelay(state[State::SubtitleSync].toInt());
 	d->dock->setWidth(state[State::DockWidth].toInt());
+	
 }
 
 QIcon MainWindow::defaultIcon() {
@@ -590,9 +611,9 @@ void MainWindow::updateOnTop() {
 
 void MainWindow::updatePref() {
 	Translator::load(d->pref->locale());
-	const Core::MediaType media = d->player->currentSource().type();
-	if (media != Core::Unknown)
-		d->menu("play")("engine").g()->trigger(d->pref->backendName(media));
+// 	const Core::MediaType media = d->player->currentSource().type();
+// 	if (media != Core::Unknown)
+// 		d->menu("play")("engine").g()->trigger(d->pref->backendName(media));
 	d->player->setSubtitleStyle(d->pref->subtitleStyle());
 	d->player->setVolumeNormalized(d->pref->isVolumeNormalized());
 	d->player->setUseSoftwareEqualizer(d->pref->useSoftwareEqualizer());
@@ -862,25 +883,27 @@ void MainWindow::slotBackendChanged() {
 	Menu &aMenu = d->menu("audio")("renderer");
 	vMenu.g()->clear();
 	aMenu.g()->clear();
-	const Core::Info &info = d->player->engine()->info();
-	d->menu("play")("engine").g()->trigger(info.name());
-	const QStringList audios = info.audioRenderer();
-	const QStringList videos = info.videoRenderer();
-	for (int i=0; i<videos.size(); ++i)
-		vMenu.addActionToGroupWithoutKey(videos[i], true)->setData(videos[i]);
-	for (int i=0; i<audios.size(); ++i)
-		aMenu.addActionToGroupWithoutKey(audios[i], true)->setData(audios[i]);
-	State state;
-	const QString video = state[State::VideoRenderer].toMap()[info.name()].toString();
-	if (video.isEmpty())
-		vMenu.g()->setChecked(d->player->videoRenderer(), true);
-	else
-		vMenu.g()->trigger(video);
-	const QString audio = state[State::AudioRenderer].toMap()[info.name()].toString();
-	if (audio.isEmpty())
-		aMenu.g()->setChecked(d->player->audioRenderer(), true);
-	else
-		aMenu.g()->trigger(audio);
+	const Core::Info *info = d->player->info();
+	if (info) {
+		d->menu("play")("engine").g()->trigger(info->name());
+		const QStringList audios = info->audioRenderer();
+		const QStringList videos = info->videoRenderer();
+		for (int i=0; i<videos.size(); ++i)
+			vMenu.addActionToGroupWithoutKey(videos[i], true)->setData(videos[i]);
+		for (int i=0; i<audios.size(); ++i)
+			aMenu.addActionToGroupWithoutKey(audios[i], true)->setData(audios[i]);
+		State state;
+		const QString video = state[State::VideoRenderer].toMap()[info->name()].toString();
+		if (video.isEmpty())
+			vMenu.g()->setChecked(d->player->videoRenderer(), true);
+		else
+			vMenu.g()->trigger(video);
+		const QString audio = state[State::AudioRenderer].toMap()[info->name()].toString();
+		if (audio.isEmpty())
+			aMenu.g()->setChecked(d->player->audioRenderer(), true);
+		else
+			aMenu.g()->trigger(audio);
+	}
 }
 
 void MainWindow::showPrefDialog() {
@@ -970,8 +993,7 @@ showMessage(msg.arg(Menu::toString(d->player->getter()*factor, sign)));}
 DEC_DIFF_SETTER_MSG(setVolume, volume, MainWindow::tr("Volume: %1%"), 1, false)
 DEC_DIFF_SETTER_MSG(setSubtitlePos, subtitlePos
 		, MainWindow::tr("Subtitle Position: %1%"), 1, false)
-DEC_DIFF_SETTER_MSG(setAmplifyingRate, amplifyingRate, MainWindow::tr("Amp.: %2% (Max.: %1%)")
-		.arg(qRound(d->player->engine()->info().maximumAmplifyingRate()*100.0)), 1, false)
+DEC_DIFF_SETTER_MSG(setAmplifyingRate, amplifyingRate, MainWindow::tr("Amp.: %1%"), 1, false)
 
 #undef DEC_DIFF_SETTER_MSG
 

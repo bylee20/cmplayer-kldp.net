@@ -1134,44 +1134,6 @@ e.g.: English, Korean</string>
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="widget" >
-   <layout class="QVBoxLayout" name="verticalLayout_16" >
-    <item>
-     <widget class="QGroupBox" name="groupBox_8" >
-      <property name="title" >
-       <string>Priority</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_15" >
-       <item>
-        <widget class="QLabel" name="label_8" >
-         <property name="sizePolicy" >
-          <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text" >
-          <string>Set priority of play engine for each media type</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTreeWidget" name="media" >
-         <property name="rootIsDecorated" >
-          <bool>false</bool>
-         </property>
-         <column>
-          <property name="text" >
-           <string>Media Type</string>
-          </property>
-         </column>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-   </layout>
-  </widget>
  </widget>
  <customwidgets>
   <customwidget>

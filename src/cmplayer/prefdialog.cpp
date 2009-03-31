@@ -3,7 +3,7 @@
 #include "pref.h"
 #include "getshortcutdialog.h"
 #include "translator.h"
-#include "videoplayer.h"
+// #include "videoplayer.h"
 #include "ui_prefdialog.h"
 #include "ui_prefstack.h"
 #include <QtCore/QMap>
@@ -312,18 +312,18 @@ PrefDialog::PrefDialog(QWidget *parent)
 	d->stack.priority->setValues(p->subtitlePriority());
 	d->stack.priority->setAddingAndErasingEnabled(true);
 	
-	const BackendMap map = VideoPlayer::backend();
-	const QStringList backends = map.keys();
-	QTreeWidgetItem *header = d->stack.media->headerItem();
-	for (int i=0; i<backends.size(); ++i)
-		header->setText(i+1, backends[i]);
-	for (int i=0; i<d->media.size(); ++i) {
-		MediaTreeItem *item = new MediaTreeItem(d->media[i]
-				, backends, p->backendName(d->media[i]));
-		d->stack.media->addTopLevelItem(item);
-	}
-	connect(d->stack.media, SIGNAL(itemClicked(QTreeWidgetItem*, int))
-			, this, SLOT(slotMediaItemClicked(QTreeWidgetItem*, int)));
+// 	const BackendMap map = VideoPlayer::backend();
+// 	const QStringList backends = map.keys();
+// 	QTreeWidgetItem *header = d->stack.media->headerItem();
+// 	for (int i=0; i<backends.size(); ++i)
+// 		header->setText(i+1, backends[i]);
+// 	for (int i=0; i<d->media.size(); ++i) {
+// 		MediaTreeItem *item = new MediaTreeItem(d->media[i]
+// 				, backends, p->backendName(d->media[i]));
+// 		d->stack.media->addTopLevelItem(item);
+// 	}
+// 	connect(d->stack.media, SIGNAL(itemClicked(QTreeWidgetItem*, int))
+// 			, this, SLOT(slotMediaItemClicked(QTreeWidgetItem*, int)));
 }
 
 PrefDialog::~PrefDialog() {
@@ -395,10 +395,10 @@ void PrefDialog::apply() {
 	p->setSubtitleStyle(d->stack.subOsd->style());
 	p->setSubtitlePriority(d->stack.priority->values());
 	
-	for (int i=0; i<d->media.size(); ++i) {
-		MediaTreeItem *item = static_cast<MediaTreeItem*>(d->stack.media->topLevelItem(i));
-		p->setBackendName(d->media[i], item->checkedBackend());
-	}
+// 	for (int i=0; i<d->media.size(); ++i) {
+// 		MediaTreeItem *item = static_cast<MediaTreeItem*>(d->stack.media->topLevelItem(i));
+// 		p->setBackendName(d->media[i], item->checkedBackend());
+// 	}
 	p->save();
 }
 

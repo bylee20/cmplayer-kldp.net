@@ -80,15 +80,6 @@
           <normaloff>:/img/preferences-desktop-keyboard.png</normaloff>:/img/preferences-desktop-keyboard.png</iconset>
         </property>
        </item>
-       <item>
-        <property name="text" >
-         <string>Play Engine</string>
-        </property>
-        <property name="icon" >
-         <iconset resource="../rsclist.qrc" >
-          <normaloff>:/img/applications-multimedia.png</normaloff>:/img/applications-multimedia.png</iconset>
-        </property>
-       </item>
       </widget>
      </item>
      <item>

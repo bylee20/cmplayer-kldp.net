@@ -196,43 +196,43 @@ private:
 	}
 };
 
-struct Pref::Backend {
-	Backend() {}
-	void save(QSettings *set) const {
-		set->beginGroup("Backend");
-		set->beginGroup("Priority");
-		
-		set->setValue("File", names[Core::LocalFile]);
-		set->setValue("URL", names[Core::Url]);
-		set->setValue("DVD", names[Core::Dvd]);
-		
-		set->endGroup();
-		set->endGroup();
-	}
-	void load(QSettings *set) {
-		QString defName;
-		const BackendMap &map = VideoPlayer::load();
-		if (!map.isEmpty())
-			defName = map.begin().key();
-		
-		set->beginGroup("Backend");
-		set->beginGroup("Priority");
-		
-		names[Core::LocalFile] = set->value("File", defName).toString();
-		names[Core::Url] = set->value("URL", defName).toString();
-		names[Core::Dvd] = set->value("DVD", defName).toString();
-		
-		set->endGroup();
-		set->endGroup();
-	}
-	QMap< ::Core::MediaType, QString> names;
-};
+// struct Pref::Backend {
+// 	Backend() {}
+// 	void save(QSettings *set) const {
+// 		set->beginGroup("Backend");
+// 		set->beginGroup("Priority");
+// 		
+// 		set->setValue("File", names[Core::LocalFile]);
+// 		set->setValue("URL", names[Core::Url]);
+// 		set->setValue("DVD", names[Core::Dvd]);
+// 		
+// 		set->endGroup();
+// 		set->endGroup();
+// 	}
+// 	void load(QSettings *set) {
+// 		QString defName;
+// 		const BackendMap &map = VideoPlayer::load();
+// 		if (!map.isEmpty())
+// 			defName = map.begin().key();
+// 		
+// 		set->beginGroup("Backend");
+// 		set->beginGroup("Priority");
+// 		
+// 		names[Core::LocalFile] = set->value("File", defName).toString();
+// 		names[Core::Url] = set->value("URL", defName).toString();
+// 		names[Core::Dvd] = set->value("DVD", defName).toString();
+// 		
+// 		set->endGroup();
+// 		set->endGroup();
+// 	}
+// 	QMap< ::Core::MediaType, QString> names;
+// };
 
 Pref::Pref() {
 	sub = new Subtitle;
 	iface = new Interface;
 	gen = new General;
-	back = new Backend;
+// 	back = new Backend;
 	load();
 }
 
@@ -240,7 +240,7 @@ Pref::~Pref() {
 	delete sub;
 	delete iface;
 	delete gen;
-	delete back;
+// 	delete back;
 }
 
 SubtitleAutoLoad Pref::subtitleAutoLoad() const {
@@ -366,20 +366,20 @@ const QStringList &Pref::subtitlePriority() const {
 	return sub->priority;
 }
 
-const QString &Pref::backendName(::Core::MediaType media) const {
-	return back->names[media];
-}
-
-void Pref::setBackendName(::Core::MediaType media, const QString &name) {
-	back->names[media] = name;
-}
+// const QString &Pref::backendName(::Core::MediaType media) const {
+// 	return back->names[media];
+// }
+// 
+// void Pref::setBackendName(::Core::MediaType media, const QString &name) {
+// 	back->names[media] = name;
+// }
 
 void Pref::save() const {
 	QSettings set(Helper::configFile(), QSettings::IniFormat);
 	gen->save(&set);
 	sub->save(&set);
 	iface->save(&set);
-	back->save(&set);
+// 	back->save(&set);
 }
 
 void Pref::load() {
@@ -387,7 +387,7 @@ void Pref::load() {
 	gen->load(&set);
 	sub->load(&set);
 	iface->load(&set);
-	back->load(&set);
+// 	back->load(&set);
 }
 
 const Pref::ClickActionMap &Pref::doubleClickMap() const {

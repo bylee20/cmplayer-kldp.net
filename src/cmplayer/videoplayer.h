@@ -15,10 +15,9 @@ public:
 	~VideoPlayer();
 	void keepSize(bool keep);
 	QSize sizeHint() const;
-	const Core::PlayEngine *engine() const;
 	Core::ABRepeater *repeater() const;
 	void play(int time);
-// 	void playNext(int time);
+	void playNext(int time);
 	void play();
 	void pause();
 	bool isPlaying() const;
@@ -27,56 +26,55 @@ public:
 	bool isSeekable() const;
 	bool isMuted() const;
 	bool hasVideo() const;
-// 	bool hasNextSource() const;
 	double frameRate() const;
 	void seek(int time, bool relative, bool show);
 	int duration() const;
 	int currentTime() const;
 	Core::State state() const;
-	void setSubtitle(const Core::Subtitle &subtitle);
 	int speed() const;
 	int subtitlePos() const;
 	int syncDelay() const;
 	int volume() const;
-	void setAmplifyingRate(int amp);
 	int amplifyingRate() const;
-	void setColorProperty(Core::ColorProperty::Value prop, int value);
 	int colorProperty(Core::ColorProperty::Value prop) const;
 	void showMessage(const QString &message);
 	bool setVideoRenderer(const QString &renderer);
 	bool setAudioRenderer(const QString &renderer);
-	const QString &videoRenderer() const;
-	const QString &audioRenderer() const;
-	void setCurrentSpu(const QString &spu);
+	QString videoRenderer() const;
+	QString audioRenderer() const;
 	Core::MediaSource currentSource() const;
-// 	Core::MediaSource nextSource() const;
 	double aspectRatio() const;
 	double cropRatio() const;
 	const Map &engines() const;
+	void setCurrentSpu(const QString &spu);
+	void setSubtitle(const Core::Subtitle &subtitle);
+	void setAmplifyingRate(int amp);
+	void setColorProperty(Core::ColorProperty::Value prop, int value);
 	void setSubtitleStyle(const Core::OsdStyle &style);
 	void setSpeed(int speed);
 	void setSubtitlePos(int pos);
 	void setSyncDelay(int delay);
 	void setVolumeNormalized(bool enabled);
 	void setUseSoftwareEqualizer(bool use);
-// 	void setNextSource(const Core::MediaSource &source);
-	static const BackendMap &load(const QString &path = QString());
+	void setNextSource(const Core::MediaSource &source);
+	bool hasNextSource() const;
+	static const BackendMap &load();
 	static const BackendMap &backend();
-// 	bool changingSource() const;
+	const Core::Info *info() const;
 public slots:
 	void triggerSnapshot();
 	void stop();
+	void toggleDvdMenu();
+	void resetSpeed() {setSpeed(100);}
+	void setBackend(const QString &name);
 	void setMuted(bool muted);
 	void setSubtitleVisible(bool visible);
 	void setSubtitleHidden(bool hidden) {setSubtitleVisible(!hidden);}
-	void toggleDvdMenu();
 	void setVolume(int volume);
 	void setCurrentSource(Core::MediaSource source);
-	void resetSpeed() {setSpeed(100);}
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
 	void setCurrentTrack(const QString &track);
-	void setBackend(const QString &name);
 signals:
 	void backendChanged(const QString &name);
 	void stateChanged(Core::State state, Core::State old);
@@ -99,10 +97,9 @@ private slots:
 	void slotFinished(Core::MediaSource source);
 	void slotStopped(Core::MediaSource source, int time);
 private:
-	Core::PlayEngine *osdEngine();
-	void setBackend(Core::PlayEngine *engine);
 	void resize();
 	void resizeEvent(QResizeEvent *event);
+	class Widget;
 	struct Backend;
 	struct Data;
 	Data *d;

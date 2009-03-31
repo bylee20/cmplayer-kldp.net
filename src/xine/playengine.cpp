@@ -65,6 +65,7 @@ void PlayEngine::slotStateChanged(Core::State state, Core::State old) {
 		break;
 	case Core::Stopped:
 	case Core::Finished:
+		emit tick(d->prevTick = 0);
 		break;
 	case Core::Paused:
 		break;

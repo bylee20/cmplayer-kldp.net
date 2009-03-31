@@ -11,6 +11,7 @@ public:
 	typedef QMap<QString, QVariant> Map;
 	enum Type {
 		ScreenAspectRatio = 0,
+		BackendName,
 		ScreenCrop,
 		ScreenOnTop,
 		PlaySpeed,

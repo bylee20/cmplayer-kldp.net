@@ -16,6 +16,7 @@ class PlaylistModel : public QAbstractTableModel {
 public:
 	PlaylistModel(VideoPlayer *player, QObject *parent = 0);
 	~PlaylistModel();
+	bool isRowValid(int row) const;
 	void setPlaylist(const Core::Playlist &list, int current = -1);
 	void append(const QList<Core::MediaSource> &list);
 	void append(const Core::MediaSource &source);
@@ -58,9 +59,9 @@ signals:
 	void rowCountChanged(int count);
 	void dropped(const QList<int> &row);
 private slots:
-// 	void slotCurrentSourceChanged(const Core::MediaSource &source);
+	void slotCurrentSourceChanged(const Core::MediaSource &source);
 	void slotFinished(const Core::MediaSource &source);
-// 	void updateNext();
+	void updateNext();
 private:
 	static QString mimeType() {
 		return QString("application/net.xylosper.cmplayer.playlist");
