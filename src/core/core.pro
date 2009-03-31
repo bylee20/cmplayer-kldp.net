@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-VERSION = 0.2.7
+VERSION = 0.2.8
 
 SOURCES += abrepeater.cpp \
 	playengine.cpp \

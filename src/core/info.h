@@ -23,7 +23,7 @@ public:
 	static const ExtensionList &videoExtension() {return d.videoExt;}
 	static const ExtensionList &audioExtension() {return d.audioExt;}
 	static const ExtensionList &subtitleExtension() {return d.subExt;}
-	static QString coreVersion() {return "0.2.7.1";}
+	static QString coreVersion() {return "0.2.8";}
 	virtual const QString &defaultVideoRenderer() const {return videoRenderer()[0];}
 	virtual const QString &defaultAudioRenderer() const {return audioRenderer()[0];}
 	virtual const QStringList &videoRenderer() const = 0;

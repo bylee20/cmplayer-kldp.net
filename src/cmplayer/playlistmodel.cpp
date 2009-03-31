@@ -27,13 +27,13 @@ PlaylistModel::PlaylistModel(VideoPlayer *player, QObject *parent)
 	d->font.setBold(true);
 	connect(d->player, SIGNAL(finished(Core::MediaSource))
 	        , this, SLOT(slotFinished(const Core::MediaSource&)));
-	connect(d->player, SIGNAL(currentSourceChanged(const Core::MediaSource&))
-			, this, SLOT(slotCurrentSourceChanged(const Core::MediaSource&)));
-	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
-			, this, SLOT(updateNext()));
-	connect(this, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&))
-			, this, SLOT(updateNext()));
-	connect(this, SIGNAL(rowCountChanged(int)), this, SLOT(updateNext()));
+// 	connect(d->player, SIGNAL(currentSourceChanged(const Core::MediaSource&))
+// 			, this, SLOT(slotCurrentSourceChanged(const Core::MediaSource&)));
+// 	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
+// 			, this, SLOT(updateNext()));
+// 	connect(this, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&))
+// 			, this, SLOT(updateNext()));
+// 	connect(this, SIGNAL(rowCountChanged(int)), this, SLOT(updateNext()));
 }
 
 PlaylistModel::~PlaylistModel() {
@@ -88,12 +88,16 @@ void PlaylistModel::remove(int row) {
 }
 
 void PlaylistModel::play(int row) {
-	if (row < 0 || row >= d->list.size())
+	if (d->list.isEmpty() || row < 0 || row >= d->list.size())
 		return;
-	d->player->setNextSource(d->list[row]);
-	d->player->playNext(RecentInfo::get()->stoppedTime(d->list[row]));
-	setCurrentRow(row, false);
-	updateNext();
+// 	d->player->setCurrentSource(d->list[row]);
+	setCurrentRow(row);
+	d->player->play(RecentInfo::get()->stoppedTime(d->list[row]));
+
+// 	d->player->setNextSource(d->list[row]);
+// 	d->player->playNext(RecentInfo::get()->stoppedTime(d->list[row]));
+// 	setCurrentRow(row, false);
+// 	updateNext();
 }
 
 void PlaylistModel::playNext() {
@@ -125,7 +129,8 @@ void PlaylistModel::slotFinished(const Core::MediaSource &/*source*/) {
 		emit playlistFinished();
 		if (d->loop && !d->list.isEmpty())
 			play(0);
-	}
+	} else
+		playNext();
 }
 
 const Core::Playlist &PlaylistModel::playlist() const {
@@ -336,14 +341,14 @@ bool PlaylistModel::setData(const QModelIndex &index, const QVariant &value, int
 	return QAbstractTableModel::setData(index, value, role);
 }
 
-void PlaylistModel::updateNext() {
-	const Core::MediaSource next = d->list.isEmpty()
-			? Core::MediaSource() : d->list.value(d->row + 1);
-	if (next != d->player->nextSource())
-		d->player->setNextSource(next);
-}
+// void PlaylistModel::updateNext() {
+// 	const Core::MediaSource next = d->list.isEmpty()
+// 			? Core::MediaSource() : d->list.value(d->row + 1);
+// 	if (next != d->player->nextSource())
+// 		d->player->setNextSource(next);
+// }
 
-void PlaylistModel::slotCurrentSourceChanged(const Core::MediaSource &source) {
-	setCurrentRow(d->list.indexOf(source), false);
-}
+// void PlaylistModel::slotCurrentSourceChanged(const Core::MediaSource &source) {
+// 	setCurrentRow(d->list.indexOf(source), false);
+// }
 

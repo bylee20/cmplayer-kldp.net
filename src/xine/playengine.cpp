@@ -41,11 +41,13 @@ PlayEngine::PlayEngine(QObject *parent)
 	connect(&d->ticker, SIGNAL(timeout()), this, SLOT(emitTick()));
 	connect(this, SIGNAL(stateChanged(Core::State, Core::State))
 			, this, SLOT(slotStateChanged(Core::State, Core::State)));
+	d->ticker.start();
 	updateVideoRenderer(d->info.defaultVideoRenderer());
 }
 
 PlayEngine::~PlayEngine() {
 	stop();
+	d->ticker.stop();
 	d->stream.close();
 	if (d->video)
 		delete d->video;
@@ -58,16 +60,13 @@ void PlayEngine::slotStateChanged(Core::State state, Core::State old) {
 	switch (state) {
 	case Core::Playing:
 		d->sos = false;
-		d->ticker.start();
 		if (d->video)
 			d->video->activateMouseTracking(currentSource().isDisc());
 		break;
 	case Core::Stopped:
 	case Core::Finished:
-		d->ticker.stop();
 		break;
 	case Core::Paused:
-		d->ticker.start();
 		break;
 	default:
 		break;
@@ -119,8 +118,8 @@ void PlayEngine::eventListener(void *userData, const xine_event_t *event) {
 void PlayEngine::customEvent(QEvent *event) {
 	Core::BaseEvent *be = static_cast<Core::BaseEvent*>(event);
 	if (be->type() == Core::BaseEvent::EndOfStream) {
-		emit finished(static_cast<Core::EndOfStreamEvent*>(be)->source());
 		setState(Core::Finished);
+		emit finished(static_cast<Core::EndOfStreamEvent*>(be)->source());
 	} else if (be->type() == Core::BaseEvent::UpdateInfo) {
 		updateStreamInfo();
 	} else if (be->type() == Core::BaseEvent::NewFrame) {
@@ -246,11 +245,17 @@ bool PlayEngine::updateCurrentTrack(const QString &track) {
 }
 
 void PlayEngine::emitTick() {
-	const int time = getStreamTime();
-	if (time == d->prevTick)
+	switch(state()) {
+	case Core::Stopped:
+	case Core::Finished:
 		return;
-	d->prevTick = time;
-	emit tick(time);
+	default: {
+		const int time = getStreamTime();
+		if (time == d->prevTick)
+			return;
+		d->prevTick = time;
+		emit tick(time);
+	}}
 }
 
 int PlayEngine::currentTime() const {
@@ -297,8 +302,8 @@ void PlayEngine::stop() {
 	if (d->stream.stream) {
 		const int time = currentTime();
 		xine_stop(d->stream.stream);
-		emit stopped(currentSource(), time);
 		setState(Core::Stopped);
+		emit stopped(currentSource(), time);
 	} else
 		setState(Core::Stopped);
 }

@@ -18,7 +18,7 @@ public:
 	const Core::PlayEngine *engine() const;
 	Core::ABRepeater *repeater() const;
 	void play(int time);
-	void playNext(int time);
+// 	void playNext(int time);
 	void play();
 	void pause();
 	bool isPlaying() const;
@@ -27,7 +27,7 @@ public:
 	bool isSeekable() const;
 	bool isMuted() const;
 	bool hasVideo() const;
-	bool hasNextSource() const;
+// 	bool hasNextSource() const;
 	double frameRate() const;
 	void seek(int time, bool relative, bool show);
 	int duration() const;
@@ -49,7 +49,7 @@ public:
 	const QString &audioRenderer() const;
 	void setCurrentSpu(const QString &spu);
 	Core::MediaSource currentSource() const;
-	Core::MediaSource nextSource() const;
+// 	Core::MediaSource nextSource() const;
 	double aspectRatio() const;
 	double cropRatio() const;
 	const Map &engines() const;
@@ -59,10 +59,10 @@ public:
 	void setSyncDelay(int delay);
 	void setVolumeNormalized(bool enabled);
 	void setUseSoftwareEqualizer(bool use);
-	void setNextSource(const Core::MediaSource &source);
+// 	void setNextSource(const Core::MediaSource &source);
 	static const BackendMap &load(const QString &path = QString());
 	static const BackendMap &backend();
-	bool changingSource() const;
+// 	bool changingSource() const;
 public slots:
 	void triggerSnapshot();
 	void stop();

@@ -51,11 +51,11 @@ struct VideoPlayer::Data {
 	QWidget *main;
 	QStackedWidget *stack;
 	QSize minSize, maxSize;
-	bool keepSize, changing;
+	bool keepSize/*, changing*/;
 	QMap<QString, Core::PlayEngine*> engines;
 	DummyEngine *dummy;
 	Core::PlayEngine *engine;
-	Core::MediaSource *next;
+// 	Core::MediaSource *next;
 	static Backend backend;
 };
 
@@ -74,8 +74,8 @@ VideoPlayer::VideoPlayer(QWidget *main, QWidget *parent)
 	d->dummy = new DummyEngine;
 	d->minSize = minimumSize();
 	d->maxSize = maximumSize();
-	d->changing = d->keepSize = false;
-	d->next = 0;
+	/*d->changing = */d->keepSize = false;
+// 	d->next = 0;
 	
 	setMinimumSize(320, 240);
 	setMouseTracking(true);
@@ -107,7 +107,7 @@ VideoPlayer::~VideoPlayer() {
 	QMap<QString, Core::PlayEngine*>::iterator it = d->engines.begin();
 	for (; it != d->engines.end(); ++it)
 		delete it.value();
-	delete d->next;
+// 	delete d->next;
 	delete d;
 }
 
@@ -143,7 +143,7 @@ void VideoPlayer::setBackend(const QString &name) {
 	if (d->engine->info().name() == name)
 		return;
 	int time = -1;
-	d->changing = true;
+// 	d->changing = true;
 	if (!d->engine->isStopped()) {
 		time = d->engine->currentTime();
 		d->engine->stop();
@@ -215,25 +215,25 @@ const Core::PlayEngine *VideoPlayer::engine() const {
 	return d->engine;
 }
 
-Core::MediaSource VideoPlayer::nextSource() const {
-	return d->next ? *d->next : Core::MediaSource();
-}
+// Core::MediaSource VideoPlayer::nextSource() const {
+// 	return d->next ? *d->next : Core::MediaSource();
+// }
 
-void VideoPlayer::setNextSource(const Core::MediaSource &source) {
-	if (source.isValid()) {
-		if (!d->next)
-			d->next = new Core::MediaSource(source);
-		else if (*d->next != source)
-			*d->next = source;
-	} else {
-		delete d->next;
-		d->next = 0;
-	}
-}
+// void VideoPlayer::setNextSource(const Core::MediaSource &source) {
+// 	if (source.isValid()) {
+// 		if (!d->next)
+// 			d->next = new Core::MediaSource(source);
+// 		else if (*d->next != source)
+// 			*d->next = source;
+// 	} else {
+// 		delete d->next;
+// 		d->next = 0;
+// 	}
+// }
 
-bool VideoPlayer::hasNextSource() const {
-	return d->next != 0;
-}
+// bool VideoPlayer::hasNextSource() const {
+// 	return d->next != 0;
+// }
 
 Core::PlayEngine *VideoPlayer::osdEngine() {
 	if (d->engine->widget() == d->stack->currentWidget())
@@ -257,39 +257,40 @@ void VideoPlayer::play() {
 	d->engine->play();
 }
 
-void VideoPlayer::playNext(int time) {
-	if (d->next) {
-		d->changing = true;
-		setCurrentSource(*d->next);
-		delete d->next;
-		d->next = 0;
-		play(time);
-	}
-}
+// void VideoPlayer::playNext(int time) {
+// 	if (d->next) {
+// 		d->changing = true;
+// 		setCurrentSource(*d->next);
+// 		delete d->next;
+// 		d->next = 0;
+// 		play(time);
+// 	}
+// }
 
-bool VideoPlayer::changingSource() const {
-	return d->changing;
-}
+// bool VideoPlayer::changingSource() const {
+// 	return d->changing;
+// }
 
 void VideoPlayer::slotStateChanged(Core::State state, Core::State old) {
-	bool doEmit = true;
+// 	bool doEmit = true;
 	if (state == Core::Playing) {
-		d->changing = false;
+// 		d->changing = false;
 		if (d->engine->hasVideo())
 			d->stack->setCurrentWidget(d->engine->widget());
 		else
 			d->stack->setCurrentWidget(d->dummy->widget());
-	} else if (state == Core::Finished && d->next) {
-		playNext(RecentInfo::get()->stoppedTime(*d->next));
-		doEmit = false;
-	} else if (state == Core::Stopped) {
-		if (d->changing) {
-			d->changing = false;
-			doEmit = false;
-		} else
-			d->stack->setCurrentWidget(d->dummy->widget());
 	}
-	if (doEmit)
+// 	} else if (state == Core::Finished && d->next) {
+// 		playNext(RecentInfo::get()->stoppedTime(*d->next));
+// 		doEmit = false;
+// 	} else if (state == Core::Stopped) {
+// 		if (d->changing) {
+// 			d->changing = false;
+// 			doEmit = false;
+// 		} else
+// 			d->stack->setCurrentWidget(d->dummy->widget());
+// 	}
+// 	if (doEmit)
 		emit stateChanged(state, old);
 }
 
@@ -300,6 +301,7 @@ void VideoPlayer::slotFinished(Core::MediaSource source) {
 
 void VideoPlayer::slotStopped(Core::MediaSource source, int time) {
 	RecentInfo::get()->setStopped(source, time);
+	qDebug() << "stopped" << source.toMrl() << time;
 	emit stopped(source, time);
 }
 
@@ -346,14 +348,14 @@ const QString &VideoPlayer::audioRenderer() const {
 bool VideoPlayer::setVideoRenderer(const QString &renderer) {
 	if (d->engine == d->dummy)
 		return false;
-	d->changing = true;
+// 	d->changing = true;
 	return d->engine->setVideoRenderer(renderer);
 }
 
 bool VideoPlayer::setAudioRenderer(const QString &renderer) {
 	if (d->engine == d->dummy)
 		return false;
-	d->changing = true;
+// 	d->changing = true;
 	return d->engine->setAudioRenderer(renderer);
 }
 
