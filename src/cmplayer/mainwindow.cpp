@@ -283,6 +283,11 @@ void MainWindow::loadState() {
 	const QString name = state[State::BackendName].toString();
 	if (VideoPlayer::backend().contains(name))
 		d->menu("play")("engine").g()->trigger(name);
+	else {
+		QList<QAction*> actions = d->menu("play")("engine").g()->actions();
+		if (!actions.isEmpty())
+			actions[0]->trigger();
+	}
 	d->menu("screen")("aspect").g()->trigger(state[State::ScreenAspectRatio]);
 	d->menu("screen")("crop").g()->trigger(state[State::ScreenCrop]);
 	d->menu("screen")("on top").g()->trigger(state[State::ScreenOnTop]);
