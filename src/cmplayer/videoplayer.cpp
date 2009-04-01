@@ -463,10 +463,12 @@ QString VideoPlayer::audioRenderer() const {
 }
 
 bool VideoPlayer::setVideoRenderer(const QString &renderer) {
+	d->changing = true;
 	return d->engine && d->engine->setVideoRenderer(renderer);
 }
 
 bool VideoPlayer::setAudioRenderer(const QString &renderer) {
+	d->changing = true;
 	return d->engine && d->engine->setAudioRenderer(renderer);
 }
 

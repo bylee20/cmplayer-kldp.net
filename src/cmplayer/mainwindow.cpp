@@ -727,8 +727,8 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 
 // #undef GET_TRIGGER_ACTION
 
-#undef isInCenter
-#undef isButton
+#undef IS_IN_CENTER
+#undef IS_BUTTON
 
 void MainWindow::setColorProperty(QAction *action) {
 	const QList<QVariant> data = action->data().toList();
@@ -893,15 +893,21 @@ void MainWindow::slotBackendChanged() {
 		for (int i=0; i<audios.size(); ++i)
 			aMenu.addActionToGroupWithoutKey(audios[i], true)->setData(audios[i]);
 		State state;
-		const QString video = state[State::VideoRenderer].toMap()[info->name()].toString();
-		if (video.isEmpty())
+		State::Map vMap = state[State::VideoRenderer].toMap();
+		const QString video = vMap[info->name()].toString();
+		if (video.isEmpty()) {
 			vMenu.g()->setChecked(d->player->videoRenderer(), true);
-		else
+			vMap[info->name()] = d->player->videoRenderer();
+			state[State::VideoRenderer] = vMap;
+		} else
 			vMenu.g()->trigger(video);
-		const QString audio = state[State::AudioRenderer].toMap()[info->name()].toString();
-		if (audio.isEmpty())
+		State::Map aMap = state[State::AudioRenderer].toMap();
+		const QString audio = aMap[info->name()].toString();
+		if (audio.isEmpty()) {
 			aMenu.g()->setChecked(d->player->audioRenderer(), true);
-		else
+			aMap[info->name()] = d->player->audioRenderer();
+			state[State::AudioRenderer] = aMap;
+		} else
 			aMenu.g()->trigger(audio);
 	}
 }
