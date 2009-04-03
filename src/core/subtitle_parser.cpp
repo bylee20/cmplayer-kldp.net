@@ -4,6 +4,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
 #include <QtCore/QTime>
+#include <QtCore/QFileInfo>
 
 namespace Core {
 
@@ -304,19 +305,33 @@ class Subtitle::Parser::SubRip : public Subtitle::Parser {
 // 	}
 // };
 
-Subtitle::Parser *Subtitle::Parser::create(const QString &ext) {
+Subtitle::Parser *Subtitle::Parser::create(const QString &fileName) {
+	QFileInfo info(fileName);
 	Parser *p = 0;
 #define EXT_IS(_ext) (ext.compare((_ext), Qt::CaseInsensitive) == 0)
+	const QString ext = info.suffix();
 	if (EXT_IS("smi"))
 		p = new Sami;
 	else if(EXT_IS("srt"))
 		p = new SubRip;
 // 	else if (EXT_IS("ssa") || EXT_IS("ass"))
 // 		p = new SubStationAlpha;
-	else if (EXT_IS("sub"))
-		p = new MicroDVD;
-	else if (EXT_IS("txt"))
-		p = new TMPlayer;
+	else if (EXT_IS("sub") || EXT_IS("txt")) {
+		QFile file(info.absoluteFilePath());
+		if (file.open(QFile::ReadOnly)) {
+			QTextStream in(&file);
+			for (int i=0; !p && i<10 && !in.atEnd(); ++i) {
+				static QRegExp rxMicro("^\\{(\\d+)\\}\\{(\\d+)\\}(.*)$");
+				static QRegExp rxTmp("^\\s*(\\d?\\d)\\s*:"
+						"\\s*(\\d\\d)\\s*:\\s*(\\d\\d)\\s*:\\s*(.*)$");
+				const QString line = in.readLine();
+				if (rxMicro.indexIn(line) != -1)
+					p = new MicroDVD;
+				else if (rxTmp.indexIn(line) != -1)
+					p = new TMPlayer;
+			}
+		}
+	}
 #undef EXT_IS
 	return p;
 }

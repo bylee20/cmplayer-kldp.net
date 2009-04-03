@@ -169,6 +169,8 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *backward1 = seek->addActionToGroup("backward1", false);
 	QAction *backward2 = seek->addActionToGroup("backward2", false);
 	QAction *backward3 = seek->addActionToGroup("backward3", false);
+	forward1->setIcon(QIcon(":/img/media-seek-forward.png"));
+	backward1->setIcon(QIcon(":/img/media-seek-backward.png"));
 	forward1->setShortcut(Qt::Key_Right);
 	forward2->setShortcut(Qt::Key_PageDown);
 	forward3->setShortcut(Qt::Key_End);
@@ -230,7 +232,7 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *volDown = audio->addActionToGroup("volume down", false, "volume");
 	volDown->setShortcut(Qt::Key_Down);
 	QAction *mute = audio->addAction("mute", true);
-	mute->setIcon(QIcon(":/img/player-volume.png"));
+	mute->setIcon(QIcon(":/img/irc-voice.png"));
 	mute->setShortcut(Qt::Key_M);
 		
 	audio->addSeparator();

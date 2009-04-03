@@ -15,6 +15,8 @@ struct Application::Data {
 Application::Application(int &argc, char **argv)
 : QApplication(argc, argv), d(new Data) {
 	d->main = 0;
+
+
 	setQuitOnLastWindowClosed(false);
 	connect(&d->connection, SIGNAL(openRequested(const QString&))
 			, this, SLOT(open(const QString &)));

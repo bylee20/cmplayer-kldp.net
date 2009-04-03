@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="/" >
+    <file>img/irc-voice.png</file>
+    <file>img/irc-unvoice.png</file>
     <file>img/zoom-original.png</file>
     <file>img/zoom-in.png</file>
     <file>img/zoom-out.png</file>

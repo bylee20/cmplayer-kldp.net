@@ -124,7 +124,7 @@ bool Subtitle::load(const QString &file, const QString &enc) {
 }
 
 Subtitle Subtitle::parse(const QString &file, const QString &enc) {
-	Parser *parser = Parser::create(QFileInfo(file).suffix());
+	Parser *parser = Parser::create(file);
 	Subtitle sub;
 	if (parser) {
 		parser->setEncoding(enc);

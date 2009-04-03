@@ -6,6 +6,7 @@
 #include <core/namespace.h>
 
 class RecentStack;				class QUrl;
+class ControlWidget;
 
 namespace Core {
 class BackendIface;				class MediaSource;
@@ -59,9 +60,10 @@ private slots:
 	void hideCursor();
 	void slotTrayActivated(QSystemTrayIcon::ActivationReason reason);
 	void takeSnapshot();
+	void setMuted(bool muted);
 private:
 	typedef QPair<QAction*, QAction*> ActionPair;
-	QWidget *createControl(QWidget *parent);
+	ControlWidget *createControl(QWidget *parent);
 	void commonInitialize();
 	void setupUi();
 	void closeEvent(QCloseEvent *event);

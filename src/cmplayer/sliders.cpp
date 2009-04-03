@@ -6,9 +6,10 @@
 #include <QtCore/QDebug>
 
 JumpSlider::JumpSlider(QWidget *parent)
-: QSlider(parent) {
-	setOrientation(Qt::Horizontal);
+: QSlider(Qt::Horizontal, parent) {
 	setFocusPolicy(Qt::NoFocus);
+	setSingleStep(1);
+	setPageStep(1);
 }
 
 void JumpSlider::mousePressEvent(QMouseEvent *event) {

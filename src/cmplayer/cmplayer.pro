@@ -29,7 +29,8 @@ SOURCES += main.cpp \
 	application.cpp \
 	playlistview.cpp \
 	snapshotdialog.cpp \
-	checkdialog.cpp
+	checkdialog.cpp \
+ controlwidget.cpp
 HEADERS += mainwindow.h \
 	abrepeatdialog.h \
 	playinfowidget.h \
@@ -60,7 +61,8 @@ HEADERS += mainwindow.h \
 	application.h \
 	playlistview.h \
 	snapshotdialog.h \
-	checkdialog.h
+	checkdialog.h \
+ controlwidget.h
 FORMS += ./ui/abrepeatdialog.ui \
 	./ui/prefdialog.ui \
 	./ui/prefosdwidget.ui \

@@ -210,6 +210,7 @@ VideoPlayer::VideoPlayer(QWidget *main, QWidget *parent)
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	d->widget = new Widget;
+	d->widget->setMouseTracking(true);
 	d->stack->addWidget(d->widget);
 	d->stack->setCurrentWidget(d->widget);
 	
@@ -521,9 +522,9 @@ bool VideoPlayer::isMuted() const {
 }
 
 void VideoPlayer::setVolume(int volume) {
-	if (d->volume != volume) {
+	if (IS_DIFF_CLIP(d->volume, volume, 0, 100)) {
 		d->volume = volume;
-		if (d->engine && IS_DIFF_CLIP(d->engine->volume(), volume, 0, 100))
+		if (d->engine)
 			d->engine->setVolume(volume);
 	}
 }

@@ -1,4 +1,5 @@
 #include "prefdialog.h"
+#include "controlwidget.h"
 #include "checkdialog.h"
 #include "state.h"
 #include "playlistmodel.h"
@@ -39,8 +40,8 @@
 
 struct MainWindow::Data {
 	Data(Menu &menu): dragPos(-1, -1), menu(menu) {}
-	QWidget *control, *center;
-	PlayInfoWidget *playInfo;
+	QWidget *center;
+	ControlWidget *control;
 	PlaylistModel *model;
 	DockWidget *dock;
 	Core::Subtitle sub;
@@ -138,7 +139,7 @@ void MainWindow::commonInitialize() {
 			, this, SLOT(setRenderer(QAction*)));
 	Menu &audio = menu("audio");
 	connect(audio.g("volume"), SIGNAL(triggered(int)), this, SLOT(setVolume(int)));
-	connect(audio["mute"], SIGNAL(toggled(bool)), d->player, SLOT(setMuted(bool)));
+	connect(audio["mute"], SIGNAL(toggled(bool)), this, SLOT(setMuted(bool)));
 	connect(audio.g("amp"), SIGNAL(triggered(int))
 			, this, SLOT(setAmplifyingRate(int)));
 	connect(audio("renderer").g(), SIGNAL(triggered(QAction*))
@@ -159,8 +160,9 @@ void MainWindow::commonInitialize() {
 // 	connect(menu["help"], SIGNAL(triggered()), this, SLOT(slotHelp()));
 	connect(menu["exit"], SIGNAL(triggered()), qApp, SLOT(quit()));
 
-	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
-			, d->playInfo, SLOT(setState(Core::State)));
+	
+	
+	
 	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
 			, this, SLOT(slotStateChanged(Core::State, Core::State)));
 	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
@@ -168,14 +170,10 @@ void MainWindow::commonInitialize() {
 	connect(d->player, SIGNAL(mutedChanged(bool))
 			, audio["mute"], SLOT(setChecked(bool)));
 	connect(d->player, SIGNAL(currentSourceChanged(const Core::MediaSource&))
-			, d->playInfo, SLOT(setCurrentSource(const Core::MediaSource&)));
-	connect(d->player, SIGNAL(currentSourceChanged(const Core::MediaSource&))
 			, this, SLOT(autoLoadSubtitles()));
 	connect(d->player, SIGNAL(backendChanged(const QString&))
 			, this, SLOT(slotBackendChanged()));
-	connect(d->player, SIGNAL(durationChanged(int))
-			, d->playInfo, SLOT(setDuration(int)));
-	connect(d->player, SIGNAL(tick(int)), d->playInfo, SLOT(setPlayTime(int)));
+
 	connect(d->player, SIGNAL(tracksChanged(const QStringList&))
 			, this, SLOT(slotTracksChanged(const QStringList&)));
 	connect(d->player, SIGNAL(currentTrackChanged(const QString&))
@@ -208,37 +206,20 @@ void MainWindow::commonInitialize() {
 	updatePref();
 }
 
-static QToolButton *addToolButton(QHBoxLayout *hbox) {
-	QToolButton *tb = new QToolButton;
-	tb->setAutoRaise(true);
-	tb->setFocusPolicy(Qt::NoFocus);
-	hbox->addWidget(tb);
-	return tb;
-}
-
-QWidget *MainWindow::createControl(QWidget *parent) {
-	QWidget *control = new QWidget(parent);
-	QVBoxLayout *vbox = new QVBoxLayout(control);
-	vbox->setMargin(0);
-	vbox->setSpacing(0);
-	QHBoxLayout *hbox = new QHBoxLayout;
-	hbox->setMargin(0);
-	hbox->setSpacing(0);
-	vbox->addLayout(hbox);
+ControlWidget *MainWindow::createControl(QWidget *parent) {
+	ControlWidget *control = new ControlWidget(d->player, parent);
 	Menu &play = d->menu("play");
-	addToolButton(hbox)->setDefaultAction(play["prev"]);
-	addToolButton(hbox)->setDefaultAction(play["pause"]);
-	addToolButton(hbox)->setDefaultAction(play["stop"]);
-	addToolButton(hbox)->setDefaultAction(play["next"]);
-	QToolButton *tb = addToolButton(hbox);
-	tb->setIcon(QIcon(":/img/media-eject.png"));
-	tb->setToolTip(tr("Open File"));
-	connect(tb, SIGNAL(clicked()), d->menu("open")["file"], SLOT(trigger()));
-	addToolButton(hbox)->setDefaultAction(play["list"]);
-	hbox->addWidget(new SeekSlider(d->player));
-	addToolButton(hbox)->setDefaultAction(d->menu("audio")["mute"]);
-	hbox->addWidget(new VolumeSlider(d->player));
-	vbox->addWidget(d->playInfo = new PlayInfoWidget);
+	control->connectMute(d->menu("audio")["mute"]);
+	control->connectPlay(play["pause"]);
+	control->connectStop(play["stop"]);
+	control->connectPrevious(play["prev"]);
+	control->connectNext(play["next"]);
+	control->connectForward(play("seek")["forward1"]);
+	control->connectBackward(play("seek")["backward1"]);
+	control->connectOpenFile(d->menu("open")["file"]);
+	control->connectOpenUrl(d->menu("open")["url"]);
+	control->connectFullScreen(d->menu("screen")("size")["full"]);
+	control->connectPlaylist(d->menu("play")["list"]);
 	control->setFixedHeight(control->sizeHint().height());
 	return control;
 }
@@ -317,7 +298,7 @@ void MainWindow::setupUi() {
 	QVBoxLayout *vbox = new QVBoxLayout(d->center);
 	vbox->addWidget(d->player);
 	vbox->addWidget(d->control);
-	vbox->setMargin(0);
+	vbox->setContentsMargins(0, 0, 0, 0);
 	vbox->setSpacing(0);
 	
 	updateWindowTitle();
@@ -623,7 +604,7 @@ void MainWindow::updatePref() {
 	d->player->setVolumeNormalized(d->pref->isVolumeNormalized());
 	d->player->setUseSoftwareEqualizer(d->pref->useSoftwareEqualizer());
 	d->menu.updatePref();
-	d->playInfo->setState(d->player->state());
+	d->control->setState(d->player->state());
 	if (!d->player->isStopped()) {
 		const bool paused = d->player->isPaused();
 		const int time = d->player->currentTime();
@@ -782,7 +763,7 @@ void MainWindow::slotStateChanged(Core::State state, Core::State /*old*/) {
 }
 
 void MainWindow::updatePlaylistInfo() {
-	d->playInfo->setTrackNumber(d->model->currentRow() + 1, d->model->rowCount());
+	d->control->setTrackNumber(d->model->currentRow() + 1, d->model->rowCount());
 }
 
 void MainWindow::toggleDockVisibility() {
@@ -1049,11 +1030,19 @@ void MainWindow::slotTrayActivated(QSystemTrayIcon::ActivationReason reason) {
 
 void MainWindow::showMessage(const QString &text) {
 	d->player->showMessage(text);
-	d->playInfo->showMessage(text);
+	d->control->showMessage(text);
 }
 
 void MainWindow::takeSnapshot() {
 	d->snapshot->take();
 	d->snapshot->show();
 	
+}
+
+void MainWindow::setMuted(bool muted) {
+	if (muted)
+		d->menu("audio")["mute"]->setIcon(QIcon(":/img/irc-unvoice.png"));
+	else
+		d->menu("audio")["mute"]->setIcon(QIcon(":/img/irc-voice.png"));
+	d->player->setMuted(muted);
 }

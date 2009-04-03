@@ -12,7 +12,7 @@ Chooser::Chooser(QWidget *parent)
 : QWidget(parent), d(new Data) {
 	d->group = new QButtonGroup(this);
 	d->vbox = new QVBoxLayout(this);
-	d->vbox->setMargin(0);
+	d->vbox->setContentsMargins(0, 0, 0, 0);
 }
 
 Chooser::~Chooser() {

@@ -8,6 +8,7 @@ namespace Core {
 
 class Subtitle::Parser {
 public:
+	virtual ~Parser() {}
 	virtual Subtitle parse(const QString &file) = 0;
 	virtual bool save(const QString &/*file*/, const Subtitle &/*sub*/
 			, double /*frameRate*/) const {return false;}
