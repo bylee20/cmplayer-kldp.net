@@ -37,6 +37,8 @@ private slots:
 	void togglePlaylist(bool visible);
 	void toggleFullScreen(bool full);
 private:
+	void retranslateUi();
+	void changeEvent(QEvent *event);
 	static QToolButton *createButton(QWidget *parent = 0, int size = 25);
 	void paintEvent(QPaintEvent *event);
 	class Bottom;

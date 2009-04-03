@@ -1,6 +1,7 @@
 #include "controlwidget.h"
 #include "sliders.h"
 #include "videoplayer.h"
+#include <QtCore/QEvent>
 #include <QtGui/QAction>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -68,7 +69,7 @@ public:
 			setStyleSheet("\
 				QFrame#panel {\
 					margin: 0px;\
-					padding: 2px;\
+					padding: 1px;\
 					border: 1px solid #aaa;\
 					background: qlineargradient(x1:0, y1:0, x2:0, y2:1\
 					, stop:0 #111, stop:0.1 #6ad, stop:0.8 #6ad, stop:1 #fff);\
@@ -78,14 +79,10 @@ public:
 		}
 		height = panel->sizeHint().height();
 		openFile = new QPushButton("OPEN FILE", this);
-		openFile->setToolTip(tr("Open File"));
 		openUrl = new QPushButton("OPEN URL", this);
-		openUrl->setToolTip(tr("Open Url"));
 		fullScreen = new QPushButton("FULL SCREEN", this);
-		fullScreen->setToolTip(tr("Toggle Full Screen Mode"));
 		fullScreen->setCheckable(true);
 		playlist = new QPushButton("PLAYLIST", this);
-		playlist->setToolTip(tr("Toogle Playlis Visibility"));
 		playlist->setCheckable(true);
 		
 		QHBoxLayout *hbox = new QHBoxLayout(this);
@@ -248,7 +245,7 @@ ControlWidget::ControlWidget(VideoPlayer *player, QWidget *parent)
 		QFontMetrics fm(f);
 		r = fm.boundingRect("FULL SCREEN");
 		++i;
-	} while (r.height() > bh+2);
+	} while (r.height() > bh+3);
 	setStyleSheet(QString("\
 QToolButton {\
 	border: none;\
@@ -295,7 +292,7 @@ QPushButton:checked:pressed {\
 	border: 2px solid #6ad;\
 	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #777, stop:1 #bbb);\
 	padding: 0px;\
-}").arg(r.width() + 5).arg(bh).arg(bf));
+}").arg(r.width() + 3).arg(bh).arg(bf));
 
 	QWidget *line = new QWidget(this);
 	line->setFixedHeight(5);
@@ -317,6 +314,8 @@ QPushButton:checked:pressed {\
 			, this, SLOT(setCurrentSource(const Core::MediaSource&)));
 	connect(d->player, SIGNAL(durationChanged(int)), this, SLOT(setDuration(int)));
 	connect(d->player, SIGNAL(tick(int)), this, SLOT(setPlayTime(int)));
+	
+	retranslateUi();
 }
 
 ControlWidget::~ControlWidget() {
@@ -447,3 +446,16 @@ void ControlWidget::connectFullScreen(QAction *action) {
 	connect(action, SIGNAL(toggled(bool)), d->top->fullScreen, SLOT(setChecked(bool)));
 }
 
+void ControlWidget::retranslateUi() {
+	d->top->openFile->setToolTip(tr("Open File"));
+	d->top->openUrl->setToolTip(tr("Open URL"));		
+	d->top->fullScreen->setToolTip(tr("Toggle Full Screen Mode"));
+	d->top->playlist->setToolTip(tr("Toogle Playlis Visibility"));
+}
+
+void ControlWidget::changeEvent(QEvent *event) {
+	if (event->type() == QEvent::LanguageChange)
+		retranslateUi();
+	else
+		QWidget::changeEvent(event);
+}
