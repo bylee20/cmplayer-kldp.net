@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>491</width>
-    <height>506</height>
+    <height>509</height>
    </rect>
   </property>
   <property name="currentIndex" >
@@ -223,6 +223,20 @@
               </widget>
              </item>
             </layout>
+           </item>
+           <item>
+            <widget class="Line" name="line_2" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="disableSS" >
+             <property name="text" >
+              <string>Disable screensaver while playing</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>

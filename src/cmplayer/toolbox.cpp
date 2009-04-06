@@ -16,33 +16,39 @@
 class ToolBox::Frame : public QFrame {
 public:
 	Frame(QWidget *parent): QFrame(parent) {
-		setObjectName("toolBoxFrame");
-		setStyleSheet("\
-			QFrame#toolBoxFrame {\
-				margin: 0px; padding: 0px;\
-				border: 2px solid #aaa; border-radius: 5px;\
-			}\
-		");
 		w = new Widget(this);
 		QVBoxLayout *vbox = new QVBoxLayout(this);
 		vbox->setContentsMargins(0, 0, 0, 0);
 		vbox->addWidget(w);
-	}
+		
+		vbox = new QVBoxLayout(w);
+		vbox->setContentsMargins(5, 10, 5, 10);
+		vbox->addWidget(tab = new QTabWidget(w));
+		
+		w->setObjectName("toolBoxBg");
+		setObjectName("toolBoxFrame");
+		setStyleSheet("\
+			QFrame#toolBoxFrame {\
+				margin: 0px; padding: 0px;\
+				border: 0px solid #aaa; border-radius: 5px;\
+			}\
+		");
+	}/*
 	void setWidget(QWidget *widget) {
-		QVBoxLayout *vbox = new QVBoxLayout(w);
-		vbox->setContentsMargins(0, 0, 0, 0);
-		vbox->addWidget(widget);
-	}
+		
+	}*/
+	QTabWidget *tab;
 private:
 	class Widget : public QWidget {
 	public:
 		Widget(QWidget *parent): QWidget(parent) {
 			bg = palette().color(QPalette::Background);
+			setAutoFillBackground(true);
 		}
 	private:
 		void paintEvent(QPaintEvent */*event*/) {
 			QPainter painter(this);
-			const double top = 4.0/height();
+			const double top = 1.0/height();
 			const double bottom = 1.0 - 4.0/height(); 
 			QLinearGradient grad(0, 0, 0, height());
 			grad.setColorAt(0, qRgb(0x11, 0x11, 0x11));
@@ -67,7 +73,8 @@ ToolBox::ToolBox(PlaylistModel *model, QWidget *parent)
 	setFocusPolicy(Qt::NoFocus);
 	d->frame = new Frame(this);
 	d->playlist = new PlaylistWidget(model, d->frame);
-	d->frame->setWidget(d->playlist);
+// 	d->frame->setWidget(d->playlist);
+	d->frame->tab->addTab(d->playlist, tr("Playlist"));
 	setWindowTitle("TOOL BOX");
 	titleBar()->setTitle("TOOL BOX");
 	titleBar()->connect(this);
@@ -80,7 +87,8 @@ ToolBox::ToolBox(PlaylistModel *model, QWidget *parent)
 	vbox->addLayout(hbox);
 	vbox->addWidget(d->playlist->buttons());
 	vbox->setContentsMargins(3, 3, 3, 3);
-	hbox->setContentsMargins(4, 0, 4, 1);
+	vbox->setSpacing(0);
+	hbox->setContentsMargins(1, 0, 1, 1);
 
 	d->dragCharm.activate(this);
 	d->dragCharm.setBorder(7);

@@ -1,10 +1,13 @@
 #include "utility.h"
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
+#include <QtGui/QX11Info>
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 #include <QtCore/QTime>
 #include <QtCore/QThread>
+#include <QtCore/QTimer>
+#include <X11/Xlib.h>
 
 namespace Core {
 
@@ -18,14 +21,18 @@ struct Utility::Data {
 	Data(): zero() {}
 	const QTime zero;
 	Thread *thread;
+	QTimer ssTimer;
 };
 
 Utility::Utility()
 : d(new Data) {
 	d->thread = new Thread;
+	connect(&d->ssTimer, SIGNAL(timeout()), this, SLOT(resetScreensaver()));
+	d->ssTimer.setInterval(10000);
 }
 
 Utility::~Utility() {
+	d->ssTimer.stop();
 	delete d->thread;
 	delete d;
 }
@@ -80,6 +87,17 @@ const QTime &Utility::nullTime() {
 
 void Utility::msleep(int msec) {
 	data()->thread->msleep(msec);
+}
+
+void Utility::setScreensaverDisabled(bool disabled) {
+	if (disabled)
+		data()->ssTimer.start();
+	else
+		data()->ssTimer.stop();
+}
+
+void Utility::resetScreensaver() {
+	XResetScreenSaver(QX11Info::display());
 }
 
 }

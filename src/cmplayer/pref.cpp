@@ -33,6 +33,7 @@ struct Pref::General {
 		SAVE(systemTrayEnabled);
 		SAVE(hideWhenClosed);
 		SAVE(singleApplication);
+		SAVE(screensaverDisabled);
 		SAVE_ENUM(autoAddFiles);
 		set->endGroup();
 	}
@@ -50,12 +51,14 @@ struct Pref::General {
 		LOAD(systemTrayEnabled, true, toBool);
 		LOAD(hideWhenClosed, true, toBool);
 		LOAD(singleApplication, true, toBool);
+		LOAD(screensaverDisabled, true, toBool);
 		LOAD_ENUM(autoAddFiles, AllFiles);
 		set->endGroup();
 	}
 	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
 	bool hideCursor, hideInFullScreen, volumeNormalized, useSoftwareEqualizer;
 	bool systemTrayEnabled, hideWhenClosed, singleApplication;
+	bool screensaverDisabled;
 	int hideDelay;
 	AutoAddFilesEnum autoAddFiles;
 };
@@ -551,3 +554,10 @@ void Pref::setSingleApplication(bool enabled) {
 	gen->singleApplication = enabled;
 }
 
+void Pref::setScreensaverDisabled(bool disabled) {
+	gen->screensaverDisabled = disabled;
+}
+
+bool Pref::isScreensaverDisabled() const {
+	return gen->screensaverDisabled;
+}

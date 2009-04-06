@@ -30,6 +30,7 @@ public:
 private slots:
 	void toggleMaximized();
 private:
+	void mouseDoubleClickEvent(QMouseEvent *event);
 	void setSpacerSize(int size);
 	void paintEvent(QPaintEvent */*event*/);
 	struct Data;

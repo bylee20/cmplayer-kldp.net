@@ -57,7 +57,7 @@ public:
 	bool isSystemTrayEnabled() const;
 	bool hideWhenClosed() const;
 	bool singleApplication() const;
-	
+	bool isScreensaverDisabled() const;
 // 	const QString &backendName(Core::MediaType media) const;
 	
 	void load();
@@ -98,7 +98,7 @@ private:
 	void setSystemTrayEnabled(bool enabled);
 	void setHideWhenClosed(bool enabled);
 	void setSingleApplication(bool enabled);
-		
+	void setScreensaverDisabled(bool disabled);
 // 	void setBackendName(Core::MediaType media, const QString &name);
 	
 	void save() const;

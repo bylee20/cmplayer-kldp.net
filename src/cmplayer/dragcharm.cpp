@@ -165,7 +165,7 @@ bool DragCharm::eventFilter(QObject *object, QEvent *event) {
 				consumed = true;
 			}
 		}
-		if (d->border > 0) {
+		if (d->border > 0 && d->bound<= 0) {
 			switch(bound) {
 			case Top:
 			case Bottom:

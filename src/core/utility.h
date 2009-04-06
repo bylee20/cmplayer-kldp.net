@@ -2,12 +2,14 @@
 #define CORE_UTILITY_H
 
 #include <QtCore/QString>
+#include <QtCore/QObject>
 
 class QSize;				class QTime;
 
 namespace Core {
 
-class Utility {
+class Utility : public QObject {
+	Q_OBJECT
 public:
 	static QTime secsToTime(int secs);
 	static QTime msecsToTime(qint64 msecs);
@@ -20,6 +22,9 @@ public:
 	static const QSize &desktopSize();
 	static bool isEmpty(const QString &str);
 	static void msleep(int msec);
+	static void setScreensaverDisabled(bool disabled);
+private slots:
+	void resetScreensaver();
 private:
 	class Thread;
 	class Data;

@@ -769,9 +769,11 @@ void MainWindow::setSpeed(int diff) {
 
 void MainWindow::slotStateChanged(Core::State state, Core::State /*old*/) {
 	if (state == Core::Playing) {
+		Core::Utility::setScreensaverDisabled(d->pref->isScreensaverDisabled());
 		d->menu("play")["pause"]->setIcon(QIcon(":/img/media-playback-pause.png"));
 		d->menu("play")["pause"]->setText(tr("Pause"));
 	} else {
+		Core::Utility::setScreensaverDisabled(false);
 		d->menu("play")["pause"]->setIcon(QIcon(":/img/media-playback-start.png"));
 		d->menu("play")["pause"]->setText(tr("Play"));
 	}

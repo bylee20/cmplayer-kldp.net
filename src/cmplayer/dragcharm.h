@@ -41,7 +41,6 @@ private:
 	enum Bound {Top = 0x01, Bottom = 0x02, Left = 0x04, Right = 0x08
 		, TopLeft = Top | Left, TopRight = Top | Right
 		, BottomLeft = Bottom | Left, BottomRight = Bottom | Right};
-// 	enum Bound {NotBound, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight};
 	static void setTracking(QWidget *widget);
 	bool eventFilter(QObject *object, QEvent *event);
 	struct Data;

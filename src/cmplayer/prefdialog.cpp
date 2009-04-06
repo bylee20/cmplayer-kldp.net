@@ -260,6 +260,7 @@ PrefDialog::PrefDialog(QWidget *parent)
 	d->stack.tray->setChecked(p->isSystemTrayEnabled());
 	d->stack.hideWhenClosed->setChecked(p->hideWhenClosed());
 	d->stack.singleApp->setChecked(p->singleApplication());
+	d->stack.disableSS->setChecked(p->isScreensaverDisabled());
 	
 	QList<QAction *> acts = Menu::get().actions();
 	for (int i=0; i<acts.size(); ++i)
@@ -372,6 +373,7 @@ void PrefDialog::apply() {
 	p->setSystemTrayEnabled(d->stack.tray->isChecked());
 	p->setHideWhenClosed(d->stack.hideWhenClosed->isChecked());
 	p->setSingleApplication(d->stack.singleApp->isChecked());
+	p->setScreensaverDisabled(d->stack.disableSS->isChecked());
 	
 	for (int i=0; i<d->stack.shortcutTree->topLevelItemCount(); ++i)
 		((MenuTreeItem*)(d->stack.shortcutTree->topLevelItem(i)))->applyShortcut();
@@ -394,7 +396,7 @@ void PrefDialog::apply() {
 	p->setSubtitleEncoding(d->stack.encoding->encoding());
 	p->setSubtitleStyle(d->stack.subOsd->style());
 	p->setSubtitlePriority(d->stack.priority->values());
-	
+
 // 	for (int i=0; i<d->media.size(); ++i) {
 // 		MediaTreeItem *item = static_cast<MediaTreeItem*>(d->stack.media->topLevelItem(i));
 // 		p->setBackendName(d->media[i], item->checkedBackend());

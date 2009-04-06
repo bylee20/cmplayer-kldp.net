@@ -4,6 +4,7 @@
 #include <QtGui/QLabel>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QPainter>
+#include <QtGui/QMouseEvent>
 #include <QtCore/QDebug>
 
 struct DesignedWidgetIface::TitleBar::Data {
@@ -105,6 +106,15 @@ void DesignedWidgetIface::TitleBar::paintEvent(QPaintEvent */*event*/) {
 	painter.drawPath(path);
 }
 
+void DesignedWidgetIface::TitleBar::mouseDoubleClickEvent(QMouseEvent *event) {
+	if (event->button() == Qt::LeftButton) {
+		toggleMaximized();
+		event->accept();
+	} else
+		QWidget::mouseDoubleClickEvent(event);
+}
+
+
 DesignedWidgetIface::DesignedWidgetIface() {
 	m_titleBar = new TitleBar(0);
 }
@@ -128,5 +138,4 @@ void DesignedWidgetIface::drawBackground(QPainter *painter, QWidget *widget) {
 	painter->setPen(qRgb(0x88, 0x88, 0x88));
 	painter->drawRect(1, 1, widget->width() - 3, widget->height() - 3);
 }
-
 

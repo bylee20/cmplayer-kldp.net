@@ -24,7 +24,11 @@ public:
 	inline const QList<Core::MediaSource> &toList() const {return *this;}
 private:
 	inline void checkSize() {
-		while(size() != m_size) {if (size() > m_size) pop_back(); else push_back(Core::MediaSource());}}
+		while(size() != m_size) {
+			if (size() > m_size) pop_back();
+			else push_back(Core::MediaSource());
+		}
+	}
 	int m_size;
 };
 
