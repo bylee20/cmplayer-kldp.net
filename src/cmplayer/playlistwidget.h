@@ -2,8 +2,10 @@
 #define PLAYLISTWIDGET_H
 
 #include <QtGui/QWidget>
+#include <QtGui/QDialog>
 
 class QModelIndex;			class PlaylistModel;
+class QComboBox;
 
 class PlaylistWidget : public QWidget {
 	Q_OBJECT
@@ -31,6 +33,15 @@ private:
 	class ShutdownDialog;
 	struct Data;
 	Data *d;
+};
+
+class PlaylistWidget::ShutdownDialog : public QDialog {
+public:
+	ShutdownDialog(QWidget *parent);
+	void accept();
+	QStringList command() const;
+private:
+	QComboBox *combo;
 };
 
 #endif

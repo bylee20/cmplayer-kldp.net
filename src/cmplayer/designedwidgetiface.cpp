@@ -1,13 +1,13 @@
 #include "designedwidgetiface.h"
-#include "designedbuttons.h"
 #include "squeezedlabel.h"
+#include "button.h"
 #include <QtGui/QLabel>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QPainter>
 #include <QtCore/QDebug>
 
 struct DesignedWidgetIface::TitleBar::Data {
-	ToolButton *max, *close;
+	Button *max, *close;
 	SqueezedLabel *title;
 	QLabel *icon;
 	QWidget *widget;
@@ -24,10 +24,10 @@ DesignedWidgetIface::TitleBar::TitleBar(QWidget *parent)
 	d->icon->hide();
 	d->title = new SqueezedLabel(this);
 	d->title->setAlignment(Qt::AlignCenter);
-	d->max = new ToolButton(QIcon(":/img/window-duplicate-gray.png"), this);
-	d->max->setIconSize(QSize(10, 10));
-	d->close = new ToolButton(QIcon(":/img/edit-delete-gray.png"), this);
-	d->close->setIconSize(QSize(10, 10));
+	d->max = new Button(QIcon(":/img/window-duplicate-gray.png"), this);
+	d->max->setIconSize(10);
+	d->close = new Button(QIcon(":/img/edit-delete-gray.png"), this);
+	d->close->setIconSize(10);
 	d->spacer = new QSpacerItem(0, 0);
 	setSpacerSize(0);
 	
@@ -62,10 +62,10 @@ void DesignedWidgetIface::TitleBar::toggleMaximized() {
 	}
 }
 
-ToolButton *DesignedWidgetIface::TitleBar::addButton(const QIcon &icon
+Button *DesignedWidgetIface::TitleBar::addButton(const QIcon &icon
 		, QObject *object, const char *slot) {
-	ToolButton *button = new ToolButton(icon, this);
-	button->setIconSize(QSize(10, 10));
+	Button *button = new Button(icon, this);
+	button->setIconSize(10);
 	d->hbox->insertWidget(3, button);
 	QObject::connect(button, SIGNAL(clicked()), object, slot);
 	return button;

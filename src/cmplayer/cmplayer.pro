@@ -35,7 +35,7 @@ SOURCES += main.cpp \
  toolbox.cpp \
  dragcharm.cpp \
  designedwidgetiface.cpp \
- skinmanager.cpp
+ button.cpp
 HEADERS += mainwindow.h \
 	abrepeatdialog.h \
 	playinfowidget.h \
@@ -69,11 +69,10 @@ HEADERS += mainwindow.h \
 	checkdialog.h \
  controlwidget.h \
  playlistwidget.h \
- designedbuttons.h \
  toolbox.h \
  dragcharm.h \
  designedwidgetiface.h \
- skinmanager.h
+ button.h
 FORMS += ./ui/abrepeatdialog.ui \
 	./ui/prefdialog.ui \
 	./ui/prefosdwidget.ui \

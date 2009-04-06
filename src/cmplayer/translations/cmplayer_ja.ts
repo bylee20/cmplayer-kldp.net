@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="ja">
-<defaultcodec></defaultcodec>
 <context>
     <name>ABRepeatDialog</name>
     <message>
@@ -204,42 +203,42 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>ControlWidget</name>
     <message>
-        <location filename="../controlwidget.cpp" line="383"/>
+        <location filename="../controlwidget.cpp" line="244"/>
         <source>Stopped</source>
         <translation>停止</translation>
     </message>
     <message>
-        <location filename="../controlwidget.cpp" line="385"/>
+        <location filename="../controlwidget.cpp" line="246"/>
         <source>Finished</source>
         <translation>終了</translation>
     </message>
     <message>
-        <location filename="../controlwidget.cpp" line="387"/>
+        <location filename="../controlwidget.cpp" line="248"/>
         <source>Playing</source>
         <translation>再生中</translation>
     </message>
     <message>
-        <location filename="../controlwidget.cpp" line="389"/>
+        <location filename="../controlwidget.cpp" line="250"/>
         <source>Paused</source>
         <translation>一時停止</translation>
     </message>
     <message>
-        <location filename="../controlwidget.cpp" line="450"/>
+        <location filename="../controlwidget.cpp" line="292"/>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
     </message>
     <message>
         <location filename="../controlwidget.cpp" line="451"/>
         <source>Open URL</source>
-        <translation>URLを開く</translation>
+        <translation type="obsolete">URLを開く</translation>
     </message>
     <message>
-        <location filename="../controlwidget.cpp" line="452"/>
+        <location filename="../controlwidget.cpp" line="294"/>
         <source>Toggle Full Screen Mode</source>
         <translation>フルスクリーンモード切り替え</translation>
     </message>
     <message>
-        <location filename="../controlwidget.cpp" line="453"/>
+        <location filename="../controlwidget.cpp" line="295"/>
         <source>Toogle Playlis Visibility</source>
         <translation>プレイリスト表示切り替え</translation>
     </message>
@@ -277,67 +276,67 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../dockwidget.cpp" line="107"/>
         <source>Automatic Shutdown</source>
-        <translation>自動シャットダウン</translation>
+        <translation type="obsolete">自動シャットダウン</translation>
     </message>
     <message>
         <location filename="../dockwidget.cpp" line="107"/>
         <source>You must run CMPlayer with root permission.</source>
-        <translation>ルート権限でCMPlayerを実行しなければなりません。</translation>
+        <translation type="obsolete">ルート権限でCMPlayerを実行しなければなりません。</translation>
     </message>
     <message>
         <location filename="../dockwidget.cpp" line="146"/>
         <source>Open File</source>
-        <translation>ファイルを開く</translation>
+        <translation type="obsolete">ファイルを開く</translation>
     </message>
     <message>
         <location filename="../dockwidget.cpp" line="131"/>
         <source>Save File</source>
-        <translation>ファイルを保存する</translation>
+        <translation type="obsolete">ファイルを保存する</translation>
     </message>
     <message>
         <location filename="../ui/dockwidget.ui" line="13"/>
         <source>Playlist</source>
-        <translation>プレイリスト</translation>
+        <translation type="obsolete">プレイリスト</translation>
     </message>
     <message>
         <location filename="../ui/dockwidget.ui" line="25"/>
         <source>Open</source>
-        <translation>開く</translation>
+        <translation type="obsolete">開く</translation>
     </message>
     <message>
         <location filename="../ui/dockwidget.ui" line="45"/>
         <source>Save</source>
-        <translation>保存</translation>
+        <translation type="obsolete">保存</translation>
     </message>
     <message>
         <location filename="../ui/dockwidget.ui" line="65"/>
         <source>Add</source>
-        <translation>追加</translation>
+        <translation type="obsolete">追加</translation>
     </message>
     <message>
         <location filename="../ui/dockwidget.ui" line="85"/>
         <source>Erase</source>
-        <translation>削除</translation>
+        <translation type="obsolete">削除</translation>
     </message>
     <message>
         <location filename="../ui/dockwidget.ui" line="105"/>
         <source>Up</source>
-        <translation>上へ</translation>
+        <translation type="obsolete">上へ</translation>
     </message>
     <message>
         <location filename="../ui/dockwidget.ui" line="125"/>
         <source>Down</source>
-        <translation>下へ</translation>
+        <translation type="obsolete">下へ</translation>
     </message>
     <message>
         <location filename="../ui/dockwidget.ui" line="145"/>
         <source>Clear</source>
-        <translation>クリア</translation>
+        <translation type="obsolete">クリア</translation>
     </message>
     <message>
         <location filename="../ui/dockwidget.ui" line="180"/>
         <source>Shutdown when the list finished</source>
-        <translation>リストが終了するとシステムを終了する</translation>
+        <translation type="obsolete">リストが終了するとシステムを終了する</translation>
     </message>
 </context>
 <context>
@@ -520,107 +519,107 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.cpp" line="460"/>
+        <location filename="../mainwindow.cpp" line="481"/>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="546"/>
+        <location filename="../mainwindow.cpp" line="567"/>
         <source>Subtitle Files</source>
         <translation>字幕ファイル</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="548"/>
+        <location filename="../mainwindow.cpp" line="569"/>
         <source>Open Subtitle</source>
         <translation>字幕を開く</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="728"/>
+        <location filename="../mainwindow.cpp" line="751"/>
         <source>Brightness</source>
         <translation>明度</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="731"/>
+        <location filename="../mainwindow.cpp" line="754"/>
         <source>Saturation</source>
         <translation>彩度</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="734"/>
+        <location filename="../mainwindow.cpp" line="757"/>
         <source>Hue</source>
         <translation>色相</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="737"/>
+        <location filename="../mainwindow.cpp" line="760"/>
         <source>Contrast</source>
         <translation>コントラスト</translation>
     </message>
     <message encoding="UTF-8">
-        <location filename="../mainwindow.cpp" line="749"/>
+        <location filename="../mainwindow.cpp" line="772"/>
         <source>Speed: ×%1</source>
         <translation>速度: ×%1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="755"/>
+        <location filename="../mainwindow.cpp" line="778"/>
         <source>Pause</source>
         <translation>一時停止</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="758"/>
+        <location filename="../mainwindow.cpp" line="781"/>
         <source>Play</source>
         <translation>再生</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="839"/>
+        <location filename="../mainwindow.cpp" line="845"/>
         <source>Change Renderer</source>
         <translation>レンダラ変更</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="840"/>
+        <location filename="../mainwindow.cpp" line="846"/>
         <source>Failed in changing renderer. The renderer fell back into previous one.</source>
         <translation>レンダラの変更に失敗しました。以前のレンダラに戻ります。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="932"/>
+        <location filename="../mainwindow.cpp" line="942"/>
         <source>A-B Repeat: %1</source>
         <translation>区間反復: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="945"/>
+        <location filename="../mainwindow.cpp" line="955"/>
         <source>Set A to %1</source>
         <translation>始点　%1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="949"/>
+        <location filename="../mainwindow.cpp" line="959"/>
         <source>Range is too short!</source>
         <translation>区間が短すぎます!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="955"/>
+        <location filename="../mainwindow.cpp" line="965"/>
         <source>Set B to %1. Start to repeat!</source>
         <translation>終点 %1. 反復を始めます!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="963"/>
+        <location filename="../mainwindow.cpp" line="973"/>
         <source>Quit repeating</source>
         <translation>反復終了</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="967"/>
+        <location filename="../mainwindow.cpp" line="977"/>
         <source>Repeat current subtitle</source>
         <translation>現在の字幕を反復</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="978"/>
+        <location filename="../mainwindow.cpp" line="988"/>
         <source>Subtitle Sync: %1sec.</source>
         <translation>字幕シンク: %1秒</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="985"/>
+        <location filename="../mainwindow.cpp" line="995"/>
         <source>Volume: %1%</source>
         <translation>音量: %1%</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="987"/>
+        <location filename="../mainwindow.cpp" line="997"/>
         <source>Subtitle Position: %1%</source>
         <translation>字幕の位置: %1%</translation>
     </message>
@@ -630,17 +629,17 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">アンプ: %2% (最大: %1%)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1012"/>
+        <location filename="../mainwindow.cpp" line="1033"/>
         <source>CMPlayer will be running in the system tray when the window closed.&lt;br&gt;You can change this behavior in the preferences.&lt;br&gt;If you want to exit CMPlayer, please use &apos;Exit&apos; menu.</source>
         <translation>ウィンドウを閉じてもCMPlayerはシステムトレ上で実行しされつづけます。&lt;br&gt;環境設定で行動方式を変更できます。&lt;br&gt;CMPlayerを終了したい場合は、&apos;終了&apos;メニューをご利用下さい。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1013"/>
+        <location filename="../mainwindow.cpp" line="1034"/>
         <source>Do not display this message again</source>
         <translation>このメッセージを再び表示させない</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="988"/>
+        <location filename="../mainwindow.cpp" line="998"/>
         <source>Amp.: %1%</source>
         <translation>アンプ %1%</translation>
     </message>
@@ -982,6 +981,102 @@ p, li { white-space: pre-wrap; }
         <location filename="../playlistmodel.cpp" line="166"/>
         <source>Location</source>
         <translation>位置</translation>
+    </message>
+</context>
+<context>
+    <name>PlaylistWidget</name>
+    <message>
+        <location filename="../playlistwidget.cpp" line="123"/>
+        <source>Open</source>
+        <translation type="unfinished">開く</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="124"/>
+        <source>Save</source>
+        <translation type="unfinished">保存</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="125"/>
+        <source>Add</source>
+        <translation type="unfinished">追加</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="126"/>
+        <source>Erase</source>
+        <translation type="unfinished">削除</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="127"/>
+        <source>Up</source>
+        <translation type="unfinished">上へ</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="128"/>
+        <source>Down</source>
+        <translation type="unfinished">下へ</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="129"/>
+        <source>Clear</source>
+        <translation type="unfinished">クリア</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="130"/>
+        <source>Shutdown when the list finished</source>
+        <translation type="unfinished">リストが終了するとシステムを終了する</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="143"/>
+        <source>Automatic Shutdown</source>
+        <translation type="unfinished">自動シャットダウン</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="143"/>
+        <source>You must run CMPlayer with root permission.</source>
+        <translation type="unfinished">ルート権限でCMPlayerを実行しなければなりません。</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="182"/>
+        <source>Open File</source>
+        <translation type="unfinished">ファイルを開く</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="168"/>
+        <source>Playlist</source>
+        <translation type="unfinished">プレイリスト</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="167"/>
+        <source>Save File</source>
+        <translation type="unfinished">ファイルを保存する</translation>
+    </message>
+</context>
+<context>
+    <name>PlaylistWidget::ShutdownDialog</name>
+    <message>
+        <location filename="../playlistwidget.cpp" line="24"/>
+        <source>Input or Select Command for Shutdown:</source>
+        <translation type="unfinished">システム終了のための命令を入力もしくは選択してください：</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="29"/>
+        <source>&amp;Ok</source>
+        <translation type="unfinished">&amp;Ok</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="31"/>
+        <source>&amp;Cancel</source>
+        <translation type="unfinished">キャンセル(&amp;C)</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="46"/>
+        <source>Automatic Shutdown</source>
+        <translation type="unfinished">自動シャットダウン</translation>
+    </message>
+    <message>
+        <location filename="../playlistwidget.cpp" line="46"/>
+        <source>Command for Shutdown is Empty.</source>
+        <translation type="unfinished">システム終了の命令が空いています。</translation>
     </message>
 </context>
 <context>
@@ -1574,27 +1669,27 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../dockwidget.cpp" line="19"/>
         <source>Input or Select Command for Shutdown:</source>
-        <translation>システム終了のための命令を入力もしくは選択してください：</translation>
+        <translation type="obsolete">システム終了のための命令を入力もしくは選択してください：</translation>
     </message>
     <message>
         <location filename="../dockwidget.cpp" line="24"/>
         <source>&amp;Ok</source>
-        <translation>&amp;Ok</translation>
+        <translation type="obsolete">&amp;Ok</translation>
     </message>
     <message>
         <location filename="../dockwidget.cpp" line="26"/>
         <source>&amp;Cancel</source>
-        <translation>キャンセル(&amp;C)</translation>
+        <translation type="obsolete">キャンセル(&amp;C)</translation>
     </message>
     <message>
         <location filename="../dockwidget.cpp" line="45"/>
         <source>Automatic Shutdown</source>
-        <translation>自動シャットダウン</translation>
+        <translation type="obsolete">自動シャットダウン</translation>
     </message>
     <message>
         <location filename="../dockwidget.cpp" line="45"/>
         <source>Command for Shutdown is Empty.</source>
-        <translation>システム終了の命令が空いています。</translation>
+        <translation type="obsolete">システム終了の命令が空いています。</translation>
     </message>
 </context>
 <context>

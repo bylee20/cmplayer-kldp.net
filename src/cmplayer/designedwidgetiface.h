@@ -3,7 +3,7 @@
 
 #include <QtGui/QWidget>
 
-class ToolButton;
+class Button;
 
 class DesignedWidgetIface {
 public:
@@ -26,7 +26,7 @@ public:
 	void setTitle(const QString &title);
 	QString title() const;
 	void setIcon(const QIcon &icon);
-	ToolButton *addButton(const QIcon &icon, QObject *object, const char *slot);
+	Button *addButton(const QIcon &icon, QObject *object, const char *slot);
 private slots:
 	void toggleMaximized();
 private:

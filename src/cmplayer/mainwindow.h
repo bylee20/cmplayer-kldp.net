@@ -45,7 +45,7 @@ private slots:
 	void slotStateChanged(Core::State state, Core::State old);
 	void updatePlaylistInfo();
 	void autoLoadSubtitles();
-	void toggleDockVisibility();
+	void toggleToolBoxVisibility();
 	void updateRecentActions(const RecentStack &files);
 	void updateOnTop();
 	void updateRecentSize(int size);

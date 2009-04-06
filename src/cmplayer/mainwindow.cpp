@@ -59,6 +59,7 @@ struct MainWindow::Data {
 	QTimer hider;
 	QSystemTrayIcon *tray;
 	DragCharm dragCharm;
+	QRect toolRect;
 };
 
 MainWindow::MainWindow(const QUrl &url)
@@ -131,7 +132,7 @@ void MainWindow::commonInitialize() {
 	connect(play["prev"], SIGNAL(triggered()), d->model, SLOT(playPrevious()));
 	connect(play["next"], SIGNAL(triggered()), d->model, SLOT(playNext()));
 	connect(play["pause"], SIGNAL(triggered()), this, SLOT(togglePlayPause()));
-	connect(play["list"], SIGNAL(triggered()), this, SLOT(toggleDockVisibility()));
+	connect(play["list"], SIGNAL(triggered()), this, SLOT(toggleToolBoxVisibility()));
 	connect(play("engine").g(), SIGNAL(triggered(const QString &))
 			, d->player, SLOT(setBackend(const QString &)));
 	connect(play("repeat").g(), SIGNAL(triggered(int)), this, SLOT(slotRepeat(int)));
@@ -163,8 +164,6 @@ void MainWindow::commonInitialize() {
 	connect(menu["about"], SIGNAL(triggered()), this, SLOT(showAbout()));
 // 	connect(menu["help"], SIGNAL(triggered()), this, SLOT(slotHelp()));
 	connect(menu["exit"], SIGNAL(triggered()), qApp, SLOT(quit()));
-
-	
 	
 	connect(d->player, SIGNAL(currentSourceChanged(const Core::MediaSource&))
 			, this, SLOT(updateWindowTitle()));
@@ -190,7 +189,7 @@ void MainWindow::commonInitialize() {
 	connect(d->player, SIGNAL(customContextMenuRequested(const QPoint&))
 			, this, SLOT(showContextMenu(const QPoint&)));
 	connect(d->toolBox, SIGNAL(hidingRequested())
-			, this, SLOT(toggleDockVisibility()));
+			, this, SLOT(toggleToolBoxVisibility()));
 	connect(d->model, SIGNAL(currentRowChanged(int))
 			, this, SLOT(updatePlaylistInfo()));
 	connect(d->model, SIGNAL(rowCountChanged(int))
@@ -274,7 +273,9 @@ void MainWindow::saveState() {
 	state[State::PlaySpeed] = d->player->speed();
 	state[State::SubtitlePos] = d->player->subtitlePos();
 	state[State::SubtitleSync] = d->player->syncDelay();
-// 	state[State::DockContentsWidth] = d->dock->contentsWidth();
+	if (d->toolBox->isVisible())
+		d->toolRect = d->toolBox->geometry();
+	state[State::ToolBoxRect] = d->toolRect;
 	state.save();
 }
 
@@ -298,7 +299,7 @@ void MainWindow::loadState() {
 	d->player->setSpeed(state[State::PlaySpeed].toInt());
 	d->player->setSubtitlePos(state[State::SubtitlePos].toInt());
 	d->player->setSyncDelay(state[State::SubtitleSync].toInt());
-// 	d->dock->setContentsWidth(state[State::DockContentsWidth].toInt());
+	d->toolRect = state[State::ToolBoxRect].toRect();
 }
 
 QIcon MainWindow::defaultIcon() {
@@ -682,10 +683,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 	QMainWindow::mouseMoveEvent(event);
 	if (!IS_IN_CENTER)
 		return;
-// 	if (IS_BUTTON(Qt::LeftButton) && !isFullScreen() && IS_IN_CENTER)
-// 		d->dragPos = event->globalPos() - frameGeometry().topLeft();
-// 	else
-// 		d->dragPos.setX(-1);
 	if (IS_BUTTON(Qt::MidButton)) {
 		QAction *action = getTriggerAction(event->modifiers()
 				, d->pref->middleClickMap(), d->menu.clickAction(), 0);
@@ -733,8 +730,6 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 	}
 	QMainWindow::wheelEvent(event);
 }
-
-// #undef GET_TRIGGER_ACTION
 
 #undef IS_IN_CENTER
 #undef IS_BUTTON
@@ -789,11 +784,16 @@ void MainWindow::updatePlaylistInfo() {
 	d->control->setTrackNumber(d->model->currentRow() + 1, d->model->rowCount());
 }
 
-void MainWindow::toggleDockVisibility() {
+void MainWindow::toggleToolBoxVisibility() {
 	QAction *act = qobject_cast<QAction*>(sender());
 	const bool visible = d->toolBox->isVisible();
 	if (act && act->isChecked() == visible)
 		return;
+	if (visible)
+		d->toolRect = d->toolBox->geometry();//QRect(d->toolBox->pos(), d->toolBox->size());
+	else if (!d->toolRect.isNull())
+		d->toolBox->setGeometry(d->toolRect);
+		
 	d->toolBox->setVisible(!visible);
 	if (!act)
 		d->menu("play")["list"]->setChecked(!visible);

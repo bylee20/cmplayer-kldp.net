@@ -2,6 +2,7 @@
 #include "helper.h"
 #include <QtCore/QSettings>
 #include <QtCore/QSize>
+#include <QtCore/QRect>
 
 State::Data::Data()
 : keys(TypeMax), values(TypeMax) {
@@ -18,7 +19,7 @@ State::Data::Data()
 	INIT(SubtitlePos, 100);
 	INIT(SubtitleSync, 0);
 	INIT(LastOpenFile, QString());
-	INIT(DockContentsWidth, 100);
+	INIT(ToolBoxRect, QRect());
 	INIT(TrayFirst, true);
 	INIT(BackendName, QString());
 #undef INIT

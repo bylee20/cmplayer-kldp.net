@@ -1,8 +1,7 @@
 #include "controlwidget.h"
-#include "skinmanager.h"
 #include "sliders.h"
+#include "button.h"
 #include "videoplayer.h"
-#include "designedbuttons.h"
 #include <QtCore/QEvent>
 #include <QtGui/QAction>
 #include <QtGui/QVBoxLayout>
@@ -110,10 +109,27 @@ struct ControlWidget::Data {
 	Button *toggle;
 	Button *open, *playlist, *fullScreen;
 	Button *play, *stop, *prev, *next, *forward, *backward;
+	QBrush bg, light;
+	QPainterPath path;
 };
 
 ControlWidget::ControlWidget(VideoPlayer *player, QWidget *parent)
 : QWidget(parent), d(new Data) {
+	QLinearGradient grad(0.5, 0.0, 0.5, 1.0);
+	grad.setColorAt(0.0, qRgb(0, 0, 0));
+	grad.setColorAt(1.0, qRgb(60, 60, 60));
+	d->bg = QBrush(grad);
+	
+	grad = QLinearGradient(0.5, 0.1, 0.5, 0.9);
+	grad.setColorAt(1.0, Qt::white);
+	grad.setColorAt(0.0, Qt::transparent);
+	d->light = QBrush(grad);
+	
+	d->path.moveTo(0.0, 1.0);
+	d->path.cubicTo(0.05, 0.3, 0.05, 0.3, 0.5, 0.3);
+	d->path.cubicTo(0.95, 0.3, 0.95, 0.3, 1.0, 1.0);
+	d->path.closeSubpath();
+
 	d->layout = static_cast<Layout>(0);
 	d->player = player;
 	d->boundary = new Boundary(this);
@@ -121,7 +137,6 @@ ControlWidget::ControlWidget(VideoPlayer *player, QWidget *parent)
 	d->slider = new Slider(player, this);
 	d->toggle = new Button(this);
 	d->open = new Button(this);
-// 	d->openUrl = new Button(this);
 	d->fullScreen = new Button(this);
 	d->playlist = new Button(this);
 	d->play = new Button(this);
@@ -168,30 +183,17 @@ void ControlWidget::toggleLayout() {
 void ControlWidget::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);
 	painter.fillRect(rect(), Qt::black);
-	
-	QLinearGradient grad(0.5, 0.0, 0.5, 1.0);
-	grad.setColorAt(1.0, qRgb(100, 100, 100));
-	grad.setColorAt(0.0, qRgb(0, 0, 0));
-	QBrush bg = QBrush(grad);
-		
-	grad = QLinearGradient(0.5, 0.1, 0.5, 0.9);
-	grad.setColorAt(1.0, Qt::white);
-	grad.setColorAt(0.0, Qt::transparent);
-	QBrush light = QBrush(grad);
-	
-	QPainterPath path;
-	path.moveTo(0.0, 1.0);
-	path.cubicTo(0.05, 0.3, 0.05, 0.3, 0.5, 0.3);
-	path.cubicTo(0.95, 0.3, 0.95, 0.3, 1.0, 1.0);
-	path.closeSubpath();
-
 	painter.setRenderHint(QPainter::Antialiasing);
-	painter.scale(width(), height());
 	painter.setPen(Qt::NoPen);
-	painter.fillRect(rect(), bg);
-	painter.setOpacity(0.2);
-	painter.setBrush(light);
-	painter.drawPath(path);
+	QPointF topLeft(0, 0);
+	if (d->layout == TwoLine)
+		topLeft = d->slider->geometry().bottomLeft();
+	painter.translate(topLeft);
+	painter.scale(width(), height() - topLeft.y());
+	painter.fillRect(rect(), d->bg);
+	painter.setOpacity(0.3);
+	painter.setBrush(d->light);
+	painter.drawPath(d->path);
 }
 
 void ControlWidget::connectMute(QAction *action) {

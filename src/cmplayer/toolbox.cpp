@@ -1,5 +1,4 @@
 #include "toolbox.h"
-#include "designedbuttons.h"
 #include "playlistwidget.h"
 #include "dragcharm.h"
 #include "helper.h"
@@ -72,7 +71,7 @@ ToolBox::ToolBox(PlaylistModel *model, QWidget *parent)
 	setWindowTitle("TOOL BOX");
 	titleBar()->setTitle("TOOL BOX");
 	titleBar()->connect(this);
-	titleBar()->addButton(QIcon(":/img/view-split-left-right.png"), this, SIGNAL(snapRequested()));
+// 	titleBar()->addButton(QIcon(":/img/view-split-left-right.png"), this, SIGNAL(snapRequested()));
 	
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->addWidget(titleBar());

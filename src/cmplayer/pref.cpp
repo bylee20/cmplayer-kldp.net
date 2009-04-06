@@ -75,10 +75,11 @@ struct Pref::Subtitle {
 		set->beginGroup("Subtitle");
 		style.alignment = Qt::AlignHCenter | Qt::AlignBottom;
 		style.borderWidth = 0.03;
+		style.textSize = 0.04;
 		style.font.setBold(true);
 		style.load(set, "OsdStyle");
-		LOAD(encoding, QString("cp949"), toString);
-		LOAD(priority, (QStringList() << "Korean" << "English"), toStringList);
+		LOAD(encoding, "UTF-8", toString);
+		LOAD(priority, QStringList(), toStringList);
 		LOAD_ENUM(autoLoad, Contain);
 		LOAD_ENUM(autoSelect, SameName);
 		set->endGroup();

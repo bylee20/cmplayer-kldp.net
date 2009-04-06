@@ -1,7 +1,7 @@
 #include "playlistwidget.h"
 #include "playlistmodel.h"
 #include "playlistview.h"
-#include "designedbuttons.h"
+#include "button.h"
 #include "encodingfiledialog.h"
 #include "helper.h"
 #include <core/playlist.h>
@@ -9,55 +9,51 @@
 #include <QtGui/QApplication>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QToolButton>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
-#include <QtGui/QDialog>
+
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
 #include <QtGui/QMessageBox>
 
-class PlaylistWidget::ShutdownDialog : public QDialog {
-public:
-	ShutdownDialog(QWidget *parent)
-	: QDialog(parent) {
-		QLabel *label = new QLabel(this);
-		label->setText(tr("Input or Select Command for Shutdown:"));
-		combo = new QComboBox(this);
-		combo->setEditable(true);
-		combo->addItems(QStringList() << "shutdown -h now" << "halt");
-		combo->setCurrentIndex(0);
-		QPushButton *ok = new QPushButton(tr("&Ok"), this);
-		ok->setDefault(true);
-		QPushButton *cancel = new QPushButton(tr("&Cancel"), this);
-		QVBoxLayout *vbox = new QVBoxLayout;
-		vbox->addWidget(label);
-		QHBoxLayout *hbox = new QHBoxLayout;
-		hbox->addWidget(combo);
-		hbox->addWidget(ok);
-		hbox->addWidget(cancel);
-		vbox->addLayout(hbox);
-		setLayout(vbox);
-		connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
-		connect(cancel, SIGNAL(clicked()), this, SLOT(reject()));
-	}
-	void accept() {
-		if (combo->currentText().trimmed().isEmpty())
-			QMessageBox::warning(this, tr("Automatic Shutdown")
-					, tr("Command for Shutdown is Empty."));
-		else
-			QDialog::accept();
-	}
-	QStringList command() const {
-		return combo->currentText().trimmed().split(" ");
-	}
-private:
-	QComboBox *combo;
-};
+PlaylistWidget::ShutdownDialog::ShutdownDialog(QWidget *parent)
+: QDialog(parent) {
+	QLabel *label = new QLabel(this);
+	label->setText(tr("Input or Select Command for Shutdown:"));
+	combo = new QComboBox(this);
+	combo->setEditable(true);
+	combo->addItems(QStringList() << "shutdown -h now" << "halt");
+	combo->setCurrentIndex(0);
+	QPushButton *ok = new QPushButton(tr("&Ok"), this);
+	ok->setDefault(true);
+	QPushButton *cancel = new QPushButton(tr("&Cancel"), this);
+	QVBoxLayout *vbox = new QVBoxLayout;
+	vbox->addWidget(label);
+	QHBoxLayout *hbox = new QHBoxLayout;
+	hbox->addWidget(combo);
+	hbox->addWidget(ok);
+	hbox->addWidget(cancel);
+	vbox->addLayout(hbox);
+	setLayout(vbox);
+	connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
+	connect(cancel, SIGNAL(clicked()), this, SLOT(reject()));
+}
+
+void PlaylistWidget::ShutdownDialog::accept() {
+	if (combo->currentText().trimmed().isEmpty())
+		QMessageBox::warning(this, tr("Automatic Shutdown")
+				, tr("Command for Shutdown is Empty."));
+	else
+		QDialog::accept();
+}
+
+QStringList PlaylistWidget::ShutdownDialog::command() const {
+	return combo->currentText().trimmed().split(" ");
+}
 
 
 struct PlaylistWidget::Data {
-	ToolButton *open, *save, *add, *erase, *up, *down, *clear;
+	Button *open, *save, *add, *erase, *up, *down, *clear;
 	QWidget *buttons;
 	QCheckBox *shutdownCheck;
 	ShutdownDialog *shutdownDlg;
@@ -69,13 +65,13 @@ struct PlaylistWidget::Data {
 
 PlaylistWidget::PlaylistWidget(PlaylistModel *model, QWidget *parent)
 : QWidget(parent), d(new Data) {
-	d->open = new ToolButton(QIcon(":/img/document-open.png"), this);
-	d->save = new ToolButton(QIcon(":/img/document-save.png"), this);
-	d->add = new ToolButton(QIcon(":/img/list-add.png"), this);
-	d->erase = new ToolButton(QIcon(":/img/list-remove.png"), this);
-	d->up = new ToolButton(QIcon(":/img/arrow-up.png"), this);
-	d->down = new ToolButton(QIcon(":/img/arrow-down.png"), this);
-	d->clear = new ToolButton(QIcon(":/img/edit-clear-list.png"), this);
+	d->open = new Button(QIcon(":/img/document-open.png"), this);
+	d->save = new Button(QIcon(":/img/document-save.png"), this);
+	d->add = new Button(QIcon(":/img/list-add.png"), this);
+	d->erase = new Button(QIcon(":/img/list-remove.png"), this);
+	d->up = new Button(QIcon(":/img/arrow-up.png"), this);
+	d->down = new Button(QIcon(":/img/arrow-down.png"), this);
+	d->clear = new Button(QIcon(":/img/edit-clear-list.png"), this);
 	d->shutdownCheck = new QCheckBox(this);
 	d->shutdownDlg = new ShutdownDialog(this);
 	d->view = new PlaylistView(this);
