@@ -6,6 +6,7 @@
 #include <QtCore/QUrl>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
+#include <QtGui/QImage>
 
 struct Application::Data {
 	AppConnection connection;
@@ -14,9 +15,60 @@ struct Application::Data {
 
 Application::Application(int &argc, char **argv)
 : QApplication(argc, argv), d(new Data) {
+// 	QImage img;
+// 	img.load("arrow-down.png");
+// 	img = img.convertToFormat(QImage::Format_ARGB32);
+// 	for (int i=0; i<img.width(); ++i) {
+// 		for (int j=0; j<img.height(); ++j) {
+// 			const QRgb rgb = img.pixel(i, j);
+// 			const int gray = qBound(0, qGray(rgb) + 100, 255);
+// 			img.setPixel(i, j, qRgba(gray, gray, gray, qAlpha(rgb)));
+// 		}
+// 	}
+// 	img.save("arrow-down-gray.png");
+	setStyleSheet("\
+		Button {\
+			margin:0px; padding: 2px;\
+		}\
+		Button#flat {\
+			border: none; border-radius: 3px;\
+		}\
+		Button#block {\
+			border: 1px solid #999; border-radius: 0px; padding: 1px;\
+			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
+		}\
+		Button#flat:hover, Button#block:hover {\
+			border: 1px solid #6ad; padding: 1px;\
+		}\
+		Button#flat:pressed, Button#block:pressed {\
+			border: 2px solid #6ad; padding: 0px;\
+		}\
+		Button#block:checked, Button#block:pressed {\
+			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #777, stop:1 #bbb);\
+		}\
+		JumpSlider::groove:horizontal {\
+			border: 1px solid #6ad; height: 3px; margin: 0px 0px; padding: 0px;\
+			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
+		}\
+		JumpSlider::handle:horizontal {\
+			background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #aaa, stop:1 #999);\
+			border: 1px solid #5c5c5c; border-radius: 2px;\
+			width: 5px; margin: -2px 0px; padding: 1px;\
+		}\
+		JumpSlider::handle:horizontal:hover {\
+			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
+			border: 1px solid #6ad; padding: 1px;\
+		}\
+		JumpSlider::handle:horizontal:pressed {\
+			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
+			border: 2px solid #6ad; padding: 0px;\
+		}\
+		JumpSlider::add-page:horizontal {\
+			border: 1px solid #999; height: 3px; margin: 0px 0px; padding: 0px;\
+			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #333, stop:1 #bbb);\
+		}"
+	);
 	d->main = 0;
-
-
 	setQuitOnLastWindowClosed(false);
 	connect(&d->connection, SIGNAL(openRequested(const QString&))
 			, this, SLOT(open(const QString &)));

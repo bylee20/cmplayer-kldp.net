@@ -4,6 +4,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QSystemTrayIcon>
 #include <core/namespace.h>
+#include "designedwidgetiface.h"
 
 class RecentStack;				class QUrl;
 class ControlWidget;
@@ -13,7 +14,7 @@ class BackendIface;				class MediaSource;
 class Playlist;
 }
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow/*, public DesignedWidgetIface*/ {
 	Q_OBJECT
 public:
 	MainWindow(const QUrl &url);
@@ -61,24 +62,27 @@ private slots:
 	void slotTrayActivated(QSystemTrayIcon::ActivationReason reason);
 	void takeSnapshot();
 	void setMuted(bool muted);
+	void updateWindowTitle();
 private:
 	typedef QPair<QAction*, QAction*> ActionPair;
 	ControlWidget *createControl(QWidget *parent);
 	void commonInitialize();
 	void setupUi();
+	void changeEvent(QEvent *event);
 	void closeEvent(QCloseEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);
+	void paintEvent(QPaintEvent *event);
 	void dropEvent(QDropEvent *event);
 	void mousePressEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseDoubleClickEvent(QMouseEvent *event);
 	void wheelEvent(QWheelEvent *event);
+	void updatePauseMinimized();
 	void updatePref();
 	void saveState();
 	void loadState();
 	void showEvent(QShowEvent *event);
 	void hideEvent(QHideEvent *event);
-	void updateWindowTitle();
 	void showMessage(const QString &text);
 	Core::Playlist open(const Core::MediaSource &source);
 	static QIcon defaultIcon();

@@ -373,8 +373,10 @@ void PlayEngine::stop() {
 }
 
 void PlayEngine::pause() {
-	if (isPlaying())
+	if (isPlaying()) {
 		tellmp("pause");
+		setState(Core::Paused);
+	}
 }
 
 void PlayEngine::seek(int time, bool relative, bool showTimeLine, int /*timeout*/) {

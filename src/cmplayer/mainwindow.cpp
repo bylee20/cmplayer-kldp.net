@@ -1,4 +1,5 @@
 #include "prefdialog.h"
+#include "dragmovecharm.h"
 #include "controlwidget.h"
 #include "checkdialog.h"
 #include "state.h"
@@ -9,7 +10,6 @@
 #include "encodingfiledialog.h"
 #include "pref.h"
 #include "helper.h"
-#include "dockwidget.h"
 #include "videoplayer.h"
 #include "menu.h"
 #include "sliders.h"
@@ -26,6 +26,7 @@
 #include <core/utility.h>
 #include <core/mediainfo.h>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QPainter>
 #include <QtGui/QToolButton>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -37,17 +38,18 @@
 #include <QtCore/QDebug>
 #include <cmath>
 #include <QTime>
+#include "toolbox.h"
+#include "dragcharm.h"
 
 struct MainWindow::Data {
-	Data(Menu &menu): dragPos(-1, -1), menu(menu) {}
+	Data(Menu &menu): menu(menu) {}
 	QWidget *center;
 	ControlWidget *control;
 	PlaylistModel *model;
-	DockWidget *dock;
+	ToolBox *toolBox;
 	Core::Subtitle sub;
 	QList<int> subIdxes;
 	QSize prevWinSize;
-	QPoint dragPos;
 	RecentInfo *recent;
 	bool pausedByHiding, changingOnTop, changingSubtitle;
 	VideoPlayer *player;
@@ -57,14 +59,17 @@ struct MainWindow::Data {
 	SnapshotDialog *snapshot;
 	QTimer hider;
 	QSystemTrayIcon *tray;
+	DragCharm dragCharm;
 };
 
-MainWindow::MainWindow(const QUrl &url) {
+MainWindow::MainWindow(const QUrl &url)
+: QMainWindow(0/*, Qt::FramelessWindowHint*/) {
 	commonInitialize();
 	open(url);
 }
 
-MainWindow::MainWindow() {
+MainWindow::MainWindow()
+: QMainWindow(0/*, Qt::FramelessWindowHint*/) {
 	commonInitialize();
 	d->model->setPlaylist(d->recent->lastPlaylist());
 	d->model->setCurrentSource(d->recent->lastSource());
@@ -162,7 +167,8 @@ void MainWindow::commonInitialize() {
 
 	
 	
-	
+	connect(d->player, SIGNAL(currentSourceChanged(const Core::MediaSource&))
+			, this, SLOT(updateWindowTitle()));
 	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
 			, this, SLOT(slotStateChanged(Core::State, Core::State)));
 	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
@@ -184,7 +190,8 @@ void MainWindow::commonInitialize() {
 			, this, SLOT(slotCurrentSpuChanged(const QString&)));
 	connect(d->player, SIGNAL(customContextMenuRequested(const QPoint&))
 			, this, SLOT(showContextMenu(const QPoint&)));
-	connect(d->dock, SIGNAL(hidingRequested()), this, SLOT(toggleDockVisibility()));
+	connect(d->toolBox, SIGNAL(hidingRequested())
+			, this, SLOT(toggleDockVisibility()));
 	connect(d->model, SIGNAL(currentRowChanged(int))
 			, this, SLOT(updatePlaylistInfo()));
 	connect(d->model, SIGNAL(rowCountChanged(int))
@@ -197,6 +204,7 @@ void MainWindow::commonInitialize() {
 	d->hider.setSingleShot(true);
 	connect(d->tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
 			, this, SLOT(slotTrayActivated(QSystemTrayIcon::ActivationReason)));
+// 	titleBar()->connect(this);
 	
 	const BackendMap &backend = VideoPlayer::load();
 	Menu &engine = play("engine");
@@ -204,6 +212,9 @@ void MainWindow::commonInitialize() {
 		engine.addActionToGroupWithoutKey(it.key(), true)->setData(it.key());
 	loadState();
 	updatePref();
+	
+	d->dragCharm.activate(this);
+// 	d->dragCharm.setBorder(7);
 }
 
 ControlWidget *MainWindow::createControl(QWidget *parent) {
@@ -225,7 +236,18 @@ ControlWidget *MainWindow::createControl(QWidget *parent) {
 }
 
 void MainWindow::updateWindowTitle() {
-	setWindowTitle(QString("CMPlayer - %1").arg(Core::Info::coreVersion()));
+	const Core::MediaSource source = d->player->currentSource();
+	QString title;
+	if (source.isLocalFile())
+		title = source.filePath();
+	else if (source.isValid())
+		title = source.url().toString();
+	if (title.isEmpty())
+		title = "CMPlayer";
+	else
+		title += " - CMPlayer";
+	setWindowTitle(title);
+// 	titleBar()->setTitle(title);
 }
 
 void MainWindow::saveState() {
@@ -254,7 +276,7 @@ void MainWindow::saveState() {
 	state[State::PlaySpeed] = d->player->speed();
 	state[State::SubtitlePos] = d->player->subtitlePos();
 	state[State::SubtitleSync] = d->player->syncDelay();
-	state[State::DockWidth] = d->dock->width();
+// 	state[State::DockContentsWidth] = d->dock->contentsWidth();
 	state.save();
 }
 
@@ -278,8 +300,7 @@ void MainWindow::loadState() {
 	d->player->setSpeed(state[State::PlaySpeed].toInt());
 	d->player->setSubtitlePos(state[State::SubtitlePos].toInt());
 	d->player->setSyncDelay(state[State::SubtitleSync].toInt());
-	d->dock->setWidth(state[State::DockWidth].toInt());
-	
+// 	d->dock->setContentsWidth(state[State::DockContentsWidth].toInt());
 }
 
 QIcon MainWindow::defaultIcon() {
@@ -287,18 +308,18 @@ QIcon MainWindow::defaultIcon() {
 }
 
 void MainWindow::setupUi() {
-	d->dock = new DockWidget(d->model, this);
-	addDockWidget(Qt::RightDockWidgetArea, d->dock);
-	d->dock->hide();
+	d->toolBox = new ToolBox(d->model, this);
 	d->player->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	
 	d->center = new QWidget(this);
 	d->center->setMouseTracking(true);
 	d->control = createControl(d->center);
 	QVBoxLayout *vbox = new QVBoxLayout(d->center);
+// 	vbox->addWidget(titleBar());
 	vbox->addWidget(d->player);
 	vbox->addWidget(d->control);
 	vbox->setContentsMargins(0, 0, 0, 0);
+// 	vbox->setContentsMargins(3, 3, 3, 3);
 	vbox->setSpacing(0);
 	
 	updateWindowTitle();
@@ -307,6 +328,8 @@ void MainWindow::setupUi() {
 	setAcceptDrops(true);
 	setCentralWidget(d->center);
 	setWindowIcon(defaultIcon());
+// 	titleBar()->setIcon(defaultIcon());
+// 	titleBar()->addButton(QIcon(":/img/arrow-down-gray.png"), this, SLOT(showMinimized()));
 }
 
 void MainWindow::showContextMenu(const QPoint &pos) {
@@ -620,6 +643,9 @@ void MainWindow::setFullScreen(bool full) {
 	if (full == isFullScreen())
 		return;
 	d->control->setHidden(full);
+// 	titleBar()->setHidden(full);
+// 	const int m = full ? 0 : 3;
+// 	d->center->layout()->setContentsMargins(m, m, m, m);
 	if (full) {
 		d->prevWinSize = size();
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
@@ -629,7 +655,7 @@ void MainWindow::setFullScreen(bool full) {
 	}
 }
 
-#define IS_IN_CENTER (d->player->geometry().contains(event->pos()))
+#define IS_IN_CENTER (d->player->geometry().contains(d->player->mapFrom(this, event->pos())))
 #define IS_BUTTON(b) (event->buttons() & (b))
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
@@ -658,10 +684,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 	QMainWindow::mouseMoveEvent(event);
 	if (!IS_IN_CENTER)
 		return;
-	if (IS_BUTTON(Qt::LeftButton) && !isFullScreen() && IS_IN_CENTER)
-		d->dragPos = event->globalPos() - frameGeometry().topLeft();
-	else
-		d->dragPos.setX(-1);
+// 	if (IS_BUTTON(Qt::LeftButton) && !isFullScreen() && IS_IN_CENTER)
+// 		d->dragPos = event->globalPos() - frameGeometry().topLeft();
+// 	else
+// 		d->dragPos.setX(-1);
 	if (IS_BUTTON(Qt::MidButton)) {
 		QAction *action = getTriggerAction(event->modifiers()
 				, d->pref->middleClickMap(), d->menu.clickAction(), 0);
@@ -681,8 +707,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 		QRect r = rect();
 		r.setTop(r.height() - h);
 		d->control->setVisible(r.contains(event->pos()));
-	} else if (d->dragPos.x() >= 0 && IS_BUTTON(Qt::LeftButton) && IS_IN_CENTER)
-		move(event->globalPos() - d->dragPos);
+	}
 	if (IS_IN_CENTER && d->pref->hideCursor() && (!d->pref->hideInFullScreen() || full))
 		d->hider.start(d->pref->hideDelay());
 }
@@ -768,29 +793,12 @@ void MainWindow::updatePlaylistInfo() {
 
 void MainWindow::toggleDockVisibility() {
 	QAction *act = qobject_cast<QAction*>(sender());
-	if (act && act->isChecked() == d->dock->isVisible())
+	const bool visible = d->toolBox->isVisible();
+	if (act && act->isChecked() == visible)
 		return;
-	static int frameWidth = -1;
-	if (frameWidth < 0)
-		frameWidth = (width() - (d->player->width() + d->dock->width()));
-	const bool visible = d->dock->isVisible();
-	if (!d->dock->isFloating() && !isFullScreen() && !isMaximized()) {
-		int w = d->dock->frameGeometry().width();
-		if (frameWidth >= 0)
-			w += frameWidth;
-		d->player->keepSize(true);
-		if (visible) {
-			d->dock->hide();
-			resize(width() - w, height());
-		} else {
-			resize(width() + w, height());
-			d->dock->show();
-		}
-		d->player->keepSize(false);
-	} else
-		d->dock->setVisible(!visible);
+	d->toolBox->setVisible(!visible);
 	if (!act)
-		d->menu("play")["list"]->setChecked(d->dock->isVisible());
+		d->menu("play")["list"]->setChecked(!visible);
 }
 
 void MainWindow::updateRecentSize(int size) {
@@ -915,14 +923,18 @@ void MainWindow::showEvent(QShowEvent *event) {
 
 void MainWindow::hideEvent(QHideEvent *event) {
 	QMainWindow::hideEvent(event);
-	if (!d->changingOnTop && d->pref->pauseWhenMinimized()) {
-		if (d->pref->pauseVideoOnly() && !d->player->hasVideo())
-			return;
-		if (d->player && d->player->isPlaying()) {
-			d->pausedByHiding = true;
-			d->player->pause();
-		}
-	}
+	updatePauseMinimized();
+}
+
+void MainWindow::updatePauseMinimized() {
+	if (d->changingOnTop || !d->pref->pauseWhenMinimized())
+		return;
+	if (d->pref->pauseVideoOnly() && !d->player->hasVideo())
+		return;
+	if (!d->player || !d->player->isPlaying())
+		return;
+	d->pausedByHiding = true;
+	d->player->pause();
 }
 
 void MainWindow::slotRepeat(int key) {
@@ -999,6 +1011,17 @@ void MainWindow::hideCursor() {
 		setCursor(Qt::BlankCursor);
 }
 
+void MainWindow::changeEvent(QEvent *event) {
+	QMainWindow::changeEvent(event);
+	if (event->type() == QEvent::WindowStateChange && isMinimized())
+		updatePauseMinimized();
+}
+
+void MainWindow::paintEvent(QPaintEvent */*event*/) {
+// 	QPainter painter(this);
+// 	drawBackground(&painter, this);
+}
+
 void MainWindow::closeEvent(QCloseEvent *event) {
 	if (d->pref->isSystemTrayEnabled() && d->pref->hideWhenClosed()) {
 		hide();
@@ -1046,3 +1069,7 @@ void MainWindow::setMuted(bool muted) {
 		d->menu("audio")["mute"]->setIcon(QIcon(":/img/irc-voice.png"));
 	d->player->setMuted(muted);
 }
+
+// void MainWindow::slotCurrentSourceChanged(const Core::MediaSource &source) {
+// 	
+// }

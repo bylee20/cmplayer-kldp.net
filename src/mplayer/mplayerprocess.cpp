@@ -43,7 +43,7 @@ void MPlayerProcess::interpretMessages() {
 				const qint64 msec = static_cast<int>(rxAV.cap(1).toDouble()*1000);
 				d->engine->setState(Core::Playing);
 				d->engine->setCurrentTime(msec);
-			} else if ((matched = msg.contains(" PAUSE "))) {
+			} else if ((matched = msg.contains(" PAUSE ")) && !d->engine->isPaused()) {
 				d->engine->setState(Core::Paused);
 			} else if ((matched = (rxStated.indexIn(msg) != -1 && (!d->info || d->info->isValid())))) {
 				emit d->engine->started();

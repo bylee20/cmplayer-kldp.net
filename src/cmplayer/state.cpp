@@ -18,7 +18,7 @@ State::Data::Data()
 	INIT(SubtitlePos, 100);
 	INIT(SubtitleSync, 0);
 	INIT(LastOpenFile, QString());
-	INIT(DockWidth, 100);
+	INIT(DockContentsWidth, 100);
 	INIT(TrayFirst, true);
 	INIT(BackendName, QString());
 #undef INIT

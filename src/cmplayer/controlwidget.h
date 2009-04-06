@@ -4,8 +4,9 @@
 #include <QtGui/QWidget>
 #include <core/namespace.h>
 
-class VideoPlayer;			class QToolButton;
-
+class VideoPlayer;			class ToolButton;
+class QVBoxLayout;			class QHBoxLayout;
+class QGridLayout;
 namespace Core {class MediaSource;}
 
 class ControlWidget : public QWidget {
@@ -24,7 +25,7 @@ public:
 	void connectOpenUrl(QAction *action);
 	void connectFullScreen(QAction *action);
 	void connectPlaylist(QAction *action);
-// 	void connectPlay(QAction *action);
+	void updateLayout();
 public slots:
 	void showMessage(const QString &msg, int time = 3000);
 	void setCurrentSource(const Core::MediaSource &source);
@@ -34,16 +35,16 @@ public slots:
 	void setTrackNumber(int nth, int total);
 private slots:
 	void hideMessage();
-	void togglePlaylist(bool visible);
-	void toggleFullScreen(bool full);
 private:
+	static QVBoxLayout *vbox();
+	static QHBoxLayout *hbox();
+	static QGridLayout *grid();
 	void retranslateUi();
 	void changeEvent(QEvent *event);
-	static QToolButton *createButton(QWidget *parent = 0, int size = 25);
 	void paintEvent(QPaintEvent *event);
-	class Bottom;
-	class Middle;
-	class Top;
+	class Slider;
+	class Lcd;
+	class Boundary;
 	struct Data;
 	Data *d;
 };

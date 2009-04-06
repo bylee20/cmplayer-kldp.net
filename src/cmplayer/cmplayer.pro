@@ -30,7 +30,13 @@ SOURCES += main.cpp \
 	playlistview.cpp \
 	snapshotdialog.cpp \
 	checkdialog.cpp \
- controlwidget.cpp
+ controlwidget.cpp \
+ playlistwidget.cpp \
+ toolbox.cpp \
+ dragmovecharm.cpp \
+ dragcharm.cpp \
+ designedwidgetiface.cpp \
+ skinmanager.cpp
 HEADERS += mainwindow.h \
 	abrepeatdialog.h \
 	playinfowidget.h \
@@ -62,14 +68,20 @@ HEADERS += mainwindow.h \
 	playlistview.h \
 	snapshotdialog.h \
 	checkdialog.h \
- controlwidget.h
+ controlwidget.h \
+ playlistwidget.h \
+ designedbuttons.h \
+ toolbox.h \
+ dragmovecharm.h \
+ dragcharm.h \
+ designedwidgetiface.h \
+ skinmanager.h
 FORMS += ./ui/abrepeatdialog.ui \
 	./ui/prefdialog.ui \
 	./ui/prefosdwidget.ui \
 	ui/prefstack.ui \
 	ui/geturldialog.ui \
 	ui/aboutdialog.ui \
-	ui/dockwidget.ui \
 	ui/snapshotdialog.ui
 
 CONFIG += debug_and_release qdbus

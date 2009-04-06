@@ -1,6 +1,8 @@
 #include "controlwidget.h"
+#include "skinmanager.h"
 #include "sliders.h"
 #include "videoplayer.h"
+#include "designedbuttons.h"
 #include <QtCore/QEvent>
 #include <QtGui/QAction>
 #include <QtGui/QVBoxLayout>
@@ -8,8 +10,6 @@
 #include <QtGui/QPainter>
 #include <QtGui/QLinearGradient>
 #include <QtGui/QPainterPath>
-#include <QtGui/QToolButton>
-#include <QtGui/QPushButton>
 #include <QtGui/QLabel>
 #include <QtCore/QDebug>
 #include <QtGui/QStackedWidget>
@@ -17,8 +17,52 @@
 #include <core/utility.h>
 #include "squeezedlabel.h"
 
-class ControlWidget::Top : public QWidget {
+class ControlWidget::Lcd : public QFrame {
 public:
+	Lcd(QWidget *parent = 0): QFrame(parent) {
+		setObjectName("lcd");
+		setStyleSheet("\
+			QFrame#lcd {\
+				margin: 0px; padding: 1px;\
+				border: 1px solid #aaa; border-radius: 3px;\
+				background: qlineargradient(x1:0, y1:0, x2:0, y2:1\
+				, stop:0 #111, stop:0.1 #6ad, stop:0.8 #6ad, stop:1 #fff);\
+			}"
+		 );
+		prevSecs = 0;
+		QHBoxLayout *hbox = new QHBoxLayout(this);
+		stack = new QStackedWidget(this);
+		time = new QLabel("00:00:00", this);
+		QLabel *slash = new QLabel("/", this);
+		duration = new QLabel("00:00:00", this);
+		hbox->addWidget(stack);
+		hbox->addWidget(time);
+		hbox->addWidget(slash);
+		hbox->addWidget(duration);
+
+		hbox->setContentsMargins(0, 0, 0, 0);
+		hbox->setSpacing(0);
+
+		QWidget *w = new QWidget(stack);
+		hbox = new QHBoxLayout(w);
+		stack->addWidget(w);
+		track = new QLabel(w);
+		state = new QLabel(w);
+		source = new SqueezedLabel(w);
+		hbox->addWidget(track);
+		hbox->addWidget(state);
+		hbox->addWidget(source);
+		stack->addWidget(w);
+	
+		hbox->setContentsMargins(0, 0, 0, 0);
+		hbox->setSpacing(0);
+
+		message = new QLabel(this);
+		stack->addWidget(message);
+	
+		stack->setCurrentIndex(Info);
+		hider.setSingleShot(true);
+	}
 	static const int Info = 0;
 	static const int Message = 1;
 	SqueezedLabel *source;
@@ -26,354 +70,145 @@ public:
 	QLabel *state, *track, *time, *duration, *message;
 	int prevSecs;
 	QTimer hider;
-	int height;
-	Top(QWidget *parent = 0)
-	: QWidget(parent) {
-		QFrame *panel = new QFrame(this);
-		panel->setObjectName("panel");
-		{
-			prevSecs = 0;
-			QHBoxLayout *hbox = new QHBoxLayout(panel);
-			stack = new QStackedWidget(panel);
-			time = new QLabel("00:00:00", panel);
-			QLabel *slash = new QLabel("/", panel);
-			duration = new QLabel("00:00:00", panel);
-			hbox->addWidget(stack);
-			hbox->addWidget(time);
-			hbox->addWidget(slash);
-			hbox->addWidget(duration);
-
-			hbox->setContentsMargins(0, 0, 0, 0);
-			hbox->setSpacing(0);
-
-			QWidget *w = new QWidget(stack);
-			hbox = new QHBoxLayout(w);
-			stack->addWidget(w);
-			track = new QLabel(w);
-			state = new QLabel(w);
-			source = new SqueezedLabel(w);
-			hbox->addWidget(track);
-			hbox->addWidget(state);
-			hbox->addWidget(source);
-			stack->addWidget(w);
-	
-			hbox->setContentsMargins(0, 0, 0, 0);
-			hbox->setSpacing(0);
-
-			message = new QLabel(panel);
-			stack->addWidget(message);
-	
-			stack->setCurrentIndex(Info);
-			hider.setSingleShot(true);
-			
-			setStyleSheet("\
-				QFrame#panel {\
-					margin: 0px;\
-					padding: 1px;\
-					border: 1px solid #aaa;\
-					background: qlineargradient(x1:0, y1:0, x2:0, y2:1\
-					, stop:0 #111, stop:0.1 #6ad, stop:0.8 #6ad, stop:1 #fff);\
-					border-radius: 3px;\
-				}"
-			);
-		}
-		height = panel->sizeHint().height();
-		openFile = new QPushButton("OPEN FILE", this);
-		openUrl = new QPushButton("OPEN URL", this);
-		fullScreen = new QPushButton("FULL SCREEN", this);
-		fullScreen->setCheckable(true);
-		playlist = new QPushButton("PLAYLIST", this);
-		playlist->setCheckable(true);
-		
-		QHBoxLayout *hbox = new QHBoxLayout(this);
-		hbox->setSpacing(0);
-		hbox->setContentsMargins(0, 0, 0, 0);
-		hbox->addItem(new QSpacerItem(39, 0, QSizePolicy::Fixed, QSizePolicy::Fixed));
-		QVBoxLayout *vbox = new QVBoxLayout;
-		vbox->addWidget(openFile);
-		vbox->addWidget(openUrl);
-		hbox->addLayout(vbox);
-		hbox->addWidget(panel);
-		vbox = new QVBoxLayout;
-		vbox->addWidget(playlist);
-		vbox->addWidget(fullScreen);
-		hbox->addLayout(vbox);
-		hbox->addItem(new QSpacerItem(39, 0, QSizePolicy::Fixed, QSizePolicy::Fixed));
-		
-		speaker = QBrush(qRgb(100, 100, 100), Qt::Dense4Pattern);
-	}
-	QPushButton *openFile, *openUrl, *playlist, *fullScreen;
-private:
-	QBrush speaker;
-	void paintEvent(QPaintEvent */*event*/) {
-		QPainter painter(this);
-		QRectF r = rect();
-		r.setWidth(35);
-		r.moveLeft(2);
-		painter.fillRect(r, speaker);
-		r.moveRight(width()-2);
-		painter.fillRect(r, speaker);
-	}
 };
 
-class ControlWidget::Middle : public QWidget {
+class ControlWidget::Slider : public QWidget {
 public:
-	Middle(VideoPlayer *player, QWidget *parent = 0)
-	: QWidget(parent), mute(createButton(this, 10)) {
+	Slider(VideoPlayer *player, QWidget *parent = 0): QWidget(parent) {
+		mute = new Button(this);
+		mute->setBlock(false);
+		mute->setIconSize(10);
 		QHBoxLayout *hbox = new QHBoxLayout(this);
 		hbox->setSpacing(0);
 		hbox->setContentsMargins(0, 0, 0, 0);
 		setFixedHeight(15);
-		setStyleSheet("\
-JumpSlider::groove:horizontal {\
-	border: 1px solid #6ad;\
-	height: 3px;\
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-	margin: 0px 2px;\
-	padding: 0px;\
-}\
-JumpSlider::handle:horizontal {\
-	background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #aaa, stop:1 #999);\
-	border: 1px solid #5c5c5c;\
-	width: 5px;\
-	margin: -2px 0px;\
-	padding: 1px;\
-	border-radius: 2px;\
-}\
-JumpSlider::handle:horizontal:hover {\
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-	border: 1px solid #6ad;\
-	padding: 1px;\
-}\
-JumpSlider::handle:horizontal:pressed {\
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-	border: 2px solid #6ad;\
-	padding: 0px;\
-}\
-JumpSlider::add-page:horizontal {\
-	border: 1px solid #999;\
-	height: 3px;\
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #333, stop:1 #bbb);\
-	margin: 0px 2px;\
-	padding: 0px;\
-}\
-QToolButton {\
-	width: 10px;\
-	height: 10px;\
-}");
 		hbox->addWidget(new SeekSlider(player, this));
 		hbox->addWidget(mute);
 		hbox->addWidget(new VolumeSlider(player, this));
 	}
-	QToolButton *mute;
+	Button *mute;
 };
 
-class ControlWidget::Bottom : public QWidget {
+class ControlWidget::Boundary : public QWidget {
 public:
-	Bottom(QWidget *parent = 0)
-	: QWidget(parent), play(createButton(this)), stop(createButton(this))
-	, prev(createButton(this)), next(createButton(this))
-	, forward(createButton(this)), backward(createButton(this)) {
-		QLinearGradient grad(0.5, 0.0, 0.5, 1.0);
-		grad.setColorAt(1.0, qRgb(100, 100, 100));
-		grad.setColorAt(0.0, qRgb(0, 0, 0));
-		bg = QBrush(grad);
-		
-		grad = QLinearGradient(0.5, 0.1, 0.5, 0.9);
-		grad.setColorAt(1.0, Qt::white);
-		grad.setColorAt(0.0, Qt::transparent);
-		light = QBrush(grad);
-
-		path.moveTo(0.0, 1.0);
-		path.cubicTo(0.05, 0.3, 0.05, 0.3, 0.5, 0.3);
-		path.cubicTo(0.95, 0.3, 0.95, 0.3, 1.0, 1.0);
-		path.closeSubpath();
-		
-		QHBoxLayout *hbox = new QHBoxLayout(this);
-		hbox->setSpacing(0);
-		hbox->setContentsMargins(0, 0, 0, 2);
-		hbox->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
-		hbox->addWidget(prev);
-		hbox->addWidget(backward);
-		hbox->addWidget(play);
-		hbox->addWidget(stop);
-		hbox->addWidget(forward);
-		hbox->addWidget(next);
-		hbox->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+	Boundary(QWidget *parent = 0): QWidget(parent) {
+		setFixedHeight(5);
+		setStyleSheet("background: "
+			"qlineargradient(x1:0, y1:0, x2:0, y2:1, "
+			"stop:0 #000, stop:0.1 #000, stop:0.5 #888, "
+			"stop:0.6 #000, stop:1 #000);");
 	}
-	QToolButton *play, *stop, *prev, *next, *forward, *backward;
-private:
-	void paintEvent(QPaintEvent */*event*/) {
-		QPainter painter(this);
-		painter.save();
-		painter.setRenderHint(QPainter::Antialiasing);
-		painter.scale(width(), height());
-		painter.setPen(Qt::NoPen);
-		painter.fillRect(rect(), bg);
-		painter.setOpacity(0.2);
-		painter.setBrush(light);
-		painter.drawPath(path);
-		painter.restore();
-	}
-	QBrush bg, light;
-	QPainterPath path;
 };
 
 struct ControlWidget::Data {
+	Boundary *boundary;
+	Lcd *lcd;
+	Slider *slider;
 	VideoPlayer *player;
-	Top *top;
-	Middle *middle;
-	Bottom *bottom;
-	QAction *playlist, *fullScreen;
+	Button *openFile, *openUrl, *playlist, *fullScreen;
+	Button *play, *stop, *prev, *next, *forward, *backward;
 };
 
 ControlWidget::ControlWidget(VideoPlayer *player, QWidget *parent)
 : QWidget(parent), d(new Data) {
 	d->player = player;
-	d->fullScreen = d->playlist = 0;
-	d->top = new Top(this);
-	d->middle = new Middle(d->player, this);
-	d->bottom = new Bottom(this);
-	int bh = d->top->height/2-2;
-	QRect r;
-	int bf = bh;
-	QFont f(font());
-	int i=0;
-	do {
-		bf = bh * (1.0 - i*0.1) + 0.5;
-		f.setPixelSize(bf);
-		QFontMetrics fm(f);
-		r = fm.boundingRect("FULL SCREEN");
-		++i;
-	} while (r.height() > bh+3);
-	setStyleSheet(QString("\
-QToolButton {\
-	border: none;\
-	margin:0px;\
-	padding: 2px;\
-}\
-QToolButton:hover {\
-	border: 1px solid #6ad;\
-	border-radius: 3px;\
-	padding: 1px;\
-}\
-QToolButton:pressed {\
-	border: 2px solid #6ad;\
-	border-radius: 3px;\
-	padding: 0px;\
-}\
-QPushButton {\
-	border: 1px solid #999;\
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-	margin: 0px 2px;\
-	padding: 1px;\
-	width: %1px;\
-	height: %2px;\
-	font-size: %3px\
-}\
-QPushButton:checked {\
-	border: 1px solid #999;\
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #777, stop:1 #bbb);\
-}\
-QPushButton:hover {\
-	border: 1px solid #6ad;\
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-}\
-QPushButton:pressed {\
-	border: 2px solid #6ad;\
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #777, stop:1 #bbb);\
-	padding: 0px;\
-}\
-QPushButton:checked:hover {\
-	border: 1px solid #6ad;\
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #777, stop:1 #bbb);\
-}\
-QPushButton:checked:pressed {\
-	border: 2px solid #6ad;\
-	background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #777, stop:1 #bbb);\
-	padding: 0px;\
-}").arg(r.width() + 3).arg(bh).arg(bf));
-
-	QWidget *line = new QWidget(this);
-	line->setFixedHeight(5);
-	line->setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #000, stop:0.1 #000, stop:0.5 #888, stop:0.6 #000, stop:1 #000);");
-
-	QVBoxLayout *vbox = new QVBoxLayout(this);
-	vbox->addWidget(line);
-	vbox->addWidget(d->top);
-	vbox->addWidget(d->middle);
-	vbox->addWidget(d->bottom);
-	vbox->setSpacing(0);
-	vbox->setContentsMargins(0, 0, 0, 0);
-// 	setFixedHeight(50);
+	d->boundary = new Boundary(this);
+	d->lcd = new Lcd(this);
+	d->slider = new Slider(player, this);
+	d->openFile = new Button(this);
+	d->openUrl = new Button(this);
+	d->fullScreen = new Button(this);
+	d->playlist = new Button(this);
+	d->play = new Button(this);
+	d->stop = new Button(this);
+	d->prev = new Button(this);
+	d->next = new Button(this);
+	d->forward = new Button(this);
+	d->backward = new Button(this);
 	setState(Core::Stopped);
-	connect(&d->top->hider, SIGNAL(timeout()), this, SLOT(hideMessage()));
+	connect(&d->lcd->hider, SIGNAL(timeout()), this, SLOT(hideMessage()));
 	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
 			, this, SLOT(setState(Core::State)));
 	connect(d->player, SIGNAL(currentSourceChanged(const Core::MediaSource&))
 			, this, SLOT(setCurrentSource(const Core::MediaSource&)));
 	connect(d->player, SIGNAL(durationChanged(int)), this, SLOT(setDuration(int)));
 	connect(d->player, SIGNAL(tick(int)), this, SLOT(setPlayTime(int)));
-	
 	retranslateUi();
+	updateLayout();
 }
 
 ControlWidget::~ControlWidget() {
 	delete d;
 }
 
-QToolButton *ControlWidget::createButton(QWidget *parent, int size) {
-	QToolButton *button = new QToolButton(parent);
-	button->setIconSize(QSize(size, size));
-	button->setAutoRaise(true);
-	button->setFocusPolicy(Qt::NoFocus);
-	return button;
-}
-
 void ControlWidget::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);
 	painter.fillRect(rect(), Qt::black);
+	
+	QLinearGradient grad(0.5, 0.0, 0.5, 1.0);
+	grad.setColorAt(1.0, qRgb(100, 100, 100));
+	grad.setColorAt(0.0, qRgb(0, 0, 0));
+	QBrush bg = QBrush(grad);
+		
+	grad = QLinearGradient(0.5, 0.1, 0.5, 0.9);
+	grad.setColorAt(1.0, Qt::white);
+	grad.setColorAt(0.0, Qt::transparent);
+	QBrush light = QBrush(grad);
+	
+	QPainterPath path;
+	path.moveTo(0.0, 1.0);
+	path.cubicTo(0.05, 0.3, 0.05, 0.3, 0.5, 0.3);
+	path.cubicTo(0.95, 0.3, 0.95, 0.3, 1.0, 1.0);
+	path.closeSubpath();
+
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.scale(width(), height());
+	painter.setPen(Qt::NoPen);
+	painter.fillRect(rect(), bg);
+	painter.setOpacity(0.2);
+	painter.setBrush(light);
+	painter.drawPath(path);
 }
 
 void ControlWidget::connectMute(QAction *action) {
-	d->middle->mute->setDefaultAction(action);
+	d->slider->mute->setDefaultAction(action);
 }
 
 void ControlWidget::connectPlay(QAction *action) {
-	d->bottom->play->setDefaultAction(action);
+	d->play->setDefaultAction(action);
 }
 
 void ControlWidget::connectStop(QAction *action) {
-	d->bottom->stop->setDefaultAction(action);
+	d->stop->setDefaultAction(action);
 }
 
 void ControlWidget::connectPrevious(QAction *action) {
-	d->bottom->prev->setDefaultAction(action);
+	d->prev->setDefaultAction(action);
 }
 
 void ControlWidget::connectNext(QAction *action) {
-	d->bottom->next->setDefaultAction(action);
+	d->next->setDefaultAction(action);
 }
 
 void ControlWidget::connectForward(QAction *action) {
-	d->bottom->forward->setDefaultAction(action);
+	d->forward->setAction(action, true);
 }
 
 void ControlWidget::connectBackward(QAction *action) {
-	d->bottom->backward->setDefaultAction(action);
+	d->backward->setDefaultAction(action);
 }
 
 void ControlWidget::showMessage(const QString &msg, int time) {
-	d->top->hider.stop();
+	d->lcd->hider.stop();
 	if (time > 0) {
-		d->top->message->setText(msg);
-		d->top->stack->setCurrentIndex(Top::Message);
-		d->top->hider.start(time);
+		d->lcd->message->setText(msg);
+		d->lcd->stack->setCurrentIndex(Lcd::Message);
+		d->lcd->hider.start(time);
 	}
 }
 
 void ControlWidget::setCurrentSource(const Core::MediaSource &source) {
-	d->top->source->setText(source.displayName());
+	d->lcd->source->setText(source.displayName());
 	hideMessage();
 }
 
@@ -387,70 +222,55 @@ void ControlWidget::setState(Core::State state) {
 		text += tr("Playing");
 	else
 		text += tr("Paused");
-	d->top->state->setText("(" + text + ") ");
+	d->lcd->state->setText("(" + text + ") ");
 	hideMessage();
 }
 
 void ControlWidget::setDuration(int duration) {
-	d->top->duration->setText(Core::Utility::msecsToString(duration));
+	d->lcd->duration->setText(Core::Utility::msecsToString(duration));
 }
 
 void ControlWidget::setPlayTime(int time) {
 	const int secs = time/1000;
-	if (d->top->prevSecs != secs) {
-		d->top->time->setText(Core::Utility::secsToString(secs));
-		d->top->prevSecs = secs;
+	if (d->lcd->prevSecs != secs) {
+		d->lcd->time->setText(Core::Utility::secsToString(secs));
+		d->lcd->prevSecs = secs;
 	}
 }
 
 void ControlWidget::setTrackNumber(int nth, int total) {
 	if (nth < 1 || total < 2) 
-		d->top->track->clear();
+		d->lcd->track->clear();
 	else
-		d->top->track->setText(QString("%1/%2 ").arg(nth).arg(total));
+		d->lcd->track->setText(QString("%1/%2 ").arg(nth).arg(total));
 	hideMessage();
 }
 
 void ControlWidget::hideMessage() {
-	d->top->stack->setCurrentIndex(Top::Info);
-}
-
-void ControlWidget::togglePlaylist(bool visible) {
-	if (d->playlist && d->playlist->isChecked() != visible)
-		d->playlist->trigger();
-}
-
-void ControlWidget::toggleFullScreen(bool full) {
-	if (d->fullScreen && d->fullScreen->isChecked() != full)
-		d->fullScreen->trigger();
+	d->lcd->stack->setCurrentIndex(Lcd::Info);
 }
 
 void ControlWidget::connectOpenFile(QAction *action) {
-	connect(d->top->openFile, SIGNAL(clicked()), action, SLOT(trigger()));
+	d->openFile->setAction(action, false);
 }
 
 void ControlWidget::connectOpenUrl(QAction *action) {
-	connect(d->top->openUrl, SIGNAL(clicked()), action, SLOT(trigger()));
+	d->openUrl->setAction(action, false);
 }
 
-
 void ControlWidget::connectPlaylist(QAction *action) {
-	d->playlist = action;
-	connect(d->top->playlist, SIGNAL(toggled(bool)), this, SLOT(togglePlaylist(bool)));
-	connect(action, SIGNAL(toggled(bool)), d->top->playlist, SLOT(setChecked(bool)));
+	d->playlist->setAction(action, false);
 }
 
 void ControlWidget::connectFullScreen(QAction *action) {
-	d->fullScreen = action;
-	connect(d->top->fullScreen, SIGNAL(toggled(bool)), this, SLOT(toggleFullScreen(bool)));
-	connect(action, SIGNAL(toggled(bool)), d->top->fullScreen, SLOT(setChecked(bool)));
+	d->fullScreen->setAction(action, false);
 }
 
 void ControlWidget::retranslateUi() {
-	d->top->openFile->setToolTip(tr("Open File"));
-	d->top->openUrl->setToolTip(tr("Open URL"));		
-	d->top->fullScreen->setToolTip(tr("Toggle Full Screen Mode"));
-	d->top->playlist->setToolTip(tr("Toogle Playlis Visibility"));
+	d->openFile->setToolTip(tr("Open File"));
+	d->openUrl->setToolTip(tr("Open URL"));		
+	d->fullScreen->setToolTip(tr("Toggle Full Screen Mode"));
+	d->playlist->setToolTip(tr("Toogle Playlis Visibility"));
 }
 
 void ControlWidget::changeEvent(QEvent *event) {
@@ -458,4 +278,160 @@ void ControlWidget::changeEvent(QEvent *event) {
 		retranslateUi();
 	else
 		QWidget::changeEvent(event);
+}
+
+void ControlWidget::updateLayout() {
+	delete layout();
+	if (SkinManager::get().panelLayout() != SkinManager::OneLine) {
+		d->forward->setBlock(false);
+		d->backward->setBlock(false);
+		d->play->setBlock(false);
+		d->prev->setBlock(false);
+		d->stop->setBlock(false);
+		d->next->setBlock(false);
+		d->fullScreen->setBlock(true);
+		d->openFile->setBlock(true);
+		d->openUrl->setBlock(true);
+		d->playlist->setBlock(true);
+		d->stop->hide();
+		
+		const int bh = d->lcd->sizeHint().height()/2 - 2;
+		QRect r;
+		int bf = bh;
+		QFont f(font());
+		int i=0;
+		do {
+			bf = bh * (1.0 - i*0.1) + 0.5;
+			f.setPixelSize(bf);
+			QFontMetrics fm(f);
+			r = fm.boundingRect("FULL SCREEN");
+			++i;
+		} while (r.height() > bh+3);
+		setStyleSheet(QString("Button#block {width: %1px; height: %2px; font-size: %3px;}")
+				.arg(r.width() + 3).arg(bh).arg(bf));
+
+		const int big = d->lcd->sizeHint().height() + d->slider->height();
+		const int small = big/2-4;
+		d->play->setIconSize(big);
+		d->stop->setIconSize(small);
+		d->prev->setIconSize(small);
+		d->next->setIconSize(small);
+		d->forward->setIconSize(small);
+		d->backward->setIconSize(small);
+		
+		d->openFile->setText("OPEN FILE");
+		d->openUrl->setText("OPEN URL");
+		d->fullScreen->setText("FULL SCREEN");
+		d->playlist->setText("PLAYLIST");
+		
+
+		QGridLayout *left = new QGridLayout;
+		left->setContentsMargins(0, 0, 0, 0);
+// 		left->setSpacing(0);
+		left->addWidget(d->play, 0, 0, 2, 1);
+		left->addWidget(d->backward, 0, 1, 1, 1);
+		left->addWidget(d->forward, 0, 2, 1, 1);
+		left->addWidget(d->prev, 1, 1, 1, 1);
+		left->addWidget(d->next, 1, 2, 1, 1);
+		
+		QVBoxLayout *right = new QVBoxLayout;
+		right->setContentsMargins(0, 0, 0, 0);
+// 		right->setSpacing(0);
+		QHBoxLayout *hbox = new QHBoxLayout;
+		hbox->setContentsMargins(0, 0, 0, 0);
+		hbox->addWidget(d->lcd);
+		QGridLayout *grid = new QGridLayout;
+		grid->setContentsMargins(2, 0, 0, 0);
+		grid->addWidget(d->openFile, 0, 0, 1, 1);
+		grid->addWidget(d->openUrl, 1, 0, 1, 1);
+		grid->addWidget(d->playlist, 0, 1, 1, 1);
+		grid->addWidget(d->fullScreen, 1, 1, 1, 1);
+		hbox->addLayout(grid);
+		right->addLayout(hbox);
+		right->addWidget(d->slider);
+		
+		hbox = new QHBoxLayout;
+		hbox->setContentsMargins(2, 0, 2, 0);
+		hbox->addLayout(left);
+		hbox->addLayout(right);
+		
+		QVBoxLayout *layout = new QVBoxLayout(this);
+		layout->setContentsMargins(0, 0, 0, 0);
+		layout->setSpacing(0);
+		layout->addWidget(d->boundary);
+		layout->addLayout(hbox);
+	} else {
+		d->forward->setBlock(false);
+		d->backward->setBlock(false);
+		d->play->setBlock(false);
+		d->prev->setBlock(false);
+		d->stop->setBlock(false);
+		d->next->setBlock(false);
+		d->fullScreen->setBlock(true);
+		d->openFile->setBlock(true);
+		d->openUrl->setBlock(true);
+		d->playlist->setBlock(true);
+		d->stop->show();
+		
+		const int size = 25;
+		d->play->setIconSize(size);
+		d->stop->setIconSize(size);
+		d->prev->setIconSize(size);
+		d->next->setIconSize(size);
+		d->forward->setIconSize(size);
+		d->backward->setIconSize(size);
+		
+		d->openFile->setText("OPEN FILE");
+		d->openUrl->setText("OPEN URL");
+		d->fullScreen->setText("FULL SCREEN");
+		d->playlist->setText("PLAYLIST");
+		
+		const int bh = d->lcd->sizeHint().height()/2 - 2;
+		QRect r;
+		int bf = bh;
+		QFont f(font());
+		int i=0;
+		do {
+			bf = bh * (1.0 - i*0.1) + 0.5;
+			f.setPixelSize(bf);
+			QFontMetrics fm(f);
+			r = fm.boundingRect("FULL SCREEN");
+			++i;
+		} while (r.height() > bh+3);
+		setStyleSheet(QString("Button#block {width: %1px; height: %2px; font-size: %3px;}")
+				.arg(r.width() + 3).arg(bh).arg(bf));
+	
+		QHBoxLayout *top = new QHBoxLayout;
+		top->setSpacing(0);
+		top->setContentsMargins(0, 0, 0, 0);
+		QVBoxLayout *vbox = new QVBoxLayout;
+		vbox->addWidget(d->openFile);
+		vbox->addWidget(d->openUrl);
+		top->addLayout(vbox);
+		top->addWidget(d->lcd);
+		vbox = new QVBoxLayout;
+		vbox->addWidget(d->playlist);
+		vbox->addWidget(d->fullScreen);
+		top->addLayout(vbox);
+
+		QHBoxLayout *bottom = new QHBoxLayout;
+		bottom->setSpacing(0);
+		bottom->setContentsMargins(0, 0, 0, 2);
+		bottom->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+		bottom->addWidget(d->prev);
+		bottom->addWidget(d->backward);
+		bottom->addWidget(d->play);
+		bottom->addWidget(d->stop);
+		bottom->addWidget(d->forward);
+		bottom->addWidget(d->next);
+		bottom->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed));
+
+		QVBoxLayout *layout = new QVBoxLayout(this);
+		layout->setSpacing(0);
+		layout->setContentsMargins(0, 0, 0, 0);
+		layout->addWidget(d->boundary);
+		layout->addLayout(top);
+		layout->addWidget(d->slider);
+		layout->addLayout(bottom);
+	}
 }

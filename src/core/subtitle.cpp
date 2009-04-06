@@ -108,7 +108,7 @@ QString Subtitle::text(int time, double frameRate) const {
 }
 
 bool Subtitle::save(const QString &file, const QString &enc, double frameRate) const {
-	Parser *parser = Parser::create(QFileInfo(file).suffix());
+	Parser *parser = Parser::create(file);
 	bool result = false;
 	if (parser) {
 		parser->setEncoding(enc);

@@ -23,7 +23,7 @@ public:
 		SubtitlePos,
 		SubtitleSync,
 		LastOpenFile,
-		DockWidth,
+		DockContentsWidth,
 		TrayFirst,
 		TypeMax
 	};

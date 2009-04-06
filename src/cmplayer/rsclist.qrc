@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="/" >
+    <file>img/view-split-left-right.png</file>
+    <file>img/arrow-down-gray.png</file>
+    <file>img/edit-delete-gray.png</file>
+    <file>img/window-duplicate-gray.png</file>
     <file>img/irc-voice.png</file>
     <file>img/irc-unvoice.png</file>
     <file>img/zoom-original.png</file>
