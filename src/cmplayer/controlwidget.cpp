@@ -23,14 +23,18 @@ public:
 		setObjectName("lcd");
 		setStyleSheet("\
 			QFrame#lcd {\
-				margin: 0px; padding: 1px;\
+				margin: 0px; padding: 0px 3px;\
 				border: 1px solid #aaa; border-radius: 3px;\
 				background: qlineargradient(x1:0, y1:0, x2:0, y2:1\
 				, stop:0 #111, stop:0.1 #6ad, stop:0.8 #6ad, stop:1 #fff);\
-			}"
+			}\
+			QLabel {font-size: 11px;}"
 		 );
 		prevSecs = 0;
 		QHBoxLayout *hbox = new QHBoxLayout(this);
+		hbox->setContentsMargins(0, 0, 0, 0);
+		hbox->setSpacing(0);
+		
 		stack = new QStackedWidget(this);
 		time = new QLabel("00:00:00", this);
 		QLabel *slash = new QLabel("/", this);
@@ -39,12 +43,12 @@ public:
 		hbox->addWidget(time);
 		hbox->addWidget(slash);
 		hbox->addWidget(duration);
-
+		
+		QWidget *w = new QWidget(stack);
+		hbox = new QHBoxLayout(w);
 		hbox->setContentsMargins(0, 0, 0, 0);
 		hbox->setSpacing(0);
 
-		QWidget *w = new QWidget(stack);
-		hbox = new QHBoxLayout(w);
 		stack->addWidget(w);
 		track = new QLabel(w);
 		state = new QLabel(w);
@@ -54,9 +58,6 @@ public:
 		hbox->addWidget(source);
 		stack->addWidget(w);
 	
-		hbox->setContentsMargins(0, 0, 0, 0);
-		hbox->setSpacing(0);
-
 		message = new QLabel(this);
 		stack->addWidget(message);
 	
@@ -101,22 +102,26 @@ public:
 };
 
 struct ControlWidget::Data {
+	Layout layout;
 	Boundary *boundary;
 	Lcd *lcd;
 	Slider *slider;
 	VideoPlayer *player;
-	Button *openFile, *openUrl, *playlist, *fullScreen;
+	Button *toggle;
+	Button *open, *playlist, *fullScreen;
 	Button *play, *stop, *prev, *next, *forward, *backward;
 };
 
 ControlWidget::ControlWidget(VideoPlayer *player, QWidget *parent)
 : QWidget(parent), d(new Data) {
+	d->layout = static_cast<Layout>(0);
 	d->player = player;
 	d->boundary = new Boundary(this);
 	d->lcd = new Lcd(this);
 	d->slider = new Slider(player, this);
-	d->openFile = new Button(this);
-	d->openUrl = new Button(this);
+	d->toggle = new Button(this);
+	d->open = new Button(this);
+// 	d->openUrl = new Button(this);
 	d->fullScreen = new Button(this);
 	d->playlist = new Button(this);
 	d->play = new Button(this);
@@ -125,6 +130,20 @@ ControlWidget::ControlWidget(VideoPlayer *player, QWidget *parent)
 	d->next = new Button(this);
 	d->forward = new Button(this);
 	d->backward = new Button(this);
+	d->forward->setBlock(false);
+	d->backward->setBlock(false);
+	d->play->setBlock(false);
+	d->prev->setBlock(false);
+	d->stop->setBlock(false);
+	d->next->setBlock(false);
+	d->fullScreen->setBlock(false);
+	d->open->setBlock(false);
+	d->toggle->setBlock(false);
+	d->playlist->setBlock(false);
+	d->playlist->setIcon(QIcon(":/img/format-list-unordered-gray.png"));
+	d->open->setIcon(QIcon(":/img/open-media-gray.png"));
+	d->fullScreen->setIcon(QIcon(":/img/view-fullscreen-gray.png"));
+	d->toggle->setIcon(QIcon(":/img/toggle-panel.png"));
 	setState(Core::Stopped);
 	connect(&d->lcd->hider, SIGNAL(timeout()), this, SLOT(hideMessage()));
 	connect(d->player, SIGNAL(stateChanged(Core::State, Core::State))
@@ -133,12 +152,17 @@ ControlWidget::ControlWidget(VideoPlayer *player, QWidget *parent)
 			, this, SLOT(setCurrentSource(const Core::MediaSource&)));
 	connect(d->player, SIGNAL(durationChanged(int)), this, SLOT(setDuration(int)));
 	connect(d->player, SIGNAL(tick(int)), this, SLOT(setPlayTime(int)));
+	connect(d->toggle, SIGNAL(clicked()), this, SLOT(toggleLayout()));
 	retranslateUi();
-	updateLayout();
+	changeLayout(OneLine);
 }
 
 ControlWidget::~ControlWidget() {
 	delete d;
+}
+
+void ControlWidget::toggleLayout() {
+	changeLayout(d->layout == OneLine ? TwoLine : OneLine);
 }
 
 void ControlWidget::paintEvent(QPaintEvent */*event*/) {
@@ -183,19 +207,19 @@ void ControlWidget::connectStop(QAction *action) {
 }
 
 void ControlWidget::connectPrevious(QAction *action) {
-	d->prev->setDefaultAction(action);
+	d->prev->setAction(action, false);
 }
 
 void ControlWidget::connectNext(QAction *action) {
-	d->next->setDefaultAction(action);
+	d->next->setAction(action, false);
 }
 
 void ControlWidget::connectForward(QAction *action) {
-	d->forward->setAction(action, true);
+	d->forward->setAction(action, false);
 }
 
 void ControlWidget::connectBackward(QAction *action) {
-	d->backward->setDefaultAction(action);
+	d->backward->setAction(action, false);
 }
 
 void ControlWidget::showMessage(const QString &msg, int time) {
@@ -250,12 +274,8 @@ void ControlWidget::hideMessage() {
 	d->lcd->stack->setCurrentIndex(Lcd::Info);
 }
 
-void ControlWidget::connectOpenFile(QAction *action) {
-	d->openFile->setAction(action, false);
-}
-
-void ControlWidget::connectOpenUrl(QAction *action) {
-	d->openUrl->setAction(action, false);
+void ControlWidget::connectOpen(QAction *action) {
+	d->open->setAction(action, false);
 }
 
 void ControlWidget::connectPlaylist(QAction *action) {
@@ -267,8 +287,8 @@ void ControlWidget::connectFullScreen(QAction *action) {
 }
 
 void ControlWidget::retranslateUi() {
-	d->openFile->setToolTip(tr("Open File"));
-	d->openUrl->setToolTip(tr("Open URL"));		
+	d->open->setToolTip(tr("Open File"));
+// 	d->openUrl->setToolTip(tr("Open URL"));		
 	d->fullScreen->setToolTip(tr("Toggle Full Screen Mode"));
 	d->playlist->setToolTip(tr("Toogle Playlis Visibility"));
 }
@@ -280,37 +300,21 @@ void ControlWidget::changeEvent(QEvent *event) {
 		QWidget::changeEvent(event);
 }
 
-void ControlWidget::updateLayout() {
+void ControlWidget::changeLayout(Layout l) {
+	if (d->layout == l)
+		return;
 	delete layout();
-	if (SkinManager::get().panelLayout() != SkinManager::OneLine) {
-		d->forward->setBlock(false);
-		d->backward->setBlock(false);
-		d->play->setBlock(false);
-		d->prev->setBlock(false);
-		d->stop->setBlock(false);
-		d->next->setBlock(false);
-		d->fullScreen->setBlock(true);
-		d->openFile->setBlock(true);
-		d->openUrl->setBlock(true);
-		d->playlist->setBlock(true);
+	d->layout = l;
+	setMinimumHeight(0);
+	setMaximumHeight(100000);
+	if (d->layout == OneLine) {
+		d->backward->setIcon(QIcon(":/img/arrow-left-double-gray.png"));
+		d->prev->setIcon(QIcon(":/img/go-first-view-gray.png"));
+		d->next->setIcon(QIcon(":/img/go-last-view-gray.png"));
+		d->forward->setIcon(QIcon(":/img/arrow-right-double-gray.png"));
 		d->stop->hide();
-		
-		const int bh = d->lcd->sizeHint().height()/2 - 2;
-		QRect r;
-		int bf = bh;
-		QFont f(font());
-		int i=0;
-		do {
-			bf = bh * (1.0 - i*0.1) + 0.5;
-			f.setPixelSize(bf);
-			QFontMetrics fm(f);
-			r = fm.boundingRect("FULL SCREEN");
-			++i;
-		} while (r.height() > bh+3);
-		setStyleSheet(QString("Button#block {width: %1px; height: %2px; font-size: %3px;}")
-				.arg(r.width() + 3).arg(bh).arg(bf));
 
-		const int big = d->lcd->sizeHint().height() + d->slider->height();
+		const int big = d->lcd->sizeHint().height() + d->slider->height() - 2;
 		const int small = big/2-4;
 		d->play->setIconSize(big);
 		d->stop->setIconSize(small);
@@ -318,41 +322,34 @@ void ControlWidget::updateLayout() {
 		d->next->setIconSize(small);
 		d->forward->setIconSize(small);
 		d->backward->setIconSize(small);
-		
-		d->openFile->setText("OPEN FILE");
-		d->openUrl->setText("OPEN URL");
-		d->fullScreen->setText("FULL SCREEN");
-		d->playlist->setText("PLAYLIST");
-		
+		d->playlist->setIconSize(small);
+		d->open->setIconSize(small);
+		d->toggle->setIconSize(small);
+		d->fullScreen->setIconSize(small);
 
 		QGridLayout *left = new QGridLayout;
 		left->setContentsMargins(0, 0, 0, 0);
-// 		left->setSpacing(0);
 		left->addWidget(d->play, 0, 0, 2, 1);
 		left->addWidget(d->backward, 0, 1, 1, 1);
 		left->addWidget(d->forward, 0, 2, 1, 1);
 		left->addWidget(d->prev, 1, 1, 1, 1);
 		left->addWidget(d->next, 1, 2, 1, 1);
 		
-		QVBoxLayout *right = new QVBoxLayout;
-		right->setContentsMargins(0, 0, 0, 0);
-// 		right->setSpacing(0);
-		QHBoxLayout *hbox = new QHBoxLayout;
-		hbox->setContentsMargins(0, 0, 0, 0);
-		hbox->addWidget(d->lcd);
-		QGridLayout *grid = new QGridLayout;
-		grid->setContentsMargins(2, 0, 0, 0);
-		grid->addWidget(d->openFile, 0, 0, 1, 1);
-		grid->addWidget(d->openUrl, 1, 0, 1, 1);
-		grid->addWidget(d->playlist, 0, 1, 1, 1);
-		grid->addWidget(d->fullScreen, 1, 1, 1, 1);
-		hbox->addLayout(grid);
-		right->addLayout(hbox);
-		right->addWidget(d->slider);
+		QVBoxLayout *middle = new QVBoxLayout;
+		middle->addWidget(d->lcd);
+		middle->addWidget(d->slider);
 		
-		hbox = new QHBoxLayout;
+		QGridLayout *right = new QGridLayout;
+		right->setContentsMargins(2, 0, 0, 0);
+		right->addWidget(d->open, 0, 0, 1, 1);
+		right->addWidget(d->toggle, 1, 0, 1, 1);
+		right->addWidget(d->playlist, 0, 1, 1, 1);
+		right->addWidget(d->fullScreen, 1, 1, 1, 1);
+		
+		QHBoxLayout *hbox = new QHBoxLayout;
 		hbox->setContentsMargins(2, 0, 2, 0);
 		hbox->addLayout(left);
+		hbox->addLayout(middle);
 		hbox->addLayout(right);
 		
 		QVBoxLayout *layout = new QVBoxLayout(this);
@@ -361,58 +358,34 @@ void ControlWidget::updateLayout() {
 		layout->addWidget(d->boundary);
 		layout->addLayout(hbox);
 	} else {
-		d->forward->setBlock(false);
-		d->backward->setBlock(false);
-		d->play->setBlock(false);
-		d->prev->setBlock(false);
-		d->stop->setBlock(false);
-		d->next->setBlock(false);
-		d->fullScreen->setBlock(true);
-		d->openFile->setBlock(true);
-		d->openUrl->setBlock(true);
-		d->playlist->setBlock(true);
+		d->backward->setIcon(QIcon(":/img/media-seek-backward.png"));
+		d->forward->setIcon(QIcon(":/img/media-seek-forward.png"));
+		d->prev->setIcon(QIcon(":/img/media-skip-backward.png"));
+		d->next->setIcon(QIcon(":/img/media-skip-forward.png"));
+		
 		d->stop->show();
 		
-		const int size = 25;
-		d->play->setIconSize(size);
-		d->stop->setIconSize(size);
-		d->prev->setIconSize(size);
-		d->next->setIconSize(size);
-		d->forward->setIconSize(size);
-		d->backward->setIconSize(size);
+		const int big = 25;
+		const int small = d->lcd->sizeHint().height() - 4;
+		d->play->setIconSize(big);
+		d->stop->setIconSize(big);
+		d->prev->setIconSize(big);
+		d->next->setIconSize(big);
+		d->forward->setIconSize(big);
+		d->backward->setIconSize(big);
+		d->toggle->setIconSize(small);
+		d->fullScreen->setIconSize(small);
+		d->open->setIconSize(small);
+		d->playlist->setIconSize(small);
 		
-		d->openFile->setText("OPEN FILE");
-		d->openUrl->setText("OPEN URL");
-		d->fullScreen->setText("FULL SCREEN");
-		d->playlist->setText("PLAYLIST");
-		
-		const int bh = d->lcd->sizeHint().height()/2 - 2;
-		QRect r;
-		int bf = bh;
-		QFont f(font());
-		int i=0;
-		do {
-			bf = bh * (1.0 - i*0.1) + 0.5;
-			f.setPixelSize(bf);
-			QFontMetrics fm(f);
-			r = fm.boundingRect("FULL SCREEN");
-			++i;
-		} while (r.height() > bh+3);
-		setStyleSheet(QString("Button#block {width: %1px; height: %2px; font-size: %3px;}")
-				.arg(r.width() + 3).arg(bh).arg(bf));
-	
 		QHBoxLayout *top = new QHBoxLayout;
 		top->setSpacing(0);
 		top->setContentsMargins(0, 0, 0, 0);
-		QVBoxLayout *vbox = new QVBoxLayout;
-		vbox->addWidget(d->openFile);
-		vbox->addWidget(d->openUrl);
-		top->addLayout(vbox);
+		top->addWidget(d->open);
+		top->addWidget(d->toggle);
 		top->addWidget(d->lcd);
-		vbox = new QVBoxLayout;
-		vbox->addWidget(d->playlist);
-		vbox->addWidget(d->fullScreen);
-		top->addLayout(vbox);
+		top->addWidget(d->playlist);
+		top->addWidget(d->fullScreen);
 
 		QHBoxLayout *bottom = new QHBoxLayout;
 		bottom->setSpacing(0);
@@ -434,4 +407,7 @@ void ControlWidget::updateLayout() {
 		layout->addWidget(d->slider);
 		layout->addLayout(bottom);
 	}
+	adjustSize();
+	setFixedHeight(sizeHint().height());
 }
+

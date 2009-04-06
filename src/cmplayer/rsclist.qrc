@@ -2,6 +2,15 @@
   <qresource prefix="/" >
     <file>img/view-split-left-right.png</file>
     <file>img/arrow-down-gray.png</file>
+    <file>img/arrow-left-double-gray.png</file>
+    <file>img/go-first-view-gray.png</file>
+    <file>img/arrow-right-double-gray.png</file>
+    <file>img/go-last-view-gray.png</file>
+    <file>img/go-top-gray.png</file>
+    <file>img/open-media-gray.png</file>
+    <file>img/format-list-unordered-gray.png</file>
+    <file>img/view-fullscreen-gray.png</file>
+    <file>img/toggle-panel.png</file>
     <file>img/edit-delete-gray.png</file>
     <file>img/window-duplicate-gray.png</file>
     <file>img/irc-voice.png</file>

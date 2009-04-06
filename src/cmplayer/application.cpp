@@ -15,17 +15,6 @@ struct Application::Data {
 
 Application::Application(int &argc, char **argv)
 : QApplication(argc, argv), d(new Data) {
-// 	QImage img;
-// 	img.load("arrow-down.png");
-// 	img = img.convertToFormat(QImage::Format_ARGB32);
-// 	for (int i=0; i<img.width(); ++i) {
-// 		for (int j=0; j<img.height(); ++j) {
-// 			const QRgb rgb = img.pixel(i, j);
-// 			const int gray = qBound(0, qGray(rgb) + 100, 255);
-// 			img.setPixel(i, j, qRgba(gray, gray, gray, qAlpha(rgb)));
-// 		}
-// 	}
-// 	img.save("arrow-down-gray.png");
 	setStyleSheet("\
 		Button {\
 			margin:0px; padding: 2px;\
@@ -37,7 +26,7 @@ Application::Application(int &argc, char **argv)
 			border: 1px solid #999; border-radius: 0px; padding: 1px;\
 			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
 		}\
-		Button#flat:hover, Button#block:hover {\
+			Button#flat:hover, Button#flat:checked, Button#block:hover {\
 			border: 1px solid #6ad; padding: 1px;\
 		}\
 		Button#flat:pressed, Button#block:pressed {\

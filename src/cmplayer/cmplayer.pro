@@ -33,7 +33,6 @@ SOURCES += main.cpp \
  controlwidget.cpp \
  playlistwidget.cpp \
  toolbox.cpp \
- dragmovecharm.cpp \
  dragcharm.cpp \
  designedwidgetiface.cpp \
  skinmanager.cpp
@@ -72,7 +71,6 @@ HEADERS += mainwindow.h \
  playlistwidget.h \
  designedbuttons.h \
  toolbox.h \
- dragmovecharm.h \
  dragcharm.h \
  designedwidgetiface.h \
  skinmanager.h

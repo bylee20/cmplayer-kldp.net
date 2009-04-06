@@ -12,6 +12,7 @@ namespace Core {class MediaSource;}
 class ControlWidget : public QWidget {
 	Q_OBJECT
 public:
+	enum Layout {OneLine = 1, TwoLine = 2};
 	ControlWidget(VideoPlayer *player, QWidget *parent = 0);
 	~ControlWidget();
 	void connectMute(QAction *action);
@@ -21,11 +22,10 @@ public:
 	void connectNext(QAction *action);
 	void connectForward(QAction *action);
 	void connectBackward(QAction *action);
-	void connectOpenFile(QAction *action);
-	void connectOpenUrl(QAction *action);
+	void connectOpen(QAction *action);
 	void connectFullScreen(QAction *action);
 	void connectPlaylist(QAction *action);
-	void updateLayout();
+	void changeLayout(Layout layout);
 public slots:
 	void showMessage(const QString &msg, int time = 3000);
 	void setCurrentSource(const Core::MediaSource &source);
@@ -35,6 +35,7 @@ public slots:
 	void setTrackNumber(int nth, int total);
 private slots:
 	void hideMessage();
+	void toggleLayout();
 private:
 	static QVBoxLayout *vbox();
 	static QHBoxLayout *hbox();

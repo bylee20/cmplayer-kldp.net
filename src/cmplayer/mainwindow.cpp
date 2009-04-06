@@ -1,5 +1,4 @@
 #include "prefdialog.h"
-#include "dragmovecharm.h"
 #include "controlwidget.h"
 #include "checkdialog.h"
 #include "state.h"
@@ -227,11 +226,10 @@ ControlWidget *MainWindow::createControl(QWidget *parent) {
 	control->connectNext(play["next"]);
 	control->connectForward(play("seek")["forward1"]);
 	control->connectBackward(play("seek")["backward1"]);
-	control->connectOpenFile(d->menu("open")["file"]);
-	control->connectOpenUrl(d->menu("open")["url"]);
+	control->connectOpen(d->menu("open")["file"]);
 	control->connectFullScreen(d->menu("screen")("size")["full"]);
 	control->connectPlaylist(d->menu("play")["list"]);
-	control->setFixedHeight(control->sizeHint().height());
+// 	control->setFixedHeight(control->sizeHint().height());
 	return control;
 }
 
