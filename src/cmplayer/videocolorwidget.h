@@ -29,6 +29,8 @@ public:
 	VideoColorWidget(VideoPlayer *player, QWidget *parent = 0);
 	~VideoColorWidget();
 private slots:
+	void resetValue();
+	void useSoftEq(bool use);
 	void updateValues();
 	void applyValue(int value);
 private:

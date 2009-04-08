@@ -55,9 +55,9 @@ public:
 	void setSubtitlePos(int pos);
 	void setSyncDelay(int delay);
 	void setVolumeNormalized(bool enabled);
-	void setUseSoftwareEqualizer(bool use);
 	void setNextSource(const Core::MediaSource &source);
 	bool hasNextSource() const;
+	bool useSoftwareEqualizer() const;
 	static const BackendMap &load();
 	static const BackendMap &backend();
 	const Core::Info *info() const;
@@ -75,7 +75,9 @@ public slots:
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
 	void setCurrentTrack(const QString &track);
+	void setUseSoftwareEqualizer(bool use);
 signals:
+	void useSoftwareEqualizerChanged(bool use);
 	void backendChanged(const QString &name);
 	void stateChanged(Core::State state, Core::State old);
 	void finished(Core::MediaSource source);

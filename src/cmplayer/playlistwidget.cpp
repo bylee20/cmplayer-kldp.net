@@ -11,7 +11,7 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
-
+#include <QtGui/QMenu>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
 #include <QtGui/QMessageBox>
@@ -53,8 +53,8 @@ QStringList PlaylistWidget::ShutdownDialog::command() const {
 
 
 struct PlaylistWidget::Data {
-	Button *open, *save, *add, *erase, *up, *down, *clear;
-	QWidget *buttons;
+	QMenu *context;
+	QAction *open, *save, *add, *erase, *up, *down, *clear;
 	QCheckBox *shutdownCheck;
 	ShutdownDialog *shutdownDlg;
 	PlaylistModel *model;
@@ -65,44 +65,37 @@ struct PlaylistWidget::Data {
 
 PlaylistWidget::PlaylistWidget(PlaylistModel *model, QWidget *parent)
 : QWidget(parent), d(new Data) {
-	d->open = new Button(QIcon(":/img/document-open.png"), this);
-	d->save = new Button(QIcon(":/img/document-save.png"), this);
-	d->add = new Button(QIcon(":/img/list-add.png"), this);
-	d->erase = new Button(QIcon(":/img/list-remove.png"), this);
-	d->up = new Button(QIcon(":/img/arrow-up.png"), this);
-	d->down = new Button(QIcon(":/img/arrow-down.png"), this);
-	d->clear = new Button(QIcon(":/img/edit-clear-list.png"), this);
 	d->shutdownCheck = new QCheckBox(this);
 	d->shutdownDlg = new ShutdownDialog(this);
 	d->view = new PlaylistView(this);
 	d->model = model;
 	d->view->setModel(d->model);
 	d->checking = d->adding = d->identified = false;
-
-	connect(d->open, SIGNAL(clicked()), this, SLOT(open()));
-	connect(d->add, SIGNAL(clicked()), this, SLOT(add()));
-	connect(d->erase, SIGNAL(clicked()), this, SLOT(erase()));
-	connect(d->up, SIGNAL(clicked()), this, SLOT(up()));
-	connect(d->down, SIGNAL(clicked()), this, SLOT(down()));
-	connect(d->clear, SIGNAL(clicked()), d->model, SLOT(clear()));
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	d->context = new QMenu(this);
+	d->open = d->context->addAction("");
+	d->save = d->context->addAction("");
+	d->add = d->context->addAction("");
+	d->erase = d->context->addAction("");
+	d->up = d->context->addAction("");
+	d->down = d->context->addAction("");
+	d->clear = d->context->addAction("");
+	
+	connect(d->open, SIGNAL(triggered()), this, SLOT(open()));
+	connect(d->save, SIGNAL(triggered()), this, SLOT(save()));
+	connect(d->add, SIGNAL(triggered()), this, SLOT(add()));
+	connect(d->erase, SIGNAL(triggered()), this, SLOT(erase()));
+	connect(d->up, SIGNAL(triggered()), this, SLOT(up()));
+	connect(d->down, SIGNAL(triggered()), this, SLOT(down()));
+	connect(d->clear, SIGNAL(triggered()), d->model, SLOT(clear()));
 	connect(d->view, SIGNAL(doubleClicked(const QModelIndex&)),
 		  this, SLOT(slotDblClicked(const QModelIndex&)));
 	connect(d->shutdownCheck, SIGNAL(toggled(bool)), this, SLOT(checkRoot(bool)));
-	connect(d->save, SIGNAL(clicked()), this, SLOT(save()));
+
 	connect(d->model, SIGNAL(playlistFinished()), this, SLOT(checkShutdown()));
 	connect(d->model, SIGNAL(rowCountChanged(int)), this, SLOT(adjustCellSize()));
-
-	d->buttons = new QWidget;
-	QHBoxLayout *hbox = new QHBoxLayout(d->buttons);
-	hbox->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-	hbox->addWidget(d->open);
-	hbox->addWidget(d->save);
-	hbox->addWidget(d->add);
-	hbox->addWidget(d->erase);
-	hbox->addWidget(d->up);
-	hbox->addWidget(d->down);
-	hbox->addWidget(d->clear);
-	hbox->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&))
+			, this, SLOT(showContextMenu(const QPoint&)));
 	
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->setContentsMargins(0, 0, 0, 0);
@@ -117,13 +110,13 @@ PlaylistWidget::~PlaylistWidget() {
 }
 
 void PlaylistWidget::retranslateUi() {
-	d->open->setToolTip(tr("Open"));
-	d->save->setToolTip(tr("Save"));
-	d->add->setToolTip(tr("Add"));
-	d->erase->setToolTip(tr("Erase"));
-	d->up->setToolTip(tr("Up"));
-	d->down->setToolTip(tr("Down"));
-	d->clear->setToolTip(tr("Clear"));
+	d->open->setText(tr("Open"));
+	d->save->setText(tr("Save"));
+	d->add->setText(tr("Add"));
+	d->erase->setText(tr("Erase"));
+	d->up->setText(tr("Up"));
+	d->down->setText(tr("Down"));
+	d->clear->setText(tr("Clear"));
 	d->shutdownCheck->setText(tr("Shutdown when the list finished"));
 }
 
@@ -155,9 +148,11 @@ void PlaylistWidget::open() {
 	QString enc;
 	const QString file = EncodingFileDialog::getOpenFileName(this, tr("Open File")
 			, QString(), tr("Playlist") + " (*.pls)", &enc);
-	Core::Playlist list;
-	list.load(file, enc);
-	d->model->setPlaylist(list);
+	if (!file.isEmpty()) {
+		Core::Playlist list;
+		list.load(file, enc);
+		d->model->setPlaylist(list);
+	}
 }
 
 void PlaylistWidget::save() {
@@ -218,10 +213,6 @@ void PlaylistWidget::move(bool up) {
 		d->view->setCurrentIndex(d->model->index(target, 0));
 }
 
-int PlaylistWidget::controlHeight() const {
-	return d->open->rect().bottom()+2;
-}
-
-QWidget *PlaylistWidget::buttons() {
-	return d->buttons;
+void PlaylistWidget::showContextMenu(const QPoint &pos) {
+	d->context->exec(mapToGlobal(pos));
 }

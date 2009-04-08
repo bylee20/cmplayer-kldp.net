@@ -76,7 +76,6 @@ ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, QWidget *parent)
 	d->frame = new Frame(this);
 	d->playlist = new PlaylistWidget(model, d->frame);
 	d->color = new VideoColorWidget(player, d->frame);
-// 	d->frame->setWidget(d->playlist);
 	d->frame->tab->addTab(d->playlist, tr("Playlist"));
 	d->frame->tab->addTab(d->color, tr("Video Color"));
 	setWindowTitle("TOOL BOX");
@@ -86,13 +85,9 @@ ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, QWidget *parent)
 	
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->addWidget(titleBar());
-	QHBoxLayout *hbox = new QHBoxLayout;
-	hbox->addWidget(d->frame);
-	vbox->addLayout(hbox);
-	vbox->addWidget(d->playlist->buttons());
+	vbox->addWidget(d->frame);
 	vbox->setContentsMargins(3, 3, 3, 3);
 	vbox->setSpacing(0);
-	hbox->setContentsMargins(1, 0, 1, 1);
 
 	d->dragCharm.activate(this);
 	d->dragCharm.setBorder(7);
@@ -112,10 +107,10 @@ void ToolBox::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);
 	drawBackground(&painter, this);
 	const QRectF box = boxRect();
-	const double frameBound = d->frame->geometry().bottom();
+// 	const double frameBound = d->frame->geometry().bottom();
 	QLinearGradient grad(box.topLeft(), box.bottomLeft());
 	grad.setColorAt(0, Qt::black);
-	grad.setColorAt(frameBound/box.height(), qRgb(100, 100, 100));
+// 	grad.setColorAt(frameBound/box.height(), qRgb(100, 100, 100));
 	grad.setColorAt(1, qRgb(200, 200, 200));
 	painter.fillRect(box, grad);
 }

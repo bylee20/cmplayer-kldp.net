@@ -5,7 +5,7 @@
 #include <QtGui/QDialog>
 
 class QModelIndex;			class PlaylistModel;
-class QComboBox;
+class QComboBox;				class QMenu;
 
 class PlaylistWidget : public QWidget {
 	Q_OBJECT
@@ -13,8 +13,6 @@ public:
 	PlaylistWidget(PlaylistModel *model, QWidget *parent = 0);
 	~PlaylistWidget();
 	void retranslateUi();
-	int controlHeight() const;
-	QWidget *buttons();
 public slots:
 	void checkRoot(bool checked);
 	void setAutoShutdown(bool shut);
@@ -28,6 +26,7 @@ private slots:
 	void open();
 	void save();
 	void slotDblClicked(const QModelIndex &index);
+	void showContextMenu(const QPoint &pos);
 private:
 	void move(bool up);
 	class ShutdownDialog;
@@ -36,6 +35,7 @@ private:
 };
 
 class PlaylistWidget::ShutdownDialog : public QDialog {
+	Q_OBJECT
 public:
 	ShutdownDialog(QWidget *parent);
 	void accept();

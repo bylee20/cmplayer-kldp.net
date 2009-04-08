@@ -606,9 +606,10 @@ void VideoPlayer::setVolumeNormalized(bool enabled) {
 }
 
 void VideoPlayer::setUseSoftwareEqualizer(bool enabled) {
-	d->softEq = enabled;
-	if (d->engine)
+	if (d->softEq != enabled) {
+		emit useSoftwareEqualizerChanged(d->softEq = enabled);
 		d->engine->setUseSoftwareEqualizer(d->softEq);
+	}
 }
 
 void VideoPlayer::triggerSnapshot() {
@@ -672,6 +673,10 @@ void VideoPlayer::setSubtitleVisible(bool visible) {
 		if (d->engine)
 			d->engine->setSubtitleVisible(d->subVisible);
 	}
+}
+
+bool VideoPlayer::useSoftwareEqualizer() const {
+	return d->softEq;
 }
 
 #undef ENGINE_SET
