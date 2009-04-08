@@ -12,7 +12,6 @@ SOURCES += main.cpp \
 	helper.cpp \
 	dockwidget.cpp \
 	state.cpp \
-	prefdialog.cpp \
 	getshortcutdialog.cpp \
 	prefosdwidget.cpp \
 	simplelistwidget.cpp \
@@ -51,7 +50,6 @@ HEADERS += mainwindow.h \
 	helper.h \
 	dockwidget.h \
 	state.h \
-	prefdialog.h \
 	squeezedlabel.h \
 	getshortcutdialog.h \
 	prefosdwidget.h \
@@ -80,7 +78,6 @@ HEADERS += mainwindow.h \
  verticaltext.h \
  pref_dialog.h
 FORMS += ./ui/abrepeatdialog.ui \
-	./ui/prefdialog.ui \
 	./ui/prefosdwidget.ui \
 	ui/prefstack.ui \
 	ui/geturldialog.ui \
