@@ -184,7 +184,17 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You should have received a copy of the GNU General Public License along with this program; if not, see &lt;a href=&quot;http://www.gnu.org/licenses&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.gnu.org/licenses&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Sans Serif&apos;; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Copyright (C) 2009 xylosper&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You should have received a copy of the GNU General Public License along with this program; if not, see &lt;a href=&quot;http://www.gnu.org/licenses&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.gnu.org/licenses&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../ui/aboutdialog.ui" line="191"/>
@@ -519,107 +529,107 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.cpp" line="482"/>
+        <location filename="../mainwindow.cpp" line="488"/>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="568"/>
+        <location filename="../mainwindow.cpp" line="574"/>
         <source>Subtitle Files</source>
         <translation>字幕ファイル</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="570"/>
+        <location filename="../mainwindow.cpp" line="576"/>
         <source>Open Subtitle</source>
         <translation>字幕を開く</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="746"/>
+        <location filename="../mainwindow.cpp" line="752"/>
         <source>Brightness</source>
         <translation>明度</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="749"/>
+        <location filename="../mainwindow.cpp" line="755"/>
         <source>Saturation</source>
         <translation>彩度</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="752"/>
+        <location filename="../mainwindow.cpp" line="758"/>
         <source>Hue</source>
         <translation>色相</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="755"/>
+        <location filename="../mainwindow.cpp" line="761"/>
         <source>Contrast</source>
         <translation>コントラスト</translation>
     </message>
     <message encoding="UTF-8">
-        <location filename="../mainwindow.cpp" line="767"/>
+        <location filename="../mainwindow.cpp" line="773"/>
         <source>Speed: ×%1</source>
         <translation>速度: ×%1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="774"/>
+        <location filename="../mainwindow.cpp" line="780"/>
         <source>Pause</source>
         <translation>一時停止</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="778"/>
+        <location filename="../mainwindow.cpp" line="784"/>
         <source>Play</source>
         <translation>再生</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="847"/>
+        <location filename="../mainwindow.cpp" line="853"/>
         <source>Change Renderer</source>
         <translation>レンダラ変更</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="848"/>
+        <location filename="../mainwindow.cpp" line="854"/>
         <source>Failed in changing renderer. The renderer fell back into previous one.</source>
         <translation>レンダラの変更に失敗しました。以前のレンダラに戻ります。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="944"/>
+        <location filename="../mainwindow.cpp" line="950"/>
         <source>A-B Repeat: %1</source>
         <translation>区間反復: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="957"/>
+        <location filename="../mainwindow.cpp" line="963"/>
         <source>Set A to %1</source>
         <translation>始点　%1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="961"/>
+        <location filename="../mainwindow.cpp" line="967"/>
         <source>Range is too short!</source>
         <translation>区間が短すぎます!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="967"/>
+        <location filename="../mainwindow.cpp" line="973"/>
         <source>Set B to %1. Start to repeat!</source>
         <translation>終点 %1. 反復を始めます!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="975"/>
+        <location filename="../mainwindow.cpp" line="981"/>
         <source>Quit repeating</source>
         <translation>反復終了</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="979"/>
+        <location filename="../mainwindow.cpp" line="985"/>
         <source>Repeat current subtitle</source>
         <translation>現在の字幕を反復</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="990"/>
+        <location filename="../mainwindow.cpp" line="996"/>
         <source>Subtitle Sync: %1sec.</source>
         <translation>字幕シンク: %1秒</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="997"/>
+        <location filename="../mainwindow.cpp" line="1003"/>
         <source>Volume: %1%</source>
         <translation>音量: %1%</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="999"/>
+        <location filename="../mainwindow.cpp" line="1005"/>
         <source>Subtitle Position: %1%</source>
         <translation>字幕の位置: %1%</translation>
     </message>
@@ -629,17 +639,17 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">アンプ: %2% (最大: %1%)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1035"/>
+        <location filename="../mainwindow.cpp" line="1041"/>
         <source>CMPlayer will be running in the system tray when the window closed.&lt;br&gt;You can change this behavior in the preferences.&lt;br&gt;If you want to exit CMPlayer, please use &apos;Exit&apos; menu.</source>
         <translation>ウィンドウを閉じてもCMPlayerはシステムトレ上で実行しされつづけます。&lt;br&gt;環境設定で行動方式を変更できます。&lt;br&gt;CMPlayerを終了したい場合は、&apos;終了&apos;メニューをご利用下さい。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1036"/>
+        <location filename="../mainwindow.cpp" line="1042"/>
         <source>Do not display this message again</source>
         <translation>このメッセージを再び表示させない</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1000"/>
+        <location filename="../mainwindow.cpp" line="1006"/>
         <source>Amp.: %1%</source>
         <translation>アンプ %1%</translation>
     </message>
@@ -724,22 +734,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../menu.cpp" line="353"/>
         <source>4:3 (TV)</source>
-        <translation></translation>
+        <translation>4:3 (TV)</translation>
     </message>
     <message>
         <location filename="../menu.cpp" line="354"/>
         <source>16:9 (HDTV)</source>
-        <translation></translation>
+        <translation>16:9 (HDTV)</translation>
     </message>
     <message>
         <location filename="../menu.cpp" line="355"/>
         <source>1.85:1 (Wide Vision)</source>
-        <translation></translation>
+        <translation>1.85:1 (Wide Vision)</translation>
     </message>
     <message>
         <location filename="../menu.cpp" line="356"/>
         <source>2.35:1 (CinemaScope)</source>
-        <translation></translation>
+        <translation>2.35:1 (CinemaScope)</translation>
     </message>
     <message>
         <location filename="../menu.cpp" line="351"/>
@@ -988,67 +998,67 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../playlistwidget.cpp" line="120"/>
         <source>Open</source>
-        <translation type="unfinished">開く</translation>
+        <translation>開く</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="121"/>
         <source>Save</source>
-        <translation type="unfinished">保存</translation>
+        <translation>保存</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="122"/>
         <source>Add</source>
-        <translation type="unfinished">追加</translation>
+        <translation>追加</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="123"/>
         <source>Erase</source>
-        <translation type="unfinished">削除</translation>
+        <translation>削除</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="124"/>
         <source>Up</source>
-        <translation type="unfinished">上へ</translation>
+        <translation>上へ</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="125"/>
         <source>Down</source>
-        <translation type="unfinished">下へ</translation>
+        <translation>下へ</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="126"/>
         <source>Clear</source>
-        <translation type="unfinished">クリア</translation>
+        <translation>クリア</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="127"/>
         <source>Shutdown when the list finished</source>
-        <translation type="unfinished">リストが終了するとシステムを終了する</translation>
+        <translation>リストが終了するとシステムを終了する</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="140"/>
         <source>Automatic Shutdown</source>
-        <translation type="unfinished">自動シャットダウン</translation>
+        <translation>自動シャットダウン</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="140"/>
         <source>You must run CMPlayer with root permission.</source>
-        <translation type="unfinished">ルート権限でCMPlayerを実行しなければなりません。</translation>
+        <translation>ルート権限でCMPlayerを実行しなければなりません。</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="179"/>
         <source>Open File</source>
-        <translation type="unfinished">ファイルを開く</translation>
+        <translation>ファイルを開く</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="165"/>
         <source>Playlist</source>
-        <translation type="unfinished">プレイリスト</translation>
+        <translation>プレイリスト</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="164"/>
         <source>Save File</source>
-        <translation type="unfinished">ファイルを保存する</translation>
+        <translation>ファイルを保存する</translation>
     </message>
 </context>
 <context>
@@ -1056,195 +1066,195 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../playlistwidget.cpp" line="22"/>
         <source>Input or Select Command for Shutdown:</source>
-        <translation type="unfinished">システム終了のための命令を入力もしくは選択してください：</translation>
+        <translation>システム終了のための命令を入力もしくは選択してください：</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="27"/>
         <source>&amp;Ok</source>
-        <translation type="unfinished">&amp;Ok</translation>
+        <translation>&amp;Ok</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="29"/>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">キャンセル(&amp;C)</translation>
+        <translation>キャンセル(&amp;C)</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="45"/>
         <source>Automatic Shutdown</source>
-        <translation type="unfinished">自動シャットダウン</translation>
+        <translation>自動シャットダウン</translation>
     </message>
     <message>
         <location filename="../playlistwidget.cpp" line="45"/>
         <source>Command for Shutdown is Empty.</source>
-        <translation type="unfinished">システム終了の命令が空いています。</translation>
+        <translation>システム終了の命令が空いています。</translation>
     </message>
 </context>
 <context>
     <name>Pref::Dialog</name>
     <message>
-        <location filename="../pref_dialog.cpp" line="208"/>
+        <location filename="../pref_dialog.cpp" line="207"/>
         <source>Plain</source>
-        <translation type="unfinished">クリックのみ</translation>
+        <translation>クリックのみ</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="208"/>
+        <source>File</source>
+        <translation>ファイル</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="209"/>
-        <source>File</source>
-        <translation type="unfinished">ファイル</translation>
+        <source>URL</source>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="210"/>
-        <source>URL</source>
-        <translation type="unfinished">URL</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="211"/>
         <source>DVD</source>
-        <translation type="unfinished">DVD</translation>
+        <translation>DVD</translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="218"/>
+        <location filename="../pref_dialog.cpp" line="212"/>
         <source>Double Click</source>
-        <translation type="unfinished">ダブルクリック</translation>
+        <translation>ダブルクリック</translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="219"/>
+        <location filename="../pref_dialog.cpp" line="213"/>
         <source>Middle Button Click</source>
-        <translation type="unfinished">中ボタンクリック</translation>
+        <translation>中ボタンクリック</translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="220"/>
+        <location filename="../pref_dialog.cpp" line="214"/>
         <source>Wheel Scroll</source>
-        <translation type="unfinished">ホイールスクロール</translation>
+        <translation>ホイールスクロール</translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="246"/>
+        <location filename="../pref_dialog.cpp" line="241"/>
         <source>All files in the same path</source>
-        <translation type="unfinished">同じ経路内のすべてのファイル</translation>
+        <translation>同じ経路内のすべてのファイル</translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="247"/>
+        <location filename="../pref_dialog.cpp" line="242"/>
         <source>Files have similar name</source>
-        <translation type="unfinished">類似の名前のファイル</translation>
+        <translation>類似の名前のファイル</translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="248"/>
+        <location filename="../pref_dialog.cpp" line="243"/>
         <source>Do not add any other files</source>
-        <translation type="unfinished">他のファイルを追加しない</translation>
+        <translation>他のファイルを追加しない</translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="274"/>
+        <location filename="../pref_dialog.cpp" line="269"/>
         <source>Open File</source>
-        <translation type="unfinished">ファイルを開く</translation>
+        <translation>ファイルを開く</translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="275"/>
+        <location filename="../pref_dialog.cpp" line="270"/>
         <source>Toggle Full Screen</source>
-        <translation type="unfinished">フルスクリーン切り替え</translation>
+        <translation>フルスクリーン切り替え</translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="276"/>
+        <location filename="../pref_dialog.cpp" line="271"/>
         <source>Toggle Play/Pause</source>
-        <translation type="unfinished">再生・一時停止切り替え</translation>
+        <translation>再生・一時停止切り替え</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="272"/>
+        <source>Toggle Mute</source>
+        <translation>消音切り替え</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="273"/>
+        <source>Toggle Playlist</source>
+        <translation>プレイリスト表示切り替え</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="277"/>
-        <source>Toggle Mute</source>
-        <translation type="unfinished">消音切り替え</translation>
+        <source>Seek 1 Step</source>
+        <translation>シークステップ1</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="278"/>
-        <source>Toggle Playlist</source>
-        <translation type="unfinished">プレイリスト表示切り替え</translation>
+        <source>Seek 2 Step</source>
+        <translation>シークステップ2</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="279"/>
+        <source>Seek 3 Step</source>
+        <translation>シークステップ3</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="280"/>
+        <source>Play Next/Previous</source>
+        <translation>次へ・前へ</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="281"/>
+        <source>Volum Up/Down</source>
+        <translation>音量を上げる・下げる</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="282"/>
-        <source>Seek 1 Step</source>
-        <translation type="unfinished">シークステップ1</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="283"/>
-        <source>Seek 2 Step</source>
-        <translation type="unfinished">シークステップ2</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="284"/>
-        <source>Seek 3 Step</source>
-        <translation type="unfinished">シークステップ3</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="285"/>
-        <source>Play Next/Previous</source>
-        <translation type="unfinished">次へ・前へ</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="286"/>
-        <source>Volum Up/Down</source>
-        <translation type="unfinished">音量を上げる・下げる</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="287"/>
         <source>Amp. Up/Down</source>
-        <translation type="unfinished">アンプを上げる・下げる</translation>
+        <translation>アンプを上げる・下げる</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="298"/>
+        <source>Subtitle whose name is matched the playing file name</source>
+        <translation>ファイル名が再生中のファイル名と一致する字幕</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="299"/>
+        <source>Subtitles whose names contain the playing file name</source>
+        <translation>ファイル名に再生中のファイル名を含んでいる字幕</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="300"/>
+        <source>Subtitles located in the path of the playing file</source>
+        <translation>再生中のファイルと同じ経路内のファイル</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="301"/>
+        <source>Do not load any subtitles automatically</source>
+        <translation>字幕を自動に読み込まない</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="303"/>
-        <source>Subtitle whose name is matched the playing file name</source>
-        <translation type="unfinished">ファイル名が再生中のファイル名と一致する字幕</translation>
+        <source>First subtitle of loaded ones</source>
+        <translation>読み込まれた最初の字幕</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="304"/>
-        <source>Subtitles whose names contain the playing file name</source>
-        <translation type="unfinished">ファイル名に再生中のファイル名を含んでいる字幕</translation>
+        <source>Subtitle which has the same name as the playing file</source>
+        <translation>再生中のファイルと同じファイル名の四幕</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="305"/>
-        <source>Subtitles located in the path of the playing file</source>
-        <translation type="unfinished">再生中のファイルと同じ経路内のファイル</translation>
+        <source>All loaded subtitles</source>
+        <translation>読み込まれたすべての字幕</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="306"/>
-        <source>Do not load any subtitles automatically</source>
-        <translation type="unfinished">字幕を自動に読み込まない</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="308"/>
-        <source>First subtitle of loaded ones</source>
-        <translation type="unfinished">読み込まれた最初の字幕</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="309"/>
-        <source>Subtitle which has the same name as the playing file</source>
-        <translation type="unfinished">再生中のファイルと同じファイル名の四幕</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="310"/>
-        <source>All loaded subtitles</source>
-        <translation type="unfinished">読み込まれたすべての字幕</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="311"/>
         <source>Each language subtitle</source>
-        <translation type="unfinished">それぞれの言語の字幕</translation>
+        <translation>それぞれの言語の字幕</translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="424"/>
+        <location filename="../pref_dialog.cpp" line="421"/>
         <source>System Default Locale</source>
-        <translation type="unfinished">システムデフォルトのロケール</translation>
+        <translation>システムデフォルトのロケール</translation>
+    </message>
+    <message>
+        <location filename="../pref_dialog.cpp" line="425"/>
+        <source>English</source>
+        <translation>英語</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="428"/>
-        <source>English</source>
-        <translation type="unfinished">英語</translation>
+        <source>Japanese</source>
+        <translation>日本語</translation>
     </message>
     <message>
         <location filename="../pref_dialog.cpp" line="431"/>
-        <source>Japanese</source>
-        <translation type="unfinished">日本語</translation>
-    </message>
-    <message>
-        <location filename="../pref_dialog.cpp" line="434"/>
         <source>Korean</source>
-        <translation type="unfinished">韓国語</translation>
+        <translation>韓国語</translation>
     </message>
 </context>
 <context>
@@ -1407,22 +1417,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../ui/prefdialog.ui" line="13"/>
         <source>Preferences</source>
-        <translation>環境設定</translation>
+        <translation type="obsolete">環境設定</translation>
     </message>
     <message>
         <location filename="../ui/prefdialog.ui" line="58"/>
         <source>General</source>
-        <translation>一般</translation>
+        <translation type="obsolete">一般</translation>
     </message>
     <message>
         <location filename="../ui/prefdialog.ui" line="67"/>
         <source>Subtitle</source>
-        <translation>字幕</translation>
+        <translation type="obsolete">字幕</translation>
     </message>
     <message>
         <location filename="../ui/prefdialog.ui" line="76"/>
         <source>Interface</source>
-        <translation>インターフェース</translation>
+        <translation type="obsolete">インターフェース</translation>
     </message>
     <message>
         <location filename="../ui/prefdialog.ui" line="85"/>
@@ -1432,17 +1442,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../ui/prefdialog.ui" line="113"/>
         <source>&amp;Ok</source>
-        <translation>&amp;Ok</translation>
+        <translation type="obsolete">&amp;Ok</translation>
     </message>
     <message>
         <location filename="../ui/prefdialog.ui" line="120"/>
         <source>&amp;Apply</source>
-        <translation>適用(&amp;A)</translation>
+        <translation type="obsolete">適用(&amp;A)</translation>
     </message>
     <message>
         <location filename="../ui/prefdialog.ui" line="127"/>
         <source>&amp;Cancel</source>
-        <translation>キャンセル(&amp;C)</translation>
+        <translation type="obsolete">キャンセル(&amp;C)</translation>
     </message>
     <message>
         <location filename="../prefdialog.cpp" line="275"/>
@@ -1525,52 +1535,52 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../ui/prefstack.ui" line="27"/>
         <source>General</source>
-        <translation>一般</translation>
+        <translation type="obsolete">一般</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="776"/>
         <source>Play</source>
-        <translation>再生</translation>
+        <translation type="obsolete">再生</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="65"/>
         <source>Pause when minimized</source>
-        <translation>最小化されたとき一時停止する</translation>
+        <translation type="obsolete">最小化されたとき一時停止する</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="93"/>
         <source>Start to play when restored</source>
-        <translation>ウィンドウが元に戻ると再生を始める</translation>
+        <translation type="obsolete">ウィンドウが元に戻ると再生を始める</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="122"/>
         <source>Apply on video only</source>
-        <translation>ビデオのみに適用する</translation>
+        <translation type="obsolete">ビデオのみに適用する</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="141"/>
         <source>When a file is stopped, play it from there next time</source>
-        <translation>再生中に停止されたファイルは、次回停止された時間から再生する</translation>
+        <translation type="obsolete">再生中に停止されたファイルは、次回停止された時間から再生する</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="151"/>
         <source>Screen</source>
-        <translation>画面</translation>
+        <translation type="obsolete">画面</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="159"/>
         <source>Hide cursor when it doesn&apos;t move during next time:</source>
-        <translation>次の時間のカーソルが動かないと、カーソルを隠す</translation>
+        <translation type="obsolete">次の時間のカーソルが動かないと、カーソルを隠す</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="1141"/>
         <source>sec.</source>
-        <translation>秒</translation>
+        <translation type="obsolete">秒</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="221"/>
         <source>Hide in only full screen mode</source>
-        <translation>フルスクリーンモードの時のみ隠す</translation>
+        <translation type="obsolete">フルスクリーンモードの時のみ隠す</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="239"/>
@@ -1580,231 +1590,231 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../ui/prefstack.ui" line="261"/>
         <source>Audio / Video</source>
-        <translation>オーディオ・ビデオ</translation>
+        <translation type="obsolete">オーディオ・ビデオ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="906"/>
         <source>Audio</source>
-        <translation>オーディオ</translation>
+        <translation type="obsolete">オーディオ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="273"/>
         <source>Normalize volume</source>
-        <translation>ボリューム・ノーマライゼーション</translation>
+        <translation type="obsolete">ボリューム・ノーマライゼーション</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="980"/>
         <source>Video</source>
-        <translation>ビデオ</translation>
+        <translation type="obsolete">ビデオ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="289"/>
         <source>Use software equalizer when it is supported by play engine</source>
-        <translation>再生エンジンによりソフトウェア・イコライザーがサポートされる場合、利用する</translation>
+        <translation type="obsolete">再生エンジンによりソフトウェア・イコライザーがサポートされる場合、利用する</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="313"/>
         <source>Application</source>
-        <translation>アプリケーション</translation>
+        <translation type="obsolete">アプリケーション</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="319"/>
         <source>System Tray Icon</source>
-        <translation>システムトレイアイコン</translation>
+        <translation type="obsolete">システムトレイアイコン</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="325"/>
         <source>Enable system tray icon</source>
-        <translation>システムトレイアイコンを表示する</translation>
+        <translation type="obsolete">システムトレイアイコンを表示する</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="353"/>
         <source>Hide window rather than quit when closed </source>
-        <translation>ウィンドウが閉じられたとき、終了せずにウィンドウを隠す</translation>
+        <translation type="obsolete">ウィンドウが閉じられたとき、終了せずにウィンドウを隠す</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="365"/>
         <source>Single Application</source>
-        <translation>単一アプリケーション</translation>
+        <translation type="obsolete">単一アプリケーション</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="371"/>
         <source>Run only single CMPlayer application at the same time</source>
-        <translation>CMPlayerアプリケーションを同時に1つだけ実行させる</translation>
+        <translation type="obsolete">CMPlayerアプリケーションを同時に1つだけ実行させる</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="412"/>
         <source>Load Subtitle</source>
-        <translation>字幕読み込み</translation>
+        <translation type="obsolete">字幕読み込み</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="418"/>
         <source>Automatic Load</source>
-        <translation>自動読み込み</translation>
+        <translation type="obsolete">自動読み込み</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="424"/>
         <source>Load next subtitles when a file to play is open</source>
-        <translation>再生するファイルを開いたとき、次の字幕を読み込む</translation>
+        <translation type="obsolete">再生するファイルを開いたとき、次の字幕を読み込む</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="441"/>
         <source>Auto selection</source>
-        <translation>自動選択</translation>
+        <translation type="obsolete">自動選択</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="447"/>
         <source>Select next subtitles in loading ones</source>
-        <translation>読み込まれた字幕の中で次の字幕を選択する</translation>
+        <translation type="obsolete">読み込まれた字幕の中で次の字幕を選択する</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="464"/>
         <source>Default Encoding</source>
-        <translation>デフォルトエンコーディング</translation>
+        <translation type="obsolete">デフォルトエンコーディング</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="473"/>
         <source>Open subtitle file with next encoding</source>
-        <translation>次のエンコーディングで字幕ファイルを開く</translation>
+        <translation type="obsolete">次のエンコーディングで字幕ファイルを開く</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="507"/>
         <source>Subtitle Display</source>
-        <translation>字幕表示</translation>
+        <translation type="obsolete">字幕表示</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="513"/>
         <source>Subtitle OSD</source>
-        <translation>字幕OSD</translation>
+        <translation type="obsolete">字幕OSD</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="539"/>
         <source>Unified/Multi-Subtitle</source>
-        <translation>統合・多重字幕</translation>
+        <translation type="obsolete">統合・多重字幕</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="545"/>
         <source>You can specify the order of unified(mulit) subtitles with the &apos;Name&apos; property in subtitle file.
 If not specified, They will be displayed in selected order.
 e.g.: English, Korean</source>
-        <translation>字幕ファイルで指定された&apos;Name&apos;属性で統合(多重)字幕の表示順序を指定できます。
+        <translation type="obsolete">字幕ファイルで指定された&apos;Name&apos;属性で統合(多重)字幕の表示順序を指定できます。
 指定されない場合、選択された順番で表示されます。
 例: English, Japanese</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="642"/>
         <source>Shortcut</source>
-        <translation>ショートカット</translation>
+        <translation type="obsolete">ショートカット</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="652"/>
         <source>Menu</source>
-        <translation>メニュー</translation>
+        <translation type="obsolete">メニュー</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="701"/>
         <source>Shortcut1</source>
-        <translation>ショートカット1</translation>
+        <translation type="obsolete">ショートカット1</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="714"/>
         <source>Shortcut2</source>
-        <translation>ショートカット2</translation>
+        <translation type="obsolete">ショートカット2</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="727"/>
         <source>Shortcut3</source>
-        <translation>ショートカット3</translation>
+        <translation type="obsolete">ショートカット3</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="740"/>
         <source>Shortcut4</source>
-        <translation>ショートカット4</translation>
+        <translation type="obsolete">ショートカット4</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="688"/>
         <source>Change:</source>
-        <translation>変更:</translation>
+        <translation type="obsolete">変更:</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="750"/>
         <source>Mouse</source>
-        <translation>マウス</translation>
+        <translation type="obsolete">マウス</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="770"/>
         <source>Control Step</source>
-        <translation>操作ステップ</translation>
+        <translation type="obsolete">操作ステップ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="782"/>
         <source>Seek Step 1</source>
-        <translation>シークステップ1</translation>
+        <translation type="obsolete">シークステップ1</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="808"/>
         <source>Seek Step 2</source>
-        <translation>シークステップ1</translation>
+        <translation type="obsolete">シークステップ1</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="847"/>
         <source>Seek Step 3</source>
-        <translation>シークステップ1</translation>
+        <translation type="obsolete">シークステップ1</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="870"/>
         <source>Speed Step</source>
-        <translation>速度ステップ</translation>
+        <translation type="obsolete">速度ステップ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="1108"/>
         <source>%</source>
-        <translation>%</translation>
+        <translation type="obsolete">%</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="912"/>
         <source>Volum Step</source>
-        <translation>音量ステップ</translation>
+        <translation type="obsolete">音量ステップ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="938"/>
         <source>Amp. Step</source>
-        <translation>アンプステップ</translation>
+        <translation type="obsolete">アンプステップ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="986"/>
         <source>Brightness Step</source>
-        <translation>明度ステップ</translation>
+        <translation type="obsolete">明度ステップ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="1006"/>
         <source>Contrast Step</source>
-        <translation>コントラストステップ</translation>
+        <translation type="obsolete">コントラストステップ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="1039"/>
         <source>Saturation Step</source>
-        <translation>彩度ステップ</translation>
+        <translation type="obsolete">彩度ステップ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="1059"/>
         <source>Hue Step</source>
-        <translation>色相ステップ</translation>
+        <translation type="obsolete">色相ステップ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="1095"/>
         <source>Subtitle</source>
-        <translation>字幕</translation>
+        <translation type="obsolete">字幕</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="1101"/>
         <source>Position Step</source>
-        <translation>位置ステップ</translation>
+        <translation type="obsolete">位置ステップ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="1121"/>
         <source>Sync Delay Step</source>
-        <translation>シンク遅延ステップ</translation>
+        <translation type="obsolete">シンク遅延ステップ</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="1142"/>
@@ -1824,32 +1834,12 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../ui/prefstack.ui" line="33"/>
         <source>Generate Playlist</source>
-        <translation>プレイリスト生成</translation>
+        <translation type="obsolete">プレイリスト生成</translation>
     </message>
     <message>
         <location filename="../ui/prefstack.ui" line="39"/>
         <source>Add next files to playlist when a file is open</source>
-        <translation>ファイルを開いたとき、次のファイルをプレイリストに追加する</translation>
-    </message>
-    <message>
-        <location filename="../ui/prefstack.ui" line="237"/>
-        <source>Disable screensaver while playing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/prefstack.ui" line="591"/>
-        <source>UI</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/prefstack.ui" line="597"/>
-        <source>Window Style</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/prefstack.ui" line="609"/>
-        <source>Locale</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">ファイルを開いたとき、次のファイルをプレイリストに追加する</translation>
     </message>
 </context>
 <context>
@@ -1857,336 +1847,346 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../ui/pref_dialog.ui" line="13"/>
         <source>Preferences</source>
-        <translation type="unfinished">環境設定</translation>
+        <translation>環境設定</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="99"/>
         <source>General</source>
-        <translation type="unfinished">一般</translation>
+        <translation>一般</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1155"/>
+        <location filename="../ui/pref_dialog.ui" line="1198"/>
         <source>Subtitle</source>
-        <translation type="unfinished">字幕</translation>
+        <translation>字幕</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="76"/>
         <source>Interface</source>
-        <translation type="unfinished">インターフェース</translation>
+        <translation>インターフェース</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="105"/>
         <source>Generate Playlist</source>
-        <translation type="unfinished">プレイリスト生成</translation>
+        <translation>プレイリスト生成</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="111"/>
         <source>Add next files to playlist when a file is open</source>
-        <translation type="unfinished">ファイルを開いたとき、次のファイルをプレイリストに追加する</translation>
+        <translation>ファイルを開いたとき、次のファイルをプレイリストに追加する</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="836"/>
+        <location filename="../ui/pref_dialog.ui" line="879"/>
         <source>Play</source>
-        <translation type="unfinished">再生</translation>
+        <translation>再生</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="137"/>
         <source>Pause when minimized</source>
-        <translation type="unfinished">最小化されたとき一時停止する</translation>
+        <translation>最小化されたとき一時停止する</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="165"/>
         <source>Start to play when restored</source>
-        <translation type="unfinished">ウィンドウが元に戻ると再生を始める</translation>
+        <translation>ウィンドウが元に戻ると再生を始める</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="194"/>
         <source>Apply on video only</source>
-        <translation type="unfinished">ビデオのみに適用する</translation>
+        <translation>ビデオのみに適用する</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="213"/>
         <source>When a file is stopped, play it from there next time</source>
-        <translation type="unfinished">再生中に停止されたファイルは、次回停止された時間から再生する</translation>
+        <translation>再生中に停止されたファイルは、次回停止された時間から再生する</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="223"/>
         <source>Screen</source>
-        <translation type="unfinished">画面</translation>
+        <translation>画面</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="231"/>
         <source>Hide cursor when it doesn&apos;t move during next time:</source>
-        <translation type="unfinished">次の時間のカーソルが動かないと、カーソルを隠す</translation>
+        <translation>次の時間のカーソルが動かないと、カーソルを隠す</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1201"/>
+        <location filename="../ui/pref_dialog.ui" line="1244"/>
         <source>sec.</source>
-        <translation type="unfinished">秒</translation>
+        <translation>秒</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="293"/>
         <source>Hide in only full screen mode</source>
-        <translation type="unfinished">フルスクリーンモードの時のみ隠す</translation>
+        <translation>フルスクリーンモードの時のみ隠す</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="309"/>
         <source>Disable screensaver while playing</source>
-        <translation type="unfinished"></translation>
+        <translation>再生中にはスクリーンセーバーを動作させない</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="333"/>
         <source>Audio / Video</source>
-        <translation type="unfinished">オーディオ・ビデオ</translation>
+        <translation>オーディオ・ビデオ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="966"/>
+        <location filename="../ui/pref_dialog.ui" line="1009"/>
         <source>Audio</source>
-        <translation type="unfinished">オーディオ</translation>
+        <translation>オーディオ</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="345"/>
         <source>Normalize volume</source>
-        <translation type="unfinished">ボリューム・ノーマライゼーション</translation>
+        <translation>ボリューム・ノーマライゼーション</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1040"/>
+        <location filename="../ui/pref_dialog.ui" line="1083"/>
         <source>Video</source>
-        <translation type="unfinished">ビデオ</translation>
+        <translation>ビデオ</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="361"/>
         <source>Use software equalizer when it is supported by play engine</source>
-        <translation type="unfinished">再生エンジンによりソフトウェア・イコライザーがサポートされる場合、利用する</translation>
+        <translation>再生エンジンによりソフトウェア・イコライザーがサポートされる場合、利用する</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="385"/>
         <source>Application</source>
-        <translation type="unfinished">アプリケーション</translation>
+        <translation>アプリケーション</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="391"/>
         <source>System Tray Icon</source>
-        <translation type="unfinished">システムトレイアイコン</translation>
+        <translation>システムトレイアイコン</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="397"/>
         <source>Enable system tray icon</source>
-        <translation type="unfinished">システムトレイアイコンを表示する</translation>
+        <translation>システムトレイアイコンを表示する</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="425"/>
         <source>Hide window rather than quit when closed </source>
-        <translation type="unfinished">ウィンドウが閉じられたとき、終了せずにウィンドウを隠す</translation>
+        <translation>ウィンドウが閉じられたとき、終了せずにウィンドウを隠す</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="437"/>
         <source>Single Application</source>
-        <translation type="unfinished">単一アプリケーション</translation>
+        <translation>単一アプリケーション</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="443"/>
         <source>Run only single CMPlayer application at the same time</source>
-        <translation type="unfinished">CMPlayerアプリケーションを同時に1つだけ実行させる</translation>
+        <translation>CMPlayerアプリケーションを同時に1つだけ実行させる</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="478"/>
         <source>Load Subtitle</source>
-        <translation type="unfinished">字幕読み込み</translation>
+        <translation>字幕読み込み</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="484"/>
         <source>Automatic Load</source>
-        <translation type="unfinished">自動読み込み</translation>
+        <translation>自動読み込み</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="490"/>
         <source>Load next subtitles when a file to play is open</source>
-        <translation type="unfinished">再生するファイルを開いたとき、次の字幕を読み込む</translation>
+        <translation>再生するファイルを開いたとき、次の字幕を読み込む</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="507"/>
         <source>Auto selection</source>
-        <translation type="unfinished">自動選択</translation>
+        <translation>自動選択</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="513"/>
         <source>Select next subtitles in loading ones</source>
-        <translation type="unfinished">読み込まれた字幕の中で次の字幕を選択する</translation>
+        <translation>読み込まれた字幕の中で次の字幕を選択する</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="530"/>
         <source>Default Encoding</source>
-        <translation type="unfinished">デフォルトエンコーディング</translation>
+        <translation type="obsolete">デフォルトエンコーディング</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="539"/>
         <source>Open subtitle file with next encoding</source>
-        <translation type="unfinished">次のエンコーディングで字幕ファイルを開く</translation>
+        <translation>次のエンコーディングで字幕ファイルを開く</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="573"/>
+        <location filename="../ui/pref_dialog.ui" line="616"/>
         <source>Subtitle Display</source>
-        <translation type="unfinished">字幕表示</translation>
+        <translation>字幕表示</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="579"/>
+        <location filename="../ui/pref_dialog.ui" line="622"/>
         <source>Subtitle OSD</source>
-        <translation type="unfinished">字幕OSD</translation>
+        <translation>字幕OSD</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="605"/>
+        <location filename="../ui/pref_dialog.ui" line="648"/>
         <source>Unified/Multi-Subtitle</source>
-        <translation type="unfinished">統合・多重字幕</translation>
+        <translation>統合・多重字幕</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="611"/>
+        <location filename="../ui/pref_dialog.ui" line="654"/>
         <source>You can specify the order of unified(mulit) subtitles with the &apos;Name&apos; property in subtitle file.
 If not specified, They will be displayed in selected order.
 e.g.: English, Korean</source>
-        <translation type="unfinished">字幕ファイルで指定された&apos;Name&apos;属性で統合(多重)字幕の表示順序を指定できます。
+        <translation>字幕ファイルで指定された&apos;Name&apos;属性で統合(多重)字幕の表示順序を指定できます。
 指定されない場合、選択された順番で表示されます。
 例: English, Japanese</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="651"/>
+        <location filename="../ui/pref_dialog.ui" line="694"/>
         <source>UI</source>
-        <translation type="unfinished"></translation>
+        <translation>UI</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="657"/>
+        <location filename="../ui/pref_dialog.ui" line="700"/>
         <source>Window Style</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_dialog.ui" line="669"/>
-        <source>Locale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_dialog.ui" line="702"/>
-        <source>Shortcut</source>
-        <translation type="unfinished">ショートカット</translation>
+        <translation>ウィンドウのスタイル</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="712"/>
+        <source>Locale</source>
+        <translation>ロケール</translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="745"/>
+        <source>Shortcut</source>
+        <translation>ショートカット</translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="755"/>
         <source>Menu</source>
-        <translation type="unfinished">メニュー</translation>
+        <translation>メニュー</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="761"/>
+        <location filename="../ui/pref_dialog.ui" line="804"/>
         <source>Shortcut1</source>
-        <translation type="unfinished">ショートカット1</translation>
+        <translation>ショートカット1</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="774"/>
+        <location filename="../ui/pref_dialog.ui" line="817"/>
         <source>Shortcut2</source>
-        <translation type="unfinished">ショートカット2</translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_dialog.ui" line="787"/>
-        <source>Shortcut3</source>
-        <translation type="unfinished">ショートカット3</translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_dialog.ui" line="800"/>
-        <source>Shortcut4</source>
-        <translation type="unfinished">ショートカット4</translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_dialog.ui" line="748"/>
-        <source>Change:</source>
-        <translation type="unfinished">変更:</translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_dialog.ui" line="810"/>
-        <source>Mouse</source>
-        <translation type="unfinished">マウス</translation>
+        <translation>ショートカット2</translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="830"/>
+        <source>Shortcut3</source>
+        <translation>ショートカット3</translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="843"/>
+        <source>Shortcut4</source>
+        <translation>ショートカット4</translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="791"/>
+        <source>Change:</source>
+        <translation>変更:</translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="853"/>
+        <source>Mouse</source>
+        <translation>マウス</translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="873"/>
         <source>Control Step</source>
-        <translation type="unfinished">操作ステップ</translation>
+        <translation>操作ステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="842"/>
+        <location filename="../ui/pref_dialog.ui" line="885"/>
         <source>Seek Step 1</source>
-        <translation type="unfinished">シークステップ1</translation>
+        <translation>シークステップ1</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="868"/>
+        <location filename="../ui/pref_dialog.ui" line="911"/>
         <source>Seek Step 2</source>
-        <translation type="unfinished">シークステップ1</translation>
+        <translation>シークステップ1</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="907"/>
+        <location filename="../ui/pref_dialog.ui" line="950"/>
         <source>Seek Step 3</source>
-        <translation type="unfinished">シークステップ1</translation>
+        <translation>シークステップ1</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="930"/>
+        <location filename="../ui/pref_dialog.ui" line="973"/>
         <source>Speed Step</source>
-        <translation type="unfinished">速度ステップ</translation>
+        <translation>速度ステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1168"/>
+        <location filename="../ui/pref_dialog.ui" line="1211"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="972"/>
+        <location filename="../ui/pref_dialog.ui" line="1015"/>
         <source>Volum Step</source>
-        <translation type="unfinished">音量ステップ</translation>
+        <translation>音量ステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="998"/>
+        <location filename="../ui/pref_dialog.ui" line="1041"/>
         <source>Amp. Step</source>
-        <translation type="unfinished">アンプステップ</translation>
+        <translation>アンプステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1046"/>
+        <location filename="../ui/pref_dialog.ui" line="1089"/>
         <source>Brightness Step</source>
-        <translation type="unfinished">明度ステップ</translation>
+        <translation>明度ステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1066"/>
+        <location filename="../ui/pref_dialog.ui" line="1109"/>
         <source>Contrast Step</source>
-        <translation type="unfinished">コントラストステップ</translation>
+        <translation>コントラストステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1099"/>
+        <location filename="../ui/pref_dialog.ui" line="1142"/>
         <source>Saturation Step</source>
-        <translation type="unfinished">彩度ステップ</translation>
+        <translation>彩度ステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1119"/>
+        <location filename="../ui/pref_dialog.ui" line="1162"/>
         <source>Hue Step</source>
-        <translation type="unfinished">色相ステップ</translation>
+        <translation>色相ステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1161"/>
+        <location filename="../ui/pref_dialog.ui" line="1204"/>
         <source>Position Step</source>
-        <translation type="unfinished">位置ステップ</translation>
+        <translation>位置ステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1181"/>
+        <location filename="../ui/pref_dialog.ui" line="1224"/>
         <source>Sync Delay Step</source>
-        <translation type="unfinished">シンク遅延ステップ</translation>
+        <translation>シンク遅延ステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1258"/>
+        <location filename="../ui/pref_dialog.ui" line="1301"/>
         <source>&amp;Ok</source>
-        <translation type="unfinished">&amp;Ok</translation>
+        <translation>&amp;Ok</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1265"/>
+        <location filename="../ui/pref_dialog.ui" line="1308"/>
         <source>&amp;Apply</source>
-        <translation type="unfinished">適用(&amp;A)</translation>
+        <translation>適用(&amp;A)</translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1272"/>
+        <location filename="../ui/pref_dialog.ui" line="1315"/>
         <source>&amp;Cancel</source>
-        <translation type="unfinished">キャンセル(&amp;C)</translation>
+        <translation>キャンセル(&amp;C)</translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="530"/>
+        <source>Encoding</source>
+        <translation>エンコーディング</translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="558"/>
+        <source>Use auto-detection when the confidence is over:</source>
+        <translation>正確度が次より大きい場合自動探知を用いる</translation>
     </message>
 </context>
 <context>
@@ -2318,12 +2318,12 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../toolbox.cpp" line="80"/>
         <source>Playlist</source>
-        <translation type="unfinished">プレイリスト</translation>
+        <translation>プレイリスト</translation>
     </message>
     <message>
         <location filename="../toolbox.cpp" line="81"/>
         <source>Video Color</source>
-        <translation type="unfinished"></translation>
+        <translation>ビデオカラー</translation>
     </message>
 </context>
 </TS>
