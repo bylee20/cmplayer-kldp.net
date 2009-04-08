@@ -257,7 +257,11 @@ Pref::Dialog::Dialog(QWidget *parent)
 	d->ui.singleApp->setChecked(p.singleApplication);
 	d->ui.disableSS->setChecked(p.disableScreensaver);
 	
-	d->ui.winStyle->addItems(QStyleFactory::keys());
+	const QStringList styles = QStyleFactory::keys();
+	d->ui.winStyle->addItem(tr("Default Style"), "default");
+	for (int i = 0; i<styles.size(); ++i)
+		d->ui.winStyle->addItem(styles[i], styles[i]);
+	setComboIndex(d->ui.winStyle, p.windowStyle);
 	
 	QList<QAction *> acts = Menu::get().actions();
 	for (int i=0; i<acts.size(); ++i)
@@ -372,6 +376,8 @@ void Pref::Dialog::apply() {
 	p.hideClosed = d->ui.hideWhenClosed->isChecked();
 	p.singleApplication = d->ui.singleApp->isChecked();
 	p.disableScreensaver = d->ui.disableSS->isChecked();
+	
+	p.windowStyle = currentComboData(d->ui.winStyle).toString();
 	
 	for (int i=0; i<d->ui.shortcutTree->topLevelItemCount(); ++i)
 		((MenuTreeItem*)(d->ui.shortcutTree->topLevelItem(i)))->applyShortcut();

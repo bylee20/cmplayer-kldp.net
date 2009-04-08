@@ -17,6 +17,7 @@
 #include "geturldialog.h"
 #include "aboutdialog.h"
 #include "snapshotdialog.h"
+#include "application.h"
 #include <core/info.h>
 #include <core/charsetdetector.h>
 #include <core/backendiface.h>
@@ -32,7 +33,6 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QMenuBar>
 #include <QtGui/QMessageBox>
-#include <QtGui/QApplication>
 #include <QtCore/QTimer>
 #include <QtCore/QSet>
 #include <QtCore/QDebug>
@@ -625,9 +625,7 @@ void MainWindow::updateOnTop() {
 
 void MainWindow::updatePref() {
 	Translator::load(d->pref.locale);
-// 	const Core::MediaType media = d->player->currentSource().type();
-// 	if (media != Core::Unknown)
-// 		d->menu("play")("engine").g()->trigger(d->pref.backendName(media));
+	app()->setStyle(d->pref.windowStyle);
 	d->player->setSubtitleStyle(d->pref.subtitleStyle);
 	d->player->setVolumeNormalized(d->pref.normalizeVolume);
 	d->player->setUseSoftwareEqualizer(d->pref.useSoftwareEqualizer);

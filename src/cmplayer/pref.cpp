@@ -1,18 +1,11 @@
 #include "pref.h"
 #include "helper.h"
 #include "videoplayer.h"
-#include <QtGui/QApplication>
 #include <core/osdstyle.h>
 #include <QtCore/QMap>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 #include <QtCore/QLocale>
-#include <QtGui/QStyle>
-
-Pref::Pref(): defWinStyle(qApp->style()->objectName()) {
-	qDebug() << defWinStyle;
-	load();
-}
 
 Pref &Pref::ref() {
 	static Pref self;
@@ -107,7 +100,8 @@ void Pref::load() {
 	LOAD(contrastStep, DefaultColorPropStep, toInt);
 	LOAD(hueStep, DefaultColorPropStep, toInt);
 	LOAD(locale, QLocale::c(), toLocale);
-
+	LOAD(windowStyle, "default", toString);
+	
 	LOAD_ENUM(autoAddFiles, AllFiles);
 	LOAD_ENUM(subtitleAutoLoad, Contain);
 	LOAD_ENUM(subtitleAutoSelect, SameName);

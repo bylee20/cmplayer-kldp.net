@@ -6,15 +6,19 @@
 #include <QtCore/QUrl>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
-#include <QtGui/QImage>
+#include <QtGui/QStyleFactory>
+#include <QtGui/QStyle>
 
 struct Application::Data {
 	AppConnection connection;
 	MainWindow *main;
+	QString defStyle;
 };
 
 Application::Application(int &argc, char **argv)
 : QApplication(argc, argv), d(new Data) {
+	d->defStyle = style()->objectName();
+	setStyle(Pref::get().windowStyle);
 	setStyleSheet("\
 		Button {\
 			margin:0px; padding: 2px;\
@@ -107,4 +111,18 @@ void Application::raise() {
 		d->main->hide();
 		d->main->show();
 	}
+}
+
+QString Application::defaultStyleName() {
+	return d->defStyle;
+}
+
+void Application::setStyle(const QString &name) {
+	const QString key = name == "default" ? d->defStyle : name;
+	if (style()->objectName() != key)
+		QApplication::setStyle(QStyleFactory::create(key));
+}
+
+Application *app() {
+	return static_cast<Application*>(qApp);
 }

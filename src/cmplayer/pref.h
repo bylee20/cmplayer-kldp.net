@@ -29,8 +29,7 @@ public:
 	static const int DefaultSubPosStep = 1;
 	static const int DefaultSpeedStep = 10;
 	static const int DefaultColorPropStep = 1;
-	const QString &defaultWindowStyle() const {return defWinStyle;}
-	
+
 	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
 	bool hideCursor, hideInFullScreen, normalizeVolume, useSoftwareEqualizer;
 	bool enableSystemTray, hideClosed, singleApplication;
@@ -53,8 +52,7 @@ public:
 	void load();
 	class Dialog;
 private:
-	const QString defWinStyle;
-	Pref();
+	Pref() {load();}
 	static Pref &ref();
 	template<typename T>
 	void saveMouse(QSettings &set, const QString &group, const T &t) const {
