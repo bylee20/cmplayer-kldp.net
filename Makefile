@@ -180,6 +180,7 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/16x16/apps
 	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/22x22/apps
 	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/32x32/apps
+	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/48x48/apps
 	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/64x64/apps
 	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/128x128/apps
 	$(install_exe) src/bin/cmplayer $(DESTDIR)$(CMPLAYER_BIN_PATH)
@@ -194,6 +195,7 @@ endif
 	$(install_file) icons/cmplayer16.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/16x16/apps/cmplayer.png
 	$(install_file) icons/cmplayer22.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/22x22/apps/cmplayer.png
 	$(install_file) icons/cmplayer32.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/32x32/apps/cmplayer.png
+	$(install_file) icons/cmplayer48.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/48x48/apps/cmplayer.png
 	$(install_file) icons/cmplayer64.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/64x64/apps/cmplayer.png
 	$(install_file) icons/cmplayer128.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/128x128/apps/cmplayer.png
 # 	$(install_file) icons/cmplayer.xpm $(DESTDIR)$(CMPLAYER_DATA_PATH)/pixmaps
@@ -211,6 +213,7 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	-rm -f $(CMPLAYER_ICON_PATH)/16x16/apps/cmplayer.png
 	-rm -f $(CMPLAYER_ICON_PATH)/22x22/apps/cmplayer.png
 	-rm -f $(CMPLAYER_ICON_PATH)/32x32/apps/cmplayer.png
+	-rm -f $(CMPLAYER_ICON_PATH)/48x48/apps/cmplayer.png
 	-rm -f $(CMPLAYER_ICON_PATH)/64x64/apps/cmplayer.png
 	-rm -f $(CMPLAYER_ICON_PATH)/128x128/apps/cmplayer.png
 # 	-rm -f $(CMPLAYER_DATA_PATH)/pixmaps/cmplayer.xpm
@@ -236,6 +239,7 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	-rmdir $(CMPLAYER_ICON_PATH)/16x16/apps
 	-rmdir $(CMPLAYER_ICON_PATH)/22x22/apps
 	-rmdir $(CMPLAYER_ICON_PATH)/32x32/apps
+	-rmdir $(CMPLAYER_ICON_PATH)/48x48/apps
 	-rmdir $(CMPLAYER_ICON_PATH)/64x64/apps
 	-rmdir $(CMPLAYER_ICON_PATH)/128x128/apps
 	-rmdir $(CMPLAYER_DATA_PATH)/pixmaps
