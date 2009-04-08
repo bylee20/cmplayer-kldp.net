@@ -22,7 +22,8 @@ SOURCES += abrepeater.cpp \
 	openglvideorendereriface.cpp \
 	downloader.cpp \
 	colorproperty.cpp \
-	mediainfo.cpp
+	mediainfo.cpp \
+ charsetdetector.cpp
 HEADERS += abrepeater.h \
 	playengine.h \
 	mediasource.h \
@@ -48,20 +49,26 @@ HEADERS += abrepeater.h \
 	openglvideorendereriface.h \
 	downloader.h \
 	colorproperty.h \
-	mediainfo.h
+	mediainfo.h \
+ charsetdetector.h
 
 CONFIG += debug_and_release dll
 QT += network
 
 DEFINES += CMPLAYER_PLUGIN_DIR=$(CMPLAYER_PLUGIN_PATH)
 
-LIBS += -lX11
 
 RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE){
-	CONFIG += release
-	TARGET = ../bin/cmplayer_core
+    CONFIG += release
+    TARGET = ../bin/cmplayer_core
 }else {
-	CONFIG += debug
-	TARGET = ../bin/cmplayer_cored
+    CONFIG += debug
+    TARGET = ../bin/cmplayer_cored
 }
+INCLUDEPATH += ../libchardet/src
+
+LIBS += -L../libchardet/src/.libs \
+  -lchardet \
+  -lX11
+

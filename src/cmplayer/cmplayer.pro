@@ -79,7 +79,6 @@ HEADERS += mainwindow.h \
  pref_dialog.h
 FORMS += ./ui/abrepeatdialog.ui \
 	./ui/prefosdwidget.ui \
-	ui/prefstack.ui \
 	ui/geturldialog.ui \
 	ui/aboutdialog.ui \
 	ui/snapshotdialog.ui \

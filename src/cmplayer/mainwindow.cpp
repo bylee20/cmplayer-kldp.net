@@ -1,4 +1,3 @@
-#include "prefdialog.h"
 #include "pref_dialog.h"
 #include "controlwidget.h"
 #include "checkdialog.h"
@@ -19,6 +18,7 @@
 #include "aboutdialog.h"
 #include "snapshotdialog.h"
 #include <core/info.h>
+#include <core/charsetdetector.h>
 #include <core/backendiface.h>
 #include <core/playlist.h>
 #include <core/subtitle.h>
@@ -413,7 +413,6 @@ void MainWindow::autoLoadSubtitles() {
 		const QDir dir = file.dir();
 		const QFileInfoList all = dir.entryInfoList(nameFilter, QDir::Files, QDir::Name);
 		const QString base = file.completeBaseName();
-		const QString enc = d->pref.subtitleEncoding;
 		QSet<QString> langs;
 		for (int i=0; i<all.size(); ++i) {
 			bool add = (autoLoad == SamePath);
@@ -424,7 +423,14 @@ void MainWindow::autoLoadSubtitles() {
 			if (!add)
 				continue;
 			Core::Subtitle sub;
-			if (!sub.load(all[i].absoluteFilePath(), enc))
+			const QString filePath = all[i].absoluteFilePath();
+			QString encoding;
+			if (d->pref.useSubtitleEncodingAutoDetection)
+				encoding = Core::CharsetDetector::detect(filePath
+						, d->pref.subtitleEncodingConfidence*0.01);
+			if (encoding.isEmpty())
+				encoding = d->pref.subtitleEncoding;
+			if (!sub.load(all[i].absoluteFilePath(), encoding))
 				continue;
 			bool select = false;
 			if (autoSelect == SameName)

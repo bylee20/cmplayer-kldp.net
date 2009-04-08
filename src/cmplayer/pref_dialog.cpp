@@ -309,7 +309,8 @@ Pref::Dialog::Dialog(QWidget *parent)
 	d->ui.subOsd->setStyle(p.subtitleStyle);
 	d->ui.priority->setValues(p.subtitlePriority);
 	d->ui.priority->setAddingAndErasingEnabled(true);
-	
+	d->ui.subEncAutoDet->setChecked(p.useSubtitleEncodingAutoDetection);
+	d->ui.subConf->setValue(p.subtitleEncodingConfidence);
 // 	const BackendMap map = VideoPlayer::backend();
 // 	const QStringList backends = map.keys;
 // 	QTreeWidgetItem *header = d->ui.media->headerItem();
@@ -393,7 +394,8 @@ void Pref::Dialog::apply() {
 	p.subtitleEncoding = d->ui.encoding->encoding();
 	p.subtitleStyle = d->ui.subOsd->style();
 	p.subtitlePriority = d->ui.priority->values();
-
+	p.useSubtitleEncodingAutoDetection = d->ui.subEncAutoDet->isChecked();
+	p.subtitleEncodingConfidence = d->ui.subConf->value();
 // 	for (int i=0; i<d->media.size(); ++i) {
 // 		MediaTreeItem *item = static_cast<MediaTreeItem*>(d->ui.media->topLevelItem(i));
 // 		p.setBackendName(d->media[i], item->checkedBackend());

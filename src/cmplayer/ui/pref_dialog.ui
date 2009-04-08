@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
+    <width>572</width>
     <height>559</height>
    </rect>
   </property>
@@ -85,14 +85,14 @@
      <item>
       <widget class="QStackedWidget" name="stack" >
        <property name="currentIndex" >
-        <number>2</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page" >
         <layout class="QHBoxLayout" name="horizontalLayout_6" >
          <item>
           <widget class="QTabWidget" name="tabWidget_2" >
            <property name="currentIndex" >
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tab" >
             <attribute name="title" >
@@ -477,7 +477,7 @@
             <attribute name="title" >
              <string>Load Subtitle</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_6" >
+            <layout class="QVBoxLayout" name="verticalLayout_9" >
              <item>
               <widget class="QGroupBox" name="groupBox_3" >
                <property name="title" >
@@ -527,12 +527,12 @@
              <item>
               <widget class="QGroupBox" name="auto_load_group" >
                <property name="title" >
-                <string>Default Encoding</string>
+                <string>Encoding</string>
                </property>
                <property name="checkable" >
                 <bool>false</bool>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_9" >
+               <layout class="QVBoxLayout" name="verticalLayout_6" >
                 <item>
                  <widget class="QLabel" name="label_5" >
                   <property name="text" >
@@ -549,6 +549,49 @@
                    <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_8" >
+                  <item>
+                   <widget class="QCheckBox" name="subEncAutoDet" >
+                    <property name="text" >
+                     <string>Use auto-detection when the confidence is over:</string>
+                    </property>
+                    <property name="checked" >
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="subConf" >
+                    <property name="accelerated" >
+                     <bool>true</bool>
+                    </property>
+                    <property name="suffix" >
+                     <string>%</string>
+                    </property>
+                    <property name="minimum" >
+                     <number>1</number>
+                    </property>
+                    <property name="maximum" >
+                     <number>100</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_11" >
+                    <property name="orientation" >
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0" >
+                     <size>
+                      <width>0</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
                 </item>
                </layout>
               </widget>
@@ -644,7 +687,7 @@ e.g.: English, Korean</string>
          <item>
           <widget class="QTabWidget" name="tabWidget" >
            <property name="currentIndex" >
-            <number>1</number>
+            <number>3</number>
            </property>
            <widget class="QWidget" name="tab_4" >
             <attribute name="title" >
@@ -1307,8 +1350,8 @@ e.g.: English, Korean</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>285</x>
-     <y>467</y>
+     <x>459</x>
+     <y>553</y>
     </hint>
     <hint type="destinationlabel" >
      <x>50</x>
@@ -1323,8 +1366,8 @@ e.g.: English, Korean</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>385</x>
-     <y>474</y>
+     <x>605</x>
+     <y>553</y>
     </hint>
     <hint type="destinationlabel" >
      <x>255</x>
@@ -1345,6 +1388,22 @@ e.g.: English, Korean</string>
     <hint type="destinationlabel" >
      <x>117</x>
      <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>subEncAutoDet</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>subConf</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>173</x>
+     <y>327</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>563</x>
+     <y>332</y>
     </hint>
    </hints>
   </connection>

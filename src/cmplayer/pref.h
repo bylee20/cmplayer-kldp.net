@@ -29,26 +29,26 @@ public:
 	static const int DefaultSubPosStep = 1;
 	static const int DefaultSpeedStep = 10;
 	static const int DefaultColorPropStep = 1;
-
+	const QString &defaultWindowStyle() const {return defWinStyle;}
+	
 	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
 	bool hideCursor, hideInFullScreen, normalizeVolume, useSoftwareEqualizer;
 	bool enableSystemTray, hideClosed, singleApplication;
-	bool disableScreensaver;
-	int hideDelay;
+	bool disableScreensaver, useSubtitleEncodingAutoDetection;
 	AutoAddFilesEnum autoAddFiles;
 	Core::OsdStyle subtitleStyle;
-	QString subtitleEncoding;
+	QString subtitleEncoding, windowStyle;
 	QStringList subtitlePriority;
 	SubtitleAutoLoadEnum subtitleAutoLoad;
 	SubtitleAutoSelectEnum subtitleAutoSelect;
 	int seekingStep1, seekingStep2, seekingStep3, speedStep;
 	int volumeStep, syncDelayStep, ampStep, subtitlePosStep;
 	int brightnessStep, saturationStep, contrastStep, hueStep;
+	int hideDelay, subtitleEncodingConfidence;
 	ClickActionMap doubleClickMap, middleClickMap;
 	WheelActionMap wheelScrollMap;
 	QLocale locale;
-	QString windowStyle;
-	const QString &defaultWindowStyle() const {return defWinStyle;}
+
 	void save() const;
 	void load();
 	class Dialog;

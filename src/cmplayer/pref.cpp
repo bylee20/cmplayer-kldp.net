@@ -19,97 +19,104 @@ Pref &Pref::ref() {
 	return self;
 }
 
-#define SAVE2(value) (set.setValue((#value), (value)))
-#define LOAD2(val, def, converter) (val = set.value(#val, def).converter())
-#define SAVE2_ENUM(val) (set.setValue(#val, val.name()))
-#define LOAD2_ENUM(val, def) (val = val.value(set.value(#val, #def).toString(), def))
+#define SAVE(value) (set.setValue((#value), (value)))
+#define LOAD(val, def, converter) (val = set.value(#val, def).converter())
+#define SAVE_ENUM(val) (set.setValue(#val, val.name()))
+#define LOAD_ENUM(val, def) (val = val.value(set.value(#val, #def).toString(), def))
 
 void Pref::save() const {
 	QSettings set(Helper::configFile(), QSettings::IniFormat);
 	set.beginGroup("Pref");
-	SAVE2(rememberStopped);
-	SAVE2(playRestored);
-	SAVE2(pauseMinimized);
-	SAVE2(pauseVideoOnly);
-	SAVE2(hideCursor);
-	SAVE2(hideInFullScreen);
-	SAVE2(hideDelay);
-	SAVE2(normalizeVolume);
-	SAVE2(useSoftwareEqualizer);
-	SAVE2(enableSystemTray);
-	SAVE2(hideClosed);
-	SAVE2(singleApplication);
-	SAVE2(disableScreensaver);
-	SAVE2_ENUM(autoAddFiles);
 	
+	SAVE(rememberStopped);
+	SAVE(playRestored);
+	SAVE(pauseMinimized);
+	SAVE(pauseVideoOnly);
+	SAVE(hideCursor);
+	SAVE(hideInFullScreen);
+	SAVE(hideDelay);
+	SAVE(normalizeVolume);
+	SAVE(useSoftwareEqualizer);
+	SAVE(enableSystemTray);
+	SAVE(hideClosed);
+	SAVE(singleApplication);
+	SAVE(disableScreensaver);
+	SAVE(subtitleEncoding);
+	SAVE(subtitlePriority);
+	SAVE(useSubtitleEncodingAutoDetection);
+	SAVE(subtitleEncodingConfidence);
+	SAVE(seekingStep1);
+	SAVE(seekingStep2);
+	SAVE(seekingStep3);
+	SAVE(speedStep);
+	SAVE(volumeStep);
+	SAVE(ampStep);
+	SAVE(subtitlePosStep);
+	SAVE(volumeStep);
+	SAVE(syncDelayStep);
+	SAVE(brightnessStep);
+	SAVE(saturationStep);
+	SAVE(contrastStep);
+	SAVE(hueStep);
+	SAVE(locale);
+	SAVE(windowStyle);
+	
+	SAVE_ENUM(autoAddFiles);
+	SAVE_ENUM(subtitleAutoLoad);
+	SAVE_ENUM(subtitleAutoSelect);
+
 	subtitleStyle.save(&set, "SubtitleStyle");
-	SAVE2(subtitleEncoding);
-	SAVE2(subtitlePriority);
-	SAVE2_ENUM(subtitleAutoLoad);
-	SAVE2_ENUM(subtitleAutoSelect);
-	
-	SAVE2(seekingStep1);
-	SAVE2(seekingStep2);
-	SAVE2(seekingStep3);
-	SAVE2(speedStep);
-	SAVE2(volumeStep);
-	SAVE2(ampStep);
-	SAVE2(subtitlePosStep);
-	SAVE2(volumeStep);
-	SAVE2(syncDelayStep);
-	SAVE2(brightnessStep);
-	SAVE2(saturationStep);
-	SAVE2(contrastStep);
-	SAVE2(hueStep);
-	SAVE2(locale);
-	SAVE2(windowStyle);
 	saveMouse(set, "DoubleClickAction", doubleClickMap);
 	saveMouse(set, "MiddleClickAction", middleClickMap);
 	saveMouse(set, "WheelScrollAction", wheelScrollMap);
+	
 	set.endGroup();
 }
 
 void Pref::load() {
 	QSettings set(Helper::configFile(), QSettings::IniFormat);
 	set.beginGroup("Pref");
-	LOAD2(rememberStopped, true, toBool);
-	LOAD2(playRestored, true, toBool);
-	LOAD2(pauseMinimized, true, toBool);
-	LOAD2(pauseVideoOnly, true, toBool);
-	LOAD2(hideCursor, true, toBool);
-	LOAD2(hideInFullScreen, true, toBool);
-	LOAD2(hideDelay, 3000, toInt);
-	LOAD2(normalizeVolume, true, toBool);
-	LOAD2(useSoftwareEqualizer, false, toBool);
-	LOAD2(enableSystemTray, true, toBool);
-	LOAD2(hideClosed, true, toBool);
-	LOAD2(singleApplication, true, toBool);
-	LOAD2(disableScreensaver, true, toBool);
-	LOAD2_ENUM(autoAddFiles, AllFiles);
 	
+	LOAD(rememberStopped, true, toBool);
+	LOAD(playRestored, true, toBool);
+	LOAD(pauseMinimized, true, toBool);
+	LOAD(pauseVideoOnly, true, toBool);
+	LOAD(hideCursor, true, toBool);
+	LOAD(hideInFullScreen, true, toBool);
+	LOAD(hideDelay, 3000, toInt);
+	LOAD(normalizeVolume, true, toBool);
+	LOAD(useSoftwareEqualizer, false, toBool);
+	LOAD(enableSystemTray, true, toBool);
+	LOAD(hideClosed, true, toBool);
+	LOAD(singleApplication, true, toBool);
+	LOAD(disableScreensaver, true, toBool);
+	LOAD(subtitleEncoding, "UTF-8", toString);
+	LOAD(useSubtitleEncodingAutoDetection, true, toBool);
+	LOAD(subtitleEncodingConfidence, 70, toInt);
+	LOAD(subtitlePriority, QStringList(), toStringList);
+	LOAD(seekingStep1, DefaultSeekingStep1, toInt);
+	LOAD(seekingStep2, DefaultSeekingStep2, toInt);
+	LOAD(seekingStep3, DefaultSeekingStep3, toInt);
+	LOAD(speedStep, DefaultSpeedStep, toInt);
+	LOAD(volumeStep, DefaultVolumeStep, toInt);
+	LOAD(ampStep, DefaultAmpStep, toInt);
+	LOAD(subtitlePosStep, DefaultSubPosStep, toInt);
+	LOAD(syncDelayStep, DefaultSyncDelayStep, toInt);
+	LOAD(brightnessStep, DefaultColorPropStep, toInt);
+	LOAD(saturationStep, DefaultColorPropStep, toInt);
+	LOAD(contrastStep, DefaultColorPropStep, toInt);
+	LOAD(hueStep, DefaultColorPropStep, toInt);
+	LOAD(locale, QLocale::c(), toLocale);
+
+	LOAD_ENUM(autoAddFiles, AllFiles);
+	LOAD_ENUM(subtitleAutoLoad, Contain);
+	LOAD_ENUM(subtitleAutoSelect, SameName);
+
 	subtitleStyle.alignment = Qt::AlignHCenter | Qt::AlignBottom;
 	subtitleStyle.borderWidth = 0.03;
 	subtitleStyle.textSize = 0.04;
 	subtitleStyle.font.setBold(true);
 	subtitleStyle.load(&set, "SubtitleStyle");
-	LOAD2(subtitleEncoding, "UTF-8", toString);
-	LOAD2(subtitlePriority, QStringList(), toStringList);
-	LOAD2_ENUM(subtitleAutoLoad, Contain);
-	LOAD2_ENUM(subtitleAutoSelect, SameName);
-
-	LOAD2(seekingStep1, DefaultSeekingStep1, toInt);
-	LOAD2(seekingStep2, DefaultSeekingStep2, toInt);
-	LOAD2(seekingStep3, DefaultSeekingStep3, toInt);
-	LOAD2(speedStep, DefaultSpeedStep, toInt);
-	LOAD2(volumeStep, DefaultVolumeStep, toInt);
-	LOAD2(ampStep, DefaultAmpStep, toInt);
-	LOAD2(subtitlePosStep, DefaultSubPosStep, toInt);
-	LOAD2(syncDelayStep, DefaultSyncDelayStep, toInt);
-	LOAD2(brightnessStep, DefaultColorPropStep, toInt);
-	LOAD2(saturationStep, DefaultColorPropStep, toInt);
-	LOAD2(contrastStep, DefaultColorPropStep, toInt);
-	LOAD2(hueStep, DefaultColorPropStep, toInt);
-	LOAD2(locale, QLocale::c(), toLocale);
 	loadMouse(set, "DoubleClickAction", doubleClickMap
 			, Qt::NoModifier, ClickActionPair(true, ToggleFullScreen));
 	loadMouse(set, "DoubleClickAction", doubleClickMap

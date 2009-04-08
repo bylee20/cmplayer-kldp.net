@@ -73,6 +73,7 @@ endif
 cmplayer:
 	@echo "\n======================= Start to complile! ======================\n"
 ifeq ($(config),)
+	cd src/libchardet && ./configure --enable-shared=no --enable-static=yes && make
 	cd src && $(qmake_env) $(QMAKE) $(subdirs) cmplayer.pro
 	cd src/core && $(qmake_env) $(QMAKE) core.pro
 ifneq (,$(findstring xine,${ENGINE_LIST}))
