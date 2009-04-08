@@ -1,4 +1,5 @@
 #include "prefdialog.h"
+#include "pref_dialog.h"
 #include "controlwidget.h"
 #include "checkdialog.h"
 #include "state.h"
@@ -41,7 +42,7 @@
 #include "dragcharm.h"
 
 struct MainWindow::Data {
-	Data(Menu &menu): menu(menu) {}
+	Data(Menu &menu): pref(Pref::get()), menu(menu) {}
 	QWidget *center;
 	ControlWidget *control;
 	PlaylistModel *model;
@@ -52,7 +53,7 @@ struct MainWindow::Data {
 	RecentInfo *recent;
 	bool pausedByHiding, changingOnTop, changingSubtitle;
 	VideoPlayer *player;
-	Pref *pref;
+	const Pref &pref;
 	Menu &menu;
 	ABRepeatDialog *repeater;
 	SnapshotDialog *snapshot;
@@ -98,7 +99,6 @@ void MainWindow::commonInitialize() {
 	
 	d->model = new PlaylistModel(d->player);
 	d->recent = RecentInfo::get();
-	d->pref = Pref::get();
 	
 	QApplication::setWindowIcon(defaultIcon());
 	d->tray = new QSystemTrayIcon(defaultIcon(), this);
@@ -307,7 +307,7 @@ QIcon MainWindow::defaultIcon() {
 }
 
 void MainWindow::setupUi() {
-	d->toolBox = new ToolBox(d->model, this);
+	d->toolBox = new ToolBox(d->player, d->model, this);
 	d->player->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	
 	d->center = new QWidget(this);
@@ -362,7 +362,7 @@ void MainWindow::clearSubs() {
 
 void MainWindow::updateSubtitle() {
 	QList<int> merge = d->subIdxes;
-	const QStringList priority = d->pref->subtitlePriority();
+	const QStringList priority = d->pref.subtitlePriority;
 	QList<int> order;
 	QList<int> indexes = d->subIdxes;
 	QList<int>::iterator it;
@@ -403,17 +403,17 @@ void MainWindow::autoLoadSubtitles() {
 	const Core::MediaSource source = d->player->currentSource();
 	d->menu("subtitle")("list").g()->setExclusive(source.isDisc());
 	if (source.isLocalFile()) {
-		const SubtitleAutoLoad autoLoad = d->pref->subtitleAutoLoad();
+		const SubtitleAutoLoad autoLoad = d->pref.subtitleAutoLoad;
 		if (autoLoad == NoAutoLoad)
 			return;
-		const SubtitleAutoSelect autoSelect = d->pref->subtitleAutoSelect();
+		const SubtitleAutoSelect autoSelect = d->pref.subtitleAutoSelect;
 		QStringList files;
 		const QStringList nameFilter = QStringList() << "*.smi" << "*.srt";
 		const QFileInfo file(source.filePath());
 		const QDir dir = file.dir();
 		const QFileInfoList all = dir.entryInfoList(nameFilter, QDir::Files, QDir::Name);
 		const QString base = file.completeBaseName();
-		const QString enc = d->pref->subtitleEncoding();
+		const QString enc = d->pref.subtitleEncoding;
 		QSet<QString> langs;
 		for (int i=0; i<all.size(); ++i) {
 			bool add = (autoLoad == SamePath);
@@ -494,7 +494,7 @@ void MainWindow::open() {
 
 Core::Playlist MainWindow::open(const Core::MediaSource &source) {
 	Core::Playlist list;
-	const AutoAddFiles mode = d->pref->autoAddFiles();
+	const AutoAddFiles mode = d->pref.autoAddFiles;
 	if (source.isLocalFile() && mode != DoNotAddFiles) {
 		static const QStringList filter
 			= Core::Info::videoExtension().toNameFilter()
@@ -566,7 +566,7 @@ void MainWindow::seek(int diff) {
 
 void MainWindow::openSubFile() {
 	const QString filter = tr("Subtitle Files") +' '+ Core::Info::subtitleExtension().toFilter();
-	QString enc = d->pref->subtitleEncoding();
+	QString enc = d->pref.subtitleEncoding;
 	const QStringList files = EncodingFileDialog::getOpenFileNames(this, tr("Open Subtitle"), QString(), filter, &enc);
 	if (files.isEmpty())
 		return;
@@ -618,13 +618,13 @@ void MainWindow::updateOnTop() {
 }
 
 void MainWindow::updatePref() {
-	Translator::load(d->pref->locale());
+	Translator::load(d->pref.locale);
 // 	const Core::MediaType media = d->player->currentSource().type();
 // 	if (media != Core::Unknown)
-// 		d->menu("play")("engine").g()->trigger(d->pref->backendName(media));
-	d->player->setSubtitleStyle(d->pref->subtitleStyle());
-	d->player->setVolumeNormalized(d->pref->isVolumeNormalized());
-	d->player->setUseSoftwareEqualizer(d->pref->useSoftwareEqualizer());
+// 		d->menu("play")("engine").g()->trigger(d->pref.backendName(media));
+	d->player->setSubtitleStyle(d->pref.subtitleStyle);
+	d->player->setVolumeNormalized(d->pref.normalizeVolume);
+	d->player->setUseSoftwareEqualizer(d->pref.useSoftwareEqualizer);
 	d->menu.updatePref();
 	d->control->setState(d->player->state());
 	if (!d->player->isStopped()) {
@@ -635,7 +635,7 @@ void MainWindow::updatePref() {
 		if (paused)
 			d->player->pause();
 	}
-	d->tray->setVisible(d->pref->isSystemTrayEnabled());
+	d->tray->setVisible(d->pref.enableSystemTray);
 }
 
 void MainWindow::setFullScreen(bool full) {
@@ -685,7 +685,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 		return;
 	if (IS_BUTTON(Qt::MidButton)) {
 		QAction *action = getTriggerAction(event->modifiers()
-				, d->pref->middleClickMap(), d->menu.clickAction(), 0);
+				, d->pref.middleClickMap, d->menu.clickAction(), 0);
 		if (action)
 			action->trigger();
 	}
@@ -703,15 +703,15 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 		r.setTop(r.height() - h);
 		d->control->setVisible(r.contains(event->pos()));
 	}
-	if (IS_IN_CENTER && d->pref->hideCursor() && (!d->pref->hideInFullScreen() || full))
-		d->hider.start(d->pref->hideDelay());
+	if (IS_IN_CENTER && d->pref.hideCursor && (!d->pref.hideInFullScreen || full))
+		d->hider.start(d->pref.hideDelay);
 }
 
 void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 	QMainWindow::mouseDoubleClickEvent(event);
 	if (IS_BUTTON(Qt::LeftButton) && IS_IN_CENTER) {
 		QAction *action = getTriggerAction(event->modifiers()
-				, d->pref->doubleClickMap(), d->menu.clickAction(), 0);
+				, d->pref.doubleClickMap, d->menu.clickAction(), 0);
 		if (action)
 			action->trigger();
 	}
@@ -721,7 +721,7 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 	if (IS_IN_CENTER && event->delta()) {
 		Menu::WheelActionPair pair;
 		pair = getTriggerAction(event->modifiers()
-				, d->pref->wheelScrollMap(), d->menu.wheelAction(), pair);
+				, d->pref.wheelScrollMap, d->menu.wheelAction(), pair);
 		if (!pair.isNull()) {
 			((event->delta() > 0) ? pair.up : pair.down)->trigger();
 			event->accept();
@@ -769,7 +769,7 @@ void MainWindow::setSpeed(int diff) {
 
 void MainWindow::slotStateChanged(Core::State state, Core::State /*old*/) {
 	if (state == Core::Playing) {
-		Core::Utility::setScreensaverDisabled(d->pref->isScreensaverDisabled());
+		Core::Utility::setScreensaverDisabled(d->pref.disableScreensaver);
 		d->menu("play")["pause"]->setIcon(QIcon(":/img/media-playback-pause.png"));
 		d->menu("play")["pause"]->setText(tr("Pause"));
 	} else {
@@ -907,7 +907,7 @@ void MainWindow::slotBackendChanged() {
 }
 
 void MainWindow::showPrefDialog() {
-	PrefDialog dlg(this);
+	Pref::Dialog dlg(this);
 	if (dlg.exec())
 		updatePref();
 }
@@ -927,9 +927,9 @@ void MainWindow::hideEvent(QHideEvent *event) {
 }
 
 void MainWindow::updatePauseMinimized() {
-	if (d->changingOnTop || !d->pref->pauseWhenMinimized())
+	if (d->changingOnTop || !d->pref.pauseMinimized)
 		return;
-	if (d->pref->pauseVideoOnly() && !d->player->hasVideo())
+	if (d->pref.pauseVideoOnly && !d->player->hasVideo())
 		return;
 	if (!d->player || !d->player->isPlaying())
 		return;
@@ -1013,7 +1013,7 @@ void MainWindow::hideCursor() {
 
 void MainWindow::changeEvent(QEvent *event) {
 	QMainWindow::changeEvent(event);
-	if (event->type() == QEvent::WindowStateChange && isMinimized())
+	if (event->type() == QEvent::WindowStateChange && (windowState() & Qt::WindowMinimized))
 		updatePauseMinimized();
 }
 
@@ -1023,7 +1023,7 @@ void MainWindow::paintEvent(QPaintEvent */*event*/) {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-	if (d->pref->isSystemTrayEnabled() && d->pref->hideWhenClosed()) {
+	if (d->pref.enableSystemTray && d->pref.hideClosed) {
 		hide();
 		State state;
 		if (state[State::TrayFirst].toBool()) {

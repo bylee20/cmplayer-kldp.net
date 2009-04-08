@@ -3,12 +3,13 @@
 
 #include <QtGui/QDialog>
 #include "designedwidgetiface.h"
-class PlaylistModel;
+
+class PlaylistModel;			class VideoPlayer;
 
 class ToolBox : public QDialog, public DesignedWidgetIface {
 	Q_OBJECT
 public:
-	ToolBox(PlaylistModel *model, QWidget *parent = 0);
+	ToolBox(VideoPlayer *player, PlaylistModel *model, QWidget *parent = 0);
 	~ToolBox();
 signals:
 	void hidingRequested();

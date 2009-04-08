@@ -35,7 +35,10 @@ SOURCES += main.cpp \
  toolbox.cpp \
  dragcharm.cpp \
  designedwidgetiface.cpp \
- button.cpp
+ button.cpp \
+ videocolorwidget.cpp \
+ verticaltext.cpp \
+ pref_dialog.cpp
 HEADERS += mainwindow.h \
 	abrepeatdialog.h \
 	playinfowidget.h \
@@ -72,14 +75,18 @@ HEADERS += mainwindow.h \
  toolbox.h \
  dragcharm.h \
  designedwidgetiface.h \
- button.h
+ button.h \
+ videocolorwidget.h \
+ verticaltext.h \
+ pref_dialog.h
 FORMS += ./ui/abrepeatdialog.ui \
 	./ui/prefdialog.ui \
 	./ui/prefosdwidget.ui \
 	ui/prefstack.ui \
 	ui/geturldialog.ui \
 	ui/aboutdialog.ui \
-	ui/snapshotdialog.ui
+	ui/snapshotdialog.ui \
+ ui/pref_dialog.ui
 
 CONFIG += debug_and_release qdbus
 

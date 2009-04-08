@@ -3,7 +3,10 @@
 
 #include <QtCore/QString>
 #include <QtCore/QMap>
-#include <core/mediasource.h>
+#include <QtCore/QLocale>
+#include <QtCore/QPair>
+#include <core/osdstyle.h>
+#include <QtCore/QSettings>
 #include "enum.h"
 
 class QLocale;
@@ -12,102 +15,72 @@ namespace Core {class OsdStyle;}
 
 class Pref {
 public:
+	static const Pref &get() {return ref();}
 	typedef QPair<bool, ClickActionEnum> ClickActionPair;
 	typedef QPair<bool, WheelActionEnum> WheelActionPair;
 	typedef QMap<ModifierEnum, ClickActionPair> ClickActionMap;
 	typedef QMap<ModifierEnum, WheelActionPair> WheelActionMap;
-	static Pref *get();
-	~Pref();
-	
-	SubtitleAutoLoad subtitleAutoLoad() const;
-	SubtitleAutoSelect subtitleAutoSelect() const;
-	const Core::OsdStyle &subtitleStyle() const;
-	const QString &subtitleEncoding() const;
-	const QStringList &subtitlePriority() const;
-	
-	int seekingStep(SeekingStep step) const;
-	int seekingStep1() const;
-	int seekingStep2() const;
-	int seekingStep3() const;
-	int speedStep() const;
-	int volumeStep() const;
-	int ampStep() const;
-	int subtitlePosStep() const;
-	int syncDelayStep() const;
-	int brightnessStep() const;
-	int saturationStep() const;
-	int contrastStep() const;
-	int hueStep() const;
+	static const int DefaultSeekingStep1 = 10000;
+	static const int DefaultSeekingStep2 = 30000;
+	static const int DefaultSeekingStep3 = 60000;
+	static const int DefaultVolumeStep = 2;
+	static const int DefaultSyncDelayStep = 500;
+	static const int DefaultAmpStep = 10;
+	static const int DefaultSubPosStep = 1;
+	static const int DefaultSpeedStep = 10;
+	static const int DefaultColorPropStep = 1;
 
-	const ClickActionMap &doubleClickMap() const;
-	const ClickActionMap &middleClickMap() const;
-	const WheelActionMap &wheelScrollMap() const;
-	
-	bool rememberStopped() const;
-	AutoAddFiles autoAddFiles() const;
-	bool pauseWhenMinimized() const;
-	bool pauseVideoOnly() const;
-	bool playWhenRestored() const;
-	bool hideCursor() const;
-	int hideDelay() const;
-	bool hideInFullScreen() const;
-	const QLocale &locale() const;
-	bool isVolumeNormalized() const;
-	bool useSoftwareEqualizer() const;
-	bool isSystemTrayEnabled() const;
-	bool hideWhenClosed() const;
-	bool singleApplication() const;
-	bool isScreensaverDisabled() const;
-// 	const QString &backendName(Core::MediaType media) const;
-	
-	void load();
-private:
-	void setSubtitleAutoLoad(SubtitleAutoLoad mode);
-	void setSubtitleAutoSelect(SubtitleAutoSelect mode);
-	void setSubtitleStyle(const Core::OsdStyle &style);
-	void setSubtitleEncoding(const QString &encoding);
-	void setSubtitlePriority(const QStringList &priority);
-	
-	void setSeekingStep1(int step);
-	void setSeekingStep2(int step);
-	void setSeekingStep3(int step);
-	void setVolumeStep(int step);
-	void setSyncDelayStep(int step);
-	void setSpeedStep(int step);
-	void setAmpStep(int step);
-	void setSubtitlePosStep(int step);
-	void setBrightnessStep(int step);
-	void setSaturationStep(int step);
-	void setContrastStep(int step);
-	void setHueStep(int step);
-	void setDoubleClickMap(const ClickActionMap &map);
-	void setMiddleClickMap(const ClickActionMap &map);
-	void setWheelScrollMap(const WheelActionMap &map);
-		
-	void setRememberStopped(bool remember);
-	void setAutoAddFiles(AutoAddFiles mode);
-	void setPauseWhenMinimized(bool enabled);
-	void setPauseVideoOnly(bool enabled);
-	void setPlayWhenRestored(bool enabled);
-	void setHideCursor(bool enabled);
-	void setHideDelay(int delay);
-	void setHideInFullScreen(bool enabled);
-	void setLocale(const QLocale &locale);
-	void setVolumeNormalized(bool on);
-	void setUseSoftwareEqualizer(bool use);
-	void setSystemTrayEnabled(bool enabled);
-	void setHideWhenClosed(bool enabled);
-	void setSingleApplication(bool enabled);
-	void setScreensaverDisabled(bool disabled);
-// 	void setBackendName(Core::MediaType media, const QString &name);
-	
+	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
+	bool hideCursor, hideInFullScreen, normalizeVolume, useSoftwareEqualizer;
+	bool enableSystemTray, hideClosed, singleApplication;
+	bool disableScreensaver;
+	int hideDelay;
+	AutoAddFilesEnum autoAddFiles;
+	Core::OsdStyle subtitleStyle;
+	QString subtitleEncoding;
+	QStringList subtitlePriority;
+	SubtitleAutoLoadEnum subtitleAutoLoad;
+	SubtitleAutoSelectEnum subtitleAutoSelect;
+	int seekingStep1, seekingStep2, seekingStep3, speedStep;
+	int volumeStep, syncDelayStep, ampStep, subtitlePosStep;
+	int brightnessStep, saturationStep, contrastStep, hueStep;
+	ClickActionMap doubleClickMap, middleClickMap;
+	WheelActionMap wheelScrollMap;
+	QLocale locale;
+	QString windowStyle;
+	const QString &defaultWindowStyle() const {return defWinStyle;}
 	void save() const;
-	friend class PrefDialog;
+	void load();
+	class Dialog;
+private:
+	const QString defWinStyle;
 	Pref();
-// 	struct Backend;
-	struct Subtitle; struct Interface; struct General;
-	Subtitle *sub; Interface *iface; General *gen;
-// 	Backend *back;
+	static Pref &ref();
+	template<typename T>
+	void saveMouse(QSettings &set, const QString &group, const T &t) const {
+		set.beginGroup(group);
+		for (typename T::const_iterator it = t.begin(); it != t.end(); ++it) {
+			set.beginGroup(it.key().name());
+			set.setValue("Enabled", it.value().first);
+			set.setValue("Action", it.value().second.name());
+			set.endGroup();
+		}
+		set.endGroup();
+	}
+	template<typename T>
+	void loadMouse(QSettings &set, const QString &group, T &t
+			, const typename T::key_type &key, const typename T::mapped_type &def) {
+		set.beginGroup(group);
+		set.beginGroup(key.name());
+		typename T::mapped_type value;
+		value.first = set.value("Enabled", def.first).toBool();
+		value.second = T::mapped_type::second_type::value(set.value("Action"
+				, def.second.name()).toString(), def.second);
+		t[key] = value;
+		set.endGroup();
+		set.endGroup();
+	}
 };
+
 
 #endif

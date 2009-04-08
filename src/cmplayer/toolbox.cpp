@@ -2,6 +2,7 @@
 #include "playlistwidget.h"
 #include "dragcharm.h"
 #include "helper.h"
+#include "videocolorwidget.h"
 #include <core/info.h>
 #include <QtGui/QFrame>
 #include <QtGui/QTabWidget>
@@ -64,17 +65,20 @@ private:
 
 struct ToolBox::Data {
 	PlaylistWidget *playlist;
+	VideoColorWidget *color;
 	Frame *frame;
 	DragCharm dragCharm;
 };
 
-ToolBox::ToolBox(PlaylistModel *model, QWidget *parent)
+ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, QWidget *parent)
 : QDialog(parent, Qt::FramelessWindowHint), d(new Data) {
 	setFocusPolicy(Qt::NoFocus);
 	d->frame = new Frame(this);
 	d->playlist = new PlaylistWidget(model, d->frame);
+	d->color = new VideoColorWidget(player, d->frame);
 // 	d->frame->setWidget(d->playlist);
 	d->frame->tab->addTab(d->playlist, tr("Playlist"));
+	d->frame->tab->addTab(d->color, tr("Video Color"));
 	setWindowTitle("TOOL BOX");
 	titleBar()->setTitle("TOOL BOX");
 	titleBar()->connect(this);

@@ -490,6 +490,7 @@ void PlayEngine::setColorProperty(ColorProperty::Value p, double v) {
 	if (!ColorProperty::isSame(v, d->colorProp[p])) {
 		d->colorProp[p] = v;
 		updateColorProperty(p, v);
+		emit colorPropertyChanged(d->colorProp);
 	}
 }
 
@@ -497,6 +498,7 @@ void PlayEngine::setColorProperty(const ColorProperty &prop) {
 	if (prop != d->colorProp) {
 		d->colorProp = prop;
 		updateColorProperty();
+		emit colorPropertyChanged(d->colorProp);
 	}
 }
 

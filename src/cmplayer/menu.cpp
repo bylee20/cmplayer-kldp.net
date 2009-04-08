@@ -315,7 +315,7 @@ void Menu::updatePref() {
 	if (!obj)
 		return;
 	Menu &root = *obj;
-	Pref *p = Pref::get();
+	const Pref &p = Pref::get();
 
 	Menu &open = root("open");
 	open.setTitle(tr("Open"));
@@ -368,7 +368,7 @@ void Menu::updatePref() {
 	Menu &speed = play("speed");
 	speed.setTitle(tr("Speed"));
 	speed["reset"]->setText(tr("Reset"));
-	setActionStep(speed["faster"], speed["slower"], "%1%", p->speedStep());
+	setActionStep(speed["faster"], speed["slower"], "%1%", p.speedStep);
 	
 	screen["snapshot"]->setText(tr("Take Snapshot"));
 
@@ -384,19 +384,19 @@ void Menu::updatePref() {
 	Menu &seek = play("seek");
 	seek.setTitle(tr("Seek"));
 	const QString forward = tr("Forward %1sec.");
-	setActionAttr(seek["forward1"], p->seekingStep1()
-			, forward, p->seekingStep1()*0.001, false);
-	setActionAttr(seek["forward2"], p->seekingStep2()
-			, forward, p->seekingStep2()*0.001, false);
-	setActionAttr(seek["forward3"], p->seekingStep3()
-			, forward, p->seekingStep3()*0.001, false);
+	setActionAttr(seek["forward1"], p.seekingStep1
+			, forward, p.seekingStep1*0.001, false);
+	setActionAttr(seek["forward2"], p.seekingStep2
+			, forward, p.seekingStep2*0.001, false);
+	setActionAttr(seek["forward3"], p.seekingStep3
+			, forward, p.seekingStep3*0.001, false);
 	const QString backward = tr("Backward %1sec.");
-	setActionAttr(seek["backward1"], -p->seekingStep1()
-			, backward, p->seekingStep1()*0.001, false);
-	setActionAttr(seek["backward2"], -p->seekingStep2()
-			, backward, p->seekingStep2()*0.001, false);
-	setActionAttr(seek["backward3"], -p->seekingStep3()
-			, backward, p->seekingStep3()*0.001, false);
+	setActionAttr(seek["backward1"], -p.seekingStep1
+			, backward, p.seekingStep1*0.001, false);
+	setActionAttr(seek["backward2"], -p.seekingStep2
+			, backward, p.seekingStep2*0.001, false);
+	setActionAttr(seek["backward3"], -p.seekingStep3
+			, backward, p.seekingStep3*0.001, false);
 	
 	Menu &sub = root("subtitle");
 	sub.setTitle(tr("Subtitle"));
@@ -405,25 +405,25 @@ void Menu::updatePref() {
 	list["open"]->setText(tr("Open"));
 	list["clear"]->setText(tr("Clear"));
 	list["hide"]->setText(tr("Hide"));
-	setActionAttr(sub["pos up"], -p->subtitlePosStep()
-			, tr("Up %1%"), p->subtitlePosStep(), false);
-	setActionAttr(sub["pos down"], p->subtitlePosStep()
-			, tr("Down %1%"), p->subtitlePosStep(), false);
+	setActionAttr(sub["pos up"], -p.subtitlePosStep
+			, tr("Up %1%"), p.subtitlePosStep, false);
+	setActionAttr(sub["pos down"], p.subtitlePosStep
+			, tr("Down %1%"), p.subtitlePosStep, false);
 	sub["sync reset"]->setText(tr("Reset Sync"));
 	setActionStep(sub["sync add"], sub["sync sub"]
-			, tr("Sync %1sec."), p->syncDelayStep(), 0.001);
+			, tr("Sync %1sec."), p.syncDelayStep, 0.001);
 	
 	Menu &video = root("video");
 	video.setTitle(tr("Video"));
 	video("renderer").setTitle(tr("Renderer"));
 	setVideoPropStep(video, "brightness", Core::ColorProperty::Brightness
-			, tr("Brightness %1%"), p->brightnessStep());
+			, tr("Brightness %1%"), p.brightnessStep);
 	setVideoPropStep(video, "saturation", Core::ColorProperty::Saturation
-			, tr("Saturation %1%"), p->brightnessStep());
+			, tr("Saturation %1%"), p.brightnessStep);
 	setVideoPropStep(video, "contrast", Core::ColorProperty::Contrast
-			, tr("Contrast %1%"), p->brightnessStep());
+			, tr("Contrast %1%"), p.brightnessStep);
 	setVideoPropStep(video, "hue", Core::ColorProperty::Hue
-			, tr("Hue %1%"), p->brightnessStep());
+			, tr("Hue %1%"), p.brightnessStep);
 	
 	Menu &audio = root("audio");
 	audio.setTitle(tr("Audio"));
@@ -431,9 +431,9 @@ void Menu::updatePref() {
 	audio("track").setTitle(tr("Track"));
 	audio["mute"]->setText(tr("Toggle Mute"));
 	setActionStep(audio["volume up"], audio["volume down"]
-			, tr("Volume %1%"), p->volumeStep());
+			, tr("Volume %1%"), p.volumeStep);
 	setActionStep(audio["amp up"], audio["amp down"]
-			, tr("Amp. %1%"), p->ampStep());
+			, tr("Amp. %1%"), p.ampStep);
 
 	root["pref"]->setText(tr("Preferences"));
 // 	root["help"]->setText(tr("Help"));

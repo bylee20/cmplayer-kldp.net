@@ -299,6 +299,8 @@ void VideoPlayer::setBackend(const QString &name) {
 	engine->setColorProperty(d->color);
 	connect(engine, SIGNAL(currentSourceChanged(const Core::MediaSource&))
 			, this, SIGNAL(currentSourceChanged(const Core::MediaSource&)));
+	connect(engine, SIGNAL(colorPropertyChanged(const Core::ColorProperty&))
+			, this, SIGNAL(colorPropertyChanged()));
 	connect(engine, SIGNAL(volumeChanged(int)), this, SIGNAL(volumeChanged(int)));
 	connect(engine, SIGNAL(mutedChanged(bool)), this, SIGNAL(mutedChanged(bool)));
 	connect(engine, SIGNAL(stateChanged(Core::State, Core::State))
@@ -445,14 +447,14 @@ void VideoPlayer::seek(int time, bool relative, bool show) {
 
 void VideoPlayer::setColorProperty(Core::ColorProperty::Value prop, int value) {
 	if (IS_DIFF_CLIP(TO_PERCENT(d->color[prop]), value, -100, 100)) {
-		d->color[prop] = value;
+		d->color[prop] = TO_RATE(value);
 	 	if (d->engine)
 			d->engine->setColorProperty(prop, d->color[prop]);
 	}
 }
 
 int VideoPlayer::colorProperty(Core::ColorProperty::Value prop) const {
-	return d->color[prop];
+	return TO_PERCENT(d->color[prop]);
 }
 
 QString VideoPlayer::videoRenderer() const {

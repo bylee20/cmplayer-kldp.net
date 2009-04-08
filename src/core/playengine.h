@@ -96,6 +96,7 @@ public slots:
 	void setSubtitlePos(double pos);
 	void setSpeed(double speed);
 signals:
+	void colorPropertyChanged(const Core::ColorProperty &prop);
 	void hasVideoChanged(bool has);
 	void stateChanged(Core::State state, Core::State old);
 	void finished(Core::MediaSource source);

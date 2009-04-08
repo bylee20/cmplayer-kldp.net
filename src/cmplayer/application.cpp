@@ -72,7 +72,7 @@ Application::~Application() {
 
 void Application::initialize() {
 	const QUrl url = MainWindow::getUrlFromCommandLine();
-	if (!Pref::get()->singleApplication() || d->connection.isUnique()) {
+	if (!Pref::get().singleApplication || d->connection.isUnique()) {
 		if (url.isEmpty())
 			d->main = new MainWindow;
 		else

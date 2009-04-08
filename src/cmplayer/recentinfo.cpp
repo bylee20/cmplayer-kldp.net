@@ -66,7 +66,7 @@ void RecentInfo::setRememberCount(int count) {
 }
 
 void RecentInfo::setStopped(const Core::MediaSource &source, int time) {
-	if (Pref::get()->rememberStopped())
+	if (Pref::get().rememberStopped)
 		d->stopped[source] = time;
 }
 
@@ -75,7 +75,7 @@ void RecentInfo::setFinished(const Core::MediaSource &source) {
 }
 
 int RecentInfo::stoppedTime(const Core::MediaSource &source) const {
-	if (Pref::get()->rememberStopped())
+	if (Pref::get().rememberStopped)
 		return d->stopped.value(source, 0);
 	else
 		return 0;
@@ -106,7 +106,7 @@ void RecentInfo::load() {
 			d->playlist.append(source);
 	}
 	set.endArray();
-	if (Pref::get()->rememberStopped()) {
+	if (Pref::get().rememberStopped) {
 		const int size = set.beginReadArray("StoppedList");
 		for (int i=0; i<size; ++i) {
 			set.setArrayIndex(i);
@@ -137,7 +137,7 @@ void RecentInfo::save() const {
 		set.setValue("Source", d->playlist[i].url());
 	}
 	set.endArray();
-	if (Pref::get()->rememberStopped()) {
+	if (Pref::get().rememberStopped) {
 		size = d->stopped.size();
 		set.beginWriteArray("StoppedList", size);
 		Data::StoppedMap::const_iterator it = d->stopped.begin();

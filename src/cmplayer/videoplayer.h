@@ -92,6 +92,7 @@ signals:
 	void currentSpuChanged(const QString &spu);
 	void spusChanged(const QStringList &spus);
 	void snapshotTaken(const QImage &image);
+	void colorPropertyChanged();
 private slots:
 	void slotStateChanged(Core::State state, Core::State old);
 	void slotFinished(Core::MediaSource source);

@@ -65,9 +65,20 @@ private slots:
 	void updateWindowTitle();
 private:
 	typedef QPair<QAction*, QAction*> ActionPair;
+	template<typename M, typename A>
+	static typename A::mapped_type getTriggerAction(uint mod, const M &map
+			, const A &act, const typename A::mapped_type &def) {
+		typename M::const_iterator it = map.begin();
+		for (; it != map.end(); ++it) {
+			if (it.key().value() == mod && it.value().first)
+				return act[it.value().second.value()];
+		}
+		return def;
+	}
 	ControlWidget *createControl(QWidget *parent);
 	void commonInitialize();
 	void setupUi();
+// 	void moveEvent(QMoveEvent *event);
 	void changeEvent(QEvent *event);
 	void closeEvent(QCloseEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);
@@ -86,16 +97,6 @@ private:
 	void showMessage(const QString &text);
 	Core::Playlist open(const Core::MediaSource &source);
 	static QIcon defaultIcon();
-	template<typename M, typename A>
-	static typename A::mapped_type getTriggerAction(uint mod, const M &map
-			, const A &act, const typename A::mapped_type &def) {
-		typename M::const_iterator it = map.begin();
-		for (; it != map.end(); ++it) {
-			if (it.key().value() == mod && it.value().first)
-				return act[it.value().second.value()];
-		}
-		return def;
-	}
 	struct Data;
 	Data *d;
 	class Acts;
