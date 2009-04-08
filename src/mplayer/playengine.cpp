@@ -81,6 +81,7 @@ struct PlayEngine::Data {
 	QMap<QString, int> tracks;
 	Thread thread;
 	QMap<QString, QString> cmd;
+	QStringList option;
 };
 
 PlayEngine::PlayEngine(QObject *parent)
@@ -102,6 +103,11 @@ PlayEngine::PlayEngine(QObject *parent)
 			, this, SLOT(slotStateChanged(Core::State, Core::State)));
 	connect(d->renderer, SIGNAL(osdRectChanged(const QRect&))
 			, this, SLOT(slotOsdRectChanged()));
+	
+	const QString option
+			 =  QString::fromLocal8Bit(qgetenv("CMPLAYER_MPLAYER_OPTION")).trimmed();
+	if (!option.isEmpty())
+		d->option = option.split(' ');
 }
 
 PlayEngine::~PlayEngine() {
@@ -253,8 +259,8 @@ bool PlayEngine::start(int time) {
 		args << "-vf-add" << "eq2";
 	if (time > 1000)
 		args << "-ss" << QString::number(double(time)/1000.);
-// 	if (!d->config.options().isEmpty())
-// 		args += d->config.options();
+	if (!d->option.isEmpty())
+		args += d->option;
 	args << (source.isDisc() ? "dvd://" : source.url().toString());
 	qDebug("%s %s", "mplayer", qPrintable(args.join(" ")));
 	d->proc->start("mplayer", args);
