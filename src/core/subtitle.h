@@ -38,6 +38,7 @@ public:
 		bool operator == (const Component &rhs) const {return name() == rhs.name();}
 		bool operator != (const Component &rhs) const {return !operator==(rhs);}
 		QString name() const;
+		const QString &fileName() const {return m_file;}
 		Base base() const {return m_base;}
 		bool isBasedOnFrame() const {return m_base == Frame;}
 		const Language &language() const {return m_lang;}

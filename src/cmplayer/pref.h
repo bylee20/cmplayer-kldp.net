@@ -36,7 +36,7 @@ public:
 	bool disableScreensaver, useSubtitleEncodingAutoDetection;
 	AutoAddFilesEnum autoAddFiles;
 	Core::OsdStyle subtitleStyle;
-	QString subtitleEncoding, windowStyle;
+	QString subtitleEncoding, windowStyle, subtitleExtension;
 	QStringList subtitlePriority;
 	SubtitleAutoLoadEnum subtitleAutoLoad;
 	SubtitleAutoSelectEnum subtitleAutoSelect;

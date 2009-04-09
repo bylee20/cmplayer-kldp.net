@@ -3,6 +3,7 @@
 #include "getshortcutdialog.h"
 #include "translator.h"
 #include "menu.h"
+#include <core/info.h>
 #include <QtCore/QMap>
 #include <QtGui/QStyleFactory>
 #include <QtCore/QCoreApplication>
@@ -243,6 +244,12 @@ Pref::Dialog::Dialog(QWidget *parent)
 	d->ui.autoAdd->addItem(tr("Do not add any other files"), DoNotAddFiles);
 	setComboIndex(d->ui.autoAdd, p.autoAddFiles.value());
 	
+	const QStringList subExt = Core::Info::subtitleExtension();
+	d->ui.subSelectExt->addItem(tr("All"), QString());
+	for (int i=0; i<subExt.size(); ++i)
+		d->ui.subSelectExt->addItem(subExt[i], subExt[i]);
+	setComboIndex(d->ui.subSelectExt, p.subtitleExtension);
+	
 	d->ui.pauseMinimized->setChecked(p.pauseMinimized);
 	d->ui.playRestored->setChecked(p.playRestored);
 	d->ui.pauseVideoOnly->setChecked(p.pauseVideoOnly);
@@ -258,7 +265,7 @@ Pref::Dialog::Dialog(QWidget *parent)
 	d->ui.disableSS->setChecked(p.disableScreensaver);
 	
 	const QStringList styles = QStyleFactory::keys();
-	d->ui.winStyle->addItem(tr("Default Style"), "default");
+	d->ui.winStyle->addItem(tr("Default Style"), QString());
 	for (int i = 0; i<styles.size(); ++i)
 		d->ui.winStyle->addItem(styles[i], styles[i]);
 	setComboIndex(d->ui.winStyle, p.windowStyle);
@@ -315,6 +322,11 @@ Pref::Dialog::Dialog(QWidget *parent)
 	d->ui.priority->setAddingAndErasingEnabled(true);
 	d->ui.subEncAutoDet->setChecked(p.useSubtitleEncodingAutoDetection);
 	d->ui.subConf->setValue(p.subtitleEncodingConfidence);
+	
+	connect(d->ui.autoSelect, SIGNAL(currentIndexChanged(int))
+			, this, SLOT(checkSubtitleSelect(int)));
+	
+	checkSubtitleSelect(d->ui.autoSelect->currentIndex());
 // 	const BackendMap map = VideoPlayer::backend();
 // 	const QStringList backends = map.keys;
 // 	QTreeWidgetItem *header = d->ui.media->headerItem();
@@ -376,8 +388,8 @@ void Pref::Dialog::apply() {
 	p.hideClosed = d->ui.hideWhenClosed->isChecked();
 	p.singleApplication = d->ui.singleApp->isChecked();
 	p.disableScreensaver = d->ui.disableSS->isChecked();
-	
 	p.windowStyle = currentComboData(d->ui.winStyle).toString();
+	p.subtitleExtension = currentComboData(d->ui.subSelectExt).toString();
 	
 	for (int i=0; i<d->ui.shortcutTree->topLevelItemCount(); ++i)
 		((MenuTreeItem*)(d->ui.shortcutTree->topLevelItem(i)))->applyShortcut();
@@ -412,6 +424,12 @@ void Pref::Dialog::apply() {
 void Pref::Dialog::accept() {
 	apply();
 	QDialog::accept();
+}
+
+void Pref::Dialog::checkSubtitleSelect(int index) {
+	const bool enabled = d->ui.autoSelect->itemData(index).toInt() == SameName;
+	d->ui.subExtLabel->setEnabled(enabled);
+	d->ui.subSelectExt->setEnabled(enabled);
 }
 
 void Pref::Dialog::slotMediaItemClicked(QTreeWidgetItem *item, int column) {

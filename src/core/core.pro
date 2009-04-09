@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-VERSION = 0.2.9
+VERSION = 0.3.0
 
 SOURCES += abrepeater.cpp \
 	playengine.cpp \
@@ -68,7 +68,5 @@ RELEASE = $$(CMPLAYER_RELEASE)
 }
 INCLUDEPATH += ../libchardet/src
 
-LIBS += -L../libchardet/src/.libs \
-  -lchardet \
-  -lX11
+LIBS += -L../libchardet/src/.libs -lchardet -lX11
 

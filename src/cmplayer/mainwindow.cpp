@@ -26,6 +26,7 @@
 #include <core/abrepeater.h>
 #include <core/utility.h>
 #include <core/mediainfo.h>
+#include <QtCore/QMultiMap>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
 #include <QtGui/QToolButton>
@@ -36,6 +37,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QSet>
 #include <QtCore/QDebug>
+#include <QtCore/QLinkedList>
 #include <cmath>
 #include <QTime>
 #include "toolbox.h"
@@ -402,64 +404,88 @@ void MainWindow::autoLoadSubtitles() {
 	clearSubs();
 	const Core::MediaSource source = d->player->currentSource();
 	d->menu("subtitle")("list").g()->setExclusive(source.isDisc());
-	if (source.isLocalFile()) {
-		const SubtitleAutoLoad autoLoad = d->pref.subtitleAutoLoad;
-		if (autoLoad == NoAutoLoad)
-			return;
-		const SubtitleAutoSelect autoSelect = d->pref.subtitleAutoSelect;
-		QStringList files;
-		const QStringList nameFilter = QStringList() << "*.smi" << "*.srt";
-		const QFileInfo file(source.filePath());
-		const QDir dir = file.dir();
-		const QFileInfoList all = dir.entryInfoList(nameFilter, QDir::Files, QDir::Name);
-		const QString base = file.completeBaseName();
-		QSet<QString> langs;
-		for (int i=0; i<all.size(); ++i) {
-			bool add = (autoLoad == SamePath);
-			if (autoLoad == Matched)
-				add = (base == all[i].completeBaseName());
-			else
-				add = all[i].fileName().contains(base);
-			if (!add)
-				continue;
-			Core::Subtitle sub;
-			const QString filePath = all[i].absoluteFilePath();
-			QString encoding;
-			if (d->pref.useSubtitleEncodingAutoDetection)
-				encoding = Core::CharsetDetector::detect(filePath
-						, d->pref.subtitleEncodingConfidence*0.01);
-			if (encoding.isEmpty())
-				encoding = d->pref.subtitleEncoding;
-			if (!sub.load(all[i].absoluteFilePath(), encoding))
-				continue;
-			bool select = false;
-			if (autoSelect == SameName)
-				select = all[i].completeBaseName() == base;
-			else if (autoSelect == AllLoaded)
-				select = true;
-			else if (autoSelect == EachLanguage) {
-				const QString lang = d->sub[i].language().id();
-				if ((select = (!langs.contains(lang))))
-					langs.insert(lang);
-			}
-			if (select) {
-				for (int j=0; j<sub.size(); ++j) {
-					d->subIdxes.append(d->sub.size());
-					d->sub.append(sub[j]);
-				}
-			} else
-				d->sub += sub;
-		}
-		Menu &list = d->menu("subtitle")("list");
-		d->changingSubtitle = true;
-		for (int i=0; i<d->sub.size(); ++i) {
-			QAction *action = list.addActionToGroupWithoutKey(d->sub[i].name(), true);
-			action->setData(i);
-			action->setChecked(d->subIdxes.contains(i));
-		}
-		d->changingSubtitle = false;
-		updateSubtitle();
+	if (!source.isLocalFile())
+		return;
+	d->sub = loadSubtitle(source);
+	d->subIdxes = selectSubtitle(source, d->sub);
+	Menu &list = d->menu("subtitle")("list");
+	d->changingSubtitle = true;
+	for (int i=0; i<d->sub.size(); ++i) {
+		QAction *action = list.addActionToGroupWithoutKey(d->sub[i].name(), true);
+		action->setData(i);
+		action->setChecked(d->subIdxes.contains(i));
 	}
+	d->changingSubtitle = false;
+	updateSubtitle();
+}
+
+Core::Subtitle MainWindow::loadSubtitle(const Core::MediaSource &source) {
+	if (!source.isLocalFile() || d->pref.subtitleAutoLoad == NoAutoLoad)
+		return Core::Subtitle();
+	const QStringList filter = Core::Info::subtitleExtension().toNameFilter();
+	const QFileInfo file(source.filePath());
+	const QFileInfoList all = file.dir().entryInfoList(filter, QDir::Files, QDir::Name);
+	const QString base = file.completeBaseName();
+	Core::Subtitle subtitle;
+	for (int i=0; i<all.size(); ++i) {
+		if (d->pref.subtitleAutoLoad != SamePath) {
+			if (d->pref.subtitleAutoLoad == Matched) {
+				if (base != all[i].completeBaseName())
+					continue;
+			} else if (!all[i].fileName().contains(base))
+				continue;
+		}
+		const QString filePath = all[i].absoluteFilePath();
+		QString encoding;
+		if (d->pref.useSubtitleEncodingAutoDetection)
+			encoding = Core::CharsetDetector::detect(filePath
+					, d->pref.subtitleEncodingConfidence*0.01);
+		if (encoding.isEmpty())
+			encoding = d->pref.subtitleEncoding;
+		Core::Subtitle sub;
+		if (sub.load(all[i].absoluteFilePath(), encoding))
+			subtitle += sub;
+	}
+	return subtitle;
+}
+
+QList<int> MainWindow::selectSubtitle(const Core::MediaSource &source, const Core::Subtitle &sub) {
+	QList<int> indexes;
+	if (!source.isLocalFile() || sub.isEmpty())
+		return indexes;
+	QSet<QString> langSet;
+	const QString base = QFileInfo(source.filePath()).completeBaseName();
+	for (int i=0; i<sub.size(); ++i) {
+		const QFileInfo file(sub[i].fileName());
+		bool select = false;
+		if (d->pref.subtitleAutoSelect == SameName) {
+			select = QFileInfo(sub[i].fileName()).completeBaseName() == base;
+		} else if (d->pref.subtitleAutoSelect == AllLoaded) {
+			select = true;
+		} else if (d->pref.subtitleAutoSelect == EachLanguage) {
+			const QString lang = d->sub[i].language().id();
+			if ((select = (!langSet.contains(lang))))
+				langSet.insert(lang);
+		}
+		if (select)
+			indexes.push_back(i);
+	}
+	if (d->pref.subtitleAutoSelect == SameName
+			&& indexes.size() > 1 && !d->pref.subtitleExtension.isEmpty()) {
+		int index = -1;
+		for (int i=0; i<indexes.size(); ++i) {
+			const QString suffix = QFileInfo(sub[indexes[i]].fileName()).suffix().toLower();
+			if (d->pref.subtitleExtension == suffix) {
+				index = indexes[i];
+				break;
+			}
+		}
+		if (index != -1) {
+			indexes.clear();
+			indexes.push_back(index);
+		}
+	}
+	return indexes;
 }
 
 QUrl MainWindow::getUrlFromCommandLine() {

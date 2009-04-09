@@ -17,6 +17,7 @@ private slots:
 	void getShortcut(int id);
 	void slotCurrentItemChanged(QTreeWidgetItem *current);
 	void slotMediaItemClicked(QTreeWidgetItem *item, int column);
+	void checkSubtitleSelect(int index);
 private:
 	static QString toString(const QLocale &locale);
 	static QVariant currentComboData(QComboBox *combo);

@@ -53,6 +53,7 @@ void Pref::save() const {
 	SAVE(hueStep);
 	SAVE(locale);
 	SAVE(windowStyle);
+	SAVE(subtitleExtension);
 	
 	SAVE_ENUM(autoAddFiles);
 	SAVE_ENUM(subtitleAutoLoad);
@@ -100,7 +101,8 @@ void Pref::load() {
 	LOAD(contrastStep, DefaultColorPropStep, toInt);
 	LOAD(hueStep, DefaultColorPropStep, toInt);
 	LOAD(locale, QLocale::c(), toLocale);
-	LOAD(windowStyle, "default", toString);
+	LOAD(windowStyle, QString(), toString);
+	LOAD(subtitleExtension, QString(), toString);
 	
 	LOAD_ENUM(autoAddFiles, AllFiles);
 	LOAD_ENUM(subtitleAutoLoad, Contain);

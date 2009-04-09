@@ -289,10 +289,16 @@ void ControlWidget::connectFullScreen(QAction *action) {
 }
 
 void ControlWidget::retranslateUi() {
+	d->backward->setToolTip(tr("Backward"));
+	d->forward->setToolTip(tr("Forward"));
+	d->stop->setToolTip(tr("Stop"));
+	d->next->setToolTip(tr("Next"));
+	d->prev->setToolTip(tr("Previous"));
 	d->open->setToolTip(tr("Open File"));
+	d->toggle->setToolTip(tr("Toggle Panel Layout"));
 // 	d->openUrl->setToolTip(tr("Open URL"));		
 	d->fullScreen->setToolTip(tr("Toggle Full Screen Mode"));
-	d->playlist->setToolTip(tr("Toogle Playlis Visibility"));
+	d->playlist->setToolTip(tr("Toogle Tool Box Visibility"));
 }
 
 void ControlWidget::changeEvent(QEvent *event) {

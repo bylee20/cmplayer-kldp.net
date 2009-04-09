@@ -44,8 +44,8 @@ QMAKE ?= qmake
 LRELEASE ?= lrelease
 
 cmplayer_major := 0
-cmplayer_minor := 2
-cmplayer_patch := 9
+cmplayer_minor := 3
+cmplayer_patch := 0
 cmplayer_version := $(cmplayer_major).$(cmplayer_minor).$(cmplayer_patch)
 install_file := install -m 644
 install_exe := install -m 755

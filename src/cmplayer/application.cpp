@@ -2,6 +2,7 @@
 #include "appconnection.h"
 #include "mainwindow.h"
 #include "pref.h"
+#include "translator.h"
 #include <QtCore/QTimer>
 #include <QtCore/QUrl>
 #include <QtCore/QFileInfo>
@@ -18,6 +19,7 @@ struct Application::Data {
 Application::Application(int &argc, char **argv)
 : QApplication(argc, argv), d(new Data) {
 	d->defStyle = style()->objectName();
+	Translator::load(Pref::get().locale);
 	setStyle(Pref::get().windowStyle);
 	setStyleSheet("\
 		Button {\
@@ -118,7 +120,7 @@ QString Application::defaultStyleName() {
 }
 
 void Application::setStyle(const QString &name) {
-	const QString key = name == "default" ? d->defStyle : name;
+	const QString key = name.isEmpty() ? d->defStyle : name;
 	if (style()->objectName() != key)
 		QApplication::setStyle(QStyleFactory::create(key));
 }

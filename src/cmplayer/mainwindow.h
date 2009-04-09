@@ -11,7 +11,7 @@ class ControlWidget;
 
 namespace Core {
 class BackendIface;				class MediaSource;
-class Playlist;
+class Playlist;					class Subtitle;
 }
 
 class MainWindow : public QMainWindow/*, public DesignedWidgetIface*/ {
@@ -95,6 +95,8 @@ private:
 	void showEvent(QShowEvent *event);
 	void hideEvent(QHideEvent *event);
 	void showMessage(const QString &text);
+	Core::Subtitle loadSubtitle(const Core::MediaSource &source);
+	QList<int> selectSubtitle(const Core::MediaSource &source, const Core::Subtitle &sub);
 	Core::Playlist open(const Core::MediaSource &source);
 	static QIcon defaultIcon();
 	struct Data;
