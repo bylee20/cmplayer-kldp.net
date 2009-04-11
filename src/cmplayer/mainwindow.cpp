@@ -310,6 +310,7 @@ QIcon MainWindow::defaultIcon() {
 
 void MainWindow::setupUi() {
 	d->toolBox = new ToolBox(d->player, d->model, this);
+	d->toolBox->addAction(d->menu("play")["list"]);
 	d->player->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	
 	d->center = new QWidget(this);
