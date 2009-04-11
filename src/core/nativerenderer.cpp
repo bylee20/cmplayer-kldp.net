@@ -36,7 +36,9 @@ NativeRenderer::NativeRenderer(PlayEngine *engine)
 	setMouseTracking(true);
 	setAutoFillBackground(true);
 	d->screen->setAttribute(Qt::WA_PaintOnScreen);
-	d->screen->setAttribute(Qt::WA_OpaquePaintEvent);
+	d->screen->setAttribute(Qt::WA_NoSystemBackground);
+	d->screen->setAttribute(Qt::WA_PaintUnclipped);
+// 	d->screen->setAttribute(Qt::WA_OpaquePaintEvent);
 	installEventFilter(this);
 }
 
@@ -47,6 +49,7 @@ NativeRenderer::~NativeRenderer() {
 bool NativeRenderer::eventFilter(QObject *obj, QEvent *event) {
 	if (event->type() == QEvent::Paint && (obj == this || obj == d->video
 			|| (obj == d->screen && d->engine->isStopped()))) {
+// 		qDebug() << "paint";
 		QWidget *widget = static_cast<QWidget*>(obj);
 		QPainter painter(widget);
 		painter.fillRect(widget->rect(), Qt::black);
