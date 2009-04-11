@@ -89,16 +89,16 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	cd src/cmplayer && $(qmake_env) $(QMAKE) cmplayer.pro
 endif
 	cd src && $(make_env) make && cd cmplayer && $(LRELEASE) cmplayer.pro
-ifeq ($(LOAD_CONFIG),yes)
-	@echo "!!PREFIX!! = $(PREFIX)\n"\
-"!!CMPLAYER_BIN_PATH!! = $(CMPLAYER_BIN_PATH)\n"\
-"!!CMPLAYER_DATA_PATH!! = $(CMPLAYER_DATA_PATH)\n"\
-"!!CMPLAYER_TRANSLATION_PATH!! = $(CMPLAYER_TRANSLATION_PATH)\n"\
-"!!CMPLAYER_LIB_PATH!! = $(CMPLAYER_LIB_PATH)\n"\
-"!!CMPLAYER_PLUGIN_PATH!! = $(CMPLAYER_PLUGIN_PATH)\n"\
-"!!ENABLE_OPENGL!! = $(ENABLE_OPENGL)\n"\
-"!!ENGINE_LIST!! = $(ENGINE_LIST)\n"\
-"!!BUILD_PLUGIN_ONLY!! = $(BUILD_PLUGIN_ONLY)" > $(config_file)
+ifeq ($(LOAD_CONFIG),yes) # by Manje Woo
+	@echo "!!PREFIX!! = $(PREFIX)" >> $(config_file)
+	@echo "!!CMPLAYER_BIN_PATH!! = $(CMPLAYER_BIN_PATH)" >> $(config_file)
+	@echo "!!CMPLAYER_DATA_PATH!! = $(CMPLAYER_DATA_PATH)" >> $(config_file)
+	@echo "!!CMPLAYER_TRANSLATION_PATH!! = $(CMPLAYER_TRANSLATION_PATH)" >> $(config_file)
+	@echo "!!CMPLAYER_LIB_PATH!! = $(CMPLAYER_LIB_PATH)" >> $(config_file)
+	@echo "!!CMPLAYER_PLUGIN_PATH!! = $(CMPLAYER_PLUGIN_PATH)" >> $(config_file)
+	@echo "!!ENABLE_OPENGL!! = $(ENABLE_OPENGL)" >> $(config_file)
+	@echo "!!ENGINE_LIST!! = $(ENGINE_LIST)" >> $(config_file)
+	@echo "!!BUILD_PLUGIN_ONLY!! = $(BUILD_PLUGIN_ONLY)" >> $(config_file)
 endif
 	@echo "\n===================== Compilation Finished! =====================\n"
 else
