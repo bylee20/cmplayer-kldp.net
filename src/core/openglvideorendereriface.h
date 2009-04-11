@@ -13,6 +13,7 @@ class OpenGLVideoRendererIface : public VideoRendererIface {
 public:
 	class Object {
 	public:
+		virtual ~Object() {}
 		virtual void overdraw(QPainter */*painter*/) {}
 		virtual void mouseMoveEvent(const QPoint &/*pos*/) {}
 		virtual void mousePresseEvent(const QPoint &/*pos*/, Qt::MouseButton /*btn*/) {}
