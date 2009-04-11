@@ -13,7 +13,6 @@ public:
 	~OsdRenderer();
 	void clear();
 	void renderContents(QPainter *painter);
-	void renderContents(QPixmap *pixmap);
 	void setSize(const QSizeF &visual, const QSizeF &widget);
 	virtual bool grab(QImage &image) const;
 	virtual void setRect(const QRect &rect);

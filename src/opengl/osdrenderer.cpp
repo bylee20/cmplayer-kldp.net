@@ -24,10 +24,6 @@ OsdRenderer::OsdRenderer(VideoRenderer *renderer)
 	d->renderer = renderer;
 	if (!d->renderer)
 		d->renderer = new VideoRenderer;
-// 	if (d->renderer)
-// 		d->context = 0;
-// 	else
-// 		d->context = new QGLContext(QGLFormat::defaultFormat());
 	d->rendered = d->cleared = false;
 	d->widget = QSizeF(10, 10);
 	d->fbo = 0;
@@ -37,19 +33,16 @@ OsdRenderer::OsdRenderer(VideoRenderer *renderer)
 
 OsdRenderer::~OsdRenderer() {
 	free();
-// 	if (d->context)
-// 		delete d->context;
 	delete d;
 }
 
 void OsdRenderer::alloc() {
 	if (d->hasFbuffer) {
 		free();
-		if (d->renderer)
+		if (d->renderer) {
 			d->renderer->makeCurrent();
-// 		else
-// 			d->context->makeCurrent();
-		d->fbo = new QGLFramebufferObject(d->widget.toSize());
+			d->fbo = new QGLFramebufferObject(d->widget.toSize());
+		}
 	}
 }
 
