@@ -1,5 +1,6 @@
 #include "pipeline.h"
 #include <core/utility.h>
+#include <QtCore/QCoreApplication>
 #include "qwidgetvideosink.h"
 #include "nativerenderer.h"
 #include "textoverlay.h"
