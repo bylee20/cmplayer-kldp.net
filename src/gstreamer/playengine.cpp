@@ -1,4 +1,5 @@
 #include "playengine.h"
+#include "videorendererfactory.h"
 #include "nativerenderer.h"
 // #include <core/glrenderer.h>
 #include <QtGui/QResizeEvent>
@@ -9,6 +10,7 @@
 #include "glrenderer.h"
 #include <QtCore/QMap>
 #include <QtCore/QTimer>
+#include <core/utility.h>
 #include "events.h"
 #include <core/subtitle.h>
 #include "glrenderer.h"
@@ -17,50 +19,45 @@
 #include <core/xvideorenderer.h>
 #include "pipeline.h"
 #include "busthread.h"
+#include <core/baseevent.h>
 
 namespace Gst {
 
+class UpdateVideoInfoEvent : public Core::BaseEvent {
+public:
+	static const int type = Core::BaseEvent::UserType + 1;
+	UpdateVideoInfoEvent(GstPad *pad): Core::BaseEvent(type), pad(pad) {}
+	GstPad *pad;
+};
+	
 struct PlayEngine::Data {
-// 	NativeRenderer *video;
-// 	Core::OpenGLVideoRendererIface *video;
-	GLRenderer *video;
+	GstVideoIface *video;
 	bool sos, eos, gotInfo;
 	int prevTick, startTime;
 	QTimer ticker;
 	Info info;
-	Pipeline *pipeline;
+	PlayBin *play;
 };
 
 PlayEngine::PlayEngine(QObject *parent)
 : Core::PlayEngine(parent), d(new Data) {
 	static bool init = false; if (!init) {gst_init(0, 0); init = true;}
-// 	d->video = new NativeRenderer(this);
-	d->video = new GLRenderer;
-	d->pipeline = new Pipeline();
-	d->pipeline->setVideo(d->video);
+	d->play = new PlayBin();
+	d->video = 0;
 	d->eos = d->sos = d->gotInfo = false;
 	d->prevTick = 0;
 	d->startTime = -1;
-	setHasVideo(true);	
-// 	d->video = new GLRenderer(this);
-	setVideoRenderer(d->video->renderer());
-	setSubtitleOsd(d->video->renderer()->createOsd());
-	setMessageOsd(d->video->renderer()->createOsd());
-// 	static_cast<NativeRenderer*>(d->video)->setOverlay();
-// 	setSubtitleOsd(d->pipeline->subtitleOsd());
-// 	setMessageOsd(d->pipeline->messageOsd());
-// 	setTimeLineOsd(d->video->createOsd());
-	
-// 	reinterpret_cast<QWidgetVideoSink*>(d->pipeline->videoSink())->sink = d->video;
-// 	d->video->setVideoBin(d->pipeline->videoBin());
 
 	d->ticker.setInterval(80);
 	connect(&d->ticker, SIGNAL(timeout()), this, SLOT(emitTick()));
 
-	connect(d->pipeline, SIGNAL(durationChanged(int)), this, SLOT(slotDurationChanged(int)));
-	connect(d->pipeline, SIGNAL(stateChanged(GstState, GstState))
+	connect(d->play, SIGNAL(durationChanged(int)), this, SLOT(slotDurationChanged(int)));
+	connect(d->play, SIGNAL(stateChanged(GstState, GstState))
 		, this, SLOT(slotGstStateChanged(GstState, GstState)));
-	connect(d->pipeline, SIGNAL(ended()), this, SLOT(slotFinished()));
+	connect(d->play, SIGNAL(ended()), this, SLOT(slotFinished()));
+	
+	setVideoRenderer(d->info.defaultVideoRenderer());
+	setAudioRenderer(d->info.defaultAudioRenderer());
 }
 
 PlayEngine::~PlayEngine() {
@@ -69,9 +66,9 @@ PlayEngine::~PlayEngine() {
 // 	d->busReader.stop();
 // 	gst_object_unref(GST_OBJECT(d->bus));
 // 	d->bus = 0;
-	delete d->pipeline;
+	delete d->play;
 //	setGstState(GST_STATE_NULL);
-//	gst_object_unref(GST_OBJECT(d->pipeline));
+//	gst_object_unref(GST_OBJECT(d->play));
 	delete d;
 }
 
@@ -102,6 +99,8 @@ void PlayEngine::slotGstStateChanged(GstState state, GstState old) {
 		d->ticker.stop();
 		break;
 	case GST_STATE_PAUSED:
+		if (old == GST_STATE_READY)
+			updateVideoInfo();
 		d->ticker.start();
 		if (!d->gotInfo)
 			d->gotInfo = updateStreamInfo();
@@ -181,13 +180,16 @@ void PlayEngine::customEvent(QEvent *event) {
 		if (!currentSource().isValid())
 			break;
 		break;
-	} default:
+	} case UpdateVideoInfoEvent::type:
+		updateVideoInfo(static_cast<UpdateVideoInfoEvent*>(be)->pad);
+		break;
+	default:
 		break;
 	}
 }
 
 bool PlayEngine::updateDuration() {
-	const int duration = d->pipeline->duration();
+	const int duration = d->play->duration();
 	if (duration < 0)
 		return false;
 	setDuration(duration);
@@ -199,7 +201,7 @@ bool PlayEngine::updateStreamInfo() {
 	if (!currentSource().isValid())
 		return false;
 	GstQuery *query = gst_query_new_seeking(GST_FORMAT_TIME);
-	if (gst_element_query(d->pipeline->element(), query)) {
+	if (gst_element_query(d->play->bin, query)) {
 		gint64 start, stop;
 		gboolean seekable;
 		GstFormat format;
@@ -213,13 +215,13 @@ bool PlayEngine::updateStreamInfo() {
 }
 
 void PlayEngine::emitTick() {
-	const int time = d->pipeline->clock();
+	const int time = d->play->clock();
 	if (time != d->prevTick)
 		emit tick(d->prevTick = time);
 }
 
 bool PlayEngine::setGstState(GstState gstate, Core::State state) {
-	if (!d->pipeline->setState(gstate))
+	if (!d->play->setState(gstate))
 		return false;
 	setState(state);
 	return true;
@@ -231,7 +233,7 @@ int PlayEngine::currentTime() const {
 			return duration();
 		if (d->sos)
 			return 0;
-		return d->pipeline->clock();
+		return d->play->clock();
 	} else
 		return 0;
 }
@@ -265,7 +267,7 @@ void PlayEngine::seek(int time) {
 	d->sos = (time <= 0);
 	// Go to buffering state, we resume paused state when ready
 	GstSeekFlags flags = static_cast<GstSeekFlags>(GST_SEEK_FLAG_KEY_UNIT | GST_SEEK_FLAG_SEGMENT | GST_SEEK_FLAG_FLUSH);
-	gst_element_seek(d->pipeline->element(), speed(), GST_FORMAT_TIME, flags
+	gst_element_seek(d->play->bin, speed(), GST_FORMAT_TIME, flags
 			, GST_SEEK_TYPE_SET, time * GST_MSECOND, GST_SEEK_TYPE_NONE
 			, GST_CLOCK_TIME_NONE);
 }
@@ -274,22 +276,19 @@ void PlayEngine::updateCurrentSource(const Core::MediaSource &source) {
 	d->gotInfo = false;
 	if (source.isValid()) {
 		setGstState(GST_STATE_NULL, Core::Stopped);
-		d->pipeline->setCurrentSource(source);
+		d->play->setSource(source);
 		d->sos = true;
 		d->startTime = -1;
-// 		static_cast<NativeRenderer*>(d->video)->setOverlay();
 	}
 }
 
 void PlayEngine::updateVolume() {
-	double val = 0.0;
-	if (!isMuted())
-		val = qBound(0.0, double(volume())/100.0*amplifyingRate(), 10.0);
-	g_object_set(G_OBJECT(d->pipeline->volume()), "volume", val, NULL);
+	g_object_set(G_OBJECT(d->play->volume), "volume", realVolume(), NULL);
+	d->play->setVolumeNormalized(isVolumeNormalized());
 }
 
 void PlayEngine::updateSpeed(double speed) {
-	gst_element_seek(d->pipeline->element(), speed, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH
+	gst_element_seek(d->play->bin, speed, GST_FORMAT_TIME, GST_SEEK_FLAG_FLUSH
 			, GST_SEEK_TYPE_NONE, 0, GST_SEEK_TYPE_NONE, 0);
 }
 
@@ -317,21 +316,96 @@ const Core::Info &PlayEngine::info() const {
 // }
 
 bool PlayEngine::updateVideoRenderer(const QString &renderer) {
-	return d->info.defaultVideoRenderer() == renderer;
+	GstVideoIface *video = VideoRendererFactory::create(renderer, this);
+	if (!video)
+		return false;
+	if (d->video) {
+		setVideoRenderer(0);
+		setSubtitleOsd(0);
+		setMessageOsd(0);
+		setTimeLineOsd(0);
+		d->play->setVideo(0);
+		delete d->video;
+	}
+	d->video = video;
+	setVideoRenderer(d->video->renderer());
+	d->play->setVideo(d->video);
+	if (d->video->renderer()->type() == Core::OpenGL) {
+		setSubtitleOsd(d->video->renderer()->createOsd());
+		setMessageOsd(d->video->renderer()->createOsd());
+		setTimeLineOsd(d->video->renderer()->createOsd());
+	} else {
+		setSubtitleOsd(d->play->subtitleOsd());
+		setMessageOsd(d->play->messageOsd());
+	}
+	return true;
 }
 
 bool PlayEngine::updateAudioRenderer(const QString &renderer) {
-	return d->info.defaultAudioRenderer() == renderer;
+	return d->info.audioRenderer().contains(renderer);
 }
 
 // GstElement *PlayEngine::videoSink() {
-// 	return d->pipeline->videoSink();
+// 	return d->play->videoSink();
 // }
 
 void PlayEngine::updateColorProperty(Core::ColorProperty::Value prop, double value) {
 }
 
 void PlayEngine::updateColorProperty() {
+}
+
+void PlayEngine::updateVideoInfo() {
+	const PtrList<GObject> videoStream = d->play->getStream("video");
+	setHasVideo(!videoStream.isEmpty());
+	GstPad *pad = 0;
+	if (!videoStream.isEmpty()) {
+		for (int i=0; !pad && i<videoStream.size(); ++i)
+			g_object_get(videoStream[i], "object", &pad, NULL);
+		if (pad) {
+			updateVideoInfo(pad);
+			g_signal_connect(pad, "notify::caps", G_CALLBACK(capsSet), this);
+			gst_object_unref(pad);
+		}
+	}
+	
+}
+
+void PlayEngine::capsSet(GObject *obj, GParamSpec *pspec, PlayEngine *self) {
+	QApplication::postEvent(self, new UpdateVideoInfoEvent(GST_PAD(obj)));
+}
+
+void PlayEngine::updateVideoInfo(GstPad *pad) {
+// 	qDebug() << "update video info";
+	if (!GST_IS_PAD(pad))
+		return;
+	GstCaps *caps = gst_pad_get_negotiated_caps(pad);
+	if (!caps)
+		return;
+	GstStructure *s = gst_caps_get_structure (caps, 0);
+	if (s) {
+		gint fpsN, fpsD, width, height;
+		if (!(gst_structure_get_fraction (s, "framerate", &fpsN, &fpsD)
+				&& gst_structure_get_int (s, "width", &width)
+				&& gst_structure_get_int (s, "height", &height)))
+			return;
+		setFrameRate(double(fpsN)/double(fpsD));
+		if (d->video && d->video->renderer()->type() == Core::Native) {
+			NativeRenderer *r = static_cast<NativeRenderer*>(d->video->renderer());
+			QSize size(width, height);
+			r->setVideoSize(size);
+			int height = size.height();
+			if (r->videoRatio() > Core::Utility::desktopRatio())
+				height = qRound(height*(r->videoRatio() / Core::Utility::desktopRatio()));
+			const int margin = qRound((r->videoSize().height() - height)*0.5);
+			d->play->setVerticalMargin(margin);
+			height = size.height() - margin*2;
+			r->setFrameSize(QSize(size.width(), height));
+		}
+// 		qDebug() << frameRate() << width << height;
+// 		qDebug() << gst_structure_get_value (s, "pixel-aspect-ratio");
+	}
+	gst_caps_unref (caps);
 }
 
 }

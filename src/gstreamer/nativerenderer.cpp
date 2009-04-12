@@ -1,4 +1,5 @@
 #include "nativerenderer.h"
+#include "playengine.h"
 #include <QtGui/QApplication>
 #include <QtCore/QDebug>
 // #include <X11/Xlib.h>
@@ -7,10 +8,12 @@
 
 namespace Gst {
 
-NativeRenderer::NativeRenderer(Core::PlayEngine *engine)
+NativeRenderer::NativeRenderer(PlayEngine *engine, XType type)
 : Core::NativeRenderer(engine), GstVideoIface(this), d(new Data) {
-	GstElement *sink = gst_element_factory_make ("xvimagesink", 0);
-	if (sink) {
+	d->type = type;
+	GstElement *sink = makeSink(sinkName(d->type));
+	qDebug() << sink;
+	if (d->type == Xv && sink) {
 		if (gst_element_set_state(sink, GST_STATE_READY) != GST_STATE_CHANGE_SUCCESS) {
 			gst_object_unref(GST_OBJECT(sink));
 			sink = 0;
@@ -21,11 +24,13 @@ NativeRenderer::NativeRenderer(Core::PlayEngine *engine)
 			g_object_set(G_OBJECT(sink), "saturation", 0, NULL);
 		}
 	}
-	if (!sink)
-		sink = gst_element_factory_make ("ximagesink", NULL);
+	if (sink)
+		setSink(sink);
 	installEventFilter(screen());
-	setSink(sink);
 	setOverlay();
+	
+	connect(engine, SIGNAL(currentSourceChanged(const Core::MediaSource&))
+			, this, SLOT(setOverlay()));
 }
 
 NativeRenderer::~NativeRenderer() {
@@ -55,5 +60,24 @@ bool NativeRenderer::eventFilter(QObject *obj, QEvent *event) {
 	return Core::NativeRenderer::eventFilter(obj, event);
 }
 
+QString NativeRenderer::sinkName(XType type) {
+	if (type == Xv)
+		return QString("xvimagesink");
+	else if (type == X11)
+		return QString("ximagesink");
+	return QString();
+}
+
+bool NativeRenderer::isAvaiable(XType type) {
+	GstElementFactory *f = gst_element_factory_find(sinkName(type).toLocal8Bit());
+	if (!f)
+		return false;
+	gst_object_unref(GST_OBJECT(f));
+	return true;
+}
+
+GstElement *NativeRenderer::makeSink(const QString &name) {
+	return gst_element_factory_make(name.toLocal8Bit(), 0);
+}
 
 } // namespace Gst

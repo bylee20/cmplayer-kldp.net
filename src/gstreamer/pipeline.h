@@ -15,31 +15,56 @@ class AbstractOsdRenderer;
 }
 
 namespace Gst {
-	
+
+template<typename T>
+class PtrList {
+public:
+	PtrList(): list() {}
+	~PtrList() {
+		for (int i=0; i<list.size(); ++i)
+			unref(list[i]);
+	}
+	T *operator[] (int i) const {return list[i];}
+	void append(T *ptr) {ref(ptr); list.append(ptr);}
+	int size() const {return list.size();}
+	bool isEmpty() const {return list.isEmpty();}
+private:
+	void ref(void *ptr) {
+		if (GST_IS_OBJECT(ptr))
+			gst_object_ref(ptr);
+		else if (G_IS_OBJECT(ptr))
+			g_object_ref(ptr);
+	}
+	void unref(void *ptr) {
+		if (GST_IS_OBJECT(ptr))
+			gst_object_unref(ptr);
+		else if (G_IS_OBJECT(ptr))
+			g_object_unref(ptr);
+	}
+	QList<T*> list;
+};
+
 class NativeRenderer;			class GstVideoIface;
 class TextOverlay;
 
-class Pipeline : public QThread {
+class PlayBin : public QThread {
 	Q_OBJECT
 public:
-	enum Type {Invalid, DecodeBin, PlayBin};
-	Pipeline(QObject *parent = 0);
-	~Pipeline();
-	void setCurrentSource(const Core::MediaSource &source);
+	GstElement *bin, *audioBin, *videoBin;
+	GstElement *volume, *videoBox;
+	PlayBin(QObject *parent = 0);
+	~PlayBin();
+	void setSource(const Core::MediaSource &source);
 	int clock() const;
 	int duration() const;
-	bool setState(GstState state) {
-		return gst_element_set_state(d->pipeline, state)
-				!= GST_STATE_CHANGE_FAILURE;}
+	bool setState(GstState state);
 	void stop();
-	GstElement *element() {return d->pipeline;}
-	GstElement *videoBin();
-	GstElement *videoSink();
-	GstElement *volume() {return d->volume;}
-	GstElement *decodeBin() {return d->decodeBin;}
 	void setVideo(GstVideoIface *video);
 	Core::AbstractOsdRenderer *subtitleOsd();
 	Core::AbstractOsdRenderer *messageOsd();
+	PtrList<GObject> getStream(const QString &name);
+	void setVerticalMargin(int margin);
+	void setVolumeNormalized(bool on);
 signals:
 	void ended();
 	void videoSizeChanged(const QSize &size);
@@ -47,26 +72,20 @@ signals:
 	void durationChanged(int duration);
 private:
 	void customEvent(QEvent *event);
-	void setType(Type type);
 	void startBus();
 	void stopBus();
 	void run();
-	static void cbNewPad(GstElement *decodeBin, GstPad *pad, gboolean last, gpointer data);
-	static void cbNotifyVideoCaps(GObject *obj, GParamSpec *pspec, gpointer data);
 	void linkVideo(GstPad* pad);
 	void linkAudio(GstPad *pad);
-	void removeSource();
 	void emitBusSignal(GstMessage *message);
 	struct Data {
 		GstVideoIface *video;
-		GstElement *pipeline, *playBin, *decodeBin, *source;
-		GstElement *audioBin, *videoBin, *volume, *videoBox, *videoLast;
+		GstElement *videoLast, *volnorm;
 		GstBus *bus;
 		gulong capsHandler;
 		bool quit;
 		QMutex mutex;
 		QWaitCondition cond;
-		Type type;
 		TextOverlay *subOverlay, *msgOverlay;
 	};
 	Data *d;

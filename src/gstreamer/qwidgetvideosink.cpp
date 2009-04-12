@@ -76,7 +76,7 @@ void QWidgetVideoSinkClass::initialize() {
 			gst_caps_append_structure(caps, structure);
 		}
 		GstPadTemplate *pad = gst_pad_template_new("sink", GST_PAD_SINK, GST_PAD_ALWAYS, caps);
-		gst_element_class_add_pad_template (klass, pad);
+		gst_element_class_add_pad_template(klass, pad);
 		m_init = true;
 	}
 }

@@ -32,6 +32,9 @@ private slots:
 	void slotGstStateChanged(GstState state, GstState old);
 	void slotDurationChanged(int duration);
 private:
+	void updateVideoInfo();
+	void updateVideoInfo(GstPad *pad);
+	static void capsSet(GObject *obj, GParamSpec *pspec, PlayEngine *self);
 	virtual void updateColorProperty(Core::ColorProperty::Value prop, double value);
 	virtual void updateColorProperty();
 	virtual void updateCurrentSource(const Core::MediaSource &source);
