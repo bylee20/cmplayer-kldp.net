@@ -4,6 +4,7 @@
 #include "qwidgetvideosink.h"
 #include "nativerenderer.h"
 #include "textoverlay.h"
+#include "volumenormalizer.h"
 #include <core/newframeevent.h>
 #include <core/mediasource.h>
 #include <QtCore/QMetaType>
@@ -11,10 +12,8 @@
 
 namespace Gst {
 
-Pipeline::Pipeline(QObject *parent)
+PlayBin::PlayBin(QObject *parent)
 : QThread(parent), d(new Data) {
-	d->type = Invalid;
-	d->pipeline = d->source = 0;
 	d->capsHandler = 0;
 	d->bus = 0;
 	d->video = 0;
@@ -24,211 +23,96 @@ Pipeline::Pipeline(QObject *parent)
 	qRegisterMetaType<GstState>("GstState");
 	d->quit = false;
 
-	d->pipeline = gst_pipeline_new(0);
-	gst_object_ref(GST_OBJECT(d->pipeline));
-	gst_object_sink(GST_OBJECT(d->pipeline));
-
-	d->audioBin = gst_bin_new("audioBin");
-	gst_object_ref(GST_OBJECT(d->audioBin));
-	gst_object_sink(GST_OBJECT(d->audioBin));
+	audioBin = gst_bin_new("audioBin");
+	d->volnorm = GST_ELEMENT(g_object_new(VolumeNormalizer::gtype(), 0));
+	gst_object_ref(GST_OBJECT(audioBin));
+	gst_object_sink(GST_OBJECT(audioBin));
 	GstElement *aqueue = gst_element_factory_make("queue", 0);
 	GstElement *aconv = gst_element_factory_make("audioconvert", 0);
 	GstElement *aresample = gst_element_factory_make("audioresample", 0);
-	d->volume = gst_element_factory_make("volume", 0);
+	volume = gst_element_factory_make("volume", 0);
 	GstElement *asink = gst_element_factory_make("alsasink", 0);
-	gst_bin_add_many(GST_BIN(d->audioBin), aqueue, aconv, aresample, d->volume, asink, NULL);
-	gst_element_link_many(aqueue, aconv, aresample, d->volume, asink, NULL);
+	gst_bin_add_many(GST_BIN(audioBin), aqueue, aconv, d->volnorm, aresample, volume, asink, NULL);
+	gst_element_link_many(aqueue, aconv, d->volnorm, aresample, volume, asink, NULL);
 	GstPad *apad = gst_element_get_pad(aqueue, "sink");
-	gst_element_add_pad(d->audioBin, gst_ghost_pad_new("sink", apad));
+	gst_element_add_pad(audioBin, gst_ghost_pad_new("sink", apad));
 	gst_object_unref(apad);
 	g_object_set(G_OBJECT(asink), "sync", 1, NULL);
 
-	d->videoBin = gst_bin_new("videoBin");
-	gst_object_ref(GST_OBJECT(d->videoBin));
-	gst_object_sink(GST_OBJECT(d->videoBin));
+	videoBin = gst_bin_new("videoBin");
+	gst_object_ref(GST_OBJECT(videoBin));
+	gst_object_sink(GST_OBJECT(videoBin));
 	GstElement *vqueue = gst_element_factory_make("queue", 0);
 	GstElement *vconv = gst_element_factory_make("ffmpegcolorspace", 0);
 	GstElement *vrate = gst_element_factory_make("videorate", 0);
-	d->videoBox = gst_element_factory_make("videobox", 0);
-//	d->infoOverlay = new TextOverlay;
-//	d->subOverlay = new TextOverlay;
-// 	d->videoSink = GST_ELEMENT(g_object_new(QWidgetVideoSink::gtype(), 0));
+	videoBox = gst_element_factory_make("videobox", 0);
 	d->videoLast = d->msgOverlay->element();
-	gst_bin_add_many(GST_BIN(d->videoBin), vqueue, vconv, vrate, d->videoBox
+	gst_bin_add_many(GST_BIN(videoBin), vqueue, vconv, vrate, videoBox
 			, d->subOverlay->element(), d->msgOverlay->element(), NULL);
-//			, d->videoBox, d->infoOverlay->element(), d->subOverlay->element()
-// 			, d->videoSink, NULL);
-	gst_element_link_many(vqueue, vconv, vrate, d->videoBox
+	gst_element_link_many(vqueue, vconv, vrate, videoBox
 			, d->subOverlay->element(), d->msgOverlay->element(), NULL);
 	GstPad *vpad = gst_element_get_pad(vqueue, "sink");
-	gst_element_add_pad(d->videoBin, gst_ghost_pad_new("sink", vpad));
+	gst_element_add_pad(videoBin, gst_ghost_pad_new("sink", vpad));
 	gst_object_unref(vpad);
-// 	g_object_set(G_OBJECT(d->videoSink), "sync", 1, NULL);
 
-	d->decodeBin = gst_element_factory_make("decodebin", 0);
-	gst_object_ref(GST_OBJECT(d->decodeBin));
-	gst_object_sink(GST_OBJECT(d->decodeBin));
+	bin = gst_element_factory_make("playbin", 0);
+	gst_object_ref(GST_OBJECT(bin));
+	gst_object_sink(GST_OBJECT(bin));
+	
+	g_object_set(G_OBJECT(bin), "video-sink", videoBin, NULL);
+	g_object_set(G_OBJECT(bin), "audio-sink", audioBin, NULL);
 
-	g_signal_connect(d->decodeBin, "new-decoded-pad", G_CALLBACK(cbNewPad), this);
-// 	g_signal_connect(d->decodeBin, "unknown-type", G_CALLBACK(cbUnknownType), this);
-// 	g_signal_connect(d->decodeBin, "no-more-pads", G_CALLBACK(cbNoMorePads), this);
-
-	d->playBin = gst_element_factory_make("playbin", 0);
-	gst_object_ref(GST_OBJECT(d->playBin));
-	gst_object_sink(GST_OBJECT(d->playBin));
+	startBus();
 }
 
-Pipeline::~Pipeline() {
+PlayBin::~PlayBin() {
 	stop();
 	stopBus();
-	removeSource();
-	gst_object_unref(G_OBJECT(d->pipeline));
-	gst_object_unref(G_OBJECT(d->decodeBin));
-	gst_object_unref(G_OBJECT(d->playBin));
-	gst_object_unref(G_OBJECT(d->audioBin));
-	gst_object_unref(G_OBJECT(d->videoBin));
+	gst_object_unref(G_OBJECT(bin));
+	gst_object_unref(G_OBJECT(audioBin));
+	gst_object_unref(G_OBJECT(videoBin));
 	delete d->subOverlay;
 	delete d->msgOverlay;
 	delete d;
 	g_source_remove_by_user_data(this);
 }
 
-void Pipeline::cbNewPad(GstElement *decodeBin, GstPad *pad, gboolean last, gpointer data) {
-	Q_UNUSED(decodeBin);
-	Q_UNUSED(last);
-	Pipeline *self = reinterpret_cast<Pipeline*>(data);
-	GstCaps *caps = gst_pad_get_caps(pad);
-	GstStructure *str = gst_caps_get_structure(caps, 0);
-	if (g_strrstr(gst_structure_get_name(str), "audio"))
-		self->linkAudio(pad);
-	else if (g_strrstr(gst_structure_get_name(str), "video"))
-		self->linkVideo(pad);
-	gst_caps_unref(caps);
+void PlayBin::setSource(const Core::MediaSource &source) {
+	const QString uri = source.isDisc() ? "dvd://" : source.url().toString();
+	g_object_set(G_OBJECT(bin), "uri", uri.toLocal8Bit().data(), NULL);
 }
 
-void Pipeline::linkVideo(GstPad* pad) {
-	GstPad *sink = gst_element_get_pad(d->videoBin, "sink");
-	if (pad && !GST_PAD_IS_LINKED(sink)) {
-		gst_pad_link(pad, sink);
-		d->capsHandler = g_signal_connect(pad, "notify::caps", G_CALLBACK(cbNotifyVideoCaps), this);
-	}
-}
-
-void Pipeline::linkAudio(GstPad *pad) {
-	GstPad *sink = gst_element_get_pad(d->audioBin, "sink");
-	if (pad && !GST_PAD_IS_LINKED(sink)) {
-		gst_pad_link(pad, sink);
-	}
-}
-
-void Pipeline::cbNotifyVideoCaps(GObject *obj, GParamSpec *pspec, gpointer data) {
-	Q_UNUSED(pspec);
-	Pipeline *self = reinterpret_cast<Pipeline*>(data);
-	GstPad *pad = GST_PAD(obj);
-	GstCaps *caps = gst_pad_get_caps(pad);
-
-	g_signal_handler_disconnect(pad, self->d->capsHandler);
-
-	GstStructure *str = 0;
-	gint width, height;
-	if ((str = gst_caps_get_structure(caps, 0))) {
-		if (gst_structure_get_int(str, "width", &width)
-				&& gst_structure_get_int (str, "height", &height)) {
-			Core::VideoFrame frame;
-			Core::VideoFrame::Info info;
-			info.size = QSize(width, height);
-			frame.setInfo(info);
-			QCoreApplication::postEvent(self, new Core::NewFrameEvent(frame));
-		}
-	}
-	gst_caps_unref(caps);
-}
-
-void Pipeline::setType(Type type) {
-	if (d->type == type)
-		return;
-	stopBus();
-
-	if (d->type == DecodeBin) {
-		removeSource();
-		gst_bin_remove(GST_BIN(d->pipeline), d->decodeBin);
-		gst_bin_remove(GST_BIN(d->pipeline), d->audioBin);
-		gst_bin_remove(GST_BIN(d->pipeline), d->videoBin);
-	} else if (d->type == PlayBin) {
-		gst_bin_remove(GST_BIN(d->pipeline), d->playBin);
-		g_object_set(G_OBJECT(d->pipeline), "video-sink", NULL, NULL);
-		g_object_set(G_OBJECT(d->pipeline), "audio-sink", NULL, NULL);
-	}
-
-	if (type == DecodeBin) {
-		gst_bin_add(GST_BIN(d->pipeline), d->decodeBin);
-		gst_bin_add(GST_BIN(d->pipeline), d->audioBin);
-		gst_bin_add(GST_BIN(d->pipeline), d->videoBin);
-	} else if (type == PlayBin) {
-		gst_bin_add(GST_BIN(d->pipeline), d->playBin);
-		g_object_set(G_OBJECT(d->pipeline), "video-sink", d->videoBin, NULL);
-		g_object_set(G_OBJECT(d->pipeline), "audio-sink", d->audioBin, NULL);
-	}
-
-	if ((d->type = type) != Invalid)
-		startBus();
-// 	d->r->setOverlay();
-}
-
-void Pipeline::setCurrentSource(const Core::MediaSource &source) {
-	setType(source.isLocalFile() ? DecodeBin : PlayBin);
-	if (d->type == DecodeBin) {
-		removeSource();
-		const QString uri = source.url().toString();
-		d->source = gst_element_make_from_uri(GST_URI_SRC, qPrintable(uri), NULL);
-		gst_bin_add(GST_BIN(d->pipeline), d->source);
-		if (!gst_element_link(d->source, d->decodeBin))
-			removeSource();
-	} else if (d->type == PlayBin) {
-		const QString uri = source.isDisc() ? "dvd://" : source.url().toString();
-		g_object_set(G_OBJECT(d->playBin), "uri", qPrintable(uri), NULL);
-	}
-}
-
-void Pipeline::removeSource() {
-	stop();
-	if (d->source && d->pipeline) {
-		gst_bin_remove(GST_BIN(d->pipeline), d->source);
-		d->source = 0;
-	}
-}
-
-void Pipeline::stop() {
-	if (d->pipeline) {
+void PlayBin::stop() {
+	if (bin) {
 		GstState state;
 		setState(GST_STATE_NULL);
-		gst_element_get_state(d->pipeline, &state, 0, 2000000);
+		gst_element_get_state(bin, &state, 0, 2000000);
 	}
 }
 
-int Pipeline::clock() const {
+int PlayBin::clock() const {
 	gint64 pos = 0;
 	GstFormat format = GST_FORMAT_TIME;
-	gst_element_query_position(GST_ELEMENT(d->pipeline), &format, &pos);
+	gst_element_query_position(GST_ELEMENT(bin), &format, &pos);
 	return (pos / GST_MSECOND);
 }
 
-int Pipeline::duration() const {
+int PlayBin::duration() const {
 	GstFormat format = GST_FORMAT_TIME;
 	gint64 duration = 0;
-	if (gst_element_query_duration(GST_ELEMENT(d->pipeline), &format, &duration))
+	if (gst_element_query_duration(GST_ELEMENT(bin), &format, &duration))
 		return duration / GST_MSECOND;
 	return -1;
 }
 
-void Pipeline::startBus() {
+void PlayBin::startBus() {
 	d->mutex.lock();
-	d->bus = gst_pipeline_get_bus(GST_PIPELINE(d->pipeline));
+	d->bus = gst_pipeline_get_bus(GST_PIPELINE(bin));
 	d->mutex.unlock();
 	start();
 }
 
-void Pipeline::stopBus() {
+void PlayBin::stopBus() {
 	if (!d->bus)
 		return;
 	if (isRunning()) {
@@ -250,7 +134,7 @@ void Pipeline::stopBus() {
 	d->bus = 0;
 }
 
-void Pipeline::emitBusSignal(GstMessage *message) {
+void PlayBin::emitBusSignal(GstMessage *message) {
 	const GstMessageType type = GST_MESSAGE_TYPE(message);
 	switch (type) {
 	case GST_MESSAGE_EOS:
@@ -268,7 +152,7 @@ void Pipeline::emitBusSignal(GstMessage *message) {
 // 		}
 		break;
 	case GST_MESSAGE_STATE_CHANGED: {
-		if (message->src != GST_OBJECT(d->pipeline))
+		if (message->src != GST_OBJECT(bin))
 			break;
 		GstState old, state;
 		gst_message_parse_state_changed(message, &old, &state, 0);
@@ -338,7 +222,7 @@ void Pipeline::emitBusSignal(GstMessage *message) {
 	}
 }
 
-void Pipeline::run() {
+void PlayBin::run() {
 	while (!d->quit) {
 		while (!d->quit && !d->bus)
 			d->cond.wait(&d->mutex, 1000);
@@ -355,19 +239,19 @@ void Pipeline::run() {
 	}
 }
 
-GstElement *Pipeline::videoBin() {
-	return d->videoBin;
+void PlayBin::setVerticalMargin(int margin) {
+	g_object_set(G_OBJECT(videoBox), "top", margin, NULL);
+	g_object_set(G_OBJECT(videoBox), "bottom", margin, NULL);
 }
 
-GstElement *Pipeline::videoSink() {
-	return d->video ? d->video->sink() : 0;
-}
-
-void Pipeline::setVideo(GstVideoIface *video) {
+void PlayBin::setVideo(GstVideoIface *video) {
 	if (d->video)
-		gst_bin_remove(GST_BIN(d->videoBin), d->video->sink());
+		gst_bin_remove(GST_BIN(videoBin), d->video->sink());
+	setVerticalMargin(0);
+	d->subOverlay->clear();
+	d->msgOverlay->clear();
 	if ((d->video = video)) {
-		gst_bin_add(GST_BIN(d->videoBin), d->video->sink());
+		gst_bin_add(GST_BIN(videoBin), d->video->sink());
 		gst_element_link(d->videoLast, d->video->sink());
 		if (video->renderer()->type() == Core::Native) {
 			NativeRenderer *r = static_cast<NativeRenderer*>(video->renderer());
@@ -381,33 +265,49 @@ void Pipeline::setVideo(GstVideoIface *video) {
 	
 }
 
-void Pipeline::customEvent(QEvent *event) {
-	if (static_cast<Core::BaseEvent*>(event)->type() == Core::BaseEvent::NewFrame) {
-		if (!d->video || d->video->renderer()->type() != Core::Native)
-			return;
-		Core::NativeRenderer *r = static_cast<Core::NativeRenderer*>(d->video->renderer());
-		QSize size = static_cast<Core::NewFrameEvent*>(event)->frame().info().size;
-		r->setVideoSize(size);
-// 		renderer->setVideoSize(size);
-// 		bool needToExpand = !currentSource().isDisc();
-// 		if (needToExpand)
-// 			needToExpand = renderer->videoRatio() > Core::Utility::desktopRatio();
-		if (r->videoRatio() > Core::Utility::desktopRatio())
-			size.rheight()*= r->videoRatio() / Core::Utility::desktopRatio();
-		const int margin = (r->videoSize().height() - size.height())*0.5 + 0.5;
-		g_object_set(G_OBJECT(d->videoBox), "top", margin, NULL);
-		g_object_set(G_OBJECT(d->videoBox), "bottom", margin, NULL);
-// 		expand(needToExpand);
-		r->setFrameSize(size);
-	}
+void PlayBin::customEvent(QEvent */*event*/) {
+
 }
 
-Core::AbstractOsdRenderer *Pipeline::subtitleOsd() {
+Core::AbstractOsdRenderer *PlayBin::subtitleOsd() {
 	return d->subOverlay;
 }
 
-Core::AbstractOsdRenderer *Pipeline::messageOsd() {
+Core::AbstractOsdRenderer *PlayBin::messageOsd() {
 	return d->msgOverlay;
+}
+
+PtrList<GObject> PlayBin::getStream(const QString &name) {
+	PtrList<GObject> info;
+	if (!bin)
+		return info;
+	GValueArray *arr = 0;
+	g_object_get(bin, "stream-info-value-array", &arr, NULL);
+	if (!arr)
+		return info;
+	for (uint i = 0; i < arr->n_values; ++i) {
+		GObject *obj = reinterpret_cast<GObject*>(
+				g_value_get_object(g_value_array_get_nth(arr, i)));
+		if (!obj)
+			continue;
+		gint type = -1;
+		g_object_get(obj, "type", &type, NULL);
+		GParamSpec *pspec = g_object_class_find_property(G_OBJECT_GET_CLASS(obj), "type");
+		GEnumValue *value = g_enum_get_value(G_PARAM_SPEC_ENUM(pspec)->enum_class, type);
+		if (value && (name == value->value_nick || name == value->value_name)) {
+			info.append(obj);
+		}
+	}
+	g_value_array_free(arr);
+	return info;
+}
+
+bool PlayBin::setState(GstState state) {
+	return gst_element_set_state(bin, state) != GST_STATE_CHANGE_FAILURE;
+}
+
+void PlayBin::setVolumeNormalized(bool on) {
+	gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(d->volnorm), !on);
 }
 
 }

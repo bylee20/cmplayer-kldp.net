@@ -18,7 +18,7 @@ BusThread::~BusThread() {
 	bus = 0;
 }
 
-void BusThread::setPipeline(GstElement *pipeline) {
+void BusThread::setPlayBin(GstElement *pipeline) {
 	this->pipeline = pipeline;
 	bus = gst_pipeline_get_bus(GST_PIPELINE(this->pipeline));
 }

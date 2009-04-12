@@ -12,7 +12,7 @@ class BusThread : public QThread {
 public:
 	BusThread(PlayEngine *engine);
 	~BusThread();
-	void setPipeline(GstElement *pipeline);
+	void setPlayBin(GstElement *pipeline);
 	void stop();
 private:
 	void run();

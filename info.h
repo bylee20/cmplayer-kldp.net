@@ -7,8 +7,8 @@ namespace Gst {
 
 class Info : public Core::Info {
 public:
-	virtual const QStringList &videoRenderer() const {return d.videoRenderers;}
-	virtual const QStringList &audioRenderer() const {return d.audioRenderers;}
+	virtual const QStringList &videoRenderer() const;
+	virtual const QStringList &audioRenderer() const;
 	virtual QString name() const {return "GStreamer";}
 	virtual double maximumAmplifyingRate() const {return 10.0;}
 	virtual QString compileVersion() const {return QString();}

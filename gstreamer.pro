@@ -10,7 +10,9 @@ SOURCES += qwidgetvideosink.cpp \
     textoverlay.cpp \
  nativerenderer.cpp \
  gstvideoiface.cpp \
- busthread.cpp
+ busthread.cpp \
+ videorendererfactory.cpp \
+ volumenormalizer.cpp
 HEADERS += qwidgetvideosink.h \
     playengine.h \
     events.h \
@@ -21,13 +23,15 @@ HEADERS += qwidgetvideosink.h \
     textoverlay.h \
  nativerenderer.h \
  gstvideoiface.h \
- busthread.h
+ busthread.h \
+ videorendererfactory.h \
+ volumenormalizer.h
 
 CONFIG += debug_and_release dll link_pkgconfig plugin
 
 TARGET = ../bin/cmplayer_engine_gstreamer
 
-PKGCONFIG += "gstreamer-0.10 gstreamer-video-0.10 gstreamer-interfaces-0.10"
+PKGCONFIG += "gstreamer-0.10 gstreamer-controller-0.10 gstreamer-video-0.10 gstreamer-audio-0.10 gstreamer-interfaces-0.10"
 INCLUDEPATH += ../
 LIBS += -L../bin
 
