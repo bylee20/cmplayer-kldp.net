@@ -51,7 +51,7 @@ class PlayBin : public QThread {
 	Q_OBJECT
 public:
 	GstElement *bin, *audioBin, *videoBin;
-	GstElement *volume, *videoBox;
+	GstElement *volume, *videoBox, *videoBalance;
 	PlayBin(QObject *parent = 0);
 	~PlayBin();
 	void setSource(const Core::MediaSource &source);
@@ -65,6 +65,7 @@ public:
 	PtrList<GObject> getStream(const QString &name);
 	void setVerticalMargin(int margin);
 	void setVolumeNormalized(bool on);
+	void updateOverlay();
 signals:
 	void ended();
 	void videoSizeChanged(const QSize &size);

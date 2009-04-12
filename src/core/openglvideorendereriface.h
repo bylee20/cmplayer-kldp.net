@@ -9,6 +9,8 @@ class QPainter;
 
 namespace Core {
 
+class ColorProperty;
+
 class OpenGLVideoRendererIface : public VideoRendererIface {
 public:
 	class Object {
@@ -35,6 +37,7 @@ public:
 	}
 	void setObject(Object *obj) {m_obj = obj;}
 	virtual void setFrame(const VideoFrame &frame) = 0;
+	virtual void setColorProperty(const ColorProperty &prop) = 0;
 protected:
 	void setImageRect(const QRectF &rect) {m_rect = rect;}
 	void setImageRect(double x, double y, const QSizeF &size) {

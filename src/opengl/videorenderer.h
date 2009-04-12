@@ -11,12 +11,12 @@ class VideoRenderer : public QGLWidget, public Core::OpenGLVideoRendererIface {
 public:
 	VideoRenderer(QWidget *parent = 0);
 	~VideoRenderer();
-	void setVideoProperties(double b, double c, double s, double h);
 	virtual Core::VideoType type() const {return Core::OpenGL;}
 	virtual QSize sizeHint() const {return widgetSizeHint();}
 	virtual void rerender();
 	virtual Core::AbstractOsdRenderer *createOsd();
 	virtual void setFrame(const Core::VideoFrame &frame);
+	virtual void setColorProperty(const Core::ColorProperty &prop);
 protected:
 	void customEvent(QEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);

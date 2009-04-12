@@ -1,5 +1,6 @@
 #include "videorenderer.h"
 #include "osdrenderer.h"
+#include <core/colorproperty.h>
 #include <core/newframeevent.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
@@ -160,11 +161,11 @@ void VideoRenderer::setFrame(const Core::VideoFrame &frame) {
 	QApplication::postEvent(this, new Core::NewFrameEvent(frame));
 }
 
-void VideoRenderer::setVideoProperties(double b, double c, double s, double h) {
-	d->brightness = qBound(-0.5, b*0.5, 0.5);
-	d->contrast = qBound(0., c + 1., 2.);
-	d->saturation = qBound(0., s + 1., 2.);
-	d->hue = qBound(-M_PI, h*M_PI, M_PI);
+void VideoRenderer::setColorProperty(const Core::ColorProperty &prop) {
+	d->brightness = qBound(-0.5, prop.brightness()*0.5, 0.5);
+	d->contrast = qBound(0., prop.contrast() + 1., 2.);
+	d->saturation = qBound(0., prop.saturation() + 1., 2.);
+	d->hue = qBound(-M_PI, prop.hue()*M_PI, M_PI);
 	update();
 }
 

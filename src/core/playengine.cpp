@@ -420,6 +420,13 @@ void PlayEngine::updateVideo() {
 	updateColorProperty();
 }
 
+// void PlayEngine::updateColorProperty(ColorProperty::Value prop, double value) {
+// 	PlayEngine::updateColorProperty();
+// }
+// 
+// void PlayEngine::updateColorProperty() {
+// }
+
 void PlayEngine::setTracks(const QStringList &tracks, const QString &track) {
 	if (d->tracks != tracks) {
 		int idx = -1;
@@ -514,6 +521,7 @@ void PlayEngine::triggerSnapshot() {
 		image = d->renderer->grabCurrentFrame();
 	emit snapshotTaken(image);
 }
+
 
 }
 
