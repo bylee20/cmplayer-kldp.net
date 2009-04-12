@@ -28,9 +28,6 @@ NativeRenderer::NativeRenderer(PlayEngine *engine, XType type)
 		setSink(sink);
 	installEventFilter(screen());
 	setOverlay();
-	
-	connect(engine, SIGNAL(currentSourceChanged(const Core::MediaSource&))
-			, this, SLOT(setOverlay()));
 }
 
 NativeRenderer::~NativeRenderer() {

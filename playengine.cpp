@@ -239,8 +239,10 @@ int PlayEngine::currentTime() const {
 }
 
 void PlayEngine::play() {
-	if (currentSource().isValid() && !isPlaying())
+	if (currentSource().isValid() && !isPlaying()) {
+		d->play->updateOverlay();
 		setGstState(GST_STATE_PLAYING, Core::Playing);
+	}
 }
 
 void PlayEngine::play(int time) {
@@ -338,6 +340,7 @@ bool PlayEngine::updateVideoRenderer(const QString &renderer) {
 		setSubtitleOsd(d->play->subtitleOsd());
 		setMessageOsd(d->play->messageOsd());
 	}
+	updateColorProperty();
 	return true;
 }
 
@@ -345,15 +348,72 @@ bool PlayEngine::updateAudioRenderer(const QString &renderer) {
 	return d->info.audioRenderer().contains(renderer);
 }
 
-// GstElement *PlayEngine::videoSink() {
-// 	return d->play->videoSink();
-// }
-
+#define CONV(v) (qBound(-1000, qRound((v)*1000.0), 1000))
 void PlayEngine::updateColorProperty(Core::ColorProperty::Value prop, double value) {
+	if (!d->video)
+		return;
+	if (d->video->renderer()->type() == Core::OpenGL) {
+		Core::OpenGLVideoRendererIface *renderer
+				= static_cast<Core::OpenGLVideoRendererIface*>(d->video->renderer());
+		renderer->setColorProperty(colorProperty());
+	} else {
+		NativeRenderer *r = static_cast<NativeRenderer*>(d->video);
+		switch (prop) {
+		case Core::ColorProperty::Brightness:
+			if (useSoftwareEqualizer())
+				g_object_set(d->play->videoBalance, "brightness", value, NULL);
+			else if (r->xType() == NativeRenderer::Xv)
+				g_object_set(r->sink(), "brightness", CONV(value), NULL);
+			break;
+		case Core::ColorProperty::Saturation:
+			if (useSoftwareEqualizer())
+				g_object_set(d->play->videoBalance, "saturation", value+1.0, NULL);
+			else if (r->xType() == NativeRenderer::Xv)
+				g_object_set(r->sink(), "saturation", CONV(value), NULL);
+			break;
+		case Core::ColorProperty::Contrast:
+			if (useSoftwareEqualizer())
+				g_object_set(d->play->videoBalance, "contrast", value+1.0, NULL);
+			else if (r->xType() == NativeRenderer::Xv)
+				g_object_set(r->sink(), "contrast", CONV(value), NULL);
+			break;
+		case Core::ColorProperty::Hue:
+			if (useSoftwareEqualizer())
+				g_object_set(d->play->videoBalance, "hue", value, NULL);
+			else if (r->xType() == NativeRenderer::Xv)
+				g_object_set(r->sink(), "hue", CONV(value), NULL);
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void PlayEngine::updateColorProperty() {
+	if (!d->video)
+		return;
+	const Core::ColorProperty prop = colorProperty();
+	if (d->video->renderer()->type() == Core::OpenGL) {
+		Core::OpenGLVideoRendererIface *renderer
+				= static_cast<Core::OpenGLVideoRendererIface*>(d->video->renderer());
+		renderer->setColorProperty(prop);
+	} else {
+		NativeRenderer *renderer = static_cast<NativeRenderer*>(d->video);
+		if (useSoftwareEqualizer()) {
+			g_object_set(d->play->videoBalance, "brightness", prop.brightness(), NULL);
+			g_object_set(d->play->videoBalance, "saturation", prop.saturation()+1.0, NULL);
+			g_object_set(d->play->videoBalance, "contrast", prop.contrast()+1.0, NULL);
+			g_object_set(d->play->videoBalance, "hue", prop.hue(), NULL);
+		} else if (renderer->xType() == NativeRenderer::Xv) {
+			GstElement *sink = renderer->sink();
+			g_object_set(sink, "brightness", CONV(prop.brightness()), NULL);
+			g_object_set(sink, "saturation", CONV(prop.saturation()), NULL);
+			g_object_set(sink, "contrast", CONV(prop.contrast()), NULL);
+			g_object_set(sink, "hue", CONV(prop.hue()), NULL);
+		}
+	}
 }
+#undef CONV
 
 void PlayEngine::updateVideoInfo() {
 	const PtrList<GObject> videoStream = d->play->getStream("video");
@@ -368,15 +428,13 @@ void PlayEngine::updateVideoInfo() {
 			gst_object_unref(pad);
 		}
 	}
-	
 }
 
-void PlayEngine::capsSet(GObject *obj, GParamSpec *pspec, PlayEngine *self) {
+void PlayEngine::capsSet(GObject *obj, GParamSpec */*pspec*/, PlayEngine *self) {
 	QApplication::postEvent(self, new UpdateVideoInfoEvent(GST_PAD(obj)));
 }
 
 void PlayEngine::updateVideoInfo(GstPad *pad) {
-// 	qDebug() << "update video info";
 	if (!GST_IS_PAD(pad))
 		return;
 	GstCaps *caps = gst_pad_get_negotiated_caps(pad);

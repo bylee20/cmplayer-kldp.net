@@ -45,11 +45,12 @@ PlayBin::PlayBin(QObject *parent)
 	GstElement *vqueue = gst_element_factory_make("queue", 0);
 	GstElement *vconv = gst_element_factory_make("ffmpegcolorspace", 0);
 	GstElement *vrate = gst_element_factory_make("videorate", 0);
+	videoBalance = gst_element_factory_make("videobalance", 0);
 	videoBox = gst_element_factory_make("videobox", 0);
 	d->videoLast = d->msgOverlay->element();
-	gst_bin_add_many(GST_BIN(videoBin), vqueue, vconv, vrate, videoBox
+	gst_bin_add_many(GST_BIN(videoBin), vqueue, vconv, videoBalance, vrate, videoBox
 			, d->subOverlay->element(), d->msgOverlay->element(), NULL);
-	gst_element_link_many(vqueue, vconv, vrate, videoBox
+	gst_element_link_many(vqueue, vconv, videoBalance, vrate, videoBox
 			, d->subOverlay->element(), d->msgOverlay->element(), NULL);
 	GstPad *vpad = gst_element_get_pad(vqueue, "sink");
 	gst_element_add_pad(videoBin, gst_ghost_pad_new("sink", vpad));
@@ -307,7 +308,15 @@ bool PlayBin::setState(GstState state) {
 }
 
 void PlayBin::setVolumeNormalized(bool on) {
-	gst_base_transform_set_passthrough(GST_BASE_TRANSFORM(d->volnorm), !on);
+	GstBaseTransform *trans = GST_BASE_TRANSFORM(d->volnorm);
+	const bool through = gst_base_transform_is_passthrough(trans);
+	if (on == through)
+		gst_base_transform_set_passthrough(trans, !through);
+}
+
+void PlayBin::updateOverlay() {
+	if (d->video && d->video->renderer()->type() == Core::Native)
+		static_cast<NativeRenderer*>(d->video->renderer())->setOverlay();
 }
 
 }
