@@ -11,7 +11,7 @@ class TextOverlay : public Core::AbstractOsdRenderer {
 public:
 	TextOverlay();
 	~TextOverlay();
-	GstElement *element();
+	GstElement *bin();
 	void render();
 	void clear();
 	void updateFontSize(const QSize &size);

@@ -47,11 +47,11 @@ PlayBin::PlayBin(QObject *parent)
 	GstElement *vrate = gst_element_factory_make("videorate", 0);
 	videoBalance = gst_element_factory_make("videobalance", 0);
 	videoBox = gst_element_factory_make("videobox", 0);
-	d->videoLast = d->msgOverlay->element();
+	d->videoLast = d->msgOverlay->bin();
 	gst_bin_add_many(GST_BIN(videoBin), vqueue, vconv, videoBalance, vrate, videoBox
-			, d->subOverlay->element(), d->msgOverlay->element(), NULL);
+			, d->subOverlay->bin(), d->msgOverlay->bin(), NULL);
 	gst_element_link_many(vqueue, vconv, videoBalance, vrate, videoBox
-			, d->subOverlay->element(), d->msgOverlay->element(), NULL);
+			, d->subOverlay->bin(), d->msgOverlay->bin(), NULL);
 	GstPad *vpad = gst_element_get_pad(vqueue, "sink");
 	gst_element_add_pad(videoBin, gst_ghost_pad_new("sink", vpad));
 	gst_object_unref(vpad);
@@ -137,32 +137,16 @@ void PlayBin::stopBus() {
 
 void PlayBin::emitBusSignal(GstMessage *message) {
 	const GstMessageType type = GST_MESSAGE_TYPE(message);
+	qDebug() << (type & GST_MESSAGE_EOS);
 	switch (type) {
+	case GST_MESSAGE_UNKNOWN:
+		qDebug("GST_MESSAGE_UNKNOWN");
+		break;
 	case GST_MESSAGE_EOS:
 		qDebug("GST_MESSAGE_EOS");
 		emit ended();
 		break;
-	case GST_MESSAGE_TAG:
-		qDebug("GST_MESSAGE_TAG");
-// 		GstTagList* list = 0;
-// 		gst_message_parse_tag(msg, &list);
-// 		if (list) {
-// 			QMap<QString, QString> tags;
-// 			gst_tag_list_foreach(list, foreachTag, &tags);
-// 			gst_tag_list_free(list);
-// 		}
-		break;
-	case GST_MESSAGE_STATE_CHANGED: {
-		if (message->src != GST_OBJECT(bin))
-			break;
-		GstState old, state;
-		gst_message_parse_state_changed(message, &old, &state, 0);
-		qDebug("GST_MESSAGE_STATE_CHANGED: %d to %d", old, state);
-		if (old != state) {
-			emit stateChanged(state, old);
-		}
-		break;
-	} case GST_MESSAGE_ERROR: {
+	case GST_MESSAGE_ERROR: {
 		gchar *buffer = 0;
 		GError *error = 0;
 		gst_message_parse_error(message, &error, &buffer);
@@ -183,39 +167,80 @@ void PlayBin::emitBusSignal(GstMessage *message) {
 		g_free(debug);
 		g_error_free (err);
 		break;
-	} case GST_MESSAGE_DURATION: {
+	} case GST_MESSAGE_INFO:
+		qDebug("GST_MESSAGE_INFO");
+		break;
+	case GST_MESSAGE_TAG:
+		qDebug("GST_MESSAGE_TAG");
+// 		GstTagList* list = 0;
+// 		gst_message_parse_tag(msg, &list);
+// 		if (list) {
+// 			QMap<QString, QString> tags;
+// 			gst_tag_list_foreach(list, foreachTag, &tags);
+// 			gst_tag_list_free(list);
+// 		}
+		break;
+	case GST_MESSAGE_BUFFERING:
+		qDebug("GST_MESSAGE_BUFFERING");
+		break;
+	case GST_MESSAGE_STATE_CHANGED: {
+		if (message->src != GST_OBJECT(bin))
+			break;
+		GstState old, state;
+		gst_message_parse_state_changed(message, &old, &state, 0);
+		qDebug("GST_MESSAGE_STATE_CHANGED: %d to %d", old, state);
+		if (old != state) {
+			emit stateChanged(state, old);
+		}
+		break;
+	} case GST_MESSAGE_STATE_DIRTY:
+		qDebug("GST_MESSAGE_STATE_DIRTY");
+		break;
+	case GST_MESSAGE_STEP_DONE:
+		qDebug("GST_MESSAGE_STEP_DONE");
+		break;
+	case GST_MESSAGE_CLOCK_PROVIDE:
+		qDebug("GST_MESSAGE_CLOCK_PROVIDE");
+		break;
+	case GST_MESSAGE_CLOCK_LOST:
+		qDebug("GST_MESSAGE_CLOCK_LOST");
+		break;
+	case GST_MESSAGE_NEW_CLOCK:
+		qDebug("GST_MESSAGE_NEW_CLOCK");
+		break;
+	case GST_MESSAGE_STRUCTURE_CHANGE:
+		qDebug("GST_MESSAGE_STRUCTURE_CHANGE");
+		break;
+	case GST_MESSAGE_STREAM_STATUS:
+		qDebug("GST_MESSAGE_STREAM_STATUS");
+		break;
+	case GST_MESSAGE_APPLICATION:
+		qDebug("GST_MESSAGE_APPLICATION");
+		break;
+	case GST_MESSAGE_ELEMENT:
+		qDebug("GST_MESSAGE_ELEMENT");
+		break;
+	case GST_MESSAGE_SEGMENT_START:
+		qDebug("GST_MESSAGE_SEGMENT_START");
+		break;
+	case GST_MESSAGE_SEGMENT_DONE:
+		qDebug("GST_MESSAGE_SEGMENT_DONE");
+		break;
+	case GST_MESSAGE_DURATION: {
 		qDebug("GST_MESSAGE_DURATION");
 		GstFormat format = GST_FORMAT_TIME;
 		gint64 duration = 0;
 		gst_message_parse_duration(message, &format, &duration);
 		emit durationChanged(duration);
 		break;
-	} case GST_MESSAGE_BUFFERING:
-		qDebug("GST_MESSAGE_BUFFERING");
+	} case GST_MESSAGE_LATENCY: //only from 0.10.12
+		qDebug("GST_MESSAGE_LATENCY");
 		break;
-	case GST_MESSAGE_ELEMENT:
-		qDebug("GST_MESSAGE_BUFFERING");
-		break;
-	case GST_MESSAGE_INFO:
-		qDebug("GST_MESSAGE_BUFFERING");
-		break;
-	case GST_MESSAGE_STREAM_STATUS:
-		qDebug("GST_MESSAGE_BUFFERING");
-		break;
-	case GST_MESSAGE_CLOCK_PROVIDE:
-		qDebug("GST_MESSAGE_BUFFERING");
-		break;
-	case GST_MESSAGE_NEW_CLOCK:
-		qDebug("GST_MESSAGE_BUFFERING");
-		break;
-	case GST_MESSAGE_STEP_DONE:
-		qDebug("GST_MESSAGE_BUFFERING");
-		break;
-	case GST_MESSAGE_LATENCY: //only from 0.10.12
-		qDebug("GST_MESSAGE_BUFFERING");
+	case GST_MESSAGE_ASYNC_START: //only from 0.10.13
+		qDebug("GST_MESSAGE_ASYNC_START");
 		break;
 	case GST_MESSAGE_ASYNC_DONE: //only from 0.10.13
-		qDebug("GST_MESSAGE_BUFFERING");
+		qDebug("GST_MESSAGE_ASYNC_DONE");
 		break;
 	default:
 		qDebug("%d: Invalid message type!", type);
