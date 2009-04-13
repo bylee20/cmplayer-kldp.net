@@ -12,7 +12,8 @@ SOURCES += qwidgetvideosink.cpp \
  gstvideoiface.cpp \
  busthread.cpp \
  videorendererfactory.cpp \
- volumenormalizer.cpp
+ volumenormalizer.cpp \
+ textsource.cpp
 HEADERS += qwidgetvideosink.h \
     playengine.h \
     events.h \
@@ -25,7 +26,8 @@ HEADERS += qwidgetvideosink.h \
  gstvideoiface.h \
  busthread.h \
  videorendererfactory.h \
- volumenormalizer.h
+ volumenormalizer.h \
+ textsource.h
 
 CONFIG += debug_and_release dll link_pkgconfig plugin
 

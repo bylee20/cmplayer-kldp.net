@@ -40,60 +40,30 @@ namespace Gst {
 
 static GType volume_normalizer_get_type();
 
-GstAudioFilterClass *VolumeNormalizer::parentClass = 0;
-
 GType VolumeNormalizer::gtype() {return volume_normalizer_get_type();}
-
-// GST_BOILERPLATE_FULL(VolumeNormalizer, volume_normalizer, GstAudioFilter
-// 		, GST_TYPE_AUDIO_FILTER, VolumeNormalizer::additionalInitialize);
 
 GST_BOILERPLATE(VolumeNormalizer, volume_normalizer, GstAudioFilter, GST_TYPE_AUDIO_FILTER);
 
-// void VolumeNormalizer::additionalInitialize(GType type) {
-// 	static const GInterfaceInfo ifaceInfo = {(GInterfaceInitFunc)initializeIface, 0, 0};
-// 	static const GInterfaceInfo navInfo = {(GInterfaceInitFunc)initializeNavigation, 0, 0};
-// 	g_type_add_interface_static(type, GST_TYPE_IMPLEMENTS_INTERFACE, &ifaceInfo);
-// 	g_type_add_interface_static(type, GST_TYPE_NAVIGATION, &navInfo);
-// }
-
-VolumeNormalizer::VolumeNormalizer()
-{
-}
-
-void VolumeNormalizerClass::initialize() {
-	GstAudioFilterClass *filter = GST_AUDIO_FILTER_CLASS(this);
-	GstCaps *caps = gst_caps_from_string(ALLOWED_CAPS);
-	gst_audio_filter_class_add_pad_templates(filter, caps);
-	gst_caps_unref(caps);
-}
-
 static void volume_normalizer_base_init(gpointer klass) {
-	VolumeNormalizerClass *self = GST_VOLUME_NORMALIZER_CLASS(klass);
-	if (self)
-		self->initialize();
-}
-
-void VolumeNormalizer::initialize(VolumeNormalizerClass *klass) {
-	GstBaseTransformClass *trans = GST_BASE_TRANSFORM_CLASS(klass);
 	GstAudioFilterClass *filter = GST_AUDIO_FILTER_CLASS(klass);
-	trans->transform_ip = transform;
-	filter->setup = setup;
+	if (filter) {
+		GstCaps *caps = gst_caps_from_string(ALLOWED_CAPS);
+		gst_audio_filter_class_add_pad_templates(filter, caps);
+		gst_caps_unref(caps);
+	}
 }
 
 static void volume_normalizer_class_init(VolumeNormalizerClass *klass) {
-	VolumeNormalizer::initialize(klass);
+	GstBaseTransformClass *trans = GST_BASE_TRANSFORM_CLASS(klass);
+	GstAudioFilterClass *filter = GST_AUDIO_FILTER_CLASS(klass);
+	trans->transform_ip = VolumeNormalizer::transform;
+	filter->setup = VolumeNormalizer::setup;
 }
-
 
 static void volume_normalizer_init(VolumeNormalizer *self, VolumeNormalizerClass */*klass*/) {
 	gst_base_transform_set_gap_aware(GST_BASE_TRANSFORM(self), true);
 	self->mul = MUL_INIT;
 	self->lastavg = MID_S16;
-// 	self->sink = 0;
-// 	self->width = 0;
-// 	self->height = 0;
-// 	self->bpp = 0;
-// 	self->depth = 0;
 }
 
 template<> void VolumeNormalizer::normalize<int16_t>(gpointer buffer, int size) {

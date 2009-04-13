@@ -76,8 +76,8 @@ void PlayEngine::slotFinished() {
 	d->ticker.stop();
 	if (!d->eos) {
 		d->eos = true;
+		setState(Core::Finished);
 		emit finished(currentSource());
-		setState(Core::Stopped);
 	}
 }
 

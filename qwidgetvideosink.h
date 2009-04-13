@@ -39,7 +39,6 @@ private:
 	static gboolean setCaps(GstBaseSink* self, GstCaps* caps);
 	static GstStateChangeReturn changeState(GstElement* self, GstStateChange transition);
 	static GstFlowReturn render(GstBaseSink* self, GstBuffer* buffer);
-	static GstVideoSinkClass *parentClass;
 	bool m_initBase, m_init;
 };
 

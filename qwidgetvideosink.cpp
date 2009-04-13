@@ -10,8 +10,6 @@ namespace Gst {
 
 static GType qwidget_video_sink_get_type();
 
-GstVideoSinkClass *QWidgetVideoSink::parentClass = 0;
-
 GType QWidgetVideoSink::gtype() {return qwidget_video_sink_get_type();}
 
 GST_BOILERPLATE_FULL(QWidgetVideoSink, qwidget_video_sink, GstVideoSink
@@ -92,7 +90,7 @@ void QWidgetVideoSink::initialize(QWidgetVideoSinkClass *klass) {
 		GstBaseSinkClass *sink = GST_BASE_SINK_CLASS(klass);
 		GstElementClass *element = GST_ELEMENT_CLASS(klass);
 		
-		parentClass = reinterpret_cast<GstVideoSinkClass*>(g_type_class_peek_parent(klass));
+		parent_class = GST_VIDEO_SINK_CLASS(g_type_class_peek_parent(klass));
 		
 		sink->set_caps = setCaps;
 		sink->preroll = render;
@@ -135,7 +133,7 @@ gboolean QWidgetVideoSink::setCaps(GstBaseSink* sink, GstCaps* caps) {
 }
 
 GstStateChangeReturn QWidgetVideoSink::changeState(GstElement* element, GstStateChange transition) {
-	return GST_ELEMENT_CLASS(parentClass)->change_state(element, transition);
+	return GST_ELEMENT_CLASS(parent_class)->change_state(element, transition);
 }
 
 GstFlowReturn QWidgetVideoSink::render(GstBaseSink* sink, GstBuffer* buffer) {

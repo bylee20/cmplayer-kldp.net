@@ -4,11 +4,14 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QRect>
 #include <cmath>
+#include "textsource.h"
 
 namespace Gst {
 
 struct TextOverlay::Data {
-	GstElement *element;
+	GstElement *bin;
+	GstElement *overlay;
+// 	TextSource *source;
 	int xpad, ypad;
 	int px, y;
 	QRegExp rxTag;
@@ -18,36 +21,50 @@ struct TextOverlay::Data {
 
 TextOverlay::TextOverlay()
 : d(new Data) {
-	d->element = gst_element_factory_make("textoverlay", 0);
-	gst_object_ref(GST_OBJECT(d->element));
-	gst_object_sink(GST_OBJECT(d->element));
+	d->bin = gst_bin_new(0);
+	gst_object_ref(GST_OBJECT(d->bin));
+	gst_object_sink(GST_OBJECT(d->bin));
+	d->overlay = gst_element_factory_make("textoverlay", 0);
+// 	GstElement *source = GST_ELEMENT(g_object_new(TextSource::gtype(), 0));
+// 	d->source = reinterpret_cast<TextSource*>(source);
+	gst_bin_add(GST_BIN(d->bin), d->overlay);
+// 	gst_element_link(source, d->overlay);
+	
+	GstPad *pad = gst_element_get_pad(d->overlay, "video_sink");
+	gst_element_add_pad(d->bin, gst_ghost_pad_new("sink", pad));
+	gst_object_unref(pad);
+	pad = gst_element_get_pad(d->overlay, "src");
+	gst_element_add_pad(d->bin, gst_ghost_pad_new("src", pad));
+	gst_object_unref(pad);
+	
 	d->px = 10;
 	d->y = 0;
-	g_object_set(G_OBJECT(d->element), "xpad", 0, NULL);
+	g_object_set(G_OBJECT(d->overlay), "xpad", 0, NULL);
+	g_object_set(G_OBJECT(d->overlay), "ypad", 0, NULL);
 	d->rxTag = QRegExp("<[^>]+>");
 	d->rxTag.setMinimal(true);
 }
 
 TextOverlay::~TextOverlay() {
-	gst_object_unref(d->element);
-	d->element = 0;
+	gst_object_unref(d->bin);
 	delete d;
 }
 
-GstElement *TextOverlay::element() {
-	return d->element;
+GstElement *TextOverlay::bin() {
+	return d->bin;
 }
 
 void TextOverlay::render() {
 	QString t = text();
 	t.replace("<br>", "\n", Qt::CaseInsensitive);
 	t.remove(d->rxTag);
+// 	t = "<span underline='error' underline_color='red'>" + t + "</span>";
 	updatePos();
-	g_object_set(G_OBJECT(d->element), "text", t.toLocal8Bit().constData(), NULL);
+	g_object_set(G_OBJECT(d->overlay), "text", t.toUtf8().constData(), NULL);
 }
 
 void TextOverlay::clear() {
-	g_object_set(G_OBJECT(d->element), "text", "", NULL);
+	g_object_set(G_OBJECT(d->overlay), "text", "", NULL);
 }
 
 void TextOverlay::updateStyle(const Core::OsdStyle &style) {
@@ -56,14 +73,14 @@ void TextOverlay::updateStyle(const Core::OsdStyle &style) {
 		halign = 0;
 	else if (style.alignment & Qt::AlignRight)
 		halign = 2;
-	g_object_set(G_OBJECT(d->element), "halignment", halign, NULL);
+	g_object_set(G_OBJECT(d->overlay), "halignment", halign, NULL);
 
 	int valign = 0;
 	if (style.alignment & Qt::AlignTop)
 		valign = 2;
 	else if (style.alignment & Qt::AlignBottom)
 		valign = 1;
-	g_object_set(G_OBJECT(d->element), "valignment", valign, NULL);
+	g_object_set(G_OBJECT(d->overlay), "valignment", valign, NULL);
 	updateFont();
 }
 
@@ -77,12 +94,18 @@ void TextOverlay::updatePos() {
 	if (y < 0)
 		y = 0;
 	if (y != d->y)
-		g_object_set(G_OBJECT(d->element), "ypad", d->y = y, NULL);
+		g_object_set(G_OBJECT(d->overlay), "ypad", d->y = y, NULL);
 }
 
 void TextOverlay::updateFont() {
-	const QString desc = QString("%1, %2px").arg(style().font.family()).arg(d->px);
-	g_object_set(G_OBJECT(d->element), "font-desc", qPrintable(desc), NULL);
+	const QFont font = style().font;
+	QString desc = font.family();
+	if (font.bold())
+		desc += " bold";
+	if (font.italic())
+		desc += " italic";
+	desc += QString(" %1px").arg(d->px);
+	g_object_set(G_OBJECT(d->overlay), "font-desc", qPrintable(desc), NULL);
 }
 
 void TextOverlay::updateFontSize(const QSize &size) {
