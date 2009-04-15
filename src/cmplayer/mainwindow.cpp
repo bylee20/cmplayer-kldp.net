@@ -573,8 +573,9 @@ Core::Playlist MainWindow::open(const Core::MediaSource &source) {
 }
 
 void MainWindow::open(const QUrl &url, const QString &enc) {
+	const QString suffix = QFileInfo(url.path()).suffix().toLower();
+	const bool isPlaylist = (suffix == "pls");
 	Core::Playlist list;
-	const bool isPlaylist = (QFileInfo(url.path()).suffix().toLower() == "pls");
 	if (isPlaylist)
 		list.load(url, enc);
 	else
@@ -600,29 +601,10 @@ void MainWindow::seek(int diff) {
 void MainWindow::openSubFile() {
 	const QString filter = tr("Subtitle Files") +' '+ Core::Info::subtitleExtension().toFilter();
 	QString enc = d->pref.subtitleEncoding;
-	const QStringList files = EncodingFileDialog::getOpenFileNames(this, tr("Open Subtitle"), QString(), filter, &enc);
-	if (files.isEmpty())
-		return;
-	int idx = d->sub.size();
-	Menu &list = d->menu("subtitle")("list");
-	for (int i=0; i<files.size(); ++i) {
-		Core::Subtitle sub;
-		if (sub.load(files[i], enc)) {
-			for (int j=0; j<sub.size(); ++j, ++idx) {
-				d->subIdxes.append(idx);
-				d->sub.append(sub[j]);
-				QAction *action = list.addActionToGroupWithoutKey(
-						d->sub[idx].name(), true);
-				action->setData(idx);
-				d->changingSubtitle = true;
-				action->setChecked(true);
-			}
-		}
-	}
-	if (d->changingSubtitle) {
-		d->changingSubtitle = false;
-		updateSubtitle();
-	}
+	const QStringList file = EncodingFileDialog::getOpenFileNames(this
+			, tr("Open Subtitle"), QString(), filter, &enc);
+	if (!file.isEmpty())
+		appendSubtitle(file, true, enc);
 }
 
 void MainWindow::updateOnTop() {
@@ -693,21 +675,56 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
 		event->acceptProposedAction();
 }
 
+void MainWindow::appendSubtitle(const QStringList &file, bool check, const QString &enc) {
+	Menu &list = d->menu("subtitle")("list");
+	int idx = d->sub.size();
+	for (int i=0; i<file.size(); ++i) {
+		Core::Subtitle sub;
+		if (sub.load(file[i], enc)) {
+			for (int j=0; j<sub.size(); ++j, ++idx) {
+				d->subIdxes.append(idx);
+				d->sub.append(sub[j]);
+				QAction *action = list.addActionToGroupWithoutKey(
+						d->sub[idx].name(), true);
+				action->setData(idx);
+				if (check) {
+					d->changingSubtitle = true;
+					action->setChecked(true);
+				}
+			}
+		}
+	}
+	if (d->changingSubtitle) {
+		d->changingSubtitle = false;
+		updateSubtitle();
+	}
+}
+
 void MainWindow::dropEvent(QDropEvent *event) {
 	if (!event->mimeData()->hasUrls())
 		return;
-	QList<QUrl> urls = event->mimeData()->urls();
-	if (!urls.isEmpty()) {
-// 		if (urls.size() > 1) {
-// 			Core::Playlist pl;
-// 			for (int i=0; i<urls.size(); ++i)
-// 				pl.append(urls[i]);
-// 			d->model->setPlaylist(pl);
-// 			d->model->play(0);
-// 			RecentInfo::get()->stackSource(urls[0]);
-// 		} else
-			open(urls[0]);
+	const QList<QUrl> urls = event->mimeData()->urls();
+	if (urls.isEmpty())
+		return;
+	Core::Playlist playlist;
+	QStringList subList;
+	for (int i=0; i<urls.size(); ++i) {
+		const QString suffix = QFileInfo(urls[i].path()).suffix().toLower();
+		if (suffix == "pls") {
+			Core::Playlist list;
+			list.load(urls[i]);
+			playlist += list;
+		} else if (Core::Info::subtitleExtension().contains(suffix)) {
+			subList << urls[i].toLocalFile();
+		} else if (Core::Info::videoExtension().contains(suffix)
+				|| Core::Info::audioExtension().contains(suffix)) {
+			playlist.append(Core::MediaSource(urls[i]));
+		}
 	}
+	if (!playlist.isEmpty()) {
+		d->model->append(playlist);
+	} else if (!subList.isEmpty())
+		appendSubtitle(subList, true, d->pref.subtitleEncoding);
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event) {

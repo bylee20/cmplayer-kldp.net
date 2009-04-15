@@ -79,6 +79,7 @@ private:
 	void commonInitialize();
 	void setupUi();
 // 	void moveEvent(QMoveEvent *event);
+	void appendSubtitle(const QStringList &file, bool check, const QString &enc = QString());
 	void changeEvent(QEvent *event);
 	void closeEvent(QCloseEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);

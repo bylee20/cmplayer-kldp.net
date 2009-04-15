@@ -1,5 +1,7 @@
 #include "toolbox.h"
+#include "mainwindow.h"
 #include "playlistwidget.h"
+#include "recentplayedwidget.h"
 #include "dragcharm.h"
 #include "helper.h"
 #include "videocolorwidget.h"
@@ -34,10 +36,7 @@ public:
 				border: 0px solid #aaa; border-radius: 5px;\
 			}\
 		");
-	}/*
-	void setWidget(QWidget *widget) {
-		
-	}*/
+	}
 	QTabWidget *tab;
 private:
 	class Widget : public QWidget {
@@ -65,18 +64,21 @@ private:
 
 struct ToolBox::Data {
 	PlaylistWidget *playlist;
+	RecentPlayedWidget *recent;
 	VideoColorWidget *color;
 	Frame *frame;
 	DragCharm dragCharm;
 };
 
-ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, QWidget *parent)
-: QDialog(parent, Qt::FramelessWindowHint), d(new Data) {
+ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, MainWindow *mainWindow)
+: QDialog(mainWindow, Qt::FramelessWindowHint), d(new Data) {
 	setFocusPolicy(Qt::NoFocus);
 	d->frame = new Frame(this);
 	d->playlist = new PlaylistWidget(model, d->frame);
+	d->recent = new RecentPlayedWidget(player, d->frame);
 	d->color = new VideoColorWidget(player, d->frame);
 	d->frame->tab->addTab(d->playlist, tr("Playlist"));
+	d->frame->tab->addTab(d->recent, tr("Recent Played"));
 	d->frame->tab->addTab(d->color, tr("Video Color"));
 	setWindowTitle("TOOL BOX");
 	titleBar()->setTitle("TOOL BOX");
@@ -91,6 +93,9 @@ ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, QWidget *parent)
 
 	d->dragCharm.activate(this);
 	d->dragCharm.setBorder(7);
+	
+	connect(d->recent, SIGNAL(openRequested(const QUrl&))
+			, mainWindow, SLOT(open(const QUrl&)));
 }
 
 
@@ -118,4 +123,7 @@ void ToolBox::paintEvent(QPaintEvent */*event*/) {
 void ToolBox::resizeEvent(QResizeEvent *event) {
 	QDialog::resizeEvent(event);
 	d->dragCharm.setRect(boxRect());
+}
+
+void ToolBox::slotStarted() {
 }

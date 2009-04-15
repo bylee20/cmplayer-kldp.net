@@ -5,15 +5,18 @@
 #include "designedwidgetiface.h"
 
 class PlaylistModel;			class VideoPlayer;
+class MainWindow;
 
 class ToolBox : public QDialog, public DesignedWidgetIface {
 	Q_OBJECT
 public:
-	ToolBox(VideoPlayer *player, PlaylistModel *model, QWidget *parent = 0);
+	ToolBox(VideoPlayer *player, PlaylistModel *model, MainWindow *mainWindow);
 	~ToolBox();
 signals:
 	void hidingRequested();
 	void snapRequested();
+private slots:
+	void slotStarted();
 private:
 	QRect boxRect() const {return QRect(3, 3, width()-6, height() - 6);}
 	void closeEvent(QCloseEvent *event);

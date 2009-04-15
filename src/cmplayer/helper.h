@@ -14,7 +14,6 @@ public:
 private:
 	static Helper *get() {static Helper obj; return &obj;}
 	struct Data;
-	friend struct Data;
 	Helper();
 	Data *d;
 };

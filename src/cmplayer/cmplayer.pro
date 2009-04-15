@@ -37,7 +37,8 @@ SOURCES += main.cpp \
  button.cpp \
  videocolorwidget.cpp \
  verticaltext.cpp \
- pref_dialog.cpp
+ pref_dialog.cpp \
+ recentplayedwidget.cpp
 HEADERS += mainwindow.h \
 	abrepeatdialog.h \
 	playinfowidget.h \
@@ -76,7 +77,8 @@ HEADERS += mainwindow.h \
  button.h \
  videocolorwidget.h \
  verticaltext.h \
- pref_dialog.h
+ pref_dialog.h \
+ recentplayedwidget.h
 FORMS += ./ui/abrepeatdialog.ui \
 	./ui/prefosdwidget.ui \
 	ui/geturldialog.ui \

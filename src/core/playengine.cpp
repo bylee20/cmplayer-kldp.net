@@ -341,7 +341,7 @@ void PlayEngine::setState(State state) {
 	if (d->state != state) {
 		const State old = d->state;
 		emit stateChanged(d->state = state, old);
-		if (old == Stopped && d->state == Playing)
+		if ((old == Stopped || old == Finished) && d->state == Playing)
 			emit started();
 	}
 }
