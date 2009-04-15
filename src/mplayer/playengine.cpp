@@ -81,7 +81,6 @@ struct PlayEngine::Data {
 	QMap<QString, int> tracks;
 	Thread thread;
 	QMap<QString, QString> cmd;
-	QStringList option;
 };
 
 PlayEngine::PlayEngine(QObject *parent)
@@ -103,11 +102,6 @@ PlayEngine::PlayEngine(QObject *parent)
 			, this, SLOT(slotStateChanged(Core::State, Core::State)));
 	connect(d->renderer, SIGNAL(osdRectChanged(const QRect&))
 			, this, SLOT(slotOsdRectChanged()));
-	
-	const QString option
-			 =  QString::fromLocal8Bit(qgetenv("CMPLAYER_MPLAYER_OPTION")).trimmed();
-	if (!option.isEmpty())
-		d->option = option.split(' ');
 }
 
 PlayEngine::~PlayEngine() {
@@ -186,10 +180,8 @@ void PlayEngine::updateInfo() {
 		}
 		d->tracks.clear();
 		QMap<int, QString>::const_iterator it = d->mediaInfo.tracks().begin();
-		const QString track = "Track %1 %2";
-		for (int i=0; it != d->mediaInfo.tracks().end(); ++it, ++i) {
-			d->tracks[track.arg(i).arg(it.value())] = it.key();
-		}
+		for (int i=0; it != d->mediaInfo.tracks().end(); ++it, ++i)
+			d->tracks[makeTrackName(i, it.value())] = it.key();
 		setTracks(d->tracks.keys());
 	}
 }
@@ -259,11 +251,11 @@ bool PlayEngine::start(int time) {
 		args << "-vf-add" << "eq2";
 	if (time > 1000)
 		args << "-ss" << QString::number(double(time)/1000.);
-	if (!d->option.isEmpty())
-		args += d->option;
+	if (!d->info.option().isEmpty())
+		args += d->info.option();
 	args << (source.isDisc() ? "dvd://" : source.url().toString());
-	qDebug("%s %s", "mplayer", qPrintable(args.join(" ")));
-	d->proc->start("mplayer", args);
+	qDebug("%s %s", qPrintable(d->info.executable()), qPrintable(args.join(" ")));
+	d->proc->start(d->info.executable(), args);
 	if (d->proc->waitForStarted()) {
 		updateSubtitle(subtitle());
 		updateVolume();

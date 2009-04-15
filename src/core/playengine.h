@@ -116,6 +116,7 @@ signals:
 	void currentSpuChanged(const QString &spu);
 	void snapshotTaken(const QImage &image);
 protected:
+	static QString makeTrackName(int nth, const QString &lang = QString());
 	static bool isSame(double v1, double v2) {return qAbs(v1-v2) < 1.0e-5;}
 	double realVolume() const;
 	void setHasVideo(bool has);
@@ -126,8 +127,8 @@ protected:
 	void setState(State state);
 	void setDuration(int duration);
 	void setSeekable(bool seekable);
-	void setTracks(const QStringList &tracks, const QString &track = QString::null);
-	void setSpus(const QStringList &spus, const QString &spu = QString::null);
+	void setTracks(const QStringList &tracks, const QString &track = QString());
+	void setSpus(const QStringList &spus, const QString &spu = QString());
 	void setFrameRate(double rate);
 	virtual bool updateCurrentSpu(const QString &/*spu*/) {return false;}
 	virtual bool updateCurrentTrack(const QString &/*track*/) {return false;}

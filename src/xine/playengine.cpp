@@ -220,28 +220,27 @@ void PlayEngine::updateTracks() {
 	static const int MaxCountInfo = XINE_STREAM_INFO_MAX_AUDIO_CHANNEL;
 	const int count = xine_get_stream_info(d->stream.stream, MaxCountInfo);
 	d->tracks.clear();
-	d->tracks["Auto Track"] = -1;
 	char buffer[256] = {'\0'};
+	QStringList tracks;
 	for(int i=0; i<count; ++i) {
-		QString track = "Track " + QString::number(i+1);
-		if (xine_get_audio_lang(d->stream.stream, i, buffer)) {
+		QString lang;
+		if (xine_get_audio_lang(d->stream.stream, i, buffer))
 			const QString lang = QString::fromLocal8Bit(buffer);
-			if (!lang.isEmpty())
-				track += " : " + lang;
-		}
+		const QString track = makeTrackName(i+1, lang);
 		d->tracks[track] = i;
+		tracks.push_back(track);
 	}
-	int idx = xine_get_param(d->stream.stream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL) + 1;
-	const QStringList tracks = d->tracks.keys();
-	if (idx < 0 || idx >= tracks.size())
-		idx = 0;
-	setTracks(tracks, tracks[0]);
+	const int idx = xine_get_param(d->stream.stream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL);
+	setTracks(tracks, (idx < 0 ? QString() : tracks[idx]));
 }
 
 bool PlayEngine::updateCurrentTrack(const QString &track) {
-	if (!d->stream.stream || !d->tracks.contains(track))
+	if (!d->stream.stream)
 		return false;
-	xine_set_param(d->stream.stream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL, d->tracks[track]);
+	const QMap<QString, int>::const_iterator it = d->tracks.find(track);
+	if (it == d->tracks.end())
+		return false;
+	xine_set_param(d->stream.stream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL, it.value());
 	return true;
 }
 

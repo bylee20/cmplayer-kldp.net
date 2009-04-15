@@ -282,6 +282,7 @@ void VideoPlayer::setBackend(const QString &name) {
 	}
 	Core::PlayEngine *engine = it.value();
 	d->stack->addWidget(engine->widget());
+	engine->setCurrentSource(d->source);
 	engine->setSpeed(TO_RATE(d->speed));
 	engine->setMuted(d->muted);
 	engine->setVolume(d->volume);
@@ -293,10 +294,10 @@ void VideoPlayer::setBackend(const QString &name) {
 	engine->setSubtitle(d->sub);
 	engine->setSubtitleVisible(d->subVisible);
 	engine->setSubtitleStyle(d->subStyle);
-	engine->setCurrentSource(d->source);
 	engine->setVolumeNormalized(d->volNorm);
 	engine->setUseSoftwareEqualizer(d->softEq);
 	engine->setColorProperty(d->color);
+	engine->setCurrentTrack(d->track);
 	connect(engine, SIGNAL(currentSourceChanged(const Core::MediaSource&))
 			, this, SIGNAL(currentSourceChanged(const Core::MediaSource&)));
 	connect(engine, SIGNAL(colorPropertyChanged(const Core::ColorProperty&))

@@ -429,24 +429,23 @@ void PlayEngine::updateVideo() {
 
 void PlayEngine::setTracks(const QStringList &tracks, const QString &track) {
 	if (d->tracks != tracks) {
-		int idx = -1;
-		if (tracks.isEmpty()) {
-			d->tracks.clear();
-			d->tracks.append("Auto Track");
-			idx = 0;
-		} else
-			d->tracks = tracks;
+		d->tracks.clear();
+		d->tracks.append("Auto Track");
+		d->tracks += tracks;
 		emit tracksChanged(d->tracks);
-		if (!d->tracks.isEmpty())
-			idx = d->tracks.indexOf(track);
-		if (idx != -1)
-			emit currentTrackChanged(d->track = d->tracks[idx]);
 	}
+	d->track = (!track.isEmpty() && d->tracks.contains(track)) ? track : d->tracks[0];
+	emit currentTrackChanged(d->track);
 }
 
 void PlayEngine::setCurrentTrack(const QString &track) {
-	if (d->track != track && updateCurrentTrack(track))
-		emit currentTrackChanged(d->track = track);
+	if (d->track != track) {
+		int idx = d->tracks.indexOf(track);
+		if (idx == 0)
+			idx = (d->tracks.size() < 2) ? -1 : 1;
+		if (idx > 0 && updateCurrentTrack(d->tracks[idx]))
+			emit currentTrackChanged(d->track = track);
+	}
 }
 
 void PlayEngine::setSpus(const QStringList &spus, const QString &spu) {
@@ -522,6 +521,10 @@ void PlayEngine::triggerSnapshot() {
 	emit snapshotTaken(image);
 }
 
+QString PlayEngine::makeTrackName(int nth, const QString &lang) {
+	const QString name = "Track " + QString::number(nth);
+	return lang.isEmpty() ? name : name + " (" + lang + ')';
+}
 
 }
 

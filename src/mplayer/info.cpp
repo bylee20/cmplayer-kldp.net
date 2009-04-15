@@ -9,16 +9,23 @@ namespace MPlayer {
 Info::Data Info::d;
 	
 Info::Data::Data() {
-	
+	got = false;
 }
 
 void Info::getInfo() const {
-// 	Config config;
+	if (d.got)
+		return;
+	const QString option = QString::fromLocal8Bit(qgetenv("CMPLAYER_MPLAYER_OPTION")).trimmed();
+	if (!option.isEmpty())
+		d.option = option.split(' ');
+	d.exe = QString::fromLocal8Bit(qgetenv("CMPLAYER_MPLAYER_EXECUTABLE")).trimmed();
+	if (d.exe.isEmpty())
+		d.exe = "mplayer";
 	QProcess proc;
 	QStringList args;
 	args << "-identify" << "-vo" << "help" << "-ao" << "help"
 		<< "-vf" << "help" << "-af" << "help";
-	proc.start("mplayer", args);
+	proc.start(d.exe, args);
 	if (!proc.waitForFinished())
 		proc.kill();
 	QRegExp rxOut("^\\s+(\\S+)\\s+(.*)$");
@@ -75,6 +82,7 @@ void Info::getInfo() const {
 		}
 		what = Nothing;
 	}
+	d.got = true;
 }
 
 QString Info::compileVersion() const {
