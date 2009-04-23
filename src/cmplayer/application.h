@@ -1,11 +1,11 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <QtGui/QApplication>
+#include "qtsingleapplication/qtsingleapplication.h"
 
 class QUrl;
 
-class Application : public QApplication {
+class Application : public QtSingleApplication {
 	Q_OBJECT
 public:
 	Application(int &argc, char **argv);
@@ -17,11 +17,12 @@ private slots:
 	void initialize();
 	void open(const QString &url);
 	void raise();
+	void parseMessage(const QString &message);
 private:
 	struct Data;
 	Data *d;
 };
 
-Application *app();
+inline Application *app() {return static_cast<Application*>(qApp);}
 
 #endif

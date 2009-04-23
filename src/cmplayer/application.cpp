@@ -1,5 +1,4 @@
 #include "application.h"
-#include "appconnection.h"
 #include "mainwindow.h"
 #include "pref.h"
 #include "translator.h"
@@ -11,64 +10,18 @@
 #include <QtGui/QStyle>
 
 struct Application::Data {
-	AppConnection connection;
 	MainWindow *main;
 	QString defStyle;
 };
 
 Application::Application(int &argc, char **argv)
-: QApplication(argc, argv), d(new Data) {
+: QtSingleApplication("net.xylosper.CMPlayer", argc, argv), d(new Data) {
 	d->defStyle = style()->objectName();
 	Translator::load(Pref::get().locale);
 	setStyle(Pref::get().windowStyle);
-	setStyleSheet("\
-		Button {\
-			margin:0px; padding: 2px;\
-		}\
-		Button#flat {\
-			border: none; border-radius: 3px;\
-		}\
-		Button#block {\
-			border: 1px solid #999; border-radius: 0px; padding: 1px;\
-			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-		}\
-			Button#flat:hover, Button#flat:checked, Button#block:hover {\
-			border: 1px solid #6ad; padding: 1px;\
-		}\
-		Button#flat:pressed, Button#block:pressed {\
-			border: 2px solid #6ad; padding: 0px;\
-		}\
-		Button#block:checked, Button#block:pressed {\
-			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #777, stop:1 #bbb);\
-		}\
-		JumpSlider::groove:horizontal {\
-			border: 1px solid #6ad; height: 3px; margin: 0px 0px; padding: 0px;\
-			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-		}\
-		JumpSlider::handle:horizontal {\
-			background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #aaa, stop:1 #999);\
-			border: 1px solid #5c5c5c; border-radius: 2px;\
-			width: 5px; margin: -2px 0px; padding: 1px;\
-		}\
-		JumpSlider::handle:horizontal:hover {\
-			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-			border: 1px solid #6ad; padding: 1px;\
-		}\
-		JumpSlider::handle:horizontal:pressed {\
-			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-			border: 2px solid #6ad; padding: 0px;\
-		}\
-		JumpSlider::add-page:horizontal {\
-			border: 1px solid #999; height: 3px; margin: 0px 0px; padding: 0px;\
-			background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #333, stop:1 #bbb);\
-		}"
-	);
 	d->main = 0;
 	setQuitOnLastWindowClosed(false);
-	connect(&d->connection, SIGNAL(openRequested(const QString&))
-			, this, SLOT(open(const QString &)));
-	connect(&d->connection, SIGNAL(raiseRequested()), this, SLOT(raise()));
-	QTimer::singleShot(10, this, SLOT(initialize()));
+	QTimer::singleShot(1, this, SLOT(initialize()));
 }
 
 Application::~Application() {
@@ -78,17 +31,61 @@ Application::~Application() {
 
 void Application::initialize() {
 	const QUrl url = MainWindow::getUrlFromCommandLine();
-	if (!Pref::get().singleApplication || d->connection.isUnique()) {
+	if (Pref::get().singleApplication && sendMessage("wakeUp")) {
+		if (!url.isEmpty())
+			sendMessage("url " + url.toString());
+		quit();
+	} else {
+		setStyleSheet("\
+			Button {\
+				margin:0px; padding: 2px;\
+			}\
+			Button#flat {\
+				border: none; border-radius: 3px;\
+			}\
+			Button#block {\
+				border: 1px solid #999; border-radius: 0px; padding: 1px;\
+				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
+			}\
+				Button#flat:hover, Button#flat:checked, Button#block:hover {\
+				border: 1px solid #6ad; padding: 1px;\
+			}\
+			Button#flat:pressed, Button#block:pressed {\
+				border: 2px solid #6ad; padding: 0px;\
+			}\
+			Button#block:checked, Button#block:pressed {\
+				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #777, stop:1 #bbb);\
+			}\
+			JumpSlider::groove:horizontal {\
+				border: 1px solid #6ad; height: 3px; margin: 0px 0px; padding: 0px;\
+				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
+			}\
+			JumpSlider::handle:horizontal {\
+				background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #aaa, stop:1 #999);\
+				border: 1px solid #5c5c5c; border-radius: 2px;\
+				width: 5px; margin: -2px 0px; padding: 1px;\
+			}\
+			JumpSlider::handle:horizontal:hover {\
+				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
+				border: 1px solid #6ad; padding: 1px;\
+			}\
+			JumpSlider::handle:horizontal:pressed {\
+				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
+				border: 2px solid #6ad; padding: 0px;\
+			}\
+			JumpSlider::add-page:horizontal {\
+				border: 1px solid #999; height: 3px; margin: 0px 0px; padding: 0px;\
+				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #333, stop:1 #bbb);\
+			}"
+		);
 		if (url.isEmpty())
 			d->main = new MainWindow;
 		else
 			d->main = new MainWindow(url);
 		d->main->show();
-	} else {
-		if (!url.isEmpty())
-			d->connection.requestToOpen(url.toString());
-		d->connection.requestToRaise();
-		quit();
+		setActivationWindow(d->main, false);
+		connect(this, SIGNAL(messageReceived(const QString&))
+				, this, SLOT(parseMessage(const QString&)));
 	}
 }
 
@@ -125,6 +122,10 @@ void Application::setStyle(const QString &name) {
 		QApplication::setStyle(QStyleFactory::create(key));
 }
 
-Application *app() {
-	return static_cast<Application*>(qApp);
+void Application::parseMessage(const QString &message) {
+	if (message == "wakeUp") {
+		activateWindow();
+	} else if (message.left(3) == "url") {
+		open(message.right(message.size()-4));
+	}
 }

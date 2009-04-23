@@ -24,7 +24,6 @@ SOURCES += main.cpp \
 	translator.cpp \
 	geturldialog.cpp \
 	aboutdialog.cpp \
-	appconnection.cpp \
 	application.cpp \
 	playlistview.cpp \
 	snapshotdialog.cpp \
@@ -38,7 +37,13 @@ SOURCES += main.cpp \
  videocolorwidget.cpp \
  verticaltext.cpp \
  pref_dialog.cpp \
- recentplayedwidget.cpp
+ recentplayedwidget.cpp \
+ qtsingleapplication/qtlocalpeer.cpp \
+ qtsingleapplication/qtlockedfile.cpp \
+ qtsingleapplication/qtlockedfile_unix.cpp \
+ qtsingleapplication/qtlockedfile_win.cpp \
+ qtsingleapplication/qtsingleapplication.cpp \
+ qtsingleapplication/qtsinglecoreapplication.cpp
 HEADERS += mainwindow.h \
 	abrepeatdialog.h \
 	playinfowidget.h \
@@ -64,7 +69,6 @@ HEADERS += mainwindow.h \
 	translator.h \
 	geturldialog.h \
 	aboutdialog.h \
-	appconnection.h \
 	application.h \
 	playlistview.h \
 	snapshotdialog.h \
@@ -78,7 +82,11 @@ HEADERS += mainwindow.h \
  videocolorwidget.h \
  verticaltext.h \
  pref_dialog.h \
- recentplayedwidget.h
+ recentplayedwidget.h \
+ qtsingleapplication/qtlocalpeer.h \
+ qtsingleapplication/qtlockedfile.h \
+ qtsingleapplication/qtsingleapplication.h \
+ qtsingleapplication/qtsinglecoreapplication.h
 FORMS += ./ui/abrepeatdialog.ui \
 	./ui/prefosdwidget.ui \
 	ui/geturldialog.ui \
@@ -86,7 +94,7 @@ FORMS += ./ui/abrepeatdialog.ui \
 	ui/snapshotdialog.ui \
  ui/pref_dialog.ui
 
-CONFIG += debug_and_release qdbus
+CONFIG += debug_and_release qdbus network
 
 LIBS += -L../bin
 

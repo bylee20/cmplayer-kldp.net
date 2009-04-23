@@ -5,7 +5,7 @@
 
 namespace Core {
 
-enum State {Playing, Stopped, Paused, Finished};
+enum State {Playing, Stopped, Paused, Finished, Loading, Error};
 
 enum VideoType {AutoVideo = 0, OpenGL, Native};
 
