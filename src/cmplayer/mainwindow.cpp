@@ -53,7 +53,7 @@ struct MainWindow::Data {
 	QList<int> subIdxes;
 	QSize prevWinSize;
 	RecentInfo *recent;
-	bool pausedByHiding, changingOnTop, changingSubtitle;
+	bool pausedByHiding, changingOnTop, changingSubtitle, showToolBox;
 	VideoPlayer *player;
 	const Pref &pref;
 	Menu &menu;
@@ -93,7 +93,7 @@ MainWindow::~MainWindow() {
 void MainWindow::commonInitialize() {
 	d = new Data(Menu::create(this));
 
-	d->changingSubtitle = d->changingOnTop = d->pausedByHiding = false;
+	d->showToolBox = d->changingSubtitle = d->changingOnTop = d->pausedByHiding = false;
 	d->player = new VideoPlayer(this);
 	d->repeater = new ABRepeatDialog(this);
 	d->snapshot = new SnapshotDialog(this);
@@ -953,11 +953,19 @@ void MainWindow::showEvent(QShowEvent *event) {
 			d->player->play();
 		d->pausedByHiding = false;
 	}
+	if (d->showToolBox) {
+		d->toolBox->show();
+		d->showToolBox = false;
+	}
 }
 
 void MainWindow::hideEvent(QHideEvent *event) {
 	QMainWindow::hideEvent(event);
 	updatePauseMinimized();
+	if (d->toolBox->isVisible()) {
+		d->toolBox->hide();
+		d->showToolBox = true;
+	}
 }
 
 void MainWindow::updatePauseMinimized() {
