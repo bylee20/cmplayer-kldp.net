@@ -179,7 +179,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const {
 		if (col == 0)
 			return source.displayName();
 		else if (col == 1)
-			return source.isLocalFile() ? source.filePath() : source.url().toString();
+			return source.mrl().location();
 	} else if (role == Qt::FontRole) {
 		if (row == d->row)
 			return d->font;
@@ -280,7 +280,7 @@ QMimeData *PlaylistModel::mimeData(const QModelIndexList &indexes) const {
 	for (int i=0; i<indexes.size(); ++i) {
 		const int row = indexes[i].row();
 		if (row != -1 && !rows.contains(row)) {
-			stream << row << d->list[row].url() << (currentRow() == row);
+			stream << row << d->list[row].mrl() << (currentRow() == row);
 			rows << row;
 		}
 	}
@@ -305,7 +305,7 @@ bool PlaylistModel::dropMimeData(const QMimeData *data, Qt::DropAction action
 		bool current = false;
 		int r = -1;
 		stream >> r >> url >> current;
-		list.insert(r, Core::MediaSource(url));
+		list.insert(r, url);
 		if (current)
 			curRow = r;
 	}

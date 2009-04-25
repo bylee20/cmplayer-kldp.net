@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include "pref.h"
 #include "translator.h"
+#include <core/mrl.h>
 #include <QtCore/QTimer>
 #include <QtCore/QUrl>
 #include <QtCore/QFileInfo>
@@ -30,10 +31,10 @@ Application::~Application() {
 }
 
 void Application::initialize() {
-	const QUrl url = MainWindow::getUrlFromCommandLine();
+	const Core::Mrl mrl = MainWindow::getMrlFromCommandLine();
 	if (Pref::get().singleApplication && sendMessage("wakeUp")) {
-		if (!url.isEmpty())
-			sendMessage("url " + url.toString());
+		if (!mrl.isEmpty())
+			sendMessage("mrl " + mrl.toString());
 		quit();
 	} else {
 		setStyleSheet("\
@@ -78,10 +79,10 @@ void Application::initialize() {
 				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #333, stop:1 #bbb);\
 			}"
 		);
-		if (url.isEmpty())
+		if (mrl.isEmpty())
 			d->main = new MainWindow;
 		else
-			d->main = new MainWindow(url);
+			d->main = new MainWindow(mrl);
 		d->main->show();
 		setActivationWindow(d->main, false);
 		connect(this, SIGNAL(messageReceived(const QString&))
@@ -92,17 +93,17 @@ void Application::initialize() {
 QUrl Application::getUrlFromCommandLine() {
 	const QStringList args = arguments();
 	if (args.size() > 1) {
-		QUrl url(args.last());
-		if (url.scheme().isEmpty())
-			url = QUrl::fromLocalFile(QFileInfo(args.last()).absoluteFilePath());
-		return url;
+		QUrl mrl(args.last());
+		if (mrl.scheme().isEmpty())
+			mrl = QUrl::fromLocalFile(QFileInfo(args.last()).absoluteFilePath());
+		return mrl;
 	} else
 		return QUrl();
 }
 
-void Application::open(const QString &url) {
-	if (!url.isEmpty() && d->main)
-		d->main->open(QUrl(url));
+void Application::open(const QString &mrl) {
+	if (!mrl.isEmpty() && d->main)
+		d->main->openMrl(mrl);
 }
 
 void Application::raise() {
@@ -125,7 +126,7 @@ void Application::setStyle(const QString &name) {
 void Application::parseMessage(const QString &message) {
 	if (message == "wakeUp") {
 		activateWindow();
-	} else if (message.left(3) == "url") {
+	} else if (message.left(3) == "mrl") {
 		open(message.right(message.size()-4));
 	}
 }

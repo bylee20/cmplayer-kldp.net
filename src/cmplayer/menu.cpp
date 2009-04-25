@@ -324,7 +324,7 @@ void Menu::updatePref() {
 	open["dvd"]->setText(tr("DVD"));
 
 	Menu &recent = open("recent");
-	recent.setTitle(tr("Recent Played"));
+	recent.setTitle(tr("Recent Open"));
 	recent["clear"]->setText(tr("Clear"));
 	
 	Menu &screen = root("screen");

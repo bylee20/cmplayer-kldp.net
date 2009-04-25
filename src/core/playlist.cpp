@@ -27,7 +27,7 @@ bool Playlist::save(const QString &filePath) const {
 	const int count = size();
 	out << "[playlist]" << endl << "NumberOfEntries=" << count << endl << endl;
 	for (int i=0; i<count; ++i)
-		out << "File" << i+1 << '=' << at(i).url().toString() << endl
+		out << "File" << i+1 << '=' << at(i).mrl().toString() << endl
 				<< "Length" << i+1 << '=' << -1 << endl << endl;
 	out << "Version=2" << endl;
 	return true;
@@ -52,7 +52,7 @@ bool Playlist::load(QFile *file, const QString &enc) {
 			continue;
 		static QRegExp rxFile("^File\\d+=(.+)$");
 		if (rxFile.indexIn(line) != -1)
-			append(MediaSource(QUrl(rxFile.cap(1))));
+			append(MediaSource(Mrl(rxFile.cap(1))));
 	}
 	return true;
 }

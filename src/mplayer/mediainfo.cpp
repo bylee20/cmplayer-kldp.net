@@ -47,7 +47,7 @@ bool MediaInfo::get(const Core::MediaSource &source) {
 	reset();
 	QStringList args;
 	args << "-ao" << "null" << "-vo" << "null" << "-frames" << "0" << "-identify";
-	args << (source.isDisc() ? "dvd://" : source.url().toString());
+	args << (source.isDisc() ? "dvd://" : source.mrl().toString());
 	MPlayerProcess proc;
 	proc.setMediaInfo(this);
 	static Info info;

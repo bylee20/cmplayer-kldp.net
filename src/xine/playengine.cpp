@@ -274,7 +274,7 @@ void PlayEngine::play(int time) {
 	if (!d->stream.stream)
 		return;
 	const Core::MediaSource src = currentSource();
-	const QString mrl = src.isDisc() ? "dvd:/" : src.url().toString();
+	const QString mrl = src.isDisc() ? "dvd:/" : src.mrl().toString();
 	if (xine_open(d->stream.stream, mrl.toLocal8Bit())) {
 		updateStreamInfo();
 		xine_play(d->stream.stream, 0, time);

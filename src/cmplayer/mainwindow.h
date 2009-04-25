@@ -12,18 +12,19 @@ class ControlWidget;
 namespace Core {
 class BackendIface;				class MediaSource;
 class Playlist;					class Subtitle;
+class Mrl;
 }
 
 class MainWindow : public QMainWindow/*, public DesignedWidgetIface*/ {
 	Q_OBJECT
 public:
-	MainWindow(const QUrl &url);
+	MainWindow(const Core::Mrl &mrl);
 	MainWindow();
 	~MainWindow();
 	bool isOnTop() const {return windowFlags() & Qt::WindowStaysOnTopHint;}
-	static QUrl getUrlFromCommandLine();
+	static Core::Mrl getMrlFromCommandLine();
 public slots:
-	void open(const QUrl &url, const QString &enc = QString());
+	void openMrl(const Core::Mrl &mrl, const QString &enc = QString());
 private slots:
 	void open();
 	void openSubFile();

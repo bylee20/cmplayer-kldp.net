@@ -1,5 +1,6 @@
 #include "toolbox.h"
 #include "mainwindow.h"
+#include "favoritewidget.h"
 #include "playlistwidget.h"
 #include "recentplayedwidget.h"
 #include "dragcharm.h"
@@ -64,6 +65,7 @@ private:
 
 struct ToolBox::Data {
 	PlaylistWidget *playlist;
+	FavoriteWidget *favorite;
 	RecentPlayedWidget *recent;
 	VideoColorWidget *color;
 	Frame *frame;
@@ -75,9 +77,11 @@ ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, MainWindow *mainWind
 	setFocusPolicy(Qt::NoFocus);
 	d->frame = new Frame(this);
 	d->playlist = new PlaylistWidget(model, d->frame);
+	d->favorite = new FavoriteWidget(player, d->frame);
 	d->recent = new RecentPlayedWidget(player, d->frame);
 	d->color = new VideoColorWidget(player, d->frame);
 	d->frame->tab->addTab(d->playlist, tr("Playlist"));
+	d->frame->tab->addTab(d->favorite, tr("Favorites"));
 	d->frame->tab->addTab(d->recent, tr("Recent Played"));
 	d->frame->tab->addTab(d->color, tr("Video Color"));
 	setWindowTitle("TOOL BOX");
@@ -94,8 +98,7 @@ ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, MainWindow *mainWind
 	d->dragCharm.activate(this);
 	d->dragCharm.setBorder(7);
 	
-	connect(d->recent, SIGNAL(openRequested(const QUrl&))
-			, mainWindow, SLOT(open(const QUrl&)));
+	connect(d->recent, SIGNAL(openRequested(Core::Mrl)), mainWindow, SLOT(openMrl(Core::Mrl)));
 }
 
 

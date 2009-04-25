@@ -1,7 +1,7 @@
 #include "recentplayedwidget.h"
+#include <core/mrl.h>
 #include <QtCore/QDebug>
 #include "videoplayer.h"
-#include <QtCore/QFileInfo>
 #include <core/info.h>
 #include <QtCore/QSettings>
 #include <QtGui/QLabel>
@@ -50,26 +50,19 @@ RecentPlayedWidget::~RecentPlayedWidget() {
 	delete d;
 }
 
-QTreeWidgetItem *RecentPlayedWidget::makeItem(const QUrl &url) {
+QTreeWidgetItem *RecentPlayedWidget::makeItem(const Core::Mrl &mrl) {
 	QTreeWidgetItem *item = new QTreeWidgetItem;
-	item->setData(0, Qt::UserRole, url);
-	if (url.scheme() == "file") {
-		const QFileInfo file(url.toLocalFile());
-		item->setText(0, file.fileName());
-		item->setText(1, file.absoluteFilePath());
-	} else {
-		const QString loc = url.toString();
-		item->setText(0, loc);
-		item->setText(1, loc);
-	}
+	item->setData(0, Qt::UserRole, mrl);
+	item->setText(0, mrl.isLocalFile() ? mrl.fileName() : mrl.location());
+	item->setText(1, mrl.location());
 	return item;
 }
 
 void RecentPlayedWidget::slotStarted() {
-	const QUrl url = d->player->currentSource().url();
+	const Core::Mrl mrl = d->player->currentSource().mrl();
 	QTreeWidgetItem *item = 0;
 	for (int i=0; i<d->tree->topLevelItemCount(); ++i) {
-		if (d->tree->topLevelItem(i)->data(0, Qt::UserRole).toUrl() == url) {
+		if (d->tree->topLevelItem(i)->data(0, Qt::UserRole).toUrl() == mrl) {
 			if (i == 0)
 				return;
 			item = d->tree->takeTopLevelItem(i);
@@ -77,7 +70,7 @@ void RecentPlayedWidget::slotStarted() {
 		}
 	}
 	if (!item)
-		item = makeItem(url);
+		item = makeItem(mrl);
 	d->tree->insertTopLevelItem(0, item);
 	updateSize();
 }

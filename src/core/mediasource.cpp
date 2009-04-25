@@ -1,18 +1,20 @@
 #include "mediasource.h"
-#include <QFileInfo>
-#include <QUrl>
-#include <QString>
 
 namespace Core {
 
-MediaSource::MediaSource()
-: d(new Data) {}
+QString MediaSource::displayName() const {
+	if (d->type == LocalFile)
+		return d->mrl.fileName();
+	else if (isDisc())
+		return QObject::tr("DVD Title");
+	else
+		return d->mrl.toString();
+}
 
-MediaSource::MediaSource(const QUrl &url)
-: d(new Data) {
-	d->url = url;
-	if (!url.isEmpty()) {
-		const QString scheme = url.scheme();
+void MediaSource::init(const Mrl &mrl) {
+	d->mrl = mrl;
+	if (!mrl.isEmpty()) {
+		const QString scheme = mrl.scheme();
 		if (scheme == "file")
 			d->type = LocalFile;
 		else if (scheme == "dvd") {
@@ -20,18 +22,6 @@ MediaSource::MediaSource(const QUrl &url)
 		} else
 			d->type = Url;
 	}
-}
-
-MediaSource::MediaSource(const MediaSource &other)
-: d(other.d) {}
-
-QString MediaSource::displayName() const {
-	if (d->type == LocalFile)
-		return QFileInfo(filePath()).fileName();
-	else if (isDisc())
-		return QObject::tr("DVD Title");
-	else
-		return d->url.toString();
 }
 
 }

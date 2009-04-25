@@ -253,7 +253,7 @@ bool PlayEngine::start(int time) {
 		args << "-ss" << QString::number(double(time)/1000.);
 	if (!d->info.option().isEmpty())
 		args += d->info.option();
-	args << (source.isDisc() ? "dvd://" : source.url().toString());
+	args << (source.isDisc() ? "dvd://" : source.mrl().toString());
 	qDebug("%s %s", qPrintable(d->info.executable()), qPrintable(args.join(" ")));
 	d->proc->start(d->info.executable(), args);
 	if (d->proc->waitForStarted()) {

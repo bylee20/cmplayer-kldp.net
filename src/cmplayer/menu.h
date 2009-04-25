@@ -6,6 +6,8 @@
 #include <QtGui/QActionGroup>
 #include <QtCore/QHash>
 
+namespace Core {class Mrl;}
+
 class ActionGroup : public QActionGroup {
 	Q_OBJECT
 public:
@@ -47,7 +49,7 @@ signals:
 	void triggered(int data);
 	void triggered(double data);
 	void triggered(const QString &data);
-	void triggered(const QUrl &data);
+	void triggered(const Core::Mrl &data);
 private slots:
 	void emitData(QAction *action);
 };

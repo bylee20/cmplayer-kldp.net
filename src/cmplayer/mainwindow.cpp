@@ -65,10 +65,10 @@ struct MainWindow::Data {
 	QRect toolRect;
 };
 
-MainWindow::MainWindow(const QUrl &url)
+MainWindow::MainWindow(const Core::Mrl &mrl)
 : QMainWindow(0/*, Qt::FramelessWindowHint*/) {
 	commonInitialize();
-	open(url);
+	openMrl(mrl);
 }
 
 MainWindow::MainWindow()
@@ -113,19 +113,13 @@ void MainWindow::commonInitialize() {
 	connect(open["file"], SIGNAL(triggered()), this, SLOT(open()));
 	connect(open["url"], SIGNAL(triggered()), this, SLOT(open()));
 	connect(open["dvd"], SIGNAL(triggered()), this, SLOT(open()));
-	connect(open("recent").g(), SIGNAL(triggered(const QUrl &))
-			, this, SLOT(open(const QUrl &)));
-	connect(open("recent")["clear"], SIGNAL(triggered())
-			, d->recent, SLOT(clearStack()));
+	connect(open("recent").g(), SIGNAL(triggered(Core::Mrl)), this, SLOT(openMrl(Core::Mrl)));
+	connect(open("recent")["clear"], SIGNAL(triggered()), d->recent, SLOT(clearStack()));
 	Menu &screen = menu("screen");
-	connect(screen("size").g(), SIGNAL(triggered(double))
-			, this, SLOT(setVideoSize(double)));
-	connect(screen("aspect").g(), SIGNAL(triggered(double))
-			, d->player, SLOT(setAspectRatio(double)));
-	connect(screen("crop").g(), SIGNAL(triggered(double))
-			, d->player, SLOT(setCropRatio(double)));
-	connect(screen("on top").g(), SIGNAL(triggered(QAction*))
-			, this, SLOT(updateOnTop()));
+	connect(screen("size").g(), SIGNAL(triggered(double)), this, SLOT(setVideoSize(double)));
+	connect(screen("aspect").g(), SIGNAL(triggered(double)), d->player, SLOT(setAspectRatio(double)));
+	connect(screen("crop").g(), SIGNAL(triggered(double)), d->player, SLOT(setCropRatio(double)));
+	connect(screen("on top").g(), SIGNAL(triggered(QAction*)), this, SLOT(updateOnTop()));
 	connect(screen["snapshot"], SIGNAL(triggered()), this, SLOT(takeSnapshot()));
 	Menu &play = menu("play");
 	connect(play["dvd menu"], SIGNAL(triggered()), d->player, SLOT(toggleDvdMenu()));
@@ -236,11 +230,7 @@ ControlWidget *MainWindow::createControl(QWidget *parent) {
 
 void MainWindow::updateWindowTitle() {
 	const Core::MediaSource source = d->player->currentSource();
-	QString title;
-	if (source.isLocalFile())
-		title = source.filePath();
-	else if (source.isValid())
-		title = source.url().toString();
+	QString title = source.mrl().location();
 	if (title.isEmpty())
 		title = "CMPlayer";
 	else
@@ -424,7 +414,7 @@ Core::Subtitle MainWindow::loadSubtitle(const Core::MediaSource &source) {
 	if (!source.isLocalFile() || d->pref.subtitleAutoLoad == NoAutoLoad)
 		return Core::Subtitle();
 	const QStringList filter = Core::Info::subtitleExtension().toNameFilter();
-	const QFileInfo file(source.filePath());
+	const QFileInfo file(source.fileName());
 	const QFileInfoList all = file.dir().entryInfoList(filter, QDir::Files, QDir::Name);
 	const QString base = file.completeBaseName();
 	Core::Subtitle subtitle;
@@ -455,7 +445,7 @@ QList<int> MainWindow::selectSubtitle(const Core::MediaSource &source, const Cor
 	if (!source.isLocalFile() || sub.isEmpty())
 		return indexes;
 	QSet<QString> langSet;
-	const QString base = QFileInfo(source.filePath()).completeBaseName();
+	const QString base = QFileInfo(source.fileName()).completeBaseName();
 	for (int i=0; i<sub.size(); ++i) {
 		const QFileInfo file(sub[i].fileName());
 		bool select = false;
@@ -489,15 +479,11 @@ QList<int> MainWindow::selectSubtitle(const Core::MediaSource &source, const Cor
 	return indexes;
 }
 
-QUrl MainWindow::getUrlFromCommandLine() {
+Core::Mrl MainWindow::getMrlFromCommandLine() {
 	const QStringList args = QApplication::arguments();
-	if (args.size() > 1) {
-		QUrl url(args.last());
-		if (url.scheme().isEmpty())
-			url = QUrl::fromLocalFile(QFileInfo(args.last()).absoluteFilePath());
-		return url;
-	} else
-		return QUrl();
+	if (args.size() > 1)
+		return Core::Mrl(args.last());
+	return Core::Mrl();
 }
 
 void MainWindow::open() {
@@ -505,7 +491,7 @@ void MainWindow::open() {
 	if (!action)
 		return;
 	if (action->data().type() == QVariant::Url)
-		open(action->data().toUrl());
+		openMrl(action->data().toUrl());
 	else {
 		const int key = action->data().toInt();
 		if (key == 'f') {
@@ -514,14 +500,16 @@ void MainWindow::open() {
 			const QString filePath = QFileDialog::getOpenFileName(this
 					, tr("Open File"), s[State::LastOpenFile].toString(), filter);
 			if (!filePath.isEmpty()) {
-				s[State::LastOpenFile] = QFileInfo(filePath).absolutePath();
-				open(QUrl::fromLocalFile(filePath));
+				const Core::Mrl mrl = Core::Mrl::fromLocalFile(filePath);
+				s[State::LastOpenFile] = mrl.location();
+				openMrl(mrl);
 			}
 		} else if (key == 'u') {
 			GetUrlDialog dlg(this);
 			if (dlg.exec())
-				open(dlg.url(), dlg.encoding());
+				openMrl(dlg.url(), dlg.encoding());
 		}
+
 	}
 }
 
@@ -532,7 +520,7 @@ Core::Playlist MainWindow::open(const Core::MediaSource &source) {
 		static const QStringList filter
 			= Core::Info::videoExtension().toNameFilter()
 			+ Core::Info::audioExtension().toNameFilter();
-		const QFileInfo file(source.filePath());
+		const QFileInfo file(source.fileName());
 		const QFileInfoList files = file.dir().entryInfoList(filter
 				, QDir::Files, QDir::Name);
 		const QString fileName = file.fileName();
@@ -561,8 +549,7 @@ Core::Playlist MainWindow::open(const Core::MediaSource &source) {
 						continue;
 				}
 			}
-			const QUrl url = QUrl::fromLocalFile(it->absoluteFilePath());
-			list.append(Core::MediaSource(url));
+			list.append(Core::Mrl::fromLocalFile(it->absoluteFilePath()));
 		}
 		if (list.isEmpty())
 			list.append(source);
@@ -572,16 +559,15 @@ Core::Playlist MainWindow::open(const Core::MediaSource &source) {
 	return list;
 }
 
-void MainWindow::open(const QUrl &url, const QString &enc) {
-	const QString suffix = QFileInfo(url.path()).suffix().toLower();
-	const bool isPlaylist = (suffix == "pls");
+void MainWindow::openMrl(const Core::Mrl &mrl, const QString &enc) {
+	const bool isPlaylist = mrl.isPlaylist();
 	Core::Playlist list;
 	if (isPlaylist)
-		list.load(url, enc);
+		list.load(mrl, enc);
 	else
-		list = open(Core::MediaSource(url));
+		list = open(mrl);
 	d->model->setPlaylist(list);
-	d->model->play(isPlaylist ? 0 : list.indexOf(Core::MediaSource(url)));
+	d->model->play(isPlaylist ? 0 : list.indexOf(mrl));
 	show();
 }
 
@@ -718,7 +704,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 			subList << urls[i].toLocalFile();
 		} else if (Core::Info::videoExtension().contains(suffix)
 				|| Core::Info::audioExtension().contains(suffix)) {
-			playlist.append(Core::MediaSource(urls[i]));
+			playlist.append(urls[i]);
 		}
 	}
 	if (!playlist.isEmpty()) {
@@ -872,7 +858,7 @@ void MainWindow::updateRecentActions(const RecentStack &stack) {
 	QList<QAction*> acts = group->actions();
 	for (int i=0; i<stack.size(); ++i) {
 		QAction *act = acts[i];
-		act->setData(stack[i].url());
+		act->setData(stack[i].mrl());
 		act->setText(stack[i].displayName());
 		act->setVisible(stack[i].isValid());
 	}
