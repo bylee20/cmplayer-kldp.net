@@ -94,7 +94,6 @@ FORMS += ./ui/abrepeatdialog.ui \
     ui/snapshotdialog.ui \
     ui/pref_dialog.ui
 CONFIG += debug_and_release \
-    qdbus \
     network
 LIBS += -L../bin
 RESOURCES += rsclist.qrc

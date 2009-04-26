@@ -4,6 +4,7 @@
 #include <core/info.h>
 #include <QtGui/QTreeWidget>
 #include <QtCore/QSettings>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QFileInfo>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -23,6 +24,7 @@ public:
 };
 
 class FavoritesWidget::FolderItem : public FavoritesWidget::Item {
+	Q_DECLARE_TR_FUNCTIONS(FavoritesWidget::FolderItem)
 public:
 	FolderItem(const QString &name = QString()) {
 		setName(name);
@@ -32,6 +34,7 @@ public:
 };
 
 class FavoritesWidget::MrlItem : public FavoritesWidget::Item {
+	Q_DECLARE_TR_FUNCTIONS(FavoritesWidget::MrlItem)
 public:
 	MrlItem() {}
 	MrlItem(const Core::Mrl &mrl, const QString &name = QString()) {
@@ -55,6 +58,7 @@ private:
 };
 
 class FavoritesWidget::ItemDialog : public QDialog {
+	Q_DECLARE_TR_FUNCTIONS(FavoritesWidget::ItemDialog)
 public:
 	ItemDialog(Item *item, QWidget *parent)
 	: QDialog(parent), m_folder(item->isFolder()) {init(item);}
@@ -127,8 +131,8 @@ FavoritesWidget::FavoritesWidget(VideoPlayer *player, QWidget *parent)
 	vbox->addWidget(d->tree);
 
 	d->menu = new QMenu(this);
-	QAction *addNew = d->menu->addAction(tr("Add New"));
-	QAction *addCur = d->menu->addAction(tr("Add Current"));
+	QAction *addNew = d->menu->addAction(tr("Add New Media"));
+	QAction *addCur = d->menu->addAction(tr("Add Current Media"));
 	QAction *addFolder = d->menu->addAction(tr("Add Folder"));
 	QAction *modify = d->menu->addAction(tr("Modify"));
 	QAction *erase = d->menu->addAction(tr("Erase"));

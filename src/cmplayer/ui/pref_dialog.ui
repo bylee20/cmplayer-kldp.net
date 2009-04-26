@@ -1,121 +1,122 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>Pref_Dialog</class>
- <widget class="QDialog" name="Pref_Dialog" >
-  <property name="geometry" >
+ <widget class="QDialog" name="Pref_Dialog">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>572</width>
-    <height>559</height>
+    <width>616</width>
+    <height>553</height>
    </rect>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Preferences</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_12" >
+  <layout class="QVBoxLayout" name="verticalLayout_12">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2" >
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QListWidget" name="list" >
-       <property name="minimumSize" >
+      <widget class="QListWidget" name="list">
+       <property name="minimumSize">
         <size>
          <width>98</width>
          <height>410</height>
         </size>
        </property>
-       <property name="maximumSize" >
+       <property name="maximumSize">
         <size>
          <width>98</width>
          <height>16777215</height>
         </size>
        </property>
-       <property name="dragDropMode" >
+       <property name="dragDropMode">
         <enum>QAbstractItemView::NoDragDrop</enum>
        </property>
-       <property name="iconSize" >
+       <property name="iconSize">
         <size>
          <width>64</width>
          <height>64</height>
         </size>
        </property>
-       <property name="movement" >
+       <property name="movement">
         <enum>QListView::Static</enum>
        </property>
-       <property name="flow" >
+       <property name="flow">
         <enum>QListView::TopToBottom</enum>
        </property>
-       <property name="layoutMode" >
+       <property name="layoutMode">
         <enum>QListView::SinglePass</enum>
        </property>
-       <property name="spacing" >
+       <property name="spacing">
         <number>10</number>
        </property>
-       <property name="viewMode" >
+       <property name="viewMode">
         <enum>QListView::IconMode</enum>
        </property>
        <item>
-        <property name="text" >
+        <property name="text">
          <string>General</string>
         </property>
-        <property name="icon" >
-         <iconset resource="../rsclist.qrc" >
+        <property name="icon">
+         <iconset resource="../rsclist.qrc">
           <normaloff>:/img/system-run.png</normaloff>:/img/system-run.png</iconset>
         </property>
        </item>
        <item>
-        <property name="text" >
+        <property name="text">
          <string>Subtitle</string>
         </property>
-        <property name="icon" >
-         <iconset resource="../rsclist.qrc" >
+        <property name="icon">
+         <iconset resource="../rsclist.qrc">
           <normaloff>:/img/subtitle.png</normaloff>:/img/subtitle.png</iconset>
         </property>
        </item>
        <item>
-        <property name="text" >
+        <property name="text">
          <string>Interface</string>
         </property>
-        <property name="icon" >
-         <iconset resource="../rsclist.qrc" >
+        <property name="icon">
+         <iconset resource="../rsclist.qrc">
           <normaloff>:/img/preferences-desktop-keyboard.png</normaloff>:/img/preferences-desktop-keyboard.png</iconset>
         </property>
        </item>
       </widget>
      </item>
      <item>
-      <widget class="QStackedWidget" name="stack" >
-       <property name="currentIndex" >
-        <number>1</number>
+      <widget class="QStackedWidget" name="stack">
+       <property name="currentIndex">
+        <number>0</number>
        </property>
-       <widget class="QWidget" name="page" >
-        <layout class="QHBoxLayout" name="horizontalLayout_6" >
+       <widget class="QWidget" name="page">
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
-          <widget class="QTabWidget" name="tabWidget_2" >
-           <property name="currentIndex" >
+          <widget class="QTabWidget" name="tabWidget_2">
+           <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="QWidget" name="tab" >
-            <attribute name="title" >
+           <widget class="QWidget" name="tab">
+            <attribute name="title">
              <string>General</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_18" >
+            <layout class="QVBoxLayout" name="verticalLayout_18">
              <item>
-              <widget class="QGroupBox" name="groupBox_4" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_4">
+               <property name="title">
                 <string>Generate Playlist</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout" >
+               <layout class="QVBoxLayout" name="verticalLayout">
                 <item>
-                 <widget class="QLabel" name="label_6" >
-                  <property name="text" >
+                 <widget class="QLabel" name="label_6">
+                  <property name="text">
                    <string>Add next files to playlist when a file is open</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QComboBox" name="autoAdd" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <widget class="QComboBox" name="autoAdd">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -126,29 +127,29 @@
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox_5" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_5">
+               <property name="title">
                 <string>Play</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_4" >
+               <layout class="QVBoxLayout" name="verticalLayout_4">
                 <item>
-                 <widget class="QCheckBox" name="pauseMinimized" >
-                  <property name="text" >
+                 <widget class="QCheckBox" name="pauseMinimized">
+                  <property name="text">
                    <string>Pause when minimized</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <layout class="QGridLayout" name="gridLayout_6" >
-                  <item row="0" column="0" >
-                   <spacer name="spacer" >
-                    <property name="orientation" >
+                 <layout class="QGridLayout" name="gridLayout_6">
+                  <item row="0" column="0">
+                   <spacer name="spacer">
+                    <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="sizeType" >
+                    <property name="sizeType">
                      <enum>QSizePolicy::Fixed</enum>
                     </property>
-                    <property name="sizeHint" stdset="0" >
+                    <property name="sizeHint" stdset="0">
                      <size>
                       <width>30</width>
                       <height>20</height>
@@ -156,28 +157,28 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="0" column="1" >
-                   <widget class="QCheckBox" name="playRestored" >
-                    <property name="enabled" >
+                  <item row="0" column="1">
+                   <widget class="QCheckBox" name="playRestored">
+                    <property name="enabled">
                      <bool>false</bool>
                     </property>
-                    <property name="text" >
+                    <property name="text">
                      <string>Start to play when restored</string>
                     </property>
-                    <property name="checked" >
+                    <property name="checked">
                      <bool>true</bool>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="0" >
-                   <spacer name="horizontalSpacer_7" >
-                    <property name="orientation" >
+                  <item row="1" column="0">
+                   <spacer name="horizontalSpacer_7">
+                    <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="sizeType" >
+                    <property name="sizeType">
                      <enum>QSizePolicy::Fixed</enum>
                     </property>
-                    <property name="sizeHint" stdset="0" >
+                    <property name="sizeHint" stdset="0">
                      <size>
                       <width>30</width>
                       <height>20</height>
@@ -185,15 +186,15 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="1" column="1" >
-                   <widget class="QCheckBox" name="pauseVideoOnly" >
-                    <property name="enabled" >
+                  <item row="1" column="1">
+                   <widget class="QCheckBox" name="pauseVideoOnly">
+                    <property name="enabled">
                      <bool>false</bool>
                     </property>
-                    <property name="text" >
+                    <property name="text">
                      <string>Apply on video only</string>
                     </property>
-                    <property name="checked" >
+                    <property name="checked">
                      <bool>true</bool>
                     </property>
                    </widget>
@@ -201,15 +202,15 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="Line" name="line" >
-                  <property name="orientation" >
+                 <widget class="Line" name="line">
+                  <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="startStopped" >
-                  <property name="text" >
+                 <widget class="QCheckBox" name="startStopped">
+                  <property name="text">
                    <string>When a file is stopped, play it from there next time</string>
                   </property>
                  </widget>
@@ -218,45 +219,45 @@
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox_10" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_10">
+               <property name="title">
                 <string>Screen</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_5" >
+               <layout class="QVBoxLayout" name="verticalLayout_5">
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_3" >
+                 <layout class="QHBoxLayout" name="horizontalLayout_3">
                   <item>
-                   <widget class="QCheckBox" name="hideCursor" >
-                    <property name="text" >
+                   <widget class="QCheckBox" name="hideCursor">
+                    <property name="text">
                      <string>Hide cursor when it doesn't move during next time:</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="hideDelay" >
-                    <property name="enabled" >
+                   <widget class="QSpinBox" name="hideDelay">
+                    <property name="enabled">
                      <bool>false</bool>
                     </property>
-                    <property name="accelerated" >
+                    <property name="accelerated">
                      <bool>true</bool>
                     </property>
-                    <property name="suffix" >
+                    <property name="suffix">
                      <string>sec.</string>
                     </property>
-                    <property name="minimum" >
+                    <property name="minimum">
                      <number>1</number>
                     </property>
-                    <property name="value" >
+                    <property name="value">
                      <number>3</number>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_8" >
-                    <property name="orientation" >
+                   <spacer name="horizontalSpacer_8">
+                    <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="sizeHint" stdset="0" >
+                    <property name="sizeHint" stdset="0">
                      <size>
                       <width>0</width>
                       <height>0</height>
@@ -267,16 +268,16 @@
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_4" >
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
                   <item>
-                   <spacer name="horizontalSpacer_9" >
-                    <property name="orientation" >
+                   <spacer name="horizontalSpacer_9">
+                    <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="sizeType" >
+                    <property name="sizeType">
                      <enum>QSizePolicy::Fixed</enum>
                     </property>
-                    <property name="sizeHint" stdset="0" >
+                    <property name="sizeHint" stdset="0">
                      <size>
                       <width>30</width>
                       <height>20</height>
@@ -285,11 +286,11 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QCheckBox" name="hideInFullScreen" >
-                    <property name="enabled" >
+                   <widget class="QCheckBox" name="hideInFullScreen">
+                    <property name="enabled">
                      <bool>false</bool>
                     </property>
-                    <property name="text" >
+                    <property name="text">
                      <string>Hide in only full screen mode</string>
                     </property>
                    </widget>
@@ -297,15 +298,15 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="Line" name="line_2" >
-                  <property name="orientation" >
+                 <widget class="Line" name="line_2">
+                  <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="disableSS" >
-                  <property name="text" >
+                 <widget class="QCheckBox" name="disableSS">
+                  <property name="text">
                    <string>Disable screensaver while playing</string>
                   </property>
                  </widget>
@@ -314,11 +315,11 @@
               </widget>
              </item>
              <item>
-              <spacer name="spacer_11" >
-               <property name="orientation" >
+              <spacer name="spacer_11">
+               <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0" >
+               <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
                  <height>31</height>
@@ -328,20 +329,20 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="tab_2" >
-            <attribute name="title" >
+           <widget class="QWidget" name="tab_2">
+            <attribute name="title">
              <string>Audio / Video</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_14" >
+            <layout class="QVBoxLayout" name="verticalLayout_14">
              <item>
-              <widget class="QGroupBox" name="groupBox_15" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_15">
+               <property name="title">
                 <string>Audio</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_17" >
+               <layout class="QVBoxLayout" name="verticalLayout_17">
                 <item>
-                 <widget class="QCheckBox" name="volnorm" >
-                  <property name="text" >
+                 <widget class="QCheckBox" name="volnorm">
+                  <property name="text">
                    <string>Normalize volume</string>
                   </property>
                  </widget>
@@ -350,14 +351,14 @@
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox_14" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_14">
+               <property name="title">
                 <string>Video</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_20" >
+               <layout class="QVBoxLayout" name="verticalLayout_20">
                 <item>
-                 <widget class="QCheckBox" name="softEq" >
-                  <property name="text" >
+                 <widget class="QCheckBox" name="softEq">
+                  <property name="text">
                    <string>Use software equalizer when it is supported by play engine</string>
                   </property>
                  </widget>
@@ -366,11 +367,11 @@
               </widget>
              </item>
              <item>
-              <spacer name="spacer_10" >
-               <property name="orientation" >
+              <spacer name="spacer_10">
+               <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0" >
+               <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
                  <height>0</height>
@@ -380,35 +381,35 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="tab_3" >
-            <attribute name="title" >
+           <widget class="QWidget" name="tab_3">
+            <attribute name="title">
              <string>Application</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_24" >
+            <layout class="QVBoxLayout" name="verticalLayout_24">
              <item>
-              <widget class="QGroupBox" name="groupBox" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox">
+               <property name="title">
                 <string>System Tray Icon</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_23" >
+               <layout class="QVBoxLayout" name="verticalLayout_23">
                 <item>
-                 <widget class="QCheckBox" name="tray" >
-                  <property name="text" >
+                 <widget class="QCheckBox" name="tray">
+                  <property name="text">
                    <string>Enable system tray icon</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_5" >
+                 <layout class="QHBoxLayout" name="horizontalLayout_5">
                   <item>
-                   <spacer name="horizontalSpacer_10" >
-                    <property name="orientation" >
+                   <spacer name="horizontalSpacer_10">
+                    <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="sizeType" >
+                    <property name="sizeType">
                      <enum>QSizePolicy::Fixed</enum>
                     </property>
-                    <property name="sizeHint" stdset="0" >
+                    <property name="sizeHint" stdset="0">
                      <size>
                       <width>30</width>
                       <height>20</height>
@@ -417,11 +418,11 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QCheckBox" name="hideWhenClosed" >
-                    <property name="enabled" >
+                   <widget class="QCheckBox" name="hideWhenClosed">
+                    <property name="enabled">
                      <bool>false</bool>
                     </property>
-                    <property name="text" >
+                    <property name="text">
                      <string>Hide window rather than quit when closed </string>
                     </property>
                    </widget>
@@ -432,14 +433,14 @@
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox_16" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_16">
+               <property name="title">
                 <string>Single Application</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_22" >
+               <layout class="QVBoxLayout" name="verticalLayout_22">
                 <item>
-                 <widget class="QCheckBox" name="singleApp" >
-                  <property name="text" >
+                 <widget class="QCheckBox" name="singleApp">
+                  <property name="text">
                    <string>Run only single CMPlayer application at the same time</string>
                   </property>
                  </widget>
@@ -448,11 +449,11 @@
               </widget>
              </item>
              <item>
-              <spacer name="verticalSpacer_2" >
-               <property name="orientation" >
+              <spacer name="verticalSpacer_2">
+               <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0" >
+               <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
                  <height>294</height>
@@ -466,34 +467,34 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="page_2" >
-        <layout class="QHBoxLayout" name="horizontalLayout_7" >
+       <widget class="QWidget" name="page_2">
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
          <item>
-          <widget class="QTabWidget" name="tabs" >
-           <property name="currentIndex" >
+          <widget class="QTabWidget" name="tabs">
+           <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="QWidget" name="widget_3" >
-            <attribute name="title" >
+           <widget class="QWidget" name="widget_3">
+            <attribute name="title">
              <string>Load Subtitle</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_9" >
+            <layout class="QVBoxLayout" name="verticalLayout_9">
              <item>
-              <widget class="QGroupBox" name="groupBox_3" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_3">
+               <property name="title">
                 <string>Automatic Load</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_7" >
+               <layout class="QVBoxLayout" name="verticalLayout_7">
                 <item>
-                 <widget class="QLabel" name="label_2" >
-                  <property name="text" >
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
                    <string>Load next subtitles when a file to play is open</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QComboBox" name="autoLoad" >
-                  <property name="sizeAdjustPolicy" >
+                 <widget class="QComboBox" name="autoLoad">
+                  <property name="sizeAdjustPolicy">
                    <enum>QComboBox::AdjustToContents</enum>
                   </property>
                  </widget>
@@ -502,50 +503,50 @@
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox_6" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_6">
+               <property name="title">
                 <string>Auto selection</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_8" >
+               <layout class="QVBoxLayout" name="verticalLayout_8">
                 <item>
-                 <widget class="QLabel" name="label_3" >
-                  <property name="text" >
+                 <widget class="QLabel" name="label_3">
+                  <property name="text">
                    <string>Select next subtitles in loading ones</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QComboBox" name="autoSelect" >
-                  <property name="sizeAdjustPolicy" >
+                 <widget class="QComboBox" name="autoSelect">
+                  <property name="sizeAdjustPolicy">
                    <enum>QComboBox::AdjustToContents</enum>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_9" >
+                 <layout class="QHBoxLayout" name="horizontalLayout_9">
                   <item>
-                   <widget class="QLabel" name="subExtLabel" >
-                    <property name="enabled" >
+                   <widget class="QLabel" name="subExtLabel">
+                    <property name="enabled">
                      <bool>false</bool>
                     </property>
-                    <property name="text" >
+                    <property name="text">
                      <string>Select next extension:</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QComboBox" name="subSelectExt" >
-                    <property name="enabled" >
+                   <widget class="QComboBox" name="subSelectExt">
+                    <property name="enabled">
                      <bool>false</bool>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_12" >
-                    <property name="orientation" >
+                   <spacer name="horizontalSpacer_12">
+                    <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="sizeHint" stdset="0" >
+                    <property name="sizeHint" stdset="0">
                      <size>
                       <width>0</width>
                       <height>0</height>
@@ -559,65 +560,65 @@
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="auto_load_group" >
-               <property name="title" >
+              <widget class="QGroupBox" name="auto_load_group">
+               <property name="title">
                 <string>Encoding</string>
                </property>
-               <property name="checkable" >
+               <property name="checkable">
                 <bool>false</bool>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_6" >
+               <layout class="QVBoxLayout" name="verticalLayout_6">
                 <item>
-                 <widget class="QLabel" name="label_5" >
-                  <property name="text" >
+                 <widget class="QLabel" name="label_5">
+                  <property name="text">
                    <string>Open subtitle file with next encoding</string>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <widget class="EncodingComboBox" name="encoding" >
-                  <property name="editable" >
+                 <widget class="EncodingComboBox" name="encoding">
+                  <property name="editable">
                    <bool>true</bool>
                   </property>
-                  <property name="sizeAdjustPolicy" >
+                  <property name="sizeAdjustPolicy">
                    <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
                   </property>
                  </widget>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_8" >
+                 <layout class="QHBoxLayout" name="horizontalLayout_8">
                   <item>
-                   <widget class="QCheckBox" name="subEncAutoDet" >
-                    <property name="text" >
-                     <string>Use auto-detection when the confidence is over:</string>
+                   <widget class="QCheckBox" name="subEncAutoDet">
+                    <property name="text">
+                     <string>Use auto-detected encoding when the confidence is over:</string>
                     </property>
-                    <property name="checked" >
+                    <property name="checked">
                      <bool>true</bool>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="subConf" >
-                    <property name="accelerated" >
+                   <widget class="QSpinBox" name="subConf">
+                    <property name="accelerated">
                      <bool>true</bool>
                     </property>
-                    <property name="suffix" >
+                    <property name="suffix">
                      <string>%</string>
                     </property>
-                    <property name="minimum" >
+                    <property name="minimum">
                      <number>1</number>
                     </property>
-                    <property name="maximum" >
+                    <property name="maximum">
                      <number>100</number>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="horizontalSpacer_11" >
-                    <property name="orientation" >
+                   <spacer name="horizontalSpacer_11">
+                    <property name="orientation">
                      <enum>Qt::Horizontal</enum>
                     </property>
-                    <property name="sizeHint" stdset="0" >
+                    <property name="sizeHint" stdset="0">
                      <size>
                       <width>0</width>
                       <height>0</height>
@@ -631,11 +632,11 @@
               </widget>
              </item>
              <item>
-              <spacer name="spacer_9" >
-               <property name="orientation" >
+              <spacer name="spacer_9">
+               <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0" >
+               <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
                  <height>0</height>
@@ -645,29 +646,29 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="widget_2" >
-            <attribute name="title" >
+           <widget class="QWidget" name="widget_2">
+            <attribute name="title">
              <string>Subtitle Display</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_10" >
+            <layout class="QVBoxLayout" name="verticalLayout_10">
              <item>
-              <widget class="QGroupBox" name="groupBox_7" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_7">
+               <property name="title">
                 <string>Subtitle OSD</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_11" >
+               <layout class="QVBoxLayout" name="verticalLayout_11">
                 <item>
-                 <widget class="PrefOsdWidget" native="1" name="subOsd" />
+                 <widget class="PrefOsdWidget" name="subOsd" native="true"/>
                 </item>
                </layout>
               </widget>
              </item>
              <item>
-              <spacer name="verticalSpacer_4" >
-               <property name="orientation" >
+              <spacer name="verticalSpacer_4">
+               <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0" >
+               <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
                  <height>0</height>
@@ -677,32 +678,32 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="widget_4" >
-            <attribute name="title" >
+           <widget class="QWidget" name="widget_4">
+            <attribute name="title">
              <string>Unified/Multi-Subtitle</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_13" >
+            <layout class="QVBoxLayout" name="verticalLayout_13">
              <item>
-              <widget class="QLabel" name="label_7" >
-               <property name="text" >
+              <widget class="QLabel" name="label_7">
+               <property name="text">
                 <string>You can specify the order of unified(mulit) subtitles with the 'Name' property in subtitle file.
 If not specified, They will be displayed in selected order.
 e.g.: English, Korean</string>
                </property>
-               <property name="wordWrap" >
+               <property name="wordWrap">
                 <bool>true</bool>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="SimpleListWidget" native="1" name="priority" />
+              <widget class="SimpleListWidget" name="priority" native="true"/>
              </item>
              <item>
-              <spacer name="spacer_2" >
-               <property name="orientation" >
+              <spacer name="spacer_2">
+               <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0" >
+               <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
                  <height>0</height>
@@ -716,40 +717,40 @@ e.g.: English, Korean</string>
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="page_3" >
-        <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <widget class="QWidget" name="page_3">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QTabWidget" name="tabWidget" >
-           <property name="currentIndex" >
+          <widget class="QTabWidget" name="tabWidget">
+           <property name="currentIndex">
             <number>0</number>
            </property>
-           <widget class="QWidget" name="tab_4" >
-            <attribute name="title" >
+           <widget class="QWidget" name="tab_4">
+            <attribute name="title">
              <string>UI</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_16" >
+            <layout class="QVBoxLayout" name="verticalLayout_16">
              <item>
-              <widget class="QGroupBox" name="groupBox_8" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_8">
+               <property name="title">
                 <string>Window Style</string>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_15" >
+               <layout class="QVBoxLayout" name="verticalLayout_15">
                 <item>
-                 <widget class="QComboBox" name="winStyle" />
+                 <widget class="QComboBox" name="winStyle"/>
                 </item>
                </layout>
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox_9" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_9">
+               <property name="title">
                 <string>Locale</string>
                </property>
-               <layout class="QGridLayout" name="gridLayout_5" >
-                <item row="0" column="0" >
-                 <widget class="QComboBox" name="locale" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+               <layout class="QGridLayout" name="gridLayout_5">
+                <item row="0" column="0">
+                 <widget class="QComboBox" name="locale">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -760,11 +761,11 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item>
-              <spacer name="verticalSpacer_3" >
-               <property name="orientation" >
+              <spacer name="verticalSpacer_3">
+               <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0" >
+               <property name="sizeHint" stdset="0">
                 <size>
                  <width>20</width>
                  <height>320</height>
@@ -774,106 +775,106 @@ e.g.: English, Korean</string>
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="widget_5" >
-            <attribute name="title" >
+           <widget class="QWidget" name="widget_5">
+            <attribute name="title">
              <string>Shortcut</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_3" >
+            <layout class="QVBoxLayout" name="verticalLayout_3">
              <item>
-              <widget class="QTreeWidget" name="shortcutTree" >
-               <property name="alternatingRowColors" >
+              <widget class="QTreeWidget" name="shortcutTree">
+               <property name="alternatingRowColors">
                 <bool>true</bool>
                </property>
                <column>
-                <property name="text" >
+                <property name="text">
                  <string>Menu</string>
                 </property>
                </column>
                <column>
-                <property name="text" >
+                <property name="text">
                  <string>Shortcut1</string>
                 </property>
                </column>
                <column>
-                <property name="text" >
+                <property name="text">
                  <string>Shortcut2</string>
                 </property>
                </column>
                <column>
-                <property name="text" >
+                <property name="text">
                  <string>Shortcut3</string>
                 </property>
                </column>
                <column>
-                <property name="text" >
+                <property name="text">
                  <string>Shortcut4</string>
                 </property>
                </column>
               </widget>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="_3" >
+              <layout class="QHBoxLayout" name="_3">
                <item>
-                <widget class="QLabel" name="label" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Preferred" hsizetype="Minimum" >
+                <widget class="QLabel" name="label">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="text" >
+                 <property name="text">
                   <string>Change:</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="shortcut1" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                <widget class="QPushButton" name="shortcut1">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="text" >
+                 <property name="text">
                   <string>Shortcut1</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="shortcut2" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                <widget class="QPushButton" name="shortcut2">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="text" >
+                 <property name="text">
                   <string>Shortcut2</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="shortcut3" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                <widget class="QPushButton" name="shortcut3">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="text" >
+                 <property name="text">
                   <string>Shortcut3</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="shortcut4" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                <widget class="QPushButton" name="shortcut4">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="text" >
+                 <property name="text">
                   <string>Shortcut4</string>
                  </property>
                 </widget>
@@ -882,17 +883,17 @@ e.g.: English, Korean</string>
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="mouseWidget" >
-            <attribute name="title" >
+           <widget class="QWidget" name="mouseWidget">
+            <attribute name="title">
              <string>Mouse</string>
             </attribute>
-            <layout class="QVBoxLayout" name="_2" >
+            <layout class="QVBoxLayout" name="_2">
              <item>
-              <spacer name="spacer_3" >
-               <property name="orientation" >
+              <spacer name="spacer_3">
+               <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0" >
+               <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
                  <height>0</height>
@@ -902,75 +903,75 @@ e.g.: English, Korean</string>
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="widget_7" >
-            <attribute name="title" >
+           <widget class="QWidget" name="widget_7">
+            <attribute name="title">
              <string>Control Step</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_21" >
+            <layout class="QVBoxLayout" name="verticalLayout_21">
              <item>
-              <widget class="QGroupBox" name="groupBox_2" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_2">
+               <property name="title">
                 <string>Play</string>
                </property>
-               <layout class="QGridLayout" name="gridLayout" >
-                <item row="0" column="0" >
-                 <widget class="QLabel" name="label_15" >
-                  <property name="text" >
+               <layout class="QGridLayout" name="gridLayout">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_15">
+                  <property name="text">
                    <string>Seek Step 1</string>
                   </property>
-                  <property name="alignment" >
+                  <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1" >
-                 <widget class="QSpinBox" name="seek1" >
-                  <property name="suffix" >
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="seek1">
+                  <property name="suffix">
                    <string>sec.</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="maximum" >
+                  <property name="maximum">
                    <number>300</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>5</number>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" >
-                 <widget class="QLabel" name="label_16" >
-                  <property name="text" >
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_16">
+                  <property name="text">
                    <string>Seek Step 2</string>
                   </property>
-                  <property name="alignment" >
+                  <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="3" >
-                 <widget class="QSpinBox" name="seek2" >
-                  <property name="suffix" >
+                <item row="0" column="3">
+                 <widget class="QSpinBox" name="seek2">
+                  <property name="suffix">
                    <string>sec.</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="maximum" >
+                  <property name="maximum">
                    <number>600</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>30</number>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="4" >
-                 <spacer name="horizontalSpacer" >
-                  <property name="orientation" >
+                <item row="0" column="4">
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>0</width>
                     <height>0</height>
@@ -978,55 +979,55 @@ e.g.: English, Korean</string>
                   </property>
                  </spacer>
                 </item>
-                <item row="1" column="0" >
-                 <widget class="QLabel" name="label_17" >
-                  <property name="text" >
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_17">
+                  <property name="text">
                    <string>Seek Step 3</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1" >
-                 <widget class="QSpinBox" name="seek3" >
-                  <property name="suffix" >
+                <item row="1" column="1">
+                 <widget class="QSpinBox" name="seek3">
+                  <property name="suffix">
                    <string>sec.</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="maximum" >
+                  <property name="maximum">
                    <number>600</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>60</number>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="2" >
-                 <widget class="QLabel" name="label_9" >
-                  <property name="text" >
+                <item row="1" column="2">
+                 <widget class="QLabel" name="label_9">
+                  <property name="text">
                    <string>Speed Step</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="3" >
-                 <widget class="QSpinBox" name="speed" >
-                  <property name="suffix" >
+                <item row="1" column="3">
+                 <widget class="QSpinBox" name="speed">
+                  <property name="suffix">
                    <string>%</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>10</number>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4" >
-                 <spacer name="horizontalSpacer_4" >
-                  <property name="orientation" >
+                <item row="1" column="4">
+                 <spacer name="horizontalSpacer_4">
+                  <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>0</width>
                     <height>0</height>
@@ -1038,69 +1039,69 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox_11" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_11">
+               <property name="title">
                 <string>Audio</string>
                </property>
-               <layout class="QGridLayout" name="gridLayout_2" >
-                <item row="0" column="0" >
-                 <widget class="QLabel" name="label_18" >
-                  <property name="text" >
+               <layout class="QGridLayout" name="gridLayout_2">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_18">
+                  <property name="text">
                    <string>Volum Step</string>
                   </property>
-                  <property name="alignment" >
+                  <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1" >
-                 <widget class="QSpinBox" name="volume" >
-                  <property name="suffix" >
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="volume">
+                  <property name="suffix">
                    <string>%</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="maximum" >
+                  <property name="maximum">
                    <number>50</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>2</number>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" >
-                 <widget class="QLabel" name="label_19" >
-                  <property name="text" >
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_19">
+                  <property name="text">
                    <string>Amp. Step</string>
                   </property>
-                  <property name="alignment" >
+                  <property name="alignment">
                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="3" >
-                 <widget class="QSpinBox" name="amp" >
-                  <property name="suffix" >
+                <item row="0" column="3">
+                 <widget class="QSpinBox" name="amp">
+                  <property name="suffix">
                    <string>%</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="maximum" >
+                  <property name="maximum">
                    <number>50</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>10</number>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="4" >
-                 <spacer name="horizontalSpacer_2" >
-                  <property name="orientation" >
+                <item row="0" column="4">
+                 <spacer name="horizontalSpacer_2">
+                  <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>0</width>
                     <height>0</height>
@@ -1112,57 +1113,57 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox_13" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_13">
+               <property name="title">
                 <string>Video</string>
                </property>
-               <layout class="QGridLayout" name="gridLayout_4" >
-                <item row="0" column="0" >
-                 <widget class="QLabel" name="label_12" >
-                  <property name="text" >
+               <layout class="QGridLayout" name="gridLayout_4">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_12">
+                  <property name="text">
                    <string>Brightness Step</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1" >
-                 <widget class="QSpinBox" name="spinBox" >
-                  <property name="suffix" >
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="spinBox">
+                  <property name="suffix">
                    <string>%</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>1</number>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" >
-                 <widget class="QLabel" name="label_14" >
-                  <property name="text" >
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_14">
+                  <property name="text">
                    <string>Contrast Step</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="3" >
-                 <widget class="QSpinBox" name="spinBox_3" >
-                  <property name="suffix" >
+                <item row="0" column="3">
+                 <widget class="QSpinBox" name="spinBox_3">
+                  <property name="suffix">
                    <string>%</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>1</number>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="4" >
-                 <spacer name="horizontalSpacer_5" >
-                  <property name="orientation" >
+                <item row="0" column="4">
+                 <spacer name="horizontalSpacer_5">
+                  <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>106</width>
                     <height>0</height>
@@ -1170,52 +1171,52 @@ e.g.: English, Korean</string>
                   </property>
                  </spacer>
                 </item>
-                <item row="1" column="0" >
-                 <widget class="QLabel" name="label_13" >
-                  <property name="text" >
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_13">
+                  <property name="text">
                    <string>Saturation Step</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1" >
-                 <widget class="QSpinBox" name="spinBox_2" >
-                  <property name="suffix" >
+                <item row="1" column="1">
+                 <widget class="QSpinBox" name="spinBox_2">
+                  <property name="suffix">
                    <string>%</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>1</number>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="2" >
-                 <widget class="QLabel" name="label_20" >
-                  <property name="text" >
+                <item row="1" column="2">
+                 <widget class="QLabel" name="label_20">
+                  <property name="text">
                    <string>Hue Step</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="3" >
-                 <widget class="QSpinBox" name="spinBox_4" >
-                  <property name="suffix" >
+                <item row="1" column="3">
+                 <widget class="QSpinBox" name="spinBox_4">
+                  <property name="suffix">
                    <string>%</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>1</number>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4" >
-                 <spacer name="horizontalSpacer_6" >
-                  <property name="orientation" >
+                <item row="1" column="4">
+                 <spacer name="horizontalSpacer_6">
+                  <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>106</width>
                     <height>0</height>
@@ -1227,44 +1228,44 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox_12" >
-               <property name="title" >
+              <widget class="QGroupBox" name="groupBox_12">
+               <property name="title">
                 <string>Subtitle</string>
                </property>
-               <layout class="QGridLayout" name="gridLayout_3" >
-                <item row="0" column="0" >
-                 <widget class="QLabel" name="label_10" >
-                  <property name="text" >
+               <layout class="QGridLayout" name="gridLayout_3">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_10">
+                  <property name="text">
                    <string>Position Step</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="1" >
-                 <widget class="QSpinBox" name="subPos" >
-                  <property name="suffix" >
+                <item row="0" column="1">
+                 <widget class="QSpinBox" name="subPos">
+                  <property name="suffix">
                    <string>%</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <number>1</number>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <number>1</number>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" >
-                 <widget class="QLabel" name="label_11" >
-                  <property name="text" >
+                <item row="0" column="2">
+                 <widget class="QLabel" name="label_11">
+                  <property name="text">
                    <string>Sync Delay Step</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="4" >
-                 <spacer name="horizontalSpacer_3" >
-                  <property name="orientation" >
+                <item row="0" column="4">
+                 <spacer name="horizontalSpacer_3">
+                  <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0" >
+                  <property name="sizeHint" stdset="0">
                    <size>
                     <width>0</width>
                     <height>0</height>
@@ -1272,18 +1273,18 @@ e.g.: English, Korean</string>
                   </property>
                  </spacer>
                 </item>
-                <item row="0" column="3" >
-                 <widget class="QDoubleSpinBox" name="sync" >
-                  <property name="suffix" >
+                <item row="0" column="3">
+                 <widget class="QDoubleSpinBox" name="sync">
+                  <property name="suffix">
                    <string>sec.</string>
                   </property>
-                  <property name="minimum" >
+                  <property name="minimum">
                    <double>0.010000000000000</double>
                   </property>
-                  <property name="singleStep" >
+                  <property name="singleStep">
                    <double>0.100000000000000</double>
                   </property>
-                  <property name="value" >
+                  <property name="value">
                    <double>0.500000000000000</double>
                   </property>
                  </widget>
@@ -1292,11 +1293,11 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item>
-              <spacer name="spacer_7" >
-               <property name="orientation" >
+              <spacer name="spacer_7">
+               <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0" >
+               <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
                  <height>0</height>
@@ -1315,13 +1316,13 @@ e.g.: English, Korean</string>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" >
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <spacer name="horizontalSpacer" >
-       <property name="orientation" >
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0" >
+       <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
          <height>20</height>
@@ -1330,22 +1331,22 @@ e.g.: English, Korean</string>
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_3" >
-       <property name="text" >
+      <widget class="QPushButton" name="pushButton_3">
+       <property name="text">
         <string>&amp;Ok</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="apply" >
-       <property name="text" >
+      <widget class="QPushButton" name="apply">
+       <property name="text">
         <string>&amp;Apply</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2" >
-       <property name="text" >
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="text">
         <string>&amp;Cancel</string>
        </property>
       </widget>
@@ -1374,7 +1375,7 @@ e.g.: English, Korean</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../rsclist.qrc" />
+  <include location="../rsclist.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -1383,11 +1384,11 @@ e.g.: English, Korean</string>
    <receiver>Pref_Dialog</receiver>
    <slot>accept()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>459</x>
      <y>553</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>50</x>
      <y>458</y>
     </hint>
@@ -1399,11 +1400,11 @@ e.g.: English, Korean</string>
    <receiver>Pref_Dialog</receiver>
    <slot>reject()</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>605</x>
      <y>553</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>255</x>
      <y>479</y>
     </hint>
@@ -1415,11 +1416,11 @@ e.g.: English, Korean</string>
    <receiver>stack</receiver>
    <slot>setCurrentIndex(int)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>64</x>
      <y>277</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>117</x>
      <y>282</y>
     </hint>
@@ -1431,11 +1432,11 @@ e.g.: English, Korean</string>
    <receiver>subConf</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>173</x>
      <y>327</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>563</x>
      <y>332</y>
     </hint>
