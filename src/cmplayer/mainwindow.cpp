@@ -697,9 +697,10 @@ void MainWindow::appendSubtitle(const QStringList &file, bool check, const QStri
 void MainWindow::dropEvent(QDropEvent *event) {
 	if (!event->mimeData()->hasUrls())
 		return;
-	const QList<QUrl> urls = event->mimeData()->urls();
+	QList<QUrl> urls = event->mimeData()->urls();
 	if (urls.isEmpty())
 		return;
+	qSort(urls);
 	Core::Playlist playlist;
 	QStringList subList;
 	for (int i=0; i<urls.size(); ++i) {
@@ -717,6 +718,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 	}
 	if (!playlist.isEmpty()) {
 		d->model->append(playlist);
+		d->model->play(d->model->row(playlist.first()));
 	} else if (!subList.isEmpty())
 		appendSubtitle(subList, true, d->pref.subtitleEncoding);
 }

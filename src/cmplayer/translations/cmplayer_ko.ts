@@ -476,42 +476,42 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>FavoritesWidget</name>
     <message>
-        <location filename="../favoriteswidget.cpp" line="130"/>
+        <location filename="../favoriteswidget.cpp" line="134"/>
         <source>Add New Media</source>
         <translation>새 미디어 추가</translation>
     </message>
     <message>
-        <location filename="../favoriteswidget.cpp" line="131"/>
+        <location filename="../favoriteswidget.cpp" line="135"/>
         <source>Add Current Media</source>
         <translation>현재 미디어 추가</translation>
     </message>
     <message>
-        <location filename="../favoriteswidget.cpp" line="132"/>
+        <location filename="../favoriteswidget.cpp" line="136"/>
         <source>Add Folder</source>
         <translation>폴더 추가</translation>
     </message>
     <message>
-        <location filename="../favoriteswidget.cpp" line="133"/>
+        <location filename="../favoriteswidget.cpp" line="137"/>
         <source>Modify</source>
         <translation>수정</translation>
     </message>
     <message>
-        <location filename="../favoriteswidget.cpp" line="134"/>
+        <location filename="../favoriteswidget.cpp" line="138"/>
         <source>Erase</source>
         <translation>지우기</translation>
     </message>
     <message>
-        <location filename="../favoriteswidget.cpp" line="136"/>
+        <location filename="../favoriteswidget.cpp" line="140"/>
         <source>Name</source>
         <translation>이름</translation>
     </message>
     <message>
-        <location filename="../favoriteswidget.cpp" line="136"/>
+        <location filename="../favoriteswidget.cpp" line="140"/>
         <source>Category</source>
         <translation>분류</translation>
     </message>
     <message>
-        <location filename="../favoriteswidget.cpp" line="136"/>
+        <location filename="../favoriteswidget.cpp" line="140"/>
         <source>Location</source>
         <translation>위치</translation>
     </message>
@@ -519,7 +519,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>FavoritesWidget::FolderItem</name>
     <message>
-        <location filename="../favoriteswidget.cpp" line="29"/>
+        <location filename="../favoriteswidget.cpp" line="31"/>
         <source>Folder</source>
         <translation>폴더</translation>
     </message>
@@ -527,17 +527,17 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>FavoritesWidget::ItemDialog</name>
     <message>
-        <location filename="../favoriteswidget.cpp" line="73"/>
+        <location filename="../favoriteswidget.cpp" line="77"/>
         <source>Name</source>
         <translation>이름</translation>
     </message>
     <message>
-        <location filename="../favoriteswidget.cpp" line="77"/>
+        <location filename="../favoriteswidget.cpp" line="81"/>
         <source>Location</source>
         <translation>위치</translation>
     </message>
     <message>
-        <location filename="../favoriteswidget.cpp" line="80"/>
+        <location filename="../favoriteswidget.cpp" line="84"/>
         <source>Add to top level</source>
         <translation>최상위에 추가</translation>
     </message>
@@ -545,12 +545,12 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>FavoritesWidget::MrlItem</name>
     <message>
-        <location filename="../favoriteswidget.cpp" line="45"/>
+        <location filename="../favoriteswidget.cpp" line="48"/>
         <source>Playlist</source>
         <translation>재생 목록</translation>
     </message>
     <message>
-        <location filename="../favoriteswidget.cpp" line="47"/>
+        <location filename="../favoriteswidget.cpp" line="50"/>
         <source>Media</source>
         <translation>미디어</translation>
     </message>
@@ -676,52 +676,52 @@ p, li { white-space: pre-wrap; }
         <translation>자막 열기</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="788"/>
+        <location filename="../mainwindow.cpp" line="790"/>
         <source>Brightness</source>
         <translation>밝기</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="791"/>
+        <location filename="../mainwindow.cpp" line="793"/>
         <source>Saturation</source>
         <translation>채도</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="794"/>
+        <location filename="../mainwindow.cpp" line="796"/>
         <source>Hue</source>
         <translation>색조</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="797"/>
+        <location filename="../mainwindow.cpp" line="799"/>
         <source>Contrast</source>
         <translation>대비</translation>
     </message>
     <message utf8="true">
-        <location filename="../mainwindow.cpp" line="809"/>
+        <location filename="../mainwindow.cpp" line="811"/>
         <source>Speed: Ã%1</source>
         <translation>속도: ×%1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="816"/>
+        <location filename="../mainwindow.cpp" line="818"/>
         <source>Pause</source>
         <translation>일시정지</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="820"/>
+        <location filename="../mainwindow.cpp" line="822"/>
         <source>Play</source>
         <translation>재생</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1040"/>
+        <location filename="../mainwindow.cpp" line="1042"/>
         <source>Subtitle Sync: %1sec.</source>
         <translation>자막 싱크: %1초</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1047"/>
+        <location filename="../mainwindow.cpp" line="1049"/>
         <source>Volume: %1%</source>
         <translation>볼륨: %1%</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1049"/>
+        <location filename="../mainwindow.cpp" line="1051"/>
         <source>Subtitle Position: %1%</source>
         <translation>자막 위치: %1%</translation>
     </message>
@@ -739,42 +739,42 @@ p, li { white-space: pre-wrap; }
         <translation>자막 파일</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="994"/>
+        <location filename="../mainwindow.cpp" line="996"/>
         <source>A-B Repeat: %1</source>
         <translation>구간 반복: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1007"/>
+        <location filename="../mainwindow.cpp" line="1009"/>
         <source>Set A to %1</source>
         <translation>시작 %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1011"/>
+        <location filename="../mainwindow.cpp" line="1013"/>
         <source>Range is too short!</source>
         <translation>구간이 너무 짧습니다!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1016"/>
+        <location filename="../mainwindow.cpp" line="1018"/>
         <source>Set B to %1. Start to repeat!</source>
         <translation>마지막 %1. 반복 시작!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1025"/>
+        <location filename="../mainwindow.cpp" line="1027"/>
         <source>Quit repeating</source>
         <translation>반복 마침</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1029"/>
+        <location filename="../mainwindow.cpp" line="1031"/>
         <source>Repeat current subtitle</source>
         <translation>현재 자막 반복</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="888"/>
+        <location filename="../mainwindow.cpp" line="890"/>
         <source>Change Renderer</source>
         <translation>렌더러 변경</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="889"/>
+        <location filename="../mainwindow.cpp" line="891"/>
         <source>Failed in changing renderer. The renderer fell back into previous one.</source>
         <translation>렌더러를 변경하는데 실패하였습니다. 이전 렌더러로 돌아갑니다.</translation>
     </message>
@@ -783,17 +783,17 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">창이 닫혀도 CMPlayer는 종료되지 않고 시스템 트레이상에서 작동할 것입니다.&lt;br&gt;CMPlayer를 종료하려면 종료 메뉴를 이용해주세요.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1086"/>
+        <location filename="../mainwindow.cpp" line="1088"/>
         <source>Do not display this message again</source>
         <translation>이 메시지를 다시 표시하지 않기</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1082"/>
+        <location filename="../mainwindow.cpp" line="1084"/>
         <source>CMPlayer will be running in the system tray when the window closed.&lt;br&gt;You can change this behavior in the preferences.&lt;br&gt;If you want to exit CMPlayer, please use &apos;Exit&apos; menu.</source>
         <translation>창이 닫혀도 CMPlayer는 종료되지 않고 시스템 트레이상에서 작동할 것입니다.&lt;br&gt;환경 설정에서 동작방식을 변경할 수 있습니다.&lt;br&gt;CMPlayer를 종료하려면 종료 메뉴를 이용해주세요.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1050"/>
+        <location filename="../mainwindow.cpp" line="1052"/>
         <source>Amp.: %1%</source>
         <translation>앰프 %1%</translation>
     </message>
