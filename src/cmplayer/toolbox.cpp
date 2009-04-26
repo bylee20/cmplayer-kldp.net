@@ -144,8 +144,6 @@ ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, MainWindow *mainWind
 	addPage(d->favorite, tr("Favorites"), ":/img/favorites-%1.png");
 	addPage(d->history, tr("History"), ":/img/history-%1.png");
 	addPage(d->color, tr("Video Color"), ":/img/view-media-equalizer-%1.png");
-	setWindowTitle("TOOL BOX");
-	titleBar()->setTitle("TOOL BOX");
 	titleBar()->connect(this);
 // 	titleBar()->addButton(QIcon(":/img/view-split-left-right.png"), this, SIGNAL(snapRequested()));
 
@@ -161,9 +159,10 @@ ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, MainWindow *mainWind
 	
 	connect(d->history, SIGNAL(openRequested(Core::Mrl)), mainWindow, SLOT(openMrl(Core::Mrl)));
 	connect(d->favorite, SIGNAL(openRequested(Core::Mrl)), mainWindow, SLOT(openMrl(Core::Mrl)));
-	connect(d->button->group, SIGNAL(buttonClicked(int)), d->frame->stack, SLOT(setCurrentIndex(int)));
+	connect(d->button->group, SIGNAL(buttonClicked(int)), this, SLOT(changeWidget(int)));
 
 	d->button->group->button(0)->setChecked(true);
+	changeWidget(0);
 }
 
 
@@ -201,6 +200,10 @@ void ToolBox::resizeEvent(QResizeEvent *event) {
 	d->dragCharm.setRect(boxRect());
 }
 
-void ToolBox::slotStarted() {
+void ToolBox::changeWidget(int id) {
+	d->frame->stack->setCurrentIndex(id);
+	const QString title = "TOOL BOX - " + d->button->group->button(id)->toolTip();
+	setWindowTitle(title);
+	titleBar()->setTitle(title);
 }
 

@@ -268,6 +268,10 @@ void MainWindow::saveState() {
 	if (d->toolBox->isVisible())
 		d->toolRect = d->toolBox->geometry();
 	state[State::ToolBoxRect] = d->toolRect;
+	if (d->control->currentLayout() == ControlWidget::TwoLine)
+		state[State::PanelLayout] = QString("TwoLine");
+	else
+		state[State::PanelLayout] = QString("OneLine");
 	state.save();
 }
 
@@ -292,6 +296,10 @@ void MainWindow::loadState() {
 	d->player->setSubtitlePos(state[State::SubtitlePos].toInt());
 	d->player->setSyncDelay(state[State::SubtitleSync].toInt());
 	d->toolRect = state[State::ToolBoxRect].toRect();
+	if (state[State::PanelLayout].toString() == "TwoLine")
+		d->control->changeLayout(ControlWidget::TwoLine);
+	else
+		d->control->changeLayout(ControlWidget::OneLine);
 }
 
 QIcon MainWindow::defaultIcon() {

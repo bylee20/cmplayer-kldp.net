@@ -180,6 +180,10 @@ void ControlWidget::toggleLayout() {
 	changeLayout(d->layout == OneLine ? TwoLine : OneLine);
 }
 
+ControlWidget::Layout ControlWidget::currentLayout() const {
+	return d->layout;
+}
+
 void ControlWidget::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);
 	painter.fillRect(rect(), Qt::black);

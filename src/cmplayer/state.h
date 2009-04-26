@@ -25,6 +25,7 @@ public:
 		LastOpenFile,
 		ToolBoxRect,
 		TrayFirst,
+		PanelLayout,
 		TypeMax
 	};
 	const QString &key(Type type) const {return d.keys[type];}

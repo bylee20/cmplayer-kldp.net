@@ -22,6 +22,7 @@ State::Data::Data()
 	INIT(ToolBoxRect, QRect());
 	INIT(TrayFirst, true);
 	INIT(BackendName, QString());
+	INIT(PanelLayout, QString("OneLine"));
 #undef INIT
 }
 

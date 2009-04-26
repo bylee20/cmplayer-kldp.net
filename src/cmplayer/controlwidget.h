@@ -26,6 +26,7 @@ public:
 	void connectFullScreen(QAction *action);
 	void connectPlaylist(QAction *action);
 	void changeLayout(Layout layout);
+	Layout currentLayout() const;
 public slots:
 	void showMessage(const QString &msg, int time = 3000);
 	void setCurrentSource(const Core::MediaSource &source);
