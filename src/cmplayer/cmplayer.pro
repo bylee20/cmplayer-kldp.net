@@ -36,14 +36,14 @@ SOURCES += main.cpp \
     videocolorwidget.cpp \
     verticaltext.cpp \
     pref_dialog.cpp \
-    recentplayedwidget.cpp \
     qtsingleapplication/qtlocalpeer.cpp \
     qtsingleapplication/qtlockedfile.cpp \
     qtsingleapplication/qtlockedfile_unix.cpp \
     qtsingleapplication/qtlockedfile_win.cpp \
     qtsingleapplication/qtsingleapplication.cpp \
     qtsingleapplication/qtsinglecoreapplication.cpp \
- favoritewidget.cpp
+    favoriteswidget.cpp \
+    historywidget.cpp
 HEADERS += mainwindow.h \
     abrepeatdialog.h \
     playinfowidget.h \
@@ -81,12 +81,12 @@ HEADERS += mainwindow.h \
     videocolorwidget.h \
     verticaltext.h \
     pref_dialog.h \
-    recentplayedwidget.h \
     qtsingleapplication/qtlocalpeer.h \
     qtsingleapplication/qtlockedfile.h \
     qtsingleapplication/qtsingleapplication.h \
     qtsingleapplication/qtsinglecoreapplication.h \
- favoritewidget.h
+    favoriteswidget.h \
+    historywidget.h
 FORMS += ./ui/abrepeatdialog.ui \
     ./ui/prefosdwidget.ui \
     ui/geturldialog.ui \
@@ -105,11 +105,11 @@ TRANSLATIONS += translations/cmplayer_ko.ts \
 TARGET = ../bin/cmplayer
 DEFINES += CMPLAYER_TRANSLATION_DIR=$(CMPLAYER_TRANSLATION_DIR)
 RELEASE = $$(CMPLAYER_RELEASE)
-!isEmpty(RELEASE){
+!isEmpty(RELEASE) { 
     CONFIG += release
     LIBS += -lcmplayer_core
 }
-else {
+else { 
     CONFIG += debug
     LIBS += -lcmplayer_cored
 }

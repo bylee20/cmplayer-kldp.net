@@ -1,4 +1,4 @@
-#include "recentplayedwidget.h"
+#include "historywidget.h"
 #include <core/mrl.h>
 #include <QtCore/QDebug>
 #include "videoplayer.h"
@@ -9,31 +9,55 @@
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QVBoxLayout>
+#include <QtCore/QDateTime>
 
-struct RecentPlayedWidget::Data {
+class HistoryWidget::Item : public QTreeWidgetItem {
+public:
+	Item(const Core::Mrl &mrl, const QDateTime &date = QDateTime::currentDateTime()) {
+		setMrl(mrl);
+		updateDateTime(date);
+	}
+	void updateDateTime(const QDateTime &date = QDateTime::currentDateTime()) {
+		setData(1, Qt::UserRole, date);
+		setText(1, date.toString());
+		m_date = date;
+	}
+	void setMrl(const Core::Mrl &mrl) {
+		setText(0, mrl.isLocalFile() ? mrl.fileName() : mrl.location());
+		setText(2, mrl.location());
+		m_mrl = mrl;
+	}
+	const Core::Mrl &mrl() const {return m_mrl;}
+	const QDateTime &dateTime() const {return m_date;}
+private:
+	Core::Mrl m_mrl;
+	QDateTime m_date;
+};
+
+struct HistoryWidget::Data {
 	QTreeWidget *tree;
 	VideoPlayer *player;
 	QSpinBox *count;
 	QString config;
 };
 
-RecentPlayedWidget::RecentPlayedWidget(VideoPlayer *player, QWidget *parent)
+HistoryWidget::HistoryWidget(VideoPlayer *player, QWidget *parent)
 : QWidget(parent), d(new Data) {
 	d->config = Core::Info::privatePath() + "/recentplayed.ini";
-	
+
 	d->tree = new QTreeWidget(this);
-	d->tree->setHeaderLabels(QStringList() << tr("Name") << tr("Location"));
+	d->tree->setHeaderLabels(QStringList() << tr("Name") << tr("Last Played") << tr("Location"));
 	d->tree->setRootIsDecorated(false);
 	d->player = player;
 	d->count = new QSpinBox(this);
 	d->count->setAccelerated(true);
 	d->count->setRange(10, 999);
-	
+
 	connect(player, SIGNAL(started()), this, SLOT(slotStarted()));
 	connect(d->tree, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int))
 			, this, SLOT(slotItemDoubleClicked(QTreeWidgetItem*)));
 	connect(d->count, SIGNAL(valueChanged(int)), this, SLOT(updateSize()));
-	
+
 	QHBoxLayout *hbox = new QHBoxLayout;
 	hbox->addWidget(new QLabel(tr("Maximum Count:"), this));
 	hbox->addWidget(d->count);
@@ -41,78 +65,72 @@ RecentPlayedWidget::RecentPlayedWidget(VideoPlayer *player, QWidget *parent)
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->addWidget(d->tree);
 	vbox->addLayout(hbox);
-	
+
 	load();
 }
 
-RecentPlayedWidget::~RecentPlayedWidget() {
+HistoryWidget::~HistoryWidget() {
 	save();
 	delete d;
 }
 
-QTreeWidgetItem *RecentPlayedWidget::makeItem(const Core::Mrl &mrl) {
-	QTreeWidgetItem *item = new QTreeWidgetItem;
-	item->setData(0, Qt::UserRole, mrl);
-	item->setText(0, mrl.isLocalFile() ? mrl.fileName() : mrl.location());
-	item->setText(1, mrl.location());
-	return item;
-}
-
-void RecentPlayedWidget::slotStarted() {
+void HistoryWidget::slotStarted() {
 	const Core::Mrl mrl = d->player->currentSource().mrl();
-	QTreeWidgetItem *item = 0;
+	Item *item = 0;
 	for (int i=0; i<d->tree->topLevelItemCount(); ++i) {
-		if (d->tree->topLevelItem(i)->data(0, Qt::UserRole).toUrl() == mrl) {
+		if (static_cast<Item*>(d->tree->topLevelItem(i))->mrl() == mrl) {
 			if (i == 0)
 				return;
-			item = d->tree->takeTopLevelItem(i);
+			item = static_cast<Item*>(d->tree->takeTopLevelItem(i));
 			break;
 		}
 	}
 	if (!item)
-		item = makeItem(mrl);
+		item = new Item(mrl);
+	else
+		item->updateDateTime();
 	d->tree->insertTopLevelItem(0, item);
 	updateSize();
 }
 
-void RecentPlayedWidget::updateSize() {
+void HistoryWidget::updateSize() {
 	const int size = d->count->value();
 	while (d->tree->topLevelItemCount() > size)
 		delete d->tree->takeTopLevelItem(d->tree->topLevelItemCount()-1);
 }
 
-void RecentPlayedWidget::save() const {
+void HistoryWidget::save() const {
 	QSettings set(d->config, QSettings::IniFormat);
 	set.setValue("MaximumCount", d->count->value());
 	const int count = d->tree->topLevelItemCount();
 	set.beginWriteArray("List", count);
 	for (int i=0; i<count; ++i) {
-		QTreeWidgetItem *item = d->tree->topLevelItem(i);
-		const QUrl url = item->data(0, Qt::UserRole).toUrl();
+		Item *item = static_cast<Item*>(d->tree->topLevelItem(i));
 		set.setArrayIndex(i);
-		set.setValue("Url", url);
+		set.setValue("Url", item->mrl());
+		set.setValue("DateTime", item->dateTime());
 	}
 	set.endArray();
 }
 
-void RecentPlayedWidget::load() {
+void HistoryWidget::load() {
 	d->tree->clear();
 	QSettings set(d->config, QSettings::IniFormat);
 	d->count->setValue(set.value("MaximumCount", 100).toInt());
 	const int count = set.beginReadArray("List");
 	for (int i = 0; i<count; ++i) {
 		set.setArrayIndex(i);
-		const QUrl url = set.value("Url", QUrl()).toUrl();
-		if (url.isEmpty() || !url.isValid())
+		const Core::Mrl mrl = set.value("Url", QUrl()).toUrl();
+		if (mrl.isEmpty() || !mrl.isValid())
 			continue;
-		QTreeWidgetItem *item = makeItem(url);
-		d->tree->addTopLevelItem(item);
+		const QDateTime date = set.value("DateTime", QDateTime()).toDateTime();
+		d->tree->addTopLevelItem(new Item(mrl, date));
 	}
 	set.endArray();
 	updateSize();
 }
 
-void RecentPlayedWidget::slotItemDoubleClicked(QTreeWidgetItem *item) {
-	if (item) 
-		emit openRequested(item->data(0, Qt::UserRole).toUrl());
+void HistoryWidget::slotItemDoubleClicked(QTreeWidgetItem *item) {
+	if (item)
+		emit openRequested(static_cast<Item*>(item)->mrl());
 }

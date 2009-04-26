@@ -19,10 +19,12 @@ private slots:
 	void slotStarted();
 private:
 	QRect boxRect() const {return QRect(3, 3, width()-6, height() - 6);}
+	void addPage(QWidget *widget, const QString &name, const QString &iconHolder);
 	void closeEvent(QCloseEvent *event);
 	void paintEvent(QPaintEvent *event);
 	void resizeEvent(QResizeEvent *event);
 	class Frame;
+	class ButtonWidget;
 	struct Data;
 	Data *d;
 };

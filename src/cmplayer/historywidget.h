@@ -1,18 +1,18 @@
-#ifndef RECENTPLAYEDWIDGET_H
-#define RECENTPLAYEDWIDGET_H
+#ifndef HISTORYWIDGET_H
+#define HISTORYWIDGET_H
 
-#include <QWidget>
+#include <QtGui/QWidget>
 #include <core/mediasource.h>
 
 class VideoPlayer;			class QTreeWidgetItem;
 
 namespace Core {class MediaSource;}
 
-class RecentPlayedWidget : public QWidget {
+class HistoryWidget : public QWidget {
 	Q_OBJECT
 public:
-	RecentPlayedWidget(VideoPlayer *player, QWidget *parent = 0);
-	~RecentPlayedWidget();
+	HistoryWidget(VideoPlayer *player, QWidget *parent = 0);
+	~HistoryWidget();
 	void save() const;
 	void load();
 signals:
@@ -22,9 +22,9 @@ private slots:
 	void slotItemDoubleClicked(QTreeWidgetItem *item);
 	void updateSize();
 private:
-	QTreeWidgetItem *makeItem(const Core::Mrl &mrl);
+	class Item;
 	struct Data;
 	Data *d;
 };
 
-#endif
+#endif // HISTORYWIDGET_H

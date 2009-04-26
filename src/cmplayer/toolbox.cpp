@@ -1,14 +1,16 @@
 #include "toolbox.h"
 #include "mainwindow.h"
-#include "favoritewidget.h"
+#include "favoriteswidget.h"
 #include "playlistwidget.h"
-#include "recentplayedwidget.h"
+#include "historywidget.h"
 #include "dragcharm.h"
 #include "helper.h"
 #include "videocolorwidget.h"
+#include "button.h"
 #include <core/info.h>
 #include <QtGui/QFrame>
-#include <QtGui/QTabWidget>
+#include <QtGui/QButtonGroup>
+#include <QtGui/QStackedWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QPainter>
@@ -27,7 +29,7 @@ public:
 		
 		vbox = new QVBoxLayout(w);
 		vbox->setContentsMargins(5, 10, 5, 10);
-		vbox->addWidget(tab = new QTabWidget(w));
+		vbox->addWidget(stack = new QStackedWidget(w));
 		
 		w->setObjectName("toolBoxBg");
 		setObjectName("toolBoxFrame");
@@ -38,7 +40,7 @@ public:
 			}\
 		");
 	}
-	QTabWidget *tab;
+	QStackedWidget *stack;
 private:
 	class Widget : public QWidget {
 	public:
@@ -63,12 +65,69 @@ private:
 	Widget *w;
 };
 
+class ToolBox::ButtonWidget : public QWidget {
+public:
+	ButtonWidget(QWidget *parent): QWidget(parent) {
+		group = new QButtonGroup(this);
+		m_hbox = new QHBoxLayout(this);
+		m_hbox->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		m_hbox->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+		m_count = 0;
+
+		QLinearGradient grad(0.5, 0.0, 0.5, 1.0);
+		grad.setColorAt(0.0, qRgb(0, 0, 0));
+		grad.setColorAt(1.0, qRgb(60, 60, 60));
+		bg = QBrush(grad);
+
+		grad = QLinearGradient(0.5, 0.1, 0.5, 0.9);
+		grad.setColorAt(1.0, Qt::white);
+		grad.setColorAt(0.0, Qt::transparent);
+		light = QBrush(grad);
+
+		path.moveTo(0.0, 1.0);
+		path.cubicTo(0.05, 0.3, 0.05, 0.3, 0.5, 0.3);
+		path.cubicTo(0.95, 0.3, 0.95, 0.3, 1.0, 1.0);
+		path.closeSubpath();
+	}
+	Button *addButton(int id, const QIcon &icon, const QString &text) {
+		Button *button = new Button(this);
+		button->setCheckable(true);
+		button->setIcon(icon);
+		button->setToolTip(text);
+		button->setText(text);
+		button->setIconSize(25);
+		group->addButton(button, id);
+		m_hbox->insertWidget(++m_count, button);
+		return button;
+	}
+	QButtonGroup *group;
+private:
+	void paintEvent(QPaintEvent */*event*/) {
+		QPainter painter(this);
+		painter.fillRect(rect(), Qt::black);
+		painter.setRenderHint(QPainter::Antialiasing);
+		painter.setPen(Qt::NoPen);
+		QPointF topLeft(0, 0);
+		painter.translate(topLeft);
+		painter.scale(width(), height() - topLeft.y());
+		painter.fillRect(rect(), bg);
+		painter.setOpacity(0.3);
+		painter.setBrush(light);
+		painter.drawPath(path);
+	}
+	int m_count;
+	QHBoxLayout *m_hbox;
+	QBrush bg, light;
+	QPainterPath path;
+};
+
 struct ToolBox::Data {
 	PlaylistWidget *playlist;
-	FavoriteWidget *favorite;
-	RecentPlayedWidget *recent;
+	FavoritesWidget *favorite;
+	HistoryWidget *history;
 	VideoColorWidget *color;
 	Frame *frame;
+	ButtonWidget *button;
 	DragCharm dragCharm;
 };
 
@@ -76,34 +135,48 @@ ToolBox::ToolBox(VideoPlayer *player, PlaylistModel *model, MainWindow *mainWind
 : QDialog(mainWindow, Qt::FramelessWindowHint), d(new Data) {
 	setFocusPolicy(Qt::NoFocus);
 	d->frame = new Frame(this);
+	d->button = new ButtonWidget(this);
 	d->playlist = new PlaylistWidget(model, d->frame);
-	d->favorite = new FavoriteWidget(player, d->frame);
-	d->recent = new RecentPlayedWidget(player, d->frame);
+	d->favorite = new FavoritesWidget(player, d->frame);
+	d->history = new HistoryWidget(player, d->frame);
 	d->color = new VideoColorWidget(player, d->frame);
-	d->frame->tab->addTab(d->playlist, tr("Playlist"));
-	d->frame->tab->addTab(d->favorite, tr("Favorites"));
-	d->frame->tab->addTab(d->recent, tr("Recent Played"));
-	d->frame->tab->addTab(d->color, tr("Video Color"));
+	addPage(d->playlist, tr("Playlist"), ":/img/view-media-playlist-%1.png");
+	addPage(d->favorite, tr("Favorites"), ":/img/favorites-%1.png");
+	addPage(d->history, tr("History"), ":/img/history-%1.png");
+	addPage(d->color, tr("Video Color"), ":/img/view-media-equalizer-%1.png");
 	setWindowTitle("TOOL BOX");
 	titleBar()->setTitle("TOOL BOX");
 	titleBar()->connect(this);
 // 	titleBar()->addButton(QIcon(":/img/view-split-left-right.png"), this, SIGNAL(snapRequested()));
-	
+
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->addWidget(titleBar());
 	vbox->addWidget(d->frame);
+	vbox->addWidget(d->button);
 	vbox->setContentsMargins(3, 3, 3, 3);
 	vbox->setSpacing(0);
 
 	d->dragCharm.activate(this);
 	d->dragCharm.setBorder(7);
 	
-	connect(d->recent, SIGNAL(openRequested(Core::Mrl)), mainWindow, SLOT(openMrl(Core::Mrl)));
+	connect(d->history, SIGNAL(openRequested(Core::Mrl)), mainWindow, SLOT(openMrl(Core::Mrl)));
+	connect(d->favorite, SIGNAL(openRequested(Core::Mrl)), mainWindow, SLOT(openMrl(Core::Mrl)));
+	connect(d->button->group, SIGNAL(buttonClicked(int)), d->frame->stack, SLOT(setCurrentIndex(int)));
+
+	d->button->group->button(0)->setChecked(true);
 }
 
 
 ToolBox::~ToolBox() {
 	delete d;
+}
+
+void ToolBox::addPage(QWidget *widget, const QString &name, const QString &iconHolder) {
+	QIcon icon(iconHolder.arg("gray"));
+	icon.addFile(iconHolder.arg("color"), QSize(), QIcon::Normal, QIcon::On);
+	icon.addFile(iconHolder.arg("color"), QSize(), QIcon::Active);
+	d->button->addButton(d->frame->stack->count(), icon, name);
+	d->frame->stack->addWidget(widget);
 }
 
 void ToolBox::closeEvent(QCloseEvent *event) {
@@ -130,3 +203,4 @@ void ToolBox::resizeEvent(QResizeEvent *event) {
 
 void ToolBox::slotStarted() {
 }
+
