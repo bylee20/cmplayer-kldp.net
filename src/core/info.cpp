@@ -48,6 +48,8 @@ Info::Data::Data() {
 	subExt << "smi" << "srt" << "sub" << "txt";
 }
 
-
+QString Info::coreVersion() {
+	return "0.3.1";
+}
 
 }

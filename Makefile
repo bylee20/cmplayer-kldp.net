@@ -45,7 +45,7 @@ LRELEASE ?= lrelease
 
 cmplayer_major := 0
 cmplayer_minor := 3
-cmplayer_patch := 0
+cmplayer_patch := 1
 cmplayer_version := $(cmplayer_major).$(cmplayer_minor).$(cmplayer_patch)
 install_file := install -m 644
 install_exe := install -m 755
@@ -71,7 +71,7 @@ endif
 
 
 cmplayer:
-	@echo "\n======================= Start to complile! ======================\n"
+	@echo && echo "======================= Start to complile! ======================" && echo
 ifeq ($(config),)
 	cd src/libchardet && ./configure --enable-shared=no --enable-static=yes && make
 	cd src && $(qmake_env) $(QMAKE) $(subdirs) cmplayer.pro
@@ -100,21 +100,21 @@ ifeq ($(LOAD_CONFIG),yes) # by Manje Woo
 	@echo "!!ENGINE_LIST!! = $(ENGINE_LIST)" >> $(config_file)
 	@echo "!!BUILD_PLUGIN_ONLY!! = $(BUILD_PLUGIN_ONLY)" >> $(config_file)
 endif
-	@echo "\n===================== Compilation Finished! =====================\n"
+	@echo && echo "===================== Compilation Finished! ====================="
 else
 	@echo "  There already exists config file."
 endif
-	@echo "  Run 'make install' or 'make clean'\n  to install or re-make, repectively.\n"\
-"  You may need root permission to install.\n\n"\
-"=================== Installation Informations ===================\n\n"\
-"  CMPLAYER_BIN_PATH: $(CMPLAYER_BIN_PATH)\n"\
-"  CMPLAYER_DATA_PATH: $(CMPLAYER_DATA_PATH)\n"\
-"  CMPLAYER_TRANSLATION_PATH: $(CMPLAYER_TRANSLATION_PATH)\n"\
-"  CMPLAYER_LIB_PATH: $(CMPLAYER_LIB_PATH)\n"\
-"  CMPLAYER_PLUGIN_PATH: $(CMPLAYER_PLUGIN_PATH)\n"\
-"  ENABLE_OPENGL: $(ENABLE_OPENGL)\n"\
-"  ENGINE_LIST: $(ENGINE_LIST)\n"\
-"  BUILD_PLUGIN_ONLY: $(BUILD_PLUGIN_ONLY)\n"
+	@echo "  Run 'make install' or 'make clean' to install or re-make, repectively."
+	@echo "  You may need root permission to install." && echo && echo
+	@echo "=================== Installation Informations ===================" && echo
+	@echo "  CMPLAYER_BIN_PATH: $(CMPLAYER_BIN_PATH)"
+	@echo "  CMPLAYER_DATA_PATH: $(CMPLAYER_DATA_PATH)"
+	@echo "  CMPLAYER_TRANSLATION_PATH: $(CMPLAYER_TRANSLATION_PATH)"
+	@echo "  CMPLAYER_LIB_PATH: $(CMPLAYER_LIB_PATH)"
+	@echo "  CMPLAYER_PLUGIN_PATH: $(CMPLAYER_PLUGIN_PATH)"
+	@echo "  ENABLE_OPENGL: $(ENABLE_OPENGL)"
+	@echo "  ENGINE_LIST: $(ENGINE_LIST)"
+	@echo "  BUILD_PLUGIN_ONLY: $(BUILD_PLUGIN_ONLY)"
 
 # help:
 # 	@echo "\n===================== Configurable Options ======================\n\n"\
@@ -148,7 +148,7 @@ clean:
 	rm -f $(config_file)
 
 install: cmplayer
-	@echo "\n======================= Start to Install! =======================\n"
+	@echo && echo "======================= Start to Install! ======================="
 # install plugin directory
 ifneq ($(strip $(ENGINE_LIST)),)
 	-install -d $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
@@ -200,8 +200,8 @@ endif
 	$(install_file) icons/cmplayer128.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/128x128/apps/cmplayer.png
 # 	$(install_file) icons/cmplayer.xpm $(DESTDIR)$(CMPLAYER_DATA_PATH)/pixmaps
 endif
-	@echo "\n==================== Installation Finished!! ====================\n\n"\
-"  If you want to execute CMPlayer now, run '$(executable)'.\n"
+	@echo && echo "==================== Installation Finished!! ====================" && echo
+	@echo "  If you want to execute CMPlayer now, run '$(executable)'." && echo
 
 uninstall:
 # uninstall core and player files
