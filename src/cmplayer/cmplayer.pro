@@ -102,7 +102,7 @@ TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts
 TARGET = ../bin/cmplayer
-DEFINES += CMPLAYER_TRANSLATION_DIR=$(CMPLAYER_TRANSLATION_DIR)
+DEFINES += CMPLAYER_TRANSLATION_DIR_PATH=$(CMPLAYER_TRANSLATION_DIR)
 RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE) { 
     CONFIG += release

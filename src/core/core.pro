@@ -54,7 +54,7 @@ HEADERS += abrepeater.h \
 CONFIG += debug_and_release \
     dll
 QT += network
-DEFINES += CMPLAYER_PLUGIN_DIR=$(CMPLAYER_PLUGIN_DIR)
+DEFINES += CMPLAYER_PLUGIN_DIR_PATH=$(CMPLAYER_PLUGIN_DIR)
 RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE) { 
     CONFIG += release

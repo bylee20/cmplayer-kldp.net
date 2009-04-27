@@ -16,7 +16,7 @@ Translator::Translator()
 	qApp->installTranslator(&d->trans);
 	d->path = QString::fromLocal8Bit(qgetenv("CMPLAYER_TRANSLATION_PATH"));
 	if (d->path.isEmpty())
-		d->path = QString(CMPLAYER_TRANSLATION_DIR);
+		d->path = QString(CMPLAYER_TRANSLATION_DIR_PATH);
 	QDir dir(d->path);
 	QStringList file = dir.entryList(QStringList() << "*.qm");
 	QRegExp rx("^cmplayer_(.*).qm$");
