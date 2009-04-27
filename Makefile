@@ -50,7 +50,7 @@ cmplayer_version := $(cmplayer_major).$(cmplayer_minor).$(cmplayer_patch)
 install_file := install -m 644
 install_exe := install -m 755
 qmake_env := CMPLAYER_RELEASE=\\\"yes\\\"
-make_env := CMPLAYER_TRANSLATION_PATH=\\\"$(CMPLAYER_TRANSLATION_PATH)\\\" CMPLAYER_PLUGIN_PATH=\\\"$(CMPLAYER_PLUGIN_PATH)\\\"
+make_env := CMPLAYER_TRANSLATION_DIR=\\\"$(CMPLAYER_TRANSLATION_PATH)\\\" CMPLAYER_PLUGIN_DIR=\\\"$(CMPLAYER_PLUGIN_PATH)\\\"
 subdirs := "SUBDIRS += core OPENGL ${ENGINE_LIST} CMPLAYER"
 ifeq ($(ENABLE_OPENGL),yes)
 	subdirs := $(subst OPENGL,opengl,$(subdirs))
