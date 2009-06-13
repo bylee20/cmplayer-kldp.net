@@ -20,6 +20,7 @@ bool XineStream::open(int video, void *visual, XineEventFunc event, void *data) 
 		close();
 	xine_t *xine = XineEngine::xine();
 	do {
+		qDebug() << xine << videoDriver << audioDriver << video << visual;
 		videoPort = xine_open_video_driver(xine, videoDriver.toLocal8Bit(), video, visual);
 		if (!videoPort)
 			break;

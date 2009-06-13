@@ -43,6 +43,7 @@ PlayEngine::PlayEngine(QObject *parent)
 			, this, SLOT(slotStateChanged(Core::State, Core::State)));
 	d->ticker.start();
 	updateVideoRenderer(d->info.defaultVideoRenderer());
+	updateAudioRenderer(d->info.defaultAudioRenderer());
 }
 
 PlayEngine::~PlayEngine() {

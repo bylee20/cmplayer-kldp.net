@@ -265,13 +265,6 @@ void VideoPlayer::resizeEvent(QResizeEvent */*event*/) {
 void VideoPlayer::setBackend(const QString &name) {
 	if (d->engine && d->engine->info().name() == name)
 		return;
-	QMap<QString, Core::PlayEngine*>::iterator it = d->engines.find(name);
-	if (it == d->engines.end()) {
-		Core::BackendIface *backend = Data::backend.map.value(name, 0);
-		if (!backend)
-			return;
-		it = d->engines.insert(name, backend->createPlayEngine());
-	}
 	int time = -1;
 	if (d->engine) {
 		disconnect(d->engine, 0, this, 0);
@@ -280,7 +273,18 @@ void VideoPlayer::setBackend(const QString &name) {
 			d->engine->stop();
 		}
 	}
-	Core::PlayEngine *engine = it.value();
+	QMap<QString, Core::PlayEngine*>::iterator it = d->engines.find(name);
+	Core::PlayEngine *engine = 0;
+	if (it == d->engines.end()) {
+		Core::BackendIface *backend = Data::backend.map.value(name, 0);
+		if (backend && (engine = backend->createPlayEngine()))
+			it = d->engines.insert(name, engine);
+	} else
+		engine = it.value();
+	if (!engine)
+		engine = d->engine;
+	if (!engine)
+		return;
 	d->stack->addWidget(engine->widget());
 	engine->setCurrentSource(d->source);
 	engine->setSpeed(TO_RATE(d->speed));

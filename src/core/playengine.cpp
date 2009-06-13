@@ -276,7 +276,7 @@ void PlayEngine::setMessageOsd(AbstractOsdRenderer *osd) {
 }
 
 void PlayEngine::slotTick(int time) {
-	if (isSubtitleVisible())
+	if (isSubtitleVisible() && d->subRenderer)
 		d->subRenderer->show(time);
 }
 
@@ -302,7 +302,7 @@ void PlayEngine::updateMessageStyle(const OsdStyle &style) {
 
 void PlayEngine::updateSubtitleStyle(const OsdStyle &style) {
 	if (d->subRenderer)
-		d->subRenderer->renderer()->setStyle(style);
+		d->subRenderer->setStyle(style);
 }
 
 void PlayEngine::updateSubtitleVisiblity(bool visible) {
@@ -316,7 +316,7 @@ void PlayEngine::updateSubtitleVisiblity(bool visible) {
 
 void PlayEngine::updateSubtitlePos(double pos) {
 	if (d->subRenderer)
-		d->subRenderer->renderer()->setBottomMargin(1.0 - pos);
+		d->subRenderer->setPos(pos);
 }
 
 void PlayEngine::updateSyncDelay(int delay) {

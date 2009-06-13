@@ -4,6 +4,7 @@
 namespace Core {
 
 class Subtitle;				class AbstractOsdRenderer;
+class OsdStyle;
 
 class SubtitleRenderer {
 public:
@@ -16,7 +17,8 @@ public:
 	int delay() const;
 	void setDelay(int delay);
 	void setFrameRate(double frameRate);
-	AbstractOsdRenderer *renderer();
+	void setPos(double pos);
+	void setStyle(const OsdStyle &style);
 private:
 	struct Data;
 	Data *d;

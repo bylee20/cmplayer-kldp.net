@@ -4,7 +4,7 @@
 #include <QtCore/QDebug>
 
 namespace Core {
-
+#define POS_TO_MARGIN(pos) (qBound(0.0, 1.0 - (pos), 1.0))
 struct SubtitleRenderer::Data {
 	bool available() const {return sub && renderer && !comp.isEmpty();}
 	AbstractOsdRenderer *renderer;
@@ -12,7 +12,8 @@ struct SubtitleRenderer::Data {
 	Subtitle::Component comp;
 	int delay;
 	Subtitle::Component::const_iterator prev;
-	double frameRate;
+	double frameRate, margin;
+	OsdStyle style;
 };
 
 SubtitleRenderer::SubtitleRenderer(AbstractOsdRenderer *renderer)
@@ -22,6 +23,7 @@ SubtitleRenderer::SubtitleRenderer(AbstractOsdRenderer *renderer)
 	d->delay = 0;
 	d->frameRate = -1.0;
 	d->prev = d->comp.end();
+	d->margin = POS_TO_MARGIN(1.0);
 }
 
 SubtitleRenderer::~SubtitleRenderer() {
@@ -29,7 +31,10 @@ SubtitleRenderer::~SubtitleRenderer() {
 }
 
 void SubtitleRenderer::setRenderer(AbstractOsdRenderer *renderer) {
-	d->renderer = renderer;
+	if ((d->renderer = renderer)) {
+		d->renderer->setBottomMargin(d->margin);
+		d->renderer->setStyle(d->style);
+	}
 }
 
 void SubtitleRenderer::show(int time) {
@@ -41,10 +46,6 @@ void SubtitleRenderer::show(int time) {
 		if (it != d->comp.end())
 			d->renderer->renderText(it.value());
 	}
-}
-
-AbstractOsdRenderer *SubtitleRenderer::renderer() {
-	return d->renderer;
 }
 
 void SubtitleRenderer::setSubtitle(const Subtitle *sub, double frameRate) {
@@ -77,6 +78,18 @@ void SubtitleRenderer::setFrameRate(double frameRate) {
 			d->prev = d->comp.end();
 		}
 	}
+}
+
+void SubtitleRenderer::setPos(double pos) {
+	d->margin = POS_TO_MARGIN(pos);
+	if (d->renderer)
+		d->renderer->setBottomMargin(d->margin);
+}
+
+void SubtitleRenderer::setStyle(const OsdStyle &style) {
+	d->style = style;
+	if (d->renderer)
+		d->renderer->setStyle(style);
 }
 
 }
