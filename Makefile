@@ -3,6 +3,7 @@ ifeq ($(LOAD_CONFIG), yes)
 	config_file := make_config
 	config := $(strip $(shell cat $(config_file)))
 	ifneq ($(config),)
+		ALL_INTO := $(shell grep \!\!ALL_INTO\!\! $(config_file) | sed s/^.*\\s=\\s//)
 		PREFIX := $(shell grep \!\!PREFIX\!\! $(config_file) | sed s/^.*\\s=\\s//)
 		CMPLAYER_BIN_PATH := $(shell grep \!\!CMPLAYER_BIN_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
 		CMPLAYER_DATA_PATH := $(shell grep \!\!CMPLAYER_DATA_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
@@ -15,24 +16,25 @@ ifeq ($(LOAD_CONFIG), yes)
 	endif
 endif
 
-ifdef PREFIX
-	ifneq ($(PREFIX),)
-		CMPLAYER_BIN_PATH ?= $(PREFIX)/cmplayer
-		CMPLAYER_DATA_PATH ?= $(PREFIX)
-		CMPLAYER_TRANSLATION_PATH ?= $(PREFIX)/cmplayer/translations
-		CMPLAYER_LIB_PATH ?= $(PREFIX)/cmplayer/lib
-		CMPLAYER_PLUGIN_PATH ?= $(PREFIX)/cmplayer/plugins
-		CMPLAYER_ICON_PATH ?= $(PREFIX)/cmplayer/icons/hicolor
-		CMPLAYER_APP_PATH ?= $(PREFIX)/cmplayer/applications
+ifdef ALL_INTO
+	ifneq ($(ALL_INTO),)
+		CMPLAYER_BIN_PATH ?= $(ALL_INTO)
+# 		CMPLAYER_DATA_PATH ?= $(ALL_INTO)/data
+		CMPLAYER_TRANSLATION_PATH ?= $(ALL_INTO)/translations
+		CMPLAYER_LIB_PATH ?= $(ALL_INTO)/lib
+		CMPLAYER_PLUGIN_PATH ?= $(ALL_INTO)/plugins
+		CMPLAYER_ICON_PATH ?= $(ALL_INTO)/icons
+		CMPLAYER_APP_PATH ?= $(ALL_INTO)
 	endif
 endif
 
 INSTALL_SYMBOLIC ?= yes
 
-CMPLAYER_BIN_PATH ?= /usr/local/bin
-CMPLAYER_DATA_PATH ?= /usr/local/share
+PREFIX ?= /usr/local
+CMPLAYER_BIN_PATH ?= $(PREFIX)/bin
+CMPLAYER_DATA_PATH ?= $(PREFIX)/share
+CMPLAYER_LIB_PATH ?= $(PREFIX)/lib
 CMPLAYER_TRANSLATION_PATH ?= $(CMPLAYER_DATA_PATH)/cmplayer/translations
-CMPLAYER_LIB_PATH ?= /usr/local/lib
 CMPLAYER_PLUGIN_PATH ?= $(CMPLAYER_LIB_PATH)/cmplayer/plugins
 ENABLE_OPENGL ?= no
 ENGINE_LIST ?= xine mplayer
@@ -90,6 +92,7 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 endif
 	cd src && $(make_env) make && cd cmplayer && $(LRELEASE) cmplayer.pro
 ifeq ($(LOAD_CONFIG),yes) # by Manje Woo
+	@echo "!!ALL_INTO!! = $(ALL_INTO)" >> $(config_file)
 	@echo "!!PREFIX!! = $(PREFIX)" >> $(config_file)
 	@echo "!!CMPLAYER_BIN_PATH!! = $(CMPLAYER_BIN_PATH)" >> $(config_file)
 	@echo "!!CMPLAYER_DATA_PATH!! = $(CMPLAYER_DATA_PATH)" >> $(config_file)
@@ -108,7 +111,7 @@ endif
 	@echo "  You may need root permission to install." && echo && echo
 	@echo "=================== Installation Informations ===================" && echo
 	@echo "  CMPLAYER_BIN_PATH: $(CMPLAYER_BIN_PATH)"
-	@echo "  CMPLAYER_DATA_PATH: $(CMPLAYER_DATA_PATH)"
+# 	@echo "  CMPLAYER_DATA_PATH: $(CMPLAYER_DATA_PATH)"
 	@echo "  CMPLAYER_TRANSLATION_PATH: $(CMPLAYER_TRANSLATION_PATH)"
 	@echo "  CMPLAYER_LIB_PATH: $(CMPLAYER_LIB_PATH)"
 	@echo "  CMPLAYER_PLUGIN_PATH: $(CMPLAYER_PLUGIN_PATH)"
@@ -176,7 +179,7 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	-install -d $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
 	-install -d $(DESTDIR)$(CMPLAYER_LIB_PATH)
 	-install -d $(DESTDIR)$(CMPLAYER_APP_PATH)
-	-install -d $(DESTDIR)$(CMPLAYER_DATA_PATH)/pixmaps
+# 	-install -d $(DESTDIR)$(CMPLAYER_DATA_PATH)/pixmaps
 	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/16x16/apps
 	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/22x22/apps
 	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/32x32/apps
@@ -242,7 +245,7 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	-rmdir $(CMPLAYER_ICON_PATH)/48x48/apps
 	-rmdir $(CMPLAYER_ICON_PATH)/64x64/apps
 	-rmdir $(CMPLAYER_ICON_PATH)/128x128/apps
-	-rmdir $(CMPLAYER_DATA_PATH)/pixmaps
+# 	-rmdir $(CMPLAYER_DATA_PATH)/pixmaps
 endif
 ifneq ($(strip $(ENGINE_LIST)),)
 	-rmdir $(CMPLAYER_PLUGIN_PATH)
