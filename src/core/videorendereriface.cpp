@@ -3,6 +3,7 @@
 #include <QtGui/QWidget>
 #include <QtCore/QPointF>
 #include <QtGui/QResizeEvent>
+#include <stdint.h>
 #include <cmath>
 
 namespace Core {

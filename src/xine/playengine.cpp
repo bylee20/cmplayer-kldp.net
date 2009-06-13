@@ -450,7 +450,7 @@ bool PlayEngine::updateVideoRenderer(const QString &name) {
 	setTimeLineOsd(0);
 	d->stream.close();
 	delete d->renderer;
-#if HAS_RAW	
+#if HAS_RAW_OUTPUT
 	if (name == "raw" && Core::OpenGLFactory::isAvailable()) {
 		GLRenderer *renderer = new GLRenderer(&d->stream);
 		d->renderer = renderer->renderer();
@@ -460,7 +460,7 @@ bool PlayEngine::updateVideoRenderer(const QString &name) {
 		NativeRenderer *renderer = new XcbNativeRenderer(this, &d->stream);
 		d->renderer = renderer;
 		d->video = renderer;
-#if HAS_RAW
+#if HAS_RAW_OUTPUT
 	}
 #endif
 	d->stream.videoDriver = name;
