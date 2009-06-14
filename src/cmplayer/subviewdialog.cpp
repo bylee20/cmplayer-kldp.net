@@ -1,19 +1,12 @@
 #include "subviewdialog.h"
 #include "videoplayer.h"
+#include "subcompview.h"
 #include <core/subtitle.h>
-#include <QtGui/QTextEdit>
-#include <QtGui/QPushButton>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
-#include <QtGui/QPushButton>
-#include <QtCore/QRegExp>
-#include <QtGui/QScrollArea>
-#include <core/subtitle.h>
-#include <QtGui/QLabel>
-#include <QtGui/QTreeWidget>
 #include <QtGui/QCheckBox>
 #include <QtGui/QDialogButtonBox>
-#include "subcompview.h"
+
 
 struct SubViewDialog::Data {
 	QList<SubCompView*> view;
@@ -71,9 +64,8 @@ void SubViewDialog::showCurrentSubtitle() {
 		d->viewBox->addWidget(view);
 		d->view.append(view);
 	}
-	for (int i=0; i<d->sub.count(); ++i) {
+	for (int i=0; i<d->sub.count(); ++i)
 		d->view[i]->setComponent(d->sub[i]);
-	}
 }
 
 void SubViewDialog::setStartEndVisible(bool visible) {

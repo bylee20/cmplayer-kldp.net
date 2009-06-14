@@ -406,7 +406,7 @@ void Menu::updatePref() {
 	list["open"]->setText(tr("Open"));
 	list["clear"]->setText(tr("Clear"));
 	list["hide"]->setText(tr("Hide"));
-	sub["viewer"]->setText(tr("Open Viewer"));
+	sub["viewer"]->setText(tr("View Current Subtitle"));
 	setActionAttr(sub["pos up"], -p.subtitlePosStep
 			, tr("Up %1%"), p.subtitlePosStep, false);
 	setActionAttr(sub["pos down"], p.subtitlePosStep
