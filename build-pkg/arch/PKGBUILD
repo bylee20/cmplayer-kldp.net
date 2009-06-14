@@ -1,0 +1,43 @@
+# Maintainer: xylosper <darklin20@gmail.com>
+# You need to install makepkg-git which supports spliting package from:
+# http://dev.archlinux.org/~allan/makepkg-git.html
+
+pkgname=('cmplayer' 'cmplayer-xine' 'cmplayer-mplayer')
+pkgver=0.3.1
+pkgrel=1
+arch=('i686' 'x86_64')
+url="http://kldp.net/projects/cmplayer/"
+license=('GPL')
+depends=('qt>=4.4')
+#source=(http://kldp.net/frs/download.php/5212/$pkgname-$pkgver-src.tar.gz)
+source=(http://xylosper.net/$pkgname-$pkgver-src.tar.gz)
+md5sums=('b6ef09c175136ccc83860ef9f1b90a04')
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make PREFIX=/usr || return 1
+}
+
+package_cmplayer() {
+  pkgdesc="CMPlayer is a multimedia player."
+  makedepends=('xine-lib')
+
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR=$pkgdir ENGINE_LIST="" install || return 1
+}
+
+package_cmplayer-xine() {
+  pkgdesc="xine play engine for CMPlayer"
+  depends=('cmplayer' 'xine-lib')
+
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR=$pkgdir BUILD_PLUGIN_ONLY="yes" ENGINE_LIST="xine" install || return 1
+}
+
+package_cmplayer-mplayer() {
+  pkgdesc="xine play engine for CMPlayer"
+  depends=('cmplayer' 'mplayer')
+
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR=$pkgdir BUILD_PLUGIN_ONLY="yes" ENGINE_LIST="mplayer" install || return 1
+}

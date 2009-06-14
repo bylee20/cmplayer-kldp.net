@@ -1,0 +1,24 @@
+Source: cmplayer
+Section: graphics
+Priority: optional
+Maintainer: xylosper <darklin20@gmail.com>
+Build-Depends: debhelper (>= 4.1.16), libqt4-dev (>= 4.4), libxine-dev, libxcb1-dev, libx11-dev
+
+Package: cmplayer
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: CMPlayer - a media player
+ CMPlayer is a media player.
+
+Package: cmplayer-mplayer
+Architecture: any
+Depends: ${shlibs:Depends}, cmplayer, mplayer | mplayer-nogui
+Description: MPlayer play engine for CMPlayer
+ MPlayer play engine for CMPlayer.
+
+Package: cmplayer-xine
+Architecture: any
+Depends: ${shlibs:Depends}, cmplayer, libxine1, libxcb1
+Description: Xine play engine for CMPlayer
+ Xine play engine for CMPlayer.
+ 
