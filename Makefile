@@ -10,6 +10,9 @@ ifeq ($(LOAD_CONFIG), yes)
 		CMPLAYER_TRANSLATION_PATH := $(shell grep \!\!CMPLAYER_TRANSLATION_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
 		CMPLAYER_LIB_PATH := $(shell grep \!\!CMPLAYER_LIB_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
 		CMPLAYER_PLUGIN_PATH := $(shell grep \!\!CMPLAYER_PLUGIN_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
+		CMPLAYER_ICON_PATH := $(shell grep \!\!CMPLAYER_ICON_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
+		CMPLAYER_APP_PATH := $(shell grep \!\!CMPLAYER_APP_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
+		CMPLAYER_ACTION_PATH := $(shell grep \!\!CMPLAYER_ACTION_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
 		ENABLE_OPENGL := $(shell grep \!\!ENABLE_OPENGL\!\! $(config_file) | sed s/^.*\\s=\\s//)
 		ENGINE_LIST := $(shell grep \!\!ENGINE_LIST\!\! $(config_file) | sed s/^.*\\s=\\s//)
 		BUILD_PLUGIN_ONLY := $(shell grep \!\!BUILD_PLUGIN_ONLY\!\! $(config_file) | sed s/^.*\\s=\\s//)
@@ -19,12 +22,13 @@ endif
 ifdef ALL_INTO
 	ifneq ($(ALL_INTO),)
 		CMPLAYER_BIN_PATH ?= $(ALL_INTO)
-# 		CMPLAYER_DATA_PATH ?= $(ALL_INTO)/data
+ 		CMPLAYER_DATA_PATH ?= $(ALL_INTO)
 		CMPLAYER_TRANSLATION_PATH ?= $(ALL_INTO)/translations
 		CMPLAYER_LIB_PATH ?= $(ALL_INTO)/lib
 		CMPLAYER_PLUGIN_PATH ?= $(ALL_INTO)/plugins
 		CMPLAYER_ICON_PATH ?= $(ALL_INTO)/icons
 		CMPLAYER_APP_PATH ?= $(ALL_INTO)
+		CMPLAYER_ACTION_PATH ?= $(ALL_INT)
 	endif
 endif
 
@@ -36,18 +40,19 @@ CMPLAYER_DATA_PATH ?= $(PREFIX)/share
 CMPLAYER_LIB_PATH ?= $(PREFIX)/lib
 CMPLAYER_TRANSLATION_PATH ?= $(CMPLAYER_DATA_PATH)/cmplayer/translations
 CMPLAYER_PLUGIN_PATH ?= $(CMPLAYER_LIB_PATH)/cmplayer/plugins
+CMPLAYER_ICON_PATH ?= $(CMPLAYER_DATA_PATH)/icons/hicolor
+CMPLAYER_APP_PATH ?= $(CMPLAYER_DATA_PATH)/applications
+CMPLAYER_ACTION_PATH ?= $(CMPLAYER_DATA_PATH)/apps/solid/actions
+
 ENABLE_OPENGL ?= no
 ENGINE_LIST ?= xine mplayer
 BUILD_PLUGIN_ONLY ?= no
-CMPLAYER_ICON_PATH ?= $(CMPLAYER_DATA_PATH)/icons/hicolor
-CMPLAYER_APP_PATH ?= $(CMPLAYER_DATA_PATH)/applications
-
 QMAKE ?= qmake
 LRELEASE ?= lrelease
 
 cmplayer_major := 0
 cmplayer_minor := 3
-cmplayer_patch := 1
+cmplayer_patch := 2
 cmplayer_version := $(cmplayer_major).$(cmplayer_minor).$(cmplayer_patch)
 install_file := install -m 644
 install_exe := install -m 755
@@ -92,6 +97,7 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 endif
 	cd src && $(make_env) make && cd cmplayer && $(LRELEASE) cmplayer.pro
 ifeq ($(LOAD_CONFIG),yes) # by Manje Woo
+	@-rm -f $(config_file)
 	@echo "!!ALL_INTO!! = $(ALL_INTO)" >> $(config_file)
 	@echo "!!PREFIX!! = $(PREFIX)" >> $(config_file)
 	@echo "!!CMPLAYER_BIN_PATH!! = $(CMPLAYER_BIN_PATH)" >> $(config_file)
@@ -99,6 +105,9 @@ ifeq ($(LOAD_CONFIG),yes) # by Manje Woo
 	@echo "!!CMPLAYER_TRANSLATION_PATH!! = $(CMPLAYER_TRANSLATION_PATH)" >> $(config_file)
 	@echo "!!CMPLAYER_LIB_PATH!! = $(CMPLAYER_LIB_PATH)" >> $(config_file)
 	@echo "!!CMPLAYER_PLUGIN_PATH!! = $(CMPLAYER_PLUGIN_PATH)" >> $(config_file)
+	@echo "!!CMPLAYER_ICON_PATH!! = $(CMPLAYER_ICON_PATH)" >> $(config_file)
+	@echo "!!CMPLAYER_APP_PATH!! = $(CMPLAYER_APP_PATH)" >> $(config_file)
+	@echo "!!CMPLAYER_ACTION_PATH!! = $(CMPLAYER_ACTION_PATH)" >> $(config_file)
 	@echo "!!ENABLE_OPENGL!! = $(ENABLE_OPENGL)" >> $(config_file)
 	@echo "!!ENGINE_LIST!! = $(ENGINE_LIST)" >> $(config_file)
 	@echo "!!BUILD_PLUGIN_ONLY!! = $(BUILD_PLUGIN_ONLY)" >> $(config_file)
@@ -179,6 +188,7 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	-install -d $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
 	-install -d $(DESTDIR)$(CMPLAYER_LIB_PATH)
 	-install -d $(DESTDIR)$(CMPLAYER_APP_PATH)
+	-install -d $(DESTDIR)$(CMPLAYER_ACTION_PATH)
 # 	-install -d $(DESTDIR)$(CMPLAYER_DATA_PATH)/pixmaps
 	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/16x16/apps
 	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/22x22/apps
@@ -195,6 +205,7 @@ ifeq ($(INSTALL_SYMBOLIC),yes)
 && ln -s libcmplayer_core.so.$(cmplayer_version) libcmplayer_core.so.$(cmplayer_major).$(cmplayer_minor)
 endif
 	$(install_file) cmplayer.desktop $(DESTDIR)$(CMPLAYER_APP_PATH)
+	$(install_file) cmplayer-opendvd.desktop $(DESTDIR)$(CMPLAYER_ACTION_PATH)
 	$(install_file) icons/cmplayer16.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/16x16/apps/cmplayer.png
 	$(install_file) icons/cmplayer22.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/22x22/apps/cmplayer.png
 	$(install_file) icons/cmplayer32.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/32x32/apps/cmplayer.png
