@@ -302,6 +302,7 @@ void VideoPlayer::setBackend(const QString &name) {
 	engine->setUseSoftwareEqualizer(d->softEq);
 	engine->setColorProperty(d->color);
 	engine->setCurrentTrack(d->track);
+
 	connect(engine, SIGNAL(currentSourceChanged(const Core::MediaSource&))
 			, this, SIGNAL(currentSourceChanged(const Core::MediaSource&)));
 	connect(engine, SIGNAL(colorPropertyChanged(const Core::ColorProperty&))
@@ -682,6 +683,10 @@ void VideoPlayer::setSubtitleVisible(bool visible) {
 
 bool VideoPlayer::useSoftwareEqualizer() const {
 	return d->softEq;
+}
+
+const Core::Subtitle &VideoPlayer::subtitle() const {
+	return d->sub;
 }
 
 #undef ENGINE_SET

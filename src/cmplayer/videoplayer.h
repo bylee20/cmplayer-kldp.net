@@ -61,6 +61,7 @@ public:
 	static const BackendMap &load();
 	static const BackendMap &backend();
 	const Core::Info *info() const;
+	const Core::Subtitle &subtitle() const;
 public slots:
 	void triggerSnapshot();
 	void stop();
@@ -95,6 +96,7 @@ signals:
 	void spusChanged(const QStringList &spus);
 	void snapshotTaken(const QImage &image);
 	void colorPropertyChanged();
+	void frameRateChanged(double frameRate);
 private slots:
 	void slotStateChanged(Core::State state, Core::State old);
 	void slotFinished(Core::MediaSource source);

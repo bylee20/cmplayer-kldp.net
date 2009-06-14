@@ -37,7 +37,7 @@ Subtitle::Component::const_iterator Subtitle::Component::end(int time, double fr
 			return end();
 		key = qRound(time*0.001*frameRate);
 	}
-	return upperBound(time);
+	return upperBound(key);
 }
 
 Subtitle::Component &Subtitle::Component::unite(const Component &other, double frameRate) {

@@ -452,19 +452,20 @@ bool PlayEngine::updateVideoRenderer(const QString &name) {
 	d->stream.close();
 	delete d->renderer;
 #if HAS_RAW_OUTPUT
-	if (name == "raw" && Core::OpenGLFactory::isAvailable()) {
+	if (name == "software" && Core::OpenGLFactory::isAvailable()) {
 		GLRenderer *renderer = new GLRenderer(&d->stream);
 		d->renderer = renderer->renderer();
 		d->video = renderer;
+		d->stream.videoDriver = "raw";
 	} else {
 #endif
 		NativeRenderer *renderer = new XcbNativeRenderer(this, &d->stream);
 		d->renderer = renderer;
 		d->video = renderer;
+		d->stream.videoDriver = name;
 #if HAS_RAW_OUTPUT
 	}
 #endif
-	d->stream.videoDriver = name;
 	if (!d->stream.open(d->video->xineType(), d->video->visual(), eventListener, this))
 		return false;
 	setSubtitleOsd(d->renderer->createOsd());

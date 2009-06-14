@@ -186,7 +186,8 @@ Menu &Menu::create(QWidget *parent) {
 	sList->addAction("open");
 	sList->addAction("clear");
 	sList->addAction("hide")->setCheckable(true);
-		
+	subtitle->addAction("viewer");
+
 	subtitle->addSeparator();
 		
 	subtitle->addActionToGroup("pos up", false, "pos")->setShortcut(Qt::Key_W);
@@ -405,6 +406,7 @@ void Menu::updatePref() {
 	list["open"]->setText(tr("Open"));
 	list["clear"]->setText(tr("Clear"));
 	list["hide"]->setText(tr("Hide"));
+	sub["viewer"]->setText(tr("Open Viewer"));
 	setActionAttr(sub["pos up"], -p.subtitlePosStep
 			, tr("Up %1%"), p.subtitlePosStep, false);
 	setActionAttr(sub["pos down"], p.subtitlePosStep

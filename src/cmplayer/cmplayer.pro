@@ -43,7 +43,9 @@ SOURCES += main.cpp \
     qtsingleapplication/qtsingleapplication.cpp \
     qtsingleapplication/qtsinglecoreapplication.cpp \
     favoriteswidget.cpp \
-    historywidget.cpp
+    historywidget.cpp \
+    subviewdialog.cpp \
+    subcompview.cpp
 HEADERS += mainwindow.h \
     abrepeatdialog.h \
     playinfowidget.h \
@@ -86,7 +88,9 @@ HEADERS += mainwindow.h \
     qtsingleapplication/qtsingleapplication.h \
     qtsingleapplication/qtsinglecoreapplication.h \
     favoriteswidget.h \
-    historywidget.h
+    historywidget.h \
+    subviewdialog.h \
+    subcompview.h
 FORMS += ./ui/abrepeatdialog.ui \
     ./ui/prefosdwidget.ui \
     ui/geturldialog.ui \

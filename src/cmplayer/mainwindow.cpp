@@ -1,4 +1,5 @@
 #include "pref_dialog.h"
+#include "subviewdialog.h"
 #include "controlwidget.h"
 #include "checkdialog.h"
 #include "state.h"
@@ -63,6 +64,7 @@ struct MainWindow::Data {
 	QSystemTrayIcon *tray;
 	DragCharm dragCharm;
 	QRect toolRect;
+	SubViewDialog *subViewer;
 };
 
 MainWindow::MainWindow(const Core::Mrl &mrl)
@@ -97,6 +99,8 @@ void MainWindow::commonInitialize() {
 	d->player = new VideoPlayer(this);
 	d->repeater = new ABRepeatDialog(this);
 	d->snapshot = new SnapshotDialog(this);
+	d->subViewer = new SubViewDialog(d->player, this);
+
 	d->snapshot->setVideoPlayer(d->player);
 	
 	d->model = new PlaylistModel(d->player);
@@ -154,6 +158,7 @@ void MainWindow::commonInitialize() {
 	connect(sub("list")["clear"], SIGNAL(triggered()), this, SLOT(clearSubs()));
 	connect(sub("list").g(), SIGNAL(triggered(QAction*))
 			, this, SLOT(slotSubtitle(QAction*)));
+	connect(sub["viewer"], SIGNAL(triggered()), this, SLOT(openSubViewer()));
 	connect(sub.g("pos"), SIGNAL(triggered(int)), this, SLOT(setSubtitlePos(int)));
 	connect(sub.g("sync"), SIGNAL(triggered(int)), this, SLOT(setSyncDelay(int)));
 	connect(menu["pref"], SIGNAL(triggered()), this, SLOT(showPrefDialog()));
@@ -359,6 +364,8 @@ void MainWindow::clearSubs() {
 	for (int i=0; i<acts.size(); ++i)
 		delete acts[i];
 	d->player->setSubtitle(d->sub);
+	d->subViewer->showCurrentSubtitle();
+//	d->subViewer->setSubtitle(d->sub);
 }
 
 void MainWindow::updateSubtitle() {
@@ -382,6 +389,9 @@ void MainWindow::updateSubtitle() {
 	for (int i=0; i<order.size(); ++i)
 		sub.append(d->sub[order[i]]);
 	d->player->setSubtitle(sub);
+	if (d->subViewer->isVisible())
+		d->subViewer->showCurrentSubtitle();
+//		d->subViewer->setSubtitle(d->sub);
 }
 
 void MainWindow::slotSubtitle(QAction *action) {
@@ -1120,6 +1130,14 @@ void MainWindow::setMuted(bool muted) {
 	else
 		d->menu("audio")["mute"]->setIcon(QIcon(":/img/irc-voice.png"));
 	d->player->setMuted(muted);
+}
+
+void MainWindow::openSubViewer() {
+	if (!d->subViewer->isVisible()) {
+		d->subViewer->showCurrentSubtitle();
+		d->subViewer->adjustSize();
+		d->subViewer->show();
+	}
 }
 
 // void MainWindow::slotCurrentSourceChanged(const Core::MediaSource &source) {

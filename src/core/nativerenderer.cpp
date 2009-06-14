@@ -49,7 +49,6 @@ NativeRenderer::~NativeRenderer() {
 bool NativeRenderer::eventFilter(QObject *obj, QEvent *event) {
 	if (event->type() == QEvent::Paint && (obj == this || obj == d->video
 			|| (obj == d->screen && d->engine->isStopped()))) {
-// 		qDebug() << "paint";
 		QWidget *widget = static_cast<QWidget*>(obj);
 		QPainter painter(widget);
 		painter.fillRect(widget->rect(), Qt::black);

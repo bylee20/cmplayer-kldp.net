@@ -50,6 +50,7 @@ private slots:
 	void updateRecentActions(const RecentStack &files);
 	void updateOnTop();
 	void updateRecentSize(int size);
+	void openSubViewer();
 	void slotTracksChanged(const QStringList &tracks);
 	void slotCurrentTrackChanged(const QString &track);
 	void slotSpusChanged(const QStringList &spus);
