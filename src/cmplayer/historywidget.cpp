@@ -107,7 +107,7 @@ void HistoryWidget::save() const {
 	for (int i=0; i<count; ++i) {
 		Item *item = static_cast<Item*>(d->tree->topLevelItem(i));
 		set.setArrayIndex(i);
-		set.setValue("Url", item->mrl());
+		set.setValue("Url", item->mrl().url());
 		set.setValue("DateTime", item->dateTime());
 	}
 	set.endArray();

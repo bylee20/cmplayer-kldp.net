@@ -2,10 +2,10 @@
 #include "mediasource.h"
 #include "downloader.h"
 #include "info.h"
+#include "mrl.h"
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QTextStream>
 #include <QtCore/QRegExp>
-#include <QtCore/QUrl>
 #include <QtCore/QTextCodec>
 
 namespace Core {
@@ -57,11 +57,11 @@ bool Playlist::load(QFile *file, const QString &enc) {
 	return true;
 }
 
-bool Playlist::load(const QUrl &url, const QString &enc) {
-	if (url.scheme().toLower() == "file")
-		return load(url.toLocalFile(), enc);
+bool Playlist::load(const Mrl &mrl, const QString &enc) {
+	if (mrl.scheme().toLower() == "file")
+		return load(mrl.toLocalFile(), enc);
 	QTemporaryFile file(Core::Info::privatePath() + "/temp_XXXXXX.pls");
-	if (!file.open() || !Downloader::get(url, &file, 30000))
+	if (!file.open() || !Downloader::get(mrl.url(), &file, 30000))
 		return false;
 	return load(&file, enc);
 }

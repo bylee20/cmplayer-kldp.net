@@ -280,7 +280,7 @@ QMimeData *PlaylistModel::mimeData(const QModelIndexList &indexes) const {
 	for (int i=0; i<indexes.size(); ++i) {
 		const int row = indexes[i].row();
 		if (row != -1 && !rows.contains(row)) {
-			stream << row << d->list[row].mrl() << (currentRow() == row);
+			stream << row << d->list[row].mrl().url() << (currentRow() == row);
 			rows << row;
 		}
 	}

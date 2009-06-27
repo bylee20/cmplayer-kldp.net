@@ -122,19 +122,19 @@ void RecentInfo::load() {
 void RecentInfo::save() const {
 	QSettings set(Helper::recentFile(), QSettings::IniFormat);
 	set.beginGroup("RecentInfo");
-	set.setValue("LastSource", d->source.mrl());
+	set.setValue("LastSource", d->source.mrl().url());
 	int size = d->stack.size();
 	set.beginWriteArray("Recents", size);
 	for (int i=0; i<size; ++i) {
 		set.setArrayIndex(i);
-		set.setValue("Source", d->stack[i].mrl());
+		set.setValue("Source", d->stack[i].mrl().url());
 	}
 	set.endArray();
 	size = d->playlist.size();
 	set.beginWriteArray("LastPlaylist", size);
 	for (int i=0; i<size; ++i) {
 		set.setArrayIndex(i);
-		set.setValue("Source", d->playlist[i].mrl());
+		set.setValue("Source", d->playlist[i].mrl().url());
 	}
 	set.endArray();
 	if (Pref::get().rememberStopped) {
@@ -143,7 +143,7 @@ void RecentInfo::save() const {
 		Data::StoppedMap::const_iterator it = d->stopped.begin();
 		for (int i=0; it != d->stopped.end(); ++it, ++i) {
 			set.setArrayIndex(i);
-			set.setValue("Source", it.key().mrl());
+			set.setValue("Source", it.key().mrl().url());
 			set.setValue("Time", it.value());
 		}
 		set.endArray();

@@ -230,7 +230,6 @@ ControlWidget *MainWindow::createControl(QWidget *parent) {
 	control->connectOpen(d->menu("open")["file"]);
 	control->connectFullScreen(d->menu("screen")("size")["full"]);
 	control->connectPlaylist(d->menu("play")["list"]);
-// 	control->setFixedHeight(control->sizeHint().height());
 	return control;
 }
 
@@ -881,7 +880,7 @@ void MainWindow::updateRecentActions(const RecentStack &stack) {
 	QList<QAction*> acts = group->actions();
 	for (int i=0; i<stack.size(); ++i) {
 		QAction *act = acts[i];
-		act->setData(stack[i].mrl());
+		act->setData(stack[i].mrl().url());
 		act->setText(stack[i].displayName());
 		act->setVisible(stack[i].isValid());
 	}

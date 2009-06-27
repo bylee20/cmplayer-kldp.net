@@ -4,9 +4,11 @@
 #include <QtCore/QList>
 #include "mediasource.h"
 
-class QFile;				class QUrl;
+class QFile;
 
 namespace Core {
+
+class Mrl;
 
 class Playlist : public QList<MediaSource> {
 public:
@@ -15,7 +17,7 @@ public:
 	Playlist(const QList<MediaSource> &rhs);
 	bool save(const QString &filePath) const;
 	bool load(const QString &filePath, const QString &enc = QString());
-	bool load(const QUrl &url, const QString &enc = QString());
+	bool load(const Mrl &url, const QString &enc = QString());
 	bool load(QFile *file, const QString &enc = QString());
 };
 

@@ -232,7 +232,7 @@ void FavoritesWidget::save(QTreeWidgetItem *item, QSettings *set) const {
 		set->setValue("Name", itm->name());
 		set->setValue("IsFolder", itm->isFolder());
 		if (!itm->isFolder())
-			set->setValue("Url", static_cast<MrlItem*>(itm)->mrl());
+			set->setValue("Url", static_cast<MrlItem*>(itm)->mrl().url());
 	}
 	const int count = item->childCount();
 	set->beginWriteArray("Items", count);

@@ -90,9 +90,8 @@ public:
 	}
 	QAction *addActionToGroup(const QString &key
 			, bool checkable = false, const QString &group = "") {
-		QAction *action = addAction(key);
+		QAction *action = addAction(key, checkable);
 		addGroup(group)->addAction(action);
-		action->setCheckable(checkable);
 		return action;
 	}
 	QAction *addAction(const QString &key, bool checkable = false) {

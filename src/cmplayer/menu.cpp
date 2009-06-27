@@ -2,8 +2,10 @@
 #include "pref.h"
 #include <core/info.h>
 #include <core/colorproperty.h>
+#include <core/mrl.h>
 #include <QtCore/QUrl>
 #include <QtCore/QSettings>
+#include <QtCore/QDebug>
 
 void ActionGroup::emitData(QAction *action) {
 	const QVariant data = action->data();
@@ -15,7 +17,7 @@ void ActionGroup::emitData(QAction *action) {
 	else if (data.type() == QVariant::String)
 		emit triggered(data.toString());
 	else if (data.type() == QVariant::Url)
-		emit triggered(data.toUrl());
+		emit triggered(Core::Mrl(data.toUrl()));
 }
 
 Menu *Menu::obj = 0;
