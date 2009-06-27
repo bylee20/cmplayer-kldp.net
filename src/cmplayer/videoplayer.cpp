@@ -1,18 +1,15 @@
 #include "videoplayer.h"
 #include "recentinfo.h"
+#include "backendmanager.h"
 #include <core/info.h>
 #include <core/subtitle.h>
 #include <core/backendiface.h>
 #include <core/painterosdrenderer.h>
 #include <QtGui/QStackedWidget>
-#include <QtGui/QApplication>
 #include <QtGui/QPainter>
 #include <QtGui/QImage>
 #include <QtGui/QLinearGradient>
 #include <QtCore/QDebug>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
-#include <QtCore/QPluginLoader>
 
 #define TO_PERCENT(rate) (qRound((rate)*100.0))
 #define TO_RATE(percent) (static_cast<double>((percent))*0.01)
@@ -121,15 +118,6 @@ private:
 	QPainterPath m_lightPath;
 };
 
-struct VideoPlayer::Backend {
-	~Backend() {
-		for (BackendMap::iterator it = map.begin(); it != map.end(); ++it)
-			delete it.value();
-	}
-	BackendMap map;
-	QSet<QString> file;
-};
-
 struct VideoPlayer::Data {
 	QWidget *main;
 	QStackedWidget *stack;
@@ -149,40 +137,7 @@ struct VideoPlayer::Data {
 	Core::Subtitle sub;
 	Core::OsdStyle subStyle;
 	Core::ColorProperty color;
-	
-	static Backend backend;
 };
-
-VideoPlayer::Backend VideoPlayer::Data::backend;
-
-const BackendMap &VideoPlayer::load() {
-	QDir dir(Core::Info::pluginPath());
-	if (dir.exists()) {
-		static QRegExp rxFilter("^libcmplayer_engine_(.+).so$");
-		const QFileInfoList file = dir.entryInfoList(QDir::Files);
-		for (int i=0; i<file.size(); ++i) {
-			if (rxFilter.indexIn(file[i].fileName()) == -1)
-				continue;
-			QPluginLoader loader(file[i].absoluteFilePath());
-			if (!loader.load()) {
-				qFatal("%s", qPrintable(loader.errorString()));
-				continue;
-			}
-			Core::BackendIface *backend = 0;
-			backend = qobject_cast<Core::BackendIface*>(loader.instance());
-			if (!backend)
-				continue;
-			const QString name = backend->info()->name();
-			if (!Data::backend.map.contains(name))
-				Data::backend.map[name] = backend;
-		}
-	}
-	return Data::backend.map;
-}
-
-const BackendMap &VideoPlayer::backend() {
-	return Data::backend.map;
-}
 
 VideoPlayer::VideoPlayer(QWidget *main, QWidget *parent)
 : QWidget(parent), d(new Data) {
@@ -276,7 +231,7 @@ void VideoPlayer::setBackend(const QString &name) {
 	QMap<QString, Core::PlayEngine*>::iterator it = d->engines.find(name);
 	Core::PlayEngine *engine = 0;
 	if (it == d->engines.end()) {
-		Core::BackendIface *backend = Data::backend.map.value(name, 0);
+		Core::BackendIface *backend = BackendManager::map().value(name, 0);
 		if (backend && (engine = backend->createPlayEngine()))
 			it = d->engines.insert(name, engine);
 	} else

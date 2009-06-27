@@ -1,3 +1,54 @@
+#include "config.h"
+#include "info.h"
+
+namespace MPlayer {
+
+Config::Data Config::d;
+
+Config::Data::Data() {
+	QString name, desc;
+	QVariant data;
+#define ADD_MAP(name, desc, data) {\
+	const QString n = name;	d.map[n] = Item(n, desc, data);\
+}
+	ADD_MAP("Executable", "Path of mplayer executable.", QString("mplayer"));
+	ADD_MAP("Option", "Additional options splitted by '[/]' to execute mplayer.", QString(""));
+#undef ADD_MAP
+}
+
+Config::Config() {
+	static bool loaded = false;
+	if (!loaded) {
+		load();
+		loaded = true;
+	}
+}
+
+const Config::Map &Config::item() const {
+	return d.map;
+}
+
+void Config::setData(const QString &name, const QVariant &data) const {
+	Map::iterator it = d.map.find(name);
+	if (it != d.map.end() && data.canConvert(it.value().data().type()))
+		it.value().setData(data);
+}
+
+QString Config::id() const {
+	return Info().name();
+}
+
+QString Config::executable() const {
+	return d.map.value("Executable").data().toString();
+}
+
+QStringList Config::option() const {
+	const QString line = d.map.value("Option").data().toString();
+	return line.split("[/]");
+}
+
+}
+
 // #if 0
 // 
 // #include "config.h"

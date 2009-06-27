@@ -6,16 +6,18 @@
 namespace Core {
 
 class PlayEngine;			class Info;
+class Config;
 
 class BackendIface {
 public:
 	virtual ~BackendIface() {}
 	virtual PlayEngine *createPlayEngine(QObject *parent = 0) const = 0;
 	virtual Core::Info *info() const = 0;
+	virtual Core::Config *config() const =0;
 };
 
 }
 
-Q_DECLARE_INTERFACE(Core::BackendIface, "net.xylosper.CMPlayer.Core.BackendIface/0.2.7");
+Q_DECLARE_INTERFACE(Core::BackendIface, "net.xylosper.CMPlayer.Core.BackendIface/0.3.0");
 
 #endif

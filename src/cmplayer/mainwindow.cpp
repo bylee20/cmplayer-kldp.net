@@ -43,6 +43,7 @@
 #include <QTime>
 #include "toolbox.h"
 #include "dragcharm.h"
+#include "backendmanager.h"
 
 struct MainWindow::Data {
 	Data(Menu &menu): pref(Pref::get()), menu(menu) {}
@@ -205,7 +206,7 @@ void MainWindow::commonInitialize() {
 			, this, SLOT(slotTrayActivated(QSystemTrayIcon::ActivationReason)));
 // 	titleBar()->connect(this);
 	
-	const BackendMap &backend = VideoPlayer::load();
+	const BackendMap &backend = BackendManager::load();
 	Menu &engine = play("engine");
 	for (BackendMap::const_iterator it = backend.begin(); it != backend.end(); ++it)
 		engine.addActionToGroupWithoutKey(it.key(), true)->setData(it.key());
@@ -284,7 +285,7 @@ void MainWindow::loadState() {
 	State state;
 	state.load();
 	const QString name = state[State::BackendName].toString();
-	if (VideoPlayer::backend().contains(name))
+	if (BackendManager::map().contains(name))
 		d->menu("play")("engine").g()->trigger(name);
 	else {
 		QList<QAction*> actions = d->menu("play")("engine").g()->actions();
@@ -535,10 +536,12 @@ Core::Playlist MainWindow::open(const Core::MediaSource &source) {
 	Core::Playlist list;
 	const AutoAddFiles mode = d->pref.autoAddFiles;
 	if (source.isLocalFile() && mode != DoNotAddFiles) {
-		static const QStringList filter
+		const QFileInfo file(source.fileName());
+		QStringList filter
 			= Core::Info::videoExtension().toNameFilter()
 			+ Core::Info::audioExtension().toNameFilter();
-		const QFileInfo file(source.fileName());
+		if (!filter.contains(file.suffix()))
+			filter += ("*." + file.suffix());
 		const QFileInfoList files = file.dir().entryInfoList(filter
 				, QDir::Files, QDir::Name);
 		const QString fileName = file.fileName();

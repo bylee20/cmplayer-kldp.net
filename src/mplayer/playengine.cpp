@@ -211,6 +211,7 @@ bool PlayEngine::start(int time) {
 	if (d->proc->isRunning())
 		stop();
 	Core::MediaSource source = currentSource();
+	Config config;
 	if (!source.isValid())
 		return false;
 	if ((source.isLocalFile() || source.isDisc())
@@ -251,11 +252,13 @@ bool PlayEngine::start(int time) {
 		args << "-vf-add" << "eq2";
 	if (time > 1000)
 		args << "-ss" << QString::number(double(time)/1000.);
-	if (!d->info.option().isEmpty())
-		args += d->info.option();
+	const QStringList option = config.option();
+	if (!option.isEmpty())
+		args += option;
 	args << (source.isDisc() ? "dvd://" : source.mrl().toString());
-	qDebug("%s %s", qPrintable(d->info.executable()), qPrintable(args.join(" ")));
-	d->proc->start(d->info.executable(), args);
+	const QString exe = config.executable();
+	qDebug("%s %s", qPrintable(exe), qPrintable(args.join(" ")));
+	d->proc->start(exe, args);
 	if (d->proc->waitForStarted()) {
 		updateSubtitle(subtitle());
 		updateVolume();

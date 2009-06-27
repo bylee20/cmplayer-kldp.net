@@ -81,12 +81,21 @@
           <normaloff>:/img/preferences-desktop-keyboard.png</normaloff>:/img/preferences-desktop-keyboard.png</iconset>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Play Engine</string>
+        </property>
+        <property name="icon">
+         <iconset resource="../rsclist.qrc">
+          <normaloff>:/img/applications-multimedia.png</normaloff>:/img/applications-multimedia.png</iconset>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
       <widget class="QStackedWidget" name="stack">
        <property name="currentIndex">
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page">
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -722,7 +731,7 @@ e.g.: English, Korean</string>
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab_4">
             <attribute name="title">
@@ -1311,6 +1320,7 @@ e.g.: English, Korean</string>
          </item>
         </layout>
        </widget>
+       <widget class="PlayEngineConfigWidget" name="playEngine"/>
       </widget>
      </item>
     </layout>
@@ -1371,6 +1381,12 @@ e.g.: English, Korean</string>
    <class>SimpleListWidget</class>
    <extends>QWidget</extends>
    <header>simplelistwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PlayEngineConfigWidget</class>
+   <extends>QWidget</extends>
+   <header>playengineconfigwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

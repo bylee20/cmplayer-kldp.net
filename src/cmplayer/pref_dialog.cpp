@@ -419,6 +419,8 @@ void Pref::Dialog::apply() {
 // 		p.setBackendName(d->media[i], item->checkedBackend());
 // 	}
 	p.save();
+
+	d->ui.playEngine->apply();
 }
 
 void Pref::Dialog::accept() {

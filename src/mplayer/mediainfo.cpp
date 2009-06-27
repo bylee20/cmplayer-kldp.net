@@ -1,6 +1,6 @@
 #include "mplayerprocess.h"
 #include "mediainfo.h"
-#include "info.h"
+//#include "info.h"
 #include "config.h"
 #include <core/mediasource.h>
 #include <QtCore/QRegExp>
@@ -50,8 +50,7 @@ bool MediaInfo::get(const Core::MediaSource &source) {
 	args << (source.isDisc() ? "dvd://" : source.mrl().toString());
 	MPlayerProcess proc;
 	proc.setMediaInfo(this);
-	static Info info;
-	proc.start("mplayer", args);
+	proc.start(Config().executable(), args);
 	if (!proc.waitForFinished(200000))
 		proc.kill();
 	return m_valid;

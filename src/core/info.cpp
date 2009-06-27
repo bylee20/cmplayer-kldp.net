@@ -25,7 +25,7 @@ QString Info::ExtensionList::toFilter() const {
 QStringList Info::ExtensionList::toNameFilter() const {
 	QStringList nameFilter;
 	for (QStringList::const_iterator it = begin(); it != end(); ++it)
-		nameFilter << "*." + *it;
+		nameFilter << ("*." + *it);
 	return nameFilter;
 }
 

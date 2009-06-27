@@ -14,6 +14,11 @@ Core::Info *BackendIface::info() const {
 	return &info;
 }
 
+Core::Config *BackendIface::config() const {
+	static Config config;
+	return &config;
+}
+
 // Core::Config *BackendIface::config() const {
 // 	static Config config;
 // 	return &config;

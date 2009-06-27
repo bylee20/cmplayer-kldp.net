@@ -1,3 +1,33 @@
+#ifndef MPLAYER_CONFIG_H
+#define MPLAYER_CONFIG_H
+
+#include <core/config.h>
+#include <QtCore/QObject>
+
+namespace MPlayer {
+
+class Config : public Core::Config {
+public:
+	Config();
+	virtual const Map &item() const;
+	virtual void setData(const QString &name, const QVariant &data) const;
+	virtual Obj *obj() const {return &d.obj;}
+	QString executable() const;
+	QStringList option() const;
+private:
+	QString id() const;
+	struct Data {
+		Data();
+		Map map;
+		Obj obj;
+	};
+	static Data d;
+};
+
+}
+
+#endif
+
 // #ifndef BACKEND_MPLAYER_CONFIG_H
 // #define BACKEND_MPLAYER_CONFIG_H
 // 

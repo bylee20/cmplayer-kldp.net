@@ -4,8 +4,7 @@
 #include <QtGui/QWidget>
 #include <core/playengine.h>
 
-namespace Core {class BackendIface;	class ABRepeater;}
-typedef QMap<QString, Core::BackendIface*> BackendMap;
+namespace Core {class ABRepeater;}
 
 class VideoPlayer : public QWidget {
 	Q_OBJECT
@@ -58,8 +57,6 @@ public:
 	void setNextSource(const Core::MediaSource &source);
 	bool hasNextSource() const;
 	bool useSoftwareEqualizer() const;
-	static const BackendMap &load();
-	static const BackendMap &backend();
 	const Core::Info *info() const;
 	const Core::Subtitle &subtitle() const;
 public slots:

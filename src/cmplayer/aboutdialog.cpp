@@ -1,5 +1,6 @@
 #include "aboutdialog.h"
 #include "videoplayer.h"
+#include "backendmanager.h"
 #include "ui_aboutdialog.h"
 #include <core/backendiface.h>
 #include <core/info.h>
@@ -16,7 +17,7 @@ AboutDialog::AboutDialog(QWidget *parent)
 	version = version.arg(QT_VERSION_STR);
 	version = version.arg(qVersion());
 	d->ui.version->setText(version);
-	const BackendMap map = VideoPlayer::backend();
+	const BackendMap map = BackendManager::map();
 	BackendMap::const_iterator it = map.begin();
 	for (; it != map.end(); ++it) {
 		const Core::Info *info = it.value()->info();

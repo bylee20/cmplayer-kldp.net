@@ -45,7 +45,9 @@ SOURCES += main.cpp \
     favoriteswidget.cpp \
     historywidget.cpp \
     subviewdialog.cpp \
-    subcompview.cpp
+    subcompview.cpp \
+    playengineconfigwidget.cpp \
+    backendmanager.cpp
 HEADERS += mainwindow.h \
     abrepeatdialog.h \
     playinfowidget.h \
@@ -90,7 +92,9 @@ HEADERS += mainwindow.h \
     favoriteswidget.h \
     historywidget.h \
     subviewdialog.h \
-    subcompview.h
+    subcompview.h \
+    playengineconfigwidget.h \
+    backendmanager.h
 FORMS += ./ui/abrepeatdialog.ui \
     ./ui/prefosdwidget.ui \
     ui/geturldialog.ui \

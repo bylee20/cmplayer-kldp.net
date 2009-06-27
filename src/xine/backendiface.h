@@ -11,6 +11,7 @@ class BackendIface : public QObject, public Core::BackendIface {
 public:
 	Core::PlayEngine *createPlayEngine(QObject *parent) const;
 	Core::Info *info() const;
+	Core::Config *config() const;
 };
 
 }

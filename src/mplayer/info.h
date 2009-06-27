@@ -19,8 +19,6 @@ public:
 	virtual double maximumAmplifyingRate() const {return 10.0;}
 	virtual QString compileVersion() const;
 	virtual QString runtimeVersion() const;
-	const QString &executable() const {if (!d.got) getInfo(); return d.exe;}
-	const QStringList &option() const {if (!d.got) getInfo(); return d.option;}
 private:
 	void getInfo() const;
 	struct Data {

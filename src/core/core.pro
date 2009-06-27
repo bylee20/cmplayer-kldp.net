@@ -22,7 +22,8 @@ SOURCES += abrepeater.cpp \
     colorproperty.cpp \
     mediainfo.cpp \
     charsetdetector.cpp \
-    mrl.cpp
+    mrl.cpp \
+    config.cpp
 HEADERS += abrepeater.h \
     playengine.h \
     mediasource.h \
@@ -50,7 +51,8 @@ HEADERS += abrepeater.h \
     colorproperty.h \
     mediainfo.h \
     charsetdetector.h \
-    mrl.h
+    mrl.h \
+    config.h
 CONFIG += debug_and_release \
     dll
 QT += network

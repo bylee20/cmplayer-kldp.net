@@ -36,11 +36,12 @@ const QString &Helper::stateFile() {
 }
 
 QString Helper::mediaExtensionFilter() {
-	return  QCoreApplication::translate("Helper", "Video Files") +' '
+	static const QString filter = QCoreApplication::translate("Helper", "Video Files") +' '
 			+ Core::Info::videoExtension().toFilter() + ";;"
 			+ QCoreApplication::translate("Helper", "Audio Files") + ' '
 			+ Core::Info::audioExtension().toFilter() + ";;"
 			+ QCoreApplication::translate("Helper", "All Files") + ' ' + "(*.*)";
+	return filter;
 }
 
 // void Helper::drawBackground(QPainter *painter, QWidget *widget, int title) {
