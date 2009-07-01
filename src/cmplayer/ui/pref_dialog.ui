@@ -95,7 +95,7 @@
      <item>
       <widget class="QStackedWidget" name="stack">
        <property name="currentIndex">
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page">
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -1401,8 +1401,8 @@ e.g.: English, Korean</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>553</y>
+     <x>463</x>
+     <y>547</y>
     </hint>
     <hint type="destinationlabel">
      <x>50</x>
@@ -1417,8 +1417,8 @@ e.g.: English, Korean</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>605</x>
-     <y>553</y>
+     <x>610</x>
+     <y>547</y>
     </hint>
     <hint type="destinationlabel">
      <x>255</x>
@@ -1449,12 +1449,28 @@ e.g.: English, Korean</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>173</x>
-     <y>327</y>
+     <x>210</x>
+     <y>251</y>
     </hint>
     <hint type="destinationlabel">
-     <x>563</x>
-     <y>332</y>
+     <x>210</x>
+     <y>251</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tray</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>hideWhenClosed</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>243</x>
+     <y>83</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>110</y>
     </hint>
    </hints>
   </connection>
