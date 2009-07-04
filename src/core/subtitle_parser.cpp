@@ -25,6 +25,7 @@ class Subtitle::Parser::Sami : public Subtitle::Parser {
 		static QRegExp rxBr("<\\s*[bB][rR]\\s*>");
 		static QRegExp rxColor("(\\s+[cC][oO][lL][oO][rR]\\s*=\\s*['\"]?)"
 				"([0-9a-fA-F]{6}['\"]?)");
+		static QRegExp rxComment("<!--.*-->");
 		if (!minimal) {
 			rxTag.setMinimal(true);
 			rxSync.setMinimal(true);
@@ -88,6 +89,7 @@ class Subtitle::Parser::Sami : public Subtitle::Parser {
 				}
 			}
 			text.replace(rxP, "\\1span\\3").replace(rxColor, "\\1#\\2");
+			text.remove(rxComment);
 			QString klass;
 			if (rxClass.indexIn(text) != -1)
 				klass = rxClass.cap(2);
