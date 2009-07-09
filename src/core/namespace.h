@@ -7,7 +7,9 @@ namespace Core {
 
 enum State {Playing, Stopped, Paused, Finished, Loading, Error};
 
-enum VideoType {AutoVideo = 0, OpenGL, Native};
+enum VideoType {AutoVideo = 0, SoftwareVideo, NativeVideo};
+
+enum SoftwareRendererType {UnknownRenderer, OpenGLRenderer, XVideoRenderer};
 
 enum MediaType {Unknown = 0, LocalFile, Url, Dvd};
 

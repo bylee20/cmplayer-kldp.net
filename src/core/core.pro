@@ -8,7 +8,6 @@ SOURCES += abrepeater.cpp \
     osdstyle.cpp \
     videorendereriface.cpp \
     osdrenderer.cpp \
-    xvideorenderer.cpp \
     abstractosdrenderer.cpp \
     painterosdrenderer.cpp \
     subtitlerenderer.cpp \
@@ -16,8 +15,7 @@ SOURCES += abrepeater.cpp \
     info.cpp \
     nativerenderer.cpp \
     subtitle_parser.cpp \
-    openglfactory.cpp \
-    openglvideorendereriface.cpp \
+    softwarerendereriface.cpp \
     downloader.cpp \
     colorproperty.cpp \
     mediainfo.cpp \
@@ -36,7 +34,6 @@ HEADERS += abrepeater.h \
     baseevent.h \
     newframeevent.h \
     videorendereriface.h \
-    xvideorenderer.h \
     abstractosdrenderer.h \
     painterosdrenderer.h \
     subtitlerenderer.h \
@@ -44,9 +41,8 @@ HEADERS += abrepeater.h \
     info.h \
     nativerenderer.h \
     subtitle_parser.h \
-    opengliface.h \
-    openglfactory.h \
-    openglvideorendereriface.h \
+    softwarerenderercreator.h \
+    softwarerendereriface.h \
     downloader.h \
     colorproperty.h \
     mediainfo.h \
@@ -69,4 +65,5 @@ else {
 INCLUDEPATH += ../libchardet/src
 LIBS += -L../libchardet/src/.libs \
     -lchardet \
-    -lX11
+    -lX11 \
+    -lXv

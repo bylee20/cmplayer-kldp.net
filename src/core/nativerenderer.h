@@ -13,7 +13,7 @@ class NativeRenderer : public QWidget, public VideoRendererIface {
 public:
 	NativeRenderer(PlayEngine *engine);
 	~NativeRenderer();
-	VideoType type() const {return Native;}
+	VideoType type() const {return NativeVideo;}
 	void rerender();
 	virtual void setVideoSize(const QSize &size);
 	int screenWinId() const;

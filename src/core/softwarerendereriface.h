@@ -1,5 +1,5 @@
-#ifndef CORE_OPENGLVIDEORENDERERIFACE_H
-#define CORE_OPENGLVIDEORENDERERIFACE_H
+#ifndef CORE_SOFTWARERENDERERIFACE_H
+#define CORE_SOFTWARERENDERERIFACE_H
 
 #include "videorendereriface.h"
 #include <QtCore/QPointF>
@@ -9,19 +9,22 @@ class QPainter;
 
 namespace Core {
 
-class ColorProperty;
+class ColorProperty;			class SoftwareRendererCreator;
 
-class OpenGLVideoRendererIface : public VideoRendererIface {
+class SoftwareRendererIface : public VideoRendererIface {
 public:
 	class Object {
 	public:
 		virtual ~Object() {}
+		virtual SoftwareRendererIface *renderer() = 0;
 		virtual void overdraw(QPainter */*painter*/) {}
 		virtual void mouseMoveEvent(const QPoint &/*pos*/) {}
 		virtual void mousePresseEvent(const QPoint &/*pos*/, Qt::MouseButton /*btn*/) {}
 	};
-	OpenGLVideoRendererIface(QWidget *widget);
-	~OpenGLVideoRendererIface();
+	static SoftwareRendererIface *create(SoftwareRendererType type);
+	static bool isAvailable(SoftwareRendererType type);
+	SoftwareRendererIface(QWidget *widget);
+	virtual ~SoftwareRendererIface();
 	const QRectF &imageRect() const {return m_rect;}
 	QPointF mapWidgetToScreen(const QPointF &pos) {
 		return QPointF((pos.x()-m_rect.x())/m_hscale, (pos.y()-m_rect.y())/m_vscale);
@@ -39,6 +42,7 @@ public:
 	virtual void setFrame(const VideoFrame &frame) = 0;
 	virtual void setColorProperty(const ColorProperty &prop) = 0;
 protected:
+	void calculate();
 	void setImageRect(const QRectF &rect) {m_rect = rect;}
 	void setImageRect(double x, double y, const QSizeF &size) {
 		m_rect.setX(x); m_rect.setY(y); m_rect.setSize(size);
@@ -47,10 +51,17 @@ protected:
 	double &hscale() {return m_hscale;}
 	const double &vscale() const {return m_vscale;}
 	const double &hscale() const {return m_hscale;}
+	double vmargin() const {return m_vmargin;}
+	double hmargin() const {return m_hmargin;}
+	void setWidgetSize(const QSize &size) {m_widget = size;}
+	const QSizeF &visualSize() const {return m_visual;}
+	const QSizeF &widgetSize() const {return m_widget;}
 	Object *object() {return m_obj;}
 private:
+	class Loader;
 	QRectF m_rect;
-	double m_vscale, m_hscale;
+	double m_vscale, m_hscale, m_vmargin, m_hmargin;
+	QSizeF m_visual, m_widget;
 	Object *m_obj;
 };
 
