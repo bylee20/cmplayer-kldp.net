@@ -18,7 +18,7 @@ class NativeRenderer : public Core::NativeRenderer, public XineVideoIface {
 public:
 	NativeRenderer(Core::PlayEngine *engine, XineStream *stream);
 	~NativeRenderer();
-	Core::VideoType type() const {return Core::Native;}
+	Core::VideoType type() const {return Core::NativeVideo;}
 	void rerender();
 	virtual void setVideoSize(const QSize &size);
 	Core::AbstractOsdRenderer *createOsd();

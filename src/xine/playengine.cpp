@@ -3,15 +3,14 @@
 #include "xinestream.h"
 #include "xineengine.h"
 #include "nativerenderer.h"
+#include "softwarerenderer.h"
 #include "xcbnativerenderer.h"
 #include "x11nativerenderer.h"
 #include "xinepost.h"
-#include "glrenderer.h"
 #include "info.h"
 #include <core/newframeevent.h>
 #include <core/utility.h>
 #include <core/subtitle.h>
-#include <core/openglfactory.h>
 #include <xine/xineutils.h>
 #include <QtGui/QApplication>
 #include <QtCore/QTimer>
@@ -345,9 +344,9 @@ void PlayEngine::updateVolume() {
 void PlayEngine::updateVideoSize(const QSize &size) {
 	if (!d->renderer)
 		return;
-	if (d->renderer->type() == Core::OpenGL) {
+	if (d->renderer->type() == Core::SoftwareVideo) {
 		d->renderer->rerender();
-	} else if (d->renderer->type() == Core::Native && d->renderer->videoSize() != size) {
+	} else if (d->renderer->type() == Core::NativeVideo && d->renderer->videoSize() != size) {
 		NativeRenderer *renderer = static_cast<NativeRenderer*>(d->renderer);
 		renderer->setVideoSize(size);
 		bool needToExpand = !currentSource().isDisc();
@@ -380,7 +379,7 @@ const Core::Info &PlayEngine::info() const {
 void PlayEngine::updateColorProperty(Core::ColorProperty::Value prop, double value) {
 	if (!d->renderer)
 		return;
-	if (d->renderer->type() == Core::Native) {
+	if (d->renderer->type() == Core::NativeVideo) {
 		int param = -1;
 		switch (prop) {
 			case Core::ColorProperty::Brightness:
@@ -410,7 +409,7 @@ void PlayEngine::updateColorProperty(Core::ColorProperty::Value prop, double val
 void PlayEngine::updateColorProperty() {
 	if (!d->renderer)
 		return;
-	if (d->renderer->type() == Core::Native && d->stream.stream) {
+	if (d->renderer->type() == Core::NativeVideo && d->stream.stream) {
 		if (d->eq2 != useSoftwareEqualizer()) {
 			d->eq2 = useSoftwareEqualizer();
 			d->stream.setPost(XineStream::VideoPost, "eq2", d->eq2);
@@ -450,14 +449,25 @@ bool PlayEngine::updateVideoRenderer(const QString &name) {
 	setMessageOsd(0);
 	setTimeLineOsd(0);
 	d->stream.close();
-	delete d->renderer;
+	if (d->video)
+		delete d->video;
+	d->renderer = 0;
+	d->video = 0;
 #if HAS_RAW_OUTPUT
-	if (name == "software" && Core::OpenGLFactory::isAvailable()) {
-		GLRenderer *renderer = new GLRenderer(&d->stream);
-		d->renderer = renderer->renderer();
-		d->video = renderer;
-		d->stream.videoDriver = "raw";
-	} else {
+	if (name.startsWith("software")) {
+		Core::SoftwareRendererType type = Core::UnknownRenderer;
+		if (name.endsWith("(OpenGL)"))
+			type = Core::OpenGLRenderer;
+		else if (name.endsWith("(XVideo)"))
+			type = Core::XVideoRenderer;
+		if (Core::SoftwareRendererIface::isAvailable(type)) {
+			SoftwareRenderer *r = new SoftwareRenderer(type, &d->stream);
+			d->video = r;
+			d->renderer = r->renderer();
+			d->stream.videoDriver = "raw";
+		}
+	}
+	if (!d->renderer) {
 #endif
 		NativeRenderer *renderer = new XcbNativeRenderer(this, &d->stream);
 		d->renderer = renderer;

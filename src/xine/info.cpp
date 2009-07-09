@@ -16,7 +16,8 @@ const QStringList &Info::videoRenderer() const {
 		const int idx = d.videoRenderers.indexOf("raw");
 		if (idx != -1) {
 			d.videoRenderers.removeAt(idx);
-			d.videoRenderers.insert(1, "software");
+			d.videoRenderers.insert(1, "software(OpenGL)");
+			d.videoRenderers.insert(1, "software(XVideo)");
 		}
 	}
 	return d.videoRenderers;

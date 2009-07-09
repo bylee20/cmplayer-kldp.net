@@ -1,5 +1,5 @@
-#ifndef XINE_GLRENDERER_H
-#define XINE_GLRENDERER_H
+#ifndef XINE_SOFTWARERENDERER_H
+#define XINE_SOFTWARERENDERER_H
 
 #include <xine.h>
 
@@ -11,19 +11,19 @@
 
 #if HAS_RAW_OUTPUT
 
-#include <core/openglvideorendereriface.h>
+#include <core/softwarerendereriface.h>
 #include "xinevideoiface.h"
 
 namespace Xine {
 
-class GLRenderer : public QObject, public Core::OpenGLVideoRendererIface::Object, public XineVideoIface {
+class SoftwareRenderer : public QObject, public Core::SoftwareRendererIface::Object, public XineVideoIface {
 public:
 	class Overlay;
-	GLRenderer(XineStream *stream);
-	~GLRenderer();
+	SoftwareRenderer(Core::SoftwareRendererType type, XineStream *stream);
+	~SoftwareRenderer();
 	void *visual();
 	int xineType() const {return XINE_VISUAL_TYPE_RAW;}
-	Core::OpenGLVideoRendererIface *renderer();
+	Core::SoftwareRendererIface *renderer();
 private:
 	void overdraw(QPainter *painter);
 	void customEvent(QEvent *event);
@@ -37,8 +37,8 @@ private:
 	Data *d;
 };
 
-}
+} // namespace Xine
 
 #endif
 
-#endif
+#endif // SOFTWAREVIDEORENDERER_H

@@ -3,7 +3,6 @@ SOURCES += playengine.cpp \
     backendiface.cpp \
     xineengine.cpp \
     xinestream.cpp \
-    glrenderer.cpp \
     info.cpp \
     xinevideoiface.cpp \
     xinepost.cpp \
@@ -11,13 +10,13 @@ SOURCES += playengine.cpp \
     nativerenderer.cpp \
     xcbnativerenderer.cpp \
     x11nativerenderer.cpp \
-    config.cpp
+    config.cpp \
+    softwarerenderer.cpp
 HEADERS += playengine.h \
     events.h \
     backendiface.h \
     xineengine.h \
     xinestream.h \
-    glrenderer.h \
     xinevideoiface.h \
     info.h \
     xinepost.h \
@@ -25,7 +24,8 @@ HEADERS += playengine.h \
     nativerenderer.h \
     xcbnativerenderer.h \
     x11nativerenderer.h \
-    config.h
+    config.h \
+    softwarerenderer.h
 CONFIG += debug_and_release \
     dll \
     plugin
