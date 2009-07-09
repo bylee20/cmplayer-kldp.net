@@ -42,10 +42,17 @@ const LocaleList &Translator::availableLocales() {
 }
 
 bool Translator::load(const QLocale &locale) {
-	QString name = locale.name();
+	QLocale l = locale;
 	if (locale.language() == QLocale::C)
-		name = QLocale::system().name();
-	const QString file = "cmplayer_" + name;
+		l = QLocale::system();
+	const QString file = "cmplayer_" + l.name();
 	Translator::Data *d = get().d;
-	return d->trans.load(file, d->path);
+	const bool ret = d->trans.load(file, d->path);
+	if (ret)
+		QLocale::setDefault(l);
+	return ret;
 }
+
+//const QLocale &Translator::currentLocale() {
+//
+//}

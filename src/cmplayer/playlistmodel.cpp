@@ -1,5 +1,4 @@
 #include "playlistmodel.h"
-#include "recentinfo.h"
 #include <QtCore/QUrl>
 #include <QtCore/QMimeData>
 #include <QtCore/QSet>
@@ -95,11 +94,11 @@ void PlaylistModel::play(int row) {
 	if (isRowValid(row)) {
 		if (d->player->isStopped()) {
 			setCurrentRow(row);
-			d->player->play(RecentInfo::get()->stoppedTime(d->list[row]));
+			d->player->play();
 		} else {
 			d->player->setNextSource(d->list[row]);
 			if (d->player->hasNextSource())
-				d->player->playNext(RecentInfo::get()->stoppedTime(d->list[row]));
+				d->player->playNext();
 		}
 	}
 }

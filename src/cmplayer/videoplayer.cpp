@@ -1,6 +1,8 @@
 #include "videoplayer.h"
-#include "recentinfo.h"
 #include "backendmanager.h"
+#include "checkdialog.h"
+#include "helper.h"
+#include "pref.h"
 #include <core/info.h>
 #include <core/subtitle.h>
 #include <core/backendiface.h>
@@ -10,6 +12,11 @@
 #include <QtGui/QImage>
 #include <QtGui/QLinearGradient>
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
+#include <QtCore/QDateTime>
+#include <QtCore/QLocale>
+#include <QtGui/QMessageBox>
+#include <QtCore/QVector>
 
 #define TO_PERCENT(rate) (qRound((rate)*100.0))
 #define TO_RATE(percent) (static_cast<double>((percent))*0.01)
@@ -118,6 +125,15 @@ private:
 	QPainterPath m_lightPath;
 };
 
+struct VideoPlayer::StoppedRecord {
+	StoppedRecord(): time(0) {}
+	StoppedRecord(int time, const QDateTime &date)
+	: time(time), date(date) {}
+	int time;
+	QDateTime date;
+	friend class QMap<Core::MediaSource, VideoPlayer::StoppedRecord>;
+};
+
 struct VideoPlayer::Data {
 	QWidget *main;
 	QStackedWidget *stack;
@@ -137,126 +153,182 @@ struct VideoPlayer::Data {
 	Core::Subtitle sub;
 	Core::OsdStyle subStyle;
 	Core::ColorProperty color;
+
+	StoppedMap stopped;
 };
 
 VideoPlayer::VideoPlayer(QWidget *main, QWidget *parent)
-: QWidget(parent), d(new Data) {
-	d->softEq = d->muted = false;
-	d->subVisible = d->volNorm = true;
-	d->volume = d->amp = d->speed = d->subPos = 100;
-	d->sync = 0;
-	d->crop = d->aspect = -1.0;
+: QWidget(parent), m_d(new Data) {
+	d().softEq = d().muted = false;
+	d().subVisible = d().volNorm = true;
+	d().volume = d().amp = d().speed = d().subPos = 100;
+	d().sync = 0;
+	d().crop = d().aspect = -1.0;
 		
-	d->engine = 0;
+	d().engine = 0;
 	
-	d->stack = new QStackedWidget(this);
-	d->stack->resize(size());
-	d->stack->move(0, 0);
-	d->stack->setMouseTracking(true);
+	d().stack = new QStackedWidget(this);
+	d().stack->resize(size());
+	d().stack->move(0, 0);
+	d().stack->setMouseTracking(true);
 
-	d->main = main;
-	d->minSize = minimumSize();
-	d->maxSize = maximumSize();
-	d->changing = d->keepSize = false;
-	d->next = 0;
+	d().main = main;
+	d().minSize = minimumSize();
+	d().maxSize = maximumSize();
+	d().changing = d().keepSize = false;
+	d().next = 0;
 	
 	setMinimumSize(320, 240);
 	setMouseTracking(true);
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
-	d->widget = new Widget;
-	d->widget->setMouseTracking(true);
-	d->stack->addWidget(d->widget);
-	d->stack->setCurrentWidget(d->widget);
+	d().widget = new Widget;
+	d().widget->setMouseTracking(true);
+	d().stack->addWidget(d().widget);
+	d().stack->setCurrentWidget(d().widget);
 	
-	d->message = d->widget->createOsd();
-	d->timeLine = d->widget->createOsd();
+	d().message = d().widget->createOsd();
+	d().timeLine = d().widget->createOsd();
 	Core::OsdStyle style;
 	style.alignment = Qt::AlignLeft | Qt::AlignTop;
 	style.scale = Core::OsdStyle::FitToHeight;
-	d->message->setStyle(style);
+	d().message->setStyle(style);
 	style.alignment = Qt::AlignCenter;
 	style.fgColor.setAlphaF(0.8);
 	style.bgColor.setAlphaF(0.8);
-	d->timeLine->setStyle(style);
+	d().timeLine->setStyle(style);
+
+	QSettings set(Helper::recentFile(), QSettings::IniFormat);
+	set.beginGroup("RecentInfo");
+	const int size = set.beginReadArray("StoppedList");
+	for (int i=0; i<size; ++i) {
+		set.setArrayIndex(i);
+		const Core::MediaSource source(set.value("Source", QUrl()).toUrl());
+		if (source.isValid()) {
+			const int time = set.value("Time", -1).toInt();
+			const QDateTime today = QDateTime::currentDateTime();
+			const QDateTime date = set.value("Date", today).toDateTime();
+			d().stopped.insert(source, StoppedRecord(time, date));
+		}
+	}
+	set.endArray();
+	set.endGroup();
 }
 
+struct VideoPlayer::RecordDateGreaterThan {
+	inline bool operator() (const QPair<QUrl, VideoPlayer::StoppedRecord> &lhs
+			, const QPair<QUrl, VideoPlayer::StoppedRecord> &rhs) {
+		return lhs.second.date > rhs.second.date;
+	}
+};
+
 VideoPlayer::~VideoPlayer() {
-	QMap<QString, Core::PlayEngine*>::iterator it = d->engines.begin();
-	for (; it != d->engines.end(); ++it)
+	const Pref &p = Pref::get();
+	QVector<QPair<QUrl, StoppedRecord> > record(d().stopped.size());
+	StoppedMap::const_iterator it = d().stopped.begin();
+	for (int i=0; it != d().stopped.end(); ++it, ++i) {
+		record[i].first = it.key().mrl().url();
+		record[i].second = it.value();
+	}
+	int recordEnd = record.size();
+	if (p.maximumRecordCount || p.daysToKeepRecords) {
+		qSort(record.begin(), record.end(), RecordDateGreaterThan());
+		if (p.maximumRecordCount && record.size() > p.maximumRecordCount)
+			recordEnd = p.maximumRecordCount;
+		if (p.daysToKeepRecords) {
+			const QPair<QUrl, VideoPlayer::StoppedRecord> old = qMakePair(QUrl()
+				, StoppedRecord(0, QDateTime::currentDateTime().addDays(-p.daysToKeepRecords)));
+			recordEnd = qUpperBound(record.begin(), record.begin() + recordEnd, old, RecordDateGreaterThan())
+				- record.begin();
+		}
+	}
+	QSettings set(Helper::recentFile(), QSettings::IniFormat);
+	set.beginGroup("RecentInfo");
+	set.beginWriteArray("StoppedList", recordEnd);
+	for (int i=0; i<recordEnd; ++i) {
+		set.setArrayIndex(i);
+		set.setValue("Source", record[i].first);
+		set.setValue("Time", record[i].second.time);
+		set.setValue("Date", record[i].second.date);
+	}
+	set.endArray();
+	set.endGroup();
+
+	for (Map::iterator it = d().engines.begin()
+			; it != d().engines.end(); ++it)
 		delete it.value();
-	delete d->next;
-	delete d;
+	delete d().next;
+	delete m_d;
 }
 
 void VideoPlayer::keepSize(bool keep) {
-	if ((d->keepSize = keep)) {
+	if ((d().keepSize = keep)) {
 		setFixedSize(size());
 	} else {
-		setMaximumSize(d->maxSize);
-		setMinimumSize(d->minSize);
+		setMaximumSize(d().maxSize);
+		setMinimumSize(d().minSize);
 		resize();
 	}
 }
 
 QSize VideoPlayer::sizeHint() const {
-	QSize hint = d->stack->currentWidget()->sizeHint();
-	if (hint.width() < d->minSize.width())
-		hint.setWidth(d->minSize.width());
-	if (hint.height() < d->minSize.height())
-		hint.setHeight(d->minSize.height());
+	QSize hint = d().stack->currentWidget()->sizeHint();
+	if (hint.width() < d().minSize.width())
+		hint.setWidth(d().minSize.width());
+	if (hint.height() < d().minSize.height())
+		hint.setHeight(d().minSize.height());
 	return hint;
 }
 
 void VideoPlayer::resize() {
-	d->stack->resize(d->main->isFullScreen() ? d->main->size() : size());
+	d().stack->resize(d().main->isFullScreen() ? d().main->size() : size());
 }
 
 void VideoPlayer::resizeEvent(QResizeEvent */*event*/) {
-	if (!d->keepSize)
+	if (!d().keepSize)
 		resize();
 }
 
 void VideoPlayer::setBackend(const QString &name) {
-	if (d->engine && d->engine->info().name() == name)
+	if (d().engine && d().engine->info().name() == name)
 		return;
 	int time = -1;
-	if (d->engine) {
-		disconnect(d->engine, 0, this, 0);
-		if (!d->engine->isStopped()) {
-			time = d->engine->currentTime();
-			d->engine->stop();
+	if (d().engine) {
+		disconnect(d().engine, 0, this, 0);
+		if (!d().engine->isStopped()) {
+			time = d().engine->currentTime();
+			d().engine->stop();
 		}
 	}
-	QMap<QString, Core::PlayEngine*>::iterator it = d->engines.find(name);
+	QMap<QString, Core::PlayEngine*>::iterator it = d().engines.find(name);
 	Core::PlayEngine *engine = 0;
-	if (it == d->engines.end()) {
+	if (it == d().engines.end()) {
 		Core::BackendIface *backend = BackendManager::map().value(name, 0);
 		if (backend && (engine = backend->createPlayEngine()))
-			it = d->engines.insert(name, engine);
+			it = d().engines.insert(name, engine);
 	} else
 		engine = it.value();
 	if (!engine)
-		engine = d->engine;
+		engine = d().engine;
 	if (!engine)
 		return;
-	d->stack->addWidget(engine->widget());
-	engine->setCurrentSource(d->source);
-	engine->setSpeed(TO_RATE(d->speed));
-	engine->setMuted(d->muted);
-	engine->setVolume(d->volume);
-	engine->setAmplifyingRate(TO_RATE(d->amp));
-	engine->setAspectRatio(d->aspect);
-	engine->setCropRatio(d->crop);
-	engine->setSubtitlePos(TO_RATE(d->subPos));
-	engine->setSyncDelay(d->sync);
-	engine->setSubtitle(d->sub);
-	engine->setSubtitleVisible(d->subVisible);
-	engine->setSubtitleStyle(d->subStyle);
-	engine->setVolumeNormalized(d->volNorm);
-	engine->setUseSoftwareEqualizer(d->softEq);
-	engine->setColorProperty(d->color);
-	engine->setCurrentTrack(d->track);
+	d().stack->addWidget(engine->widget());
+	engine->setCurrentSource(d().source);
+	engine->setSpeed(TO_RATE(d().speed));
+	engine->setMuted(d().muted);
+	engine->setVolume(d().volume);
+	engine->setAmplifyingRate(TO_RATE(d().amp));
+	engine->setAspectRatio(d().aspect);
+	engine->setCropRatio(d().crop);
+	engine->setSubtitlePos(TO_RATE(d().subPos));
+	engine->setSyncDelay(d().sync);
+	engine->setSubtitle(d().sub);
+	engine->setSubtitleVisible(d().subVisible);
+	engine->setSubtitleStyle(d().subStyle);
+	engine->setVolumeNormalized(d().volNorm);
+	engine->setUseSoftwareEqualizer(d().softEq);
+	engine->setColorProperty(d().color);
+	engine->setCurrentTrack(d().track);
 
 	connect(engine, SIGNAL(currentSourceChanged(const Core::MediaSource&))
 			, this, SIGNAL(currentSourceChanged(const Core::MediaSource&)));
@@ -286,65 +358,85 @@ void VideoPlayer::setBackend(const QString &name) {
 			, this, SIGNAL(currentSpuChanged(const QString&)));
 	connect(engine, SIGNAL(snapshotTaken(const QImage&))
 			, this, SIGNAL(snapshotTaken(const QImage&)));
-	d->engine = engine;
+	d().engine = engine;
 	emit backendChanged(name);
 	if (time != -1)
 		play(time);
 }
 
 const VideoPlayer::Map &VideoPlayer::engines() const {
-	return d->engines;
+	return d().engines;
 }
 
 const Core::Info *VideoPlayer::info() const {
-	return d->engine ? &d->engine->info() : 0;
+	return d().engine ? &d().engine->info() : 0;
 }
 
 void VideoPlayer::setNextSource(const Core::MediaSource &source) {
 	if (source.isValid()) {
-		if (!d->next)
-			d->next = new Core::MediaSource(source);
-		else if (*d->next != source)
-			*d->next = source;
+		if (!d().next)
+			d().next = new Core::MediaSource(source);
+		else if (*d().next != source)
+			*d().next = source;
 	} else {
-		delete d->next;
-		d->next = 0;
+		delete d().next;
+		d().next = 0;
 	}
 }
 
 bool VideoPlayer::hasNextSource() const {
-	return d->next;
+	return d().next;
 }
 
 void VideoPlayer::showMessage(const QString &message) {
-	if (d->engine && d->engine->widget() == d->stack->currentWidget())
-		d->engine->showMessage(message);
+	if (d().engine && d().engine->widget() == d().stack->currentWidget())
+		d().engine->showMessage(message);
 	else
-		d->message->renderText(message, 3000);
+		d().message->renderText(message, 3000);
 }
 
 void VideoPlayer::stop() {
-	if (d->engine)
-		d->engine->stop();
+	if (d().engine)
+		d().engine->stop();
 }
 
 void VideoPlayer::play(int time) {
-	if (d->engine)
-		d->engine->play(time);
-}
-
-void VideoPlayer::play() {
-	if (d->engine)
-		d->engine->play();
+	if (!d().engine)
+		return;
+	const Pref &p = Pref::get();
+	do {
+		if (time != -1 || !p.rememberStopped || !d().engine->isStopped())
+			break;
+		StoppedMap::const_iterator it = d().stopped.find(currentSource());
+		if (it == d().stopped.end())
+			break;
+		if (p.askWhenRecordFound) {
+			const QString title = tr("Stopped Record Found");
+			const QString text = tr("This file was stopped during its playing before.\n"
+					"Played Date: %1\nStopped Time: %2\n"
+					"Do you want to start from where it's stopped?\n"
+					"(You can configure not to ask anymore in the preferecences.)")
+					.arg(it.value().date.toString(QLocale().dateTimeFormat()))
+					.arg(it.value().date.toString("hh:mm:ss"));
+			const QMessageBox::StandardButtons b = QMessageBox::Yes | QMessageBox::No;
+			if (QMessageBox::question(this, title, text, b) != QMessageBox::Yes)
+				break;
+		}
+		time = it.value().time;
+	} while (false);
+	if (time == -1)
+		d().engine->play();
+	else
+		d().engine->play(time);
 }
 
 void VideoPlayer::playNext(int time) {
-	if (d->next && d->engine) {
-		d->changing = true;
-		const Core::MediaSource source = *d->next;
+	if (d().next && d().engine) {
+		d().changing = true;
+		const Core::MediaSource source = *d().next;
 		setCurrentSource(source);
-		delete d->next;
-		d->next = 0;
+		delete d().next;
+		d().next = 0;
 		play(time);
 	}
 }
@@ -352,296 +444,304 @@ void VideoPlayer::playNext(int time) {
 void VideoPlayer::slotStateChanged(Core::State state, Core::State old) {
 	switch (state) {
 	case Core::Playing:
-		d->stack->setCurrentWidget(d->engine->hasVideo()
-				? d->engine->widget() : d->widget);
+		d().stack->setCurrentWidget(d().engine->hasVideo()
+				? d().engine->widget() : d().widget);
 		break;
 	case Core::Finished:
 		if (hasNextSource())
 			return;
 	case Core::Stopped:
-		if (d->changing)
+		if (d().changing)
 			return;
-		d->stack->setCurrentWidget(d->widget);
+		d().stack->setCurrentWidget(d().widget);
 		break;
 	default:
 		break;
 	}
-	d->changing = false;
+	d().changing = false;
 	emit stateChanged(state, old);
 }
 
 void VideoPlayer::slotFinished(Core::MediaSource source) {
-	RecentInfo::get()->setFinished(source);
+	d().stopped.remove(source);
 	emit finished(source);
-	if (d->next)
-		playNext(RecentInfo::get()->stoppedTime(*d->next));
+	if (d().next)
+		playNext();
 }
 
 void VideoPlayer::slotStopped(Core::MediaSource source, int time) {
-	RecentInfo::get()->setStopped(source, time);
+	if (Pref::get().rememberStopped) {
+		const QDateTime date = QDateTime::currentDateTime();
+		StoppedMap::iterator it = d().stopped.find(source);
+		if (it != d().stopped.end()) {
+			d().stopped[source].time = time;
+			d().stopped[source].date = date;
+		} else
+			d().stopped.insert(source, StoppedRecord(time, date));
+	}
 	emit stopped(source, time);
 	
 }
 
 void VideoPlayer::setCurrentSource(Core::MediaSource source) {
-	if (d->source != source) {
-		d->source = source;
-		if (d->engine)
-			d->engine->setCurrentSource(d->source);
+	if (d().source != source) {
+		d().source = source;
+		if (d().engine)
+			d().engine->setCurrentSource(d().source);
 	}
 }
 
 void VideoPlayer::seek(int time, bool relative, bool show) {
-	if (d->engine) {
-		if (!show || d->engine->widget() == d->stack->currentWidget())
-			d->engine->seek(time, relative, show);
+	if (d().engine) {
+		if (!show || d().engine->widget() == d().stack->currentWidget())
+			d().engine->seek(time, relative, show);
 		else {
-			d->engine->seek(time, relative, false);
+			d().engine->seek(time, relative, false);
 			if (show) {
-				const double duration = d->engine->duration();
-				const double time = d->engine->currentTime();
-				d->timeLine->renderTimeLine(time/duration, 2000);
+				const double duration = d().engine->duration();
+				const double time = d().engine->currentTime();
+				d().timeLine->renderTimeLine(time/duration, 2000);
 			}
 		}
 	}
 }
 
 void VideoPlayer::setColorProperty(Core::ColorProperty::Value prop, int value) {
-	if (IS_DIFF_CLIP(TO_PERCENT(d->color[prop]), value, -100, 100)) {
-		d->color[prop] = TO_RATE(value);
-	 	if (d->engine)
-			d->engine->setColorProperty(prop, d->color[prop]);
+	if (IS_DIFF_CLIP(TO_PERCENT(d().color[prop]), value, -100, 100)) {
+		d().color[prop] = TO_RATE(value);
+	 	if (d().engine)
+			d().engine->setColorProperty(prop, d().color[prop]);
 	}
 }
 
 int VideoPlayer::colorProperty(Core::ColorProperty::Value prop) const {
-	return TO_PERCENT(d->color[prop]);
+	return TO_PERCENT(d().color[prop]);
 }
 
 QString VideoPlayer::videoRenderer() const {
-	return d->engine ? d->engine->videoRenderer() : QString();
+	return d().engine ? d().engine->videoRenderer() : QString();
 }
 
 QString VideoPlayer::audioRenderer() const {
-	return d->engine ? d->engine->audioRenderer() : QString();
+	return d().engine ? d().engine->audioRenderer() : QString();
 }
 
 bool VideoPlayer::setVideoRenderer(const QString &renderer) {
-	d->changing = true;
-	return d->engine && d->engine->setVideoRenderer(renderer);
+	d().changing = true;
+	return d().engine && d().engine->setVideoRenderer(renderer);
 }
 
 bool VideoPlayer::setAudioRenderer(const QString &renderer) {
-	d->changing = true;
-	return d->engine && d->engine->setAudioRenderer(renderer);
+	d().changing = true;
+	return d().engine && d().engine->setAudioRenderer(renderer);
 }
 
 void VideoPlayer::setSyncDelay(int delay) {
-	if (d->sync != delay) {
-		d->sync = delay;
-		if (d->engine)
-			d->engine->setSyncDelay(d->sync);
+	if (d().sync != delay) {
+		d().sync = delay;
+		if (d().engine)
+			d().engine->setSyncDelay(d().sync);
 	}
 }
 
 int VideoPlayer::syncDelay() const {
-	return d->sync;
+	return d().sync;
 }
 
 void VideoPlayer::setAspectRatio(double ratio) {
-	if (qAbs(d->aspect - ratio) > 1.0e-5) {
-		d->aspect = ratio;
-		if (d->engine)
-			d->engine->setAspectRatio(d->aspect);
+	if (qAbs(d().aspect - ratio) > 1.0e-5) {
+		d().aspect = ratio;
+		if (d().engine)
+			d().engine->setAspectRatio(d().aspect);
 	}
 }
 
 double VideoPlayer::aspectRatio() const {
-	return d->aspect;
+	return d().aspect;
 }
 
 void VideoPlayer::setCropRatio(double ratio) {
-	if (qAbs(d->crop - ratio) > 1.0e-5) {
-		d->crop = ratio;
-		if (d->engine)
-			d->engine->setCropRatio(d->crop);
+	if (qAbs(d().crop - ratio) > 1.0e-5) {
+		d().crop = ratio;
+		if (d().engine)
+			d().engine->setCropRatio(d().crop);
 	}
 }
 
 double VideoPlayer::cropRatio() const {
-	return d->crop;
+	return d().crop;
 }
 
 void VideoPlayer::setMuted(bool muted) {
-	if (d->muted != muted) {
-		d->muted = muted;
-		if (d->engine)
-			d->engine->setMuted(d->muted);
+	if (d().muted != muted) {
+		d().muted = muted;
+		if (d().engine)
+			d().engine->setMuted(d().muted);
 	}
 }
 
 bool VideoPlayer::isMuted() const {
-	return d->muted;
+	return d().muted;
 }
 
 void VideoPlayer::setVolume(int volume) {
-	if (IS_DIFF_CLIP(d->volume, volume, 0, 100)) {
-		d->volume = volume;
-		if (d->engine)
-			d->engine->setVolume(volume);
+	if (IS_DIFF_CLIP(d().volume, volume, 0, 100)) {
+		d().volume = volume;
+		if (d().engine)
+			d().engine->setVolume(volume);
 	}
 }
 
 int VideoPlayer::volume() const {
-	return d->volume;
+	return d().volume;
 }
 
 void VideoPlayer::setSpeed(int speed) {
-	if (IS_DIFF_CLIP(d->speed, speed, 10, 1000)) {
-		d->speed = speed;
-		if (d->engine)
-			d->engine->setSpeed(TO_RATE(d->speed));
+	if (IS_DIFF_CLIP(d().speed, speed, 10, 1000)) {
+		d().speed = speed;
+		if (d().engine)
+			d().engine->setSpeed(TO_RATE(d().speed));
 	}
 }
 
 int VideoPlayer::speed() const {
-	return d->speed;
+	return d().speed;
 }
 
 void VideoPlayer::setSubtitlePos(int pos) {
-	if (IS_DIFF_CLIP(d->subPos, pos, 0, 100)) {
-		d->subPos = pos;
-		if (d->engine)
-			d->engine->setSubtitlePos(TO_RATE(d->subPos));
+	if (IS_DIFF_CLIP(d().subPos, pos, 0, 100)) {
+		d().subPos = pos;
+		if (d().engine)
+			d().engine->setSubtitlePos(TO_RATE(d().subPos));
 	}
 }
 
 int VideoPlayer::subtitlePos() const {
-	return d->subPos;
+	return d().subPos;
 }
 
 void VideoPlayer::setAmplifyingRate(int rate) {
-	if (IS_DIFF_CLIP(d->amp, rate, 10, 1000)) {
-		d->amp = rate;
-		if (d->engine)
-			d->engine->setAmplifyingRate(TO_RATE(d->amp));
+	if (IS_DIFF_CLIP(d().amp, rate, 10, 1000)) {
+		d().amp = rate;
+		if (d().engine)
+			d().engine->setAmplifyingRate(TO_RATE(d().amp));
 	}
 }
 
 int VideoPlayer::amplifyingRate() const {
-	return d->amp;
+	return d().amp;
 }
 
 Core::MediaSource VideoPlayer::currentSource() const {
-	return d->source;
+	return d().source;
 }
 
 void VideoPlayer::setSubtitleStyle(const Core::OsdStyle &style) {
-	d->subStyle = style;
-	if (d->engine)
-		d->engine->setSubtitleStyle(d->subStyle);
+	d().subStyle = style;
+	if (d().engine)
+		d().engine->setSubtitleStyle(d().subStyle);
 }
 
 void VideoPlayer::setSubtitle(const Core::Subtitle &sub) {
-	d->sub = sub;
-	if (d->engine)
-		d->engine->setSubtitle(sub);
+	d().sub = sub;
+	if (d().engine)
+		d().engine->setSubtitle(sub);
 }
 
 void VideoPlayer::setCurrentTrack(const QString &track) {
-	d->track = track;
-	if (d->engine)
-		d->engine->setCurrentTrack(d->track);
+	d().track = track;
+	if (d().engine)
+		d().engine->setCurrentTrack(d().track);
 }
 
 void VideoPlayer::setCurrentSpu(const QString &spu) {
-	d->spu = spu;
-	if (d->engine)
-		d->engine->setCurrentSpu(d->spu);
+	d().spu = spu;
+	if (d().engine)
+		d().engine->setCurrentSpu(d().spu);
 }
 
 void VideoPlayer::setVolumeNormalized(bool enabled) {
-	d->volNorm = enabled;
-	if (d->engine)
-		d->engine->setVolumeNormalized(d->volNorm);
+	d().volNorm = enabled;
+	if (d().engine)
+		d().engine->setVolumeNormalized(d().volNorm);
 }
 
 void VideoPlayer::setUseSoftwareEqualizer(bool enabled) {
-	if (d->softEq != enabled) {
-		emit useSoftwareEqualizerChanged(d->softEq = enabled);
-		d->engine->setUseSoftwareEqualizer(d->softEq);
+	if (d().softEq != enabled) {
+		emit useSoftwareEqualizerChanged(d().softEq = enabled);
+		d().engine->setUseSoftwareEqualizer(d().softEq);
 	}
 }
 
 void VideoPlayer::triggerSnapshot() {
-	if (d->engine)
-		d->engine->triggerSnapshot();
+	if (d().engine)
+		d().engine->triggerSnapshot();
 }
 
 void VideoPlayer::pause() {
-	if (d->engine)
-		d->engine->pause();
+	if (d().engine)
+		d().engine->pause();
 }
 
 void VideoPlayer::toggleDvdMenu() {
-	if (d->engine)
-		d->engine->toggleDvdMenu();
+	if (d().engine)
+		d().engine->toggleDvdMenu();
 }
 
 bool VideoPlayer::isPlaying() const {
-	return d->engine && d->engine->isPlaying();
+	return d().engine && d().engine->isPlaying();
 }
 
 bool VideoPlayer::isPaused() const {
-	return d->engine && d->engine->isPaused();
+	return d().engine && d().engine->isPaused();
 }
 
 bool VideoPlayer::isStopped() const {
-	return d->engine ? d->engine->isStopped() : false;
+	return d().engine ? d().engine->isStopped() : false;
 }
 
 int VideoPlayer::currentTime() const {
-	return d->engine ? d->engine->currentTime() : 0;
+	return d().engine ? d().engine->currentTime() : 0;
 }
 
 bool VideoPlayer::hasVideo() const {
-	return d->engine && d->engine->hasVideo();
+	return d().engine && d().engine->hasVideo();
 }
 
 Core::State VideoPlayer::state() const {
-	return d->engine ? d->engine->state() : Core::Stopped;
+	return d().engine ? d().engine->state() : Core::Stopped;
 }
 
 Core::ABRepeater *VideoPlayer::repeater() const {
-	return d->engine ? d->engine->repeater() : 0;
+	return d().engine ? d().engine->repeater() : 0;
 }
 
 double VideoPlayer::frameRate() const {
-	return d->engine ? d->engine->frameRate() : -1.0;
+	return d().engine ? d().engine->frameRate() : -1.0;
 }
 
 int VideoPlayer::duration() const {
-	return d->engine ? d->engine->duration() : 0;
+	return d().engine ? d().engine->duration() : 0;
 }
 
 bool VideoPlayer::isSeekable() const {
-	return d->engine && d->engine->isSeekable();
+	return d().engine && d().engine->isSeekable();
 }
 
 void VideoPlayer::setSubtitleVisible(bool visible) {
-	if (d->subVisible != visible) {
-		d->subVisible = visible;
-		if (d->engine)
-			d->engine->setSubtitleVisible(d->subVisible);
+	if (d().subVisible != visible) {
+		d().subVisible = visible;
+		if (d().engine)
+			d().engine->setSubtitleVisible(d().subVisible);
 	}
 }
 
 bool VideoPlayer::useSoftwareEqualizer() const {
-	return d->softEq;
+	return d().softEq;
 }
 
 const Core::Subtitle &VideoPlayer::subtitle() const {
-	return d->sub;
+	return d().sub;
 }
 
 #undef ENGINE_SET

@@ -9,25 +9,30 @@
 struct CheckDialog::Data {
 	QCheckBox *check;
 	QLabel *label;
+	QDialogButtonBox *button;
+	QDialogButtonBox::StandardButton clicked;
 };
 
-CheckDialog::CheckDialog(QWidget *parent)
+CheckDialog::CheckDialog(QWidget *parent, QDialogButtonBox::StandardButtons buttons)
 : QDialog(parent), d(new Data) {
 	d->check = new QCheckBox(this);
 	d->label = new QLabel(this);
 // 	d->label->setWordWrap(true);
-	QPushButton *button = new QPushButton(tr("&Ok"), this);
-	
+	d->button = new QDialogButtonBox(this);
+	d->button->setCenterButtons(true);
+	d->clicked = QDialogButtonBox::NoButton;
+
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->addWidget(d->label);
 	vbox->addWidget(d->check);
 	QHBoxLayout *hbox = new QHBoxLayout;
 	hbox->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
-	hbox->addWidget(button);
+	hbox->addWidget(d->button);
 	hbox->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
 	vbox->addLayout(hbox);
-	connect(button, SIGNAL(clicked()), this, SLOT(accept()));
-	button->setDefault(true);
+	connect(d->button, SIGNAL(clicked(QAbstractButton*))
+		, this, SLOT(slotButtonClicked(QAbstractButton*)));
+	setButtonBox(buttons);
 }
 
 CheckDialog::~CheckDialog() {
@@ -48,4 +53,18 @@ void CheckDialog::setChecked(bool checked) {
 
 bool CheckDialog::isChecked() const {
 	return d->check->isChecked();
+}
+
+void CheckDialog::setButtonBox(QDialogButtonBox::StandardButtons buttons) {
+	d->button->setStandardButtons(buttons);
+}
+
+int CheckDialog::exec() {
+	QDialog::exec();
+	return d->clicked;
+}
+
+void CheckDialog::slotButtonClicked(QAbstractButton *button) {
+	d->clicked = d->button->standardButton(button);
+	accept();
 }

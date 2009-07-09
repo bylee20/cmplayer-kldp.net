@@ -31,6 +31,7 @@ public:
 	static const int DefaultColorPropStep = 1;
 
 	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
+	bool askWhenRecordFound;
 	bool hideCursor, hideInFullScreen, normalizeVolume, useSoftwareEqualizer;
 	bool enableSystemTray, hideClosed, singleApplication;
 	bool disableScreensaver, useSubtitleEncodingAutoDetection;
@@ -40,6 +41,7 @@ public:
 	QStringList subtitlePriority;
 	SubtitleAutoLoadEnum subtitleAutoLoad;
 	SubtitleAutoSelectEnum subtitleAutoSelect;
+	int daysToKeepRecords, maximumRecordCount;
 	int seekingStep1, seekingStep2, seekingStep3, speedStep;
 	int volumeStep, syncDelayStep, ampStep, subtitlePosStep;
 	int brightnessStep, saturationStep, contrastStep, hueStep;

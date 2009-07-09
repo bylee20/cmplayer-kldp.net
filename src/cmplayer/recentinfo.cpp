@@ -13,7 +13,6 @@ struct RecentInfo::Data {
 	typedef QMap<Core::MediaSource, int> StoppedMap;
 	Data(): stack(DefaultRememberCount) {}
 	RecentStack stack;
-	StoppedMap stopped;
 	Core::Playlist playlist;
 	Core::MediaSource source;
 };
@@ -65,22 +64,6 @@ void RecentInfo::setRememberCount(int count) {
 	}
 }
 
-void RecentInfo::setStopped(const Core::MediaSource &source, int time) {
-	if (Pref::get().rememberStopped)
-		d->stopped[source] = time;
-}
-
-void RecentInfo::setFinished(const Core::MediaSource &source) {
-	d->stopped.remove(source);
-}
-
-int RecentInfo::stoppedTime(const Core::MediaSource &source) const {
-	if (Pref::get().rememberStopped)
-		return d->stopped.value(source, 0);
-	else
-		return 0;
-}
-
 void RecentInfo::stackSource(const Core::MediaSource &source) {
 	d->stack.stack(source);
 	emit sourcesChanged(d->stack);
@@ -106,16 +89,6 @@ void RecentInfo::load() {
 			d->playlist.append(source);
 	}
 	set.endArray();
-	if (Pref::get().rememberStopped) {
-		const int size = set.beginReadArray("StoppedList");
-		for (int i=0; i<size; ++i) {
-			set.setArrayIndex(i);
-			const Core::MediaSource source(set.value("Source", QUrl()).toUrl());
-			if (source.isValid())
-				d->stopped[source] = set.value("Time", -1).toLongLong();
-		}
-		set.endArray();
-	}
 	set.endGroup();
 }
 
@@ -137,17 +110,6 @@ void RecentInfo::save() const {
 		set.setValue("Source", d->playlist[i].mrl().url());
 	}
 	set.endArray();
-	if (Pref::get().rememberStopped) {
-		size = d->stopped.size();
-		set.beginWriteArray("StoppedList", size);
-		Data::StoppedMap::const_iterator it = d->stopped.begin();
-		for (int i=0; it != d->stopped.end(); ++it, ++i) {
-			set.setArrayIndex(i);
-			set.setValue("Source", it.key().mrl().url());
-			set.setValue("Time", it.value());
-		}
-		set.endArray();
-	}
 	set.endGroup();
 }
 

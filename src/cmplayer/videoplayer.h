@@ -15,9 +15,8 @@ public:
 	void keepSize(bool keep);
 	QSize sizeHint() const;
 	Core::ABRepeater *repeater() const;
-	void play(int time);
-	void playNext(int time);
-	void play();
+	void play(int time = -1);
+	void playNext(int time = -1);
 	void pause();
 	bool isPlaying() const;
 	bool isPaused() const;
@@ -104,7 +103,12 @@ private:
 	class Widget;
 	struct Backend;
 	struct Data;
-	Data *d;
+	struct StoppedRecord;
+	struct RecordDateGreaterThan;
+	typedef QMap<Core::MediaSource, VideoPlayer::StoppedRecord> StoppedMap;
+	inline const Data &d() const {return *m_d;}
+	inline Data &d() {return *m_d;}
+	Data *m_d;
 };
 
 #endif

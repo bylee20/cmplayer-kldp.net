@@ -22,6 +22,9 @@ void Pref::save() const {
 	set.beginGroup("Pref");
 	
 	SAVE(rememberStopped);
+	SAVE(askWhenRecordFound);
+	SAVE(daysToKeepRecords);
+	SAVE(maximumRecordCount);
 	SAVE(playRestored);
 	SAVE(pauseMinimized);
 	SAVE(pauseVideoOnly);
@@ -72,6 +75,9 @@ void Pref::load() {
 	set.beginGroup("Pref");
 	
 	LOAD(rememberStopped, true, toBool);
+	LOAD(askWhenRecordFound, true, toBool);
+	LOAD(daysToKeepRecords, 365, toInt);
+	LOAD(maximumRecordCount, 1000, toInt);
 	LOAD(playRestored, true, toBool);
 	LOAD(pauseMinimized, true, toBool);
 	LOAD(pauseVideoOnly, true, toBool);

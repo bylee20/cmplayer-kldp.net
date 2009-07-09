@@ -48,11 +48,8 @@ public:
 	void stackSource(const Core::MediaSource &source);
 	void load();
 	void save() const;
-	int stoppedTime(const Core::MediaSource &source) const;
 public slots:
 	void clearStack();
-	void setStopped(const Core::MediaSource &source, int time);
-	void setFinished(const Core::MediaSource &source);
 signals:
 	void sourcesChanged(const RecentStack &stack);
 	void rememberCountChanged(int count);

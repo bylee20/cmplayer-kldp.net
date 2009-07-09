@@ -15,15 +15,11 @@ struct Pref::Dialog::Data {
 	Ui::Pref_Dialog ui;
 	QButtonGroup *shortcuts;
 	MouseGroup *dbl, *mdl, *whl;
-	static const QList<Core::MediaType> media;
-	static QString trPlain;
-	static QMap<Core::MediaType, QString> trMedia;
+//	static const QList<Core::MediaType> media;
 };
 
-QString Pref::Dialog::Data::trPlain;
-QMap<Core::MediaType, QString> Pref::Dialog::Data::trMedia;
-
 class Pref::Dialog::MouseGroup : public QGroupBox {
+	Q_DECLARE_TR_FUNCTIONS(Pref::Dialog::MouseGroup)
 public:
 	typedef QMap<Qt::KeyboardModifier, int> ItemMap;
 	MouseGroup(const QString &title, QWidget *parent = 0)
@@ -33,7 +29,7 @@ public:
 		combo[Qt::AltModifier] = new QComboBox(this);
 		combo[Qt::ShiftModifier] = new QComboBox(this);
 	
-		check[Qt::NoModifier] = new QCheckBox(Data::trPlain, this);
+		check[Qt::NoModifier] = new QCheckBox(tr("Plain"), this);
 		check[Qt::ControlModifier] = new QCheckBox("+Ctrl", this);
 		check[Qt::AltModifier] = new QCheckBox("+Alt", this);
 		check[Qt::ShiftModifier] = new QCheckBox("+Shift", this);
@@ -160,55 +156,52 @@ private:
 	QList<QKeySequence> m_shortcuts;
 };
 
-class Pref::Dialog::MediaTreeItem : public QTreeWidgetItem {
-public:
-	MediaTreeItem(Core::MediaType media, const QStringList &backend, const QString &check)
-	: m_init(false), m_media(media) {
-		setText(0, Data::trMedia.value(media, QString()));
-		for (int i=0; i<backend.size(); ++i) {
-			setText(i+1, backend[i]);
-			setCheckState(i+1, check == backend[i] ? Qt::Checked: Qt::Unchecked);
-		}
-		m_init = true;
-	}
-	Core::MediaType mediaType() const {return m_media;}
-	void setData(int column, int role, const QVariant &value) {
-		if (m_init && role == Qt::CheckStateRole) {
-			if (value.toInt() != Qt::Unchecked) {
-				const int old = checkedColumn();
-				if (old && old != column) {
-					QTreeWidgetItem::setData(old, role, Qt::Unchecked);
-					QTreeWidgetItem::setData(column, role, Qt::Checked);
-				}
-			}
-		} else
-			QTreeWidgetItem::setData(column, role, value);
-	}
-	int checkedColumn() const {
-		for (int i=1; i<columnCount(); ++i)
-			if (checkState(i) == Qt::Checked)
-				return i;
-		return 0;
-	}
-	QString checkedBackend() const {
-		const int column = checkedColumn();
-		return column ? text(column) : QString();
-	}
-private:
-	bool m_init;
-	Core::MediaType m_media;
-};
-
-
-const QList<Core::MediaType> Pref::Dialog::Data::media = QList<Core::MediaType>()
-		<< Core::LocalFile << Core::Url << Core::Dvd;
+//	Data::trMedia[Core::LocalFile] = tr("File");
+//	Data::trMedia[Core::Url] = tr("URL");
+//	Data::trMedia[Core::Dvd] = tr("DVD");
+//class Pref::Dialog::MediaTreeItem : public QTreeWidgetItem {
+//public:
+//	MediaTreeItem(Core::MediaType media, const QStringList &backend, const QString &check)
+//	: m_init(false), m_media(media) {
+//		setText(0, Data::trMedia.value(media, QString()));
+//		for (int i=0; i<backend.size(); ++i) {
+//			setText(i+1, backend[i]);
+//			setCheckState(i+1, check == backend[i] ? Qt::Checked: Qt::Unchecked);
+//		}
+//		m_init = true;
+//	}
+//	Core::MediaType mediaType() const {return m_media;}
+//	void setData(int column, int role, const QVariant &value) {
+//		if (m_init && role == Qt::CheckStateRole) {
+//			if (value.toInt() != Qt::Unchecked) {
+//				const int old = checkedColumn();
+//				if (old && old != column) {
+//					QTreeWidgetItem::setData(old, role, Qt::Unchecked);
+//					QTreeWidgetItem::setData(column, role, Qt::Checked);
+//				}
+//			}
+//		} else
+//			QTreeWidgetItem::setData(column, role, value);
+//	}
+//	int checkedColumn() const {
+//		for (int i=1; i<columnCount(); ++i)
+//			if (checkState(i) == Qt::Checked)
+//				return i;
+//		return 0;
+//	}
+//	QString checkedBackend() const {
+//		const int column = checkedColumn();
+//		return column ? text(column) : QString();
+//	}
+//private:
+//	bool m_init;
+//	Core::MediaType m_media;
+//};
+//const QList<Core::MediaType> Pref::Dialog::Data::media = QList<Core::MediaType>()
+//		<< Core::LocalFile << Core::Url << Core::Dvd;
 
 Pref::Dialog::Dialog(QWidget *parent)
 : QDialog(parent), d(new Data) {
-	Data::trPlain = tr("Plain");
-	Data::trMedia[Core::LocalFile] = tr("File");
-	Data::trMedia[Core::Url] = tr("URL");
-	Data::trMedia[Core::Dvd] = tr("DVD");
 	d->ui.setupUi(this);
 	d->dbl = new MouseGroup(tr("Double Click"), this);
 	d->mdl = new MouseGroup(tr("Middle Button Click"), this);
@@ -219,14 +212,12 @@ Pref::Dialog::Dialog(QWidget *parent)
 	vbox->insertWidget(1, d->mdl);
 	vbox->insertWidget(1, d->dbl);
 
-	d->ui.apply->hide();
 	d->shortcuts = new QButtonGroup(this);
 	d->shortcuts->addButton(d->ui.shortcut1, MenuTreeItem::Shortcut1);
 	d->shortcuts->addButton(d->ui.shortcut2, MenuTreeItem::Shortcut2);
 	d->shortcuts->addButton(d->ui.shortcut3, MenuTreeItem::Shortcut3);
 	d->shortcuts->addButton(d->ui.shortcut4, MenuTreeItem::Shortcut4);
 	slotCurrentItemChanged(0);	
-	connect(d->ui.apply, SIGNAL(clicked()), this, SLOT(apply()));
 	connect(d->shortcuts, SIGNAL(buttonClicked(int)), this, SLOT(getShortcut(int)));
 	connect(d->ui.shortcutTree
 			, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*))
@@ -252,6 +243,9 @@ Pref::Dialog::Dialog(QWidget *parent)
 	
 	d->ui.pauseMinimized->setChecked(p.pauseMinimized);
 	d->ui.playRestored->setChecked(p.playRestored);
+	d->ui.askWhenRecordFound->setChecked(p.askWhenRecordFound);
+	d->ui.maximumRecordCount->setValue(p.maximumRecordCount);
+	d->ui.daysToKeepRecords->setValue(p.daysToKeepRecords);
 	d->ui.pauseVideoOnly->setChecked(p.pauseVideoOnly);
 	d->ui.startStopped->setChecked(p.rememberStopped);
 	d->ui.hideCursor->setChecked(p.hideCursor);
@@ -378,6 +372,9 @@ void Pref::Dialog::apply() {
 	p.pauseMinimized = d->ui.pauseMinimized->isChecked();
 	p.pauseVideoOnly = d->ui.pauseVideoOnly->isChecked();
 	p.playRestored = d->ui.playRestored->isChecked();
+	p.askWhenRecordFound = d->ui.askWhenRecordFound->isChecked();
+	p.maximumRecordCount = d->ui.maximumRecordCount->value();
+	p.daysToKeepRecords = d->ui.daysToKeepRecords->value();
 	p.rememberStopped = d->ui.startStopped->isChecked();
 	p.hideCursor = d->ui.hideCursor->isChecked();
 	p.hideDelay = d->ui.hideDelay->value()*1000;
