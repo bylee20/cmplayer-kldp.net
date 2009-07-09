@@ -4,10 +4,9 @@
 #include <core/newframeevent.h>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
-#include <QtCore/QDebug>
 #include <QtGui/QApplication>
+#include <QtCore/QDebug>
 #include <qmath.h>
-
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288419717
 #endif
@@ -97,8 +96,6 @@ struct VideoRenderer::Data {
 	QByteArray data;
 	QImage image;
 	QList<OsdRenderer*> osds;
-	QSizeF visual, widget;
-	double vMargin, hMargin;
 };
 
 QGLFormat VideoRenderer::makeFormat() {
@@ -108,15 +105,14 @@ QGLFormat VideoRenderer::makeFormat() {
 }
 
 VideoRenderer::VideoRenderer(QWidget *parent)
-: QGLWidget(makeFormat(), parent), OpenGLVideoRendererIface(this), d(new Data) {
+: QGLWidget(makeFormat(), parent), SoftwareRendererIface(this), d(new Data) {
 	setAttribute(Qt::WA_NativeWindow);
-	d->vMargin = d->hMargin = 0.0;
 	d->brightness = d->hue = 0.0;
 	d->contrast = d->saturation = 1.0;
 	d->frameSet = false;
-	d->widget = size();
+	setWidgetSize(size());
 	makeCurrent();
-	glGenTextures(3, d->texture);
+
 #define GET_PROC_ADDRESS(func) func = (_##func)context()->getProcAddress(QLatin1String(#func))
 	GET_PROC_ADDRESS(glProgramStringARB);
 	GET_PROC_ADDRESS(glBindProgramARB);
@@ -147,6 +143,8 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 			d->hasPrograms = false;
 		}
 	}
+
+	glGenTextures(3, d->texture);
 }
 
 VideoRenderer::~VideoRenderer() {
@@ -170,8 +168,14 @@ void VideoRenderer::setColorProperty(const Core::ColorProperty &prop) {
 }
 
 void VideoRenderer::resizeEvent(QResizeEvent */*event*/) {
-	d->widget = size();
+	setWidgetSize(size());
 	calculate();
+}
+
+void VideoRenderer::calculate() {
+	Core::SoftwareRendererIface::calculate();
+	for (int i=0; i<d->osds.size(); ++i)
+		d->osds[i]->setSize(visualSize(), widgetSize());
 }
 
 void VideoRenderer::customEvent(QEvent *event) {
@@ -179,6 +183,7 @@ void VideoRenderer::customEvent(QEvent *event) {
 		return;
 	const Core::VideoFrame frame = ((const Core::NewFrameEvent*)event)->frame();
 	d->frameSet = !frame.isNull() && frame.info().type != Core::VideoFrame::NoFrame;
+	const bool sizeChanged = frameInfo().size != frame.info().size;
 	updateFrameInfo(frame.info(), true);
 	if (!d->frameSet)
 		return;
@@ -190,18 +195,17 @@ void VideoRenderer::customEvent(QEvent *event) {
 	case Core::VideoFrame::YV12: {
 		const int w[3] = {width, width/2, width/2};
 		const int h[3] = {height, height/2, height/2};
-		int offset[3] = {0};
-		if (frameInfo().type == Core::VideoFrame::I420) {
-			offset[1] = w[0]*h[0]*5/4;
-			offset[2] = w[0]*h[0];
-		} else {
-			offset[1] = w[0]*h[0];
-			offset[2] = w[0]*h[0]*5/4;
-		}
+		int offset[3] = {0, w[0]*h[0]*5/4, w[0]*h[0]};
+		if (frameInfo().type == Core::VideoFrame::YV12)
+			qSwap(offset[1], offset[2]);
 		for (int i=0; i<3; ++i) {
 			glBindTexture(GL_TEXTURE_2D, d->texture[i]);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, w[i], h[i], 0
-					, GL_LUMINANCE, GL_UNSIGNED_BYTE, frame.data() + offset[i]);
+			if (sizeChanged)
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, w[i], h[i], 0
+						, GL_LUMINANCE, GL_UNSIGNED_BYTE, frame.data() + offset[i]);
+			else
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, w[i], h[i]
+						, GL_LUMINANCE, GL_UNSIGNED_BYTE, frame.data() + offset[i]);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -210,7 +214,11 @@ void VideoRenderer::customEvent(QEvent *event) {
 		break;
 	} case Core::VideoFrame::YUY2: {
 		glBindTexture(GL_TEXTURE_2D, d->texture[0]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width/2, height, 0
+		if (sizeChanged)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width/2, height, 0
+				, GL_RGBA, GL_UNSIGNED_BYTE, frame.data());
+		else
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width/2, height
 				, GL_RGBA, GL_UNSIGNED_BYTE, frame.data());
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -225,8 +233,7 @@ void VideoRenderer::customEvent(QEvent *event) {
 }
 
 void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
-	QPainter painter;
-	painter.begin(this);
+	QPainter painter(this);
 	painter.fillRect(rect(), Qt::black);
 	if (!d->frameSet)
 		return;
@@ -273,16 +280,16 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 
 	glDisable(GL_FRAGMENT_PROGRAM_ARB);
 
-	if (d->vMargin > 0.5) {
-		QRectF rect(0.0, 0.0, width(), d->vMargin);
+	if (vmargin() > 0.5) {
+		QRectF rect(0.0, 0.0, width(), vmargin());
 		painter.fillRect(rect, Qt::black);
-		rect.moveTop(height() - d->vMargin);
+		rect.moveTop(height() - vmargin());
 		painter.fillRect(rect, Qt::black);
 	}
-	if (d->hMargin > 0.5) {
-		QRectF rect(0.0, 0.0, d->hMargin, height());
+	if (hmargin() > 0.5) {
+		QRectF rect(0.0, 0.0, hmargin(), height());
 		painter.fillRect(rect, Qt::black);
-		rect.moveLeft(width() - d->hMargin);
+		rect.moveLeft(width() - hmargin());
 		painter.fillRect(rect, Qt::black);
 	}
 	painter.fillRect(QRect(0, 0, 0, 0), Qt::white);
@@ -290,7 +297,6 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		d->osds[i]->renderContents(&painter);
 	if (object())
 		object()->overdraw(&painter);
-	painter.end();
 }
 
 void VideoRenderer::rerender() {
@@ -302,31 +308,6 @@ Core::AbstractOsdRenderer *VideoRenderer::createOsd() {
 	OsdRenderer *osd = new OsdRenderer(this);
 	d->osds.push_back(osd);
 	return osd;
-}
-
-void VideoRenderer::calculate() {
-	QSizeF video(aspectRatioF(), 1.0);
-	QSizeF visual = video;
-	if (cropRatio() > 0.0) {
-		visual.setWidth(cropRatio());
-		visual.setHeight(1.0);
-	}
-	visual.scale(d->widget, Qt::KeepAspectRatio);
-	video.scale(visual, Qt::KeepAspectRatioByExpanding);
-	const double x = (d->widget.width() - video.width())/2.0;
-	const double y = (d->widget.height() -video.height())/2.0;
-	setImageRect(x, y, video);
-	d->hMargin = (d->widget.width() - visual.width())/2.0;
-	d->vMargin = (d->widget.height() - visual.height())/2.0;
-	hscale() = video.width() / double(videoSize().width());
-	vscale() = video.height() / double(videoSize().height());
-	const double pixel = frameInfo().pixelAspectRatio;
-	if (pixel > 1.)
-		hscale() *= pixel;
-	else
-		vscale() /= pixel;
-	for (int i=0; i<d->osds.size(); ++i)
-		d->osds[i]->setSize(visual, d->widget);
 }
 
 void VideoRenderer::mouseMoveEvent(QMouseEvent *event) {

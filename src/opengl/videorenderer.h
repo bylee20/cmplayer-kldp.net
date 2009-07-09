@@ -2,16 +2,16 @@
 #define OPENGL_VIDEORENDERER_H
 
 #include <QtOpenGL/QGLWidget>
-#include <core/openglvideorendereriface.h>
+#include <core/softwarerendereriface.h>
 
 namespace OpenGL {
 
-class VideoRenderer : public QGLWidget, public Core::OpenGLVideoRendererIface {
+class VideoRenderer : public QGLWidget, public Core::SoftwareRendererIface {
 	Q_OBJECT
 public:
 	VideoRenderer(QWidget *parent = 0);
 	~VideoRenderer();
-	virtual Core::VideoType type() const {return Core::OpenGL;}
+	virtual Core::VideoType type() const {return Core::SoftwareVideo;}
 	virtual QSize sizeHint() const {return widgetSizeHint();}
 	virtual void rerender();
 	virtual Core::AbstractOsdRenderer *createOsd();

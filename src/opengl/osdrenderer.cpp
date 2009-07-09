@@ -1,5 +1,6 @@
 #include "osdrenderer.h"
 #include "videorenderer.h"
+#include <core/utility.h>
 #include <QtOpenGL/QGLFramebufferObject>
 #include <QtOpenGL/QGLPixelBuffer>
 #include <QtGui/QPainter>
@@ -38,10 +39,18 @@ OsdRenderer::~OsdRenderer() {
 
 void OsdRenderer::alloc() {
 	if (d->hasFbuffer) {
-		free();
-		if (d->renderer) {
+		bool expand = false;
+		if (d->fbo) {
+			expand = d->fbo->height() < d->widget.height() || d->fbo->width() < d->widget.width();
+			if (expand)
+				free();
+		}
+		if (!d->fbo && d->renderer) {
 			d->renderer->makeCurrent();
-			d->fbo = new QGLFramebufferObject(d->widget.toSize());
+			if (expand)
+				d->fbo = new QGLFramebufferObject(d->widget.toSize());
+			else
+				d->fbo = new QGLFramebufferObject(Core::Utility::desktopSize());
 		}
 	}
 }
@@ -80,7 +89,7 @@ void OsdRenderer::renderContents(QPainter *painter) {
 		return;
 	if (d->hasFbuffer) {
 		if (d->fbo && d->rendered && d->renderer)
-			d->renderer->drawTexture(d->renderer->rect(), d->fbo->texture());
+			d->renderer->drawTexture(QPointF(0, 0), d->fbo->texture());
 	} else {
 		drawText(painter, d->widget, d->widget);
 		drawTimeLine(painter, d->visual, d->widget);
