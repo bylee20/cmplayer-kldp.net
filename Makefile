@@ -57,11 +57,11 @@ qmake_env := CMPLAYER_RELEASE=\\\"yes\\\"
 make_env := CMPLAYER_TRANSLATION_DIR=\\\"$(CMPLAYER_TRANSLATION_PATH)\\\" CMPLAYER_PLUGIN_DIR=\\\"$(CMPLAYER_PLUGIN_PATH)\\\"
 subdirs := "SUBDIRS += core $(BUILD_LIST)"
 
-build_xine := $(findstring xine,$(BUILD_LIST))
-build_mplayer := $(findstring mplayer,$(BUILD_LIST))
-build_opengl := $(findstring opengl,$(BUILD_LIST))
-build_xvideo := $(findstring xvideo,$(BUILD_LIST))
-build_cmplayer := $(findstring cmplayer,$(BUILD_LIST))
+build_xine := $(filter xine,$(BUILD_LIST))
+build_mplayer := $(filter mplayer,$(BUILD_LIST))
+build_opengl := $(filter opengl,$(BUILD_LIST))
+build_xvideo := $(filter xvideo,$(BUILD_LIST))
+build_cmplayer := $(filter cmplayer,$(BUILD_LIST))
 build_any_plugin := $(strip $(subst cmplayer,,$(BUILD_LIST)))
 
 ifeq (,$(findstring $(CMPLAYER_BIN_PATH),${PATH}))
