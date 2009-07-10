@@ -1,5 +1,6 @@
 #include "info.h"
 #include "xineengine.h"
+#include <core/softwarerendereriface.h>
 
 namespace Xine {
 
@@ -16,8 +17,10 @@ const QStringList &Info::videoRenderer() const {
 		const int idx = d.videoRenderers.indexOf("raw");
 		if (idx != -1) {
 			d.videoRenderers.removeAt(idx);
-			d.videoRenderers.insert(1, "software(OpenGL)");
-			d.videoRenderers.insert(1, "software(XVideo)");
+			if (Core::SoftwareRendererIface::isAvailable(Core::OpenGLRenderer))
+				d.videoRenderers.insert(1, "software(OpenGL)");
+			if (Core::SoftwareRendererIface::isAvailable(Core::XVideoRenderer))
+				d.videoRenderers.insert(1, "software(XVideo)");
 		}
 	}
 	return d.videoRenderers;
