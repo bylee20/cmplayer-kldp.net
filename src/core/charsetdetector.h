@@ -1,5 +1,5 @@
-#ifndef CORECHARSETDETECTOR_H
-#define CORECHARSETDETECTOR_H
+#ifndef CORE_CHARSETDETECTOR_H
+#define CORE_CHARSETDETECTOR_H
 
 class QString;			class QByteArray;
 

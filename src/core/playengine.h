@@ -1,5 +1,5 @@
-#ifndef BACKEND_PLAYENGINE_H
-#define BACKEND_PLAYENGINE_H
+#ifndef CORE_PLAYENGINE_H
+#define CORE_PLAYENGINE_H
 
 #include <QtCore/QObject>
 #include <QtCore/QStringList>

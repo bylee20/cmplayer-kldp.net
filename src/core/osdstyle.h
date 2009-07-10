@@ -1,5 +1,5 @@
-#ifndef BACKEND_OSDSTYLE_H
-#define BACKEND_OSDSTYLE_H
+#ifndef CORE_OSDSTYLE_H
+#define CORE_OSDSTYLE_H
 
 #include <QtGui/QColor>
 #include <QtGui/QFont>

@@ -1,5 +1,5 @@
-#ifndef BACKEND_INFO_H
-#define BACKEND_INFO_H
+#ifndef CORE_INFO_H
+#define CORE_INFO_H
 
 #include <QtCore/QStringList>
 #include "namespace.h"

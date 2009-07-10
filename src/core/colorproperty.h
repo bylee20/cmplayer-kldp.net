@@ -1,5 +1,5 @@
-#ifndef CORECOLORPROPERTY_H
-#define CORECOLORPROPERTY_H
+#ifndef CORE_COLORPROPERTY_H
+#define CORE_COLORPROPERTY_H
 
 #include <QtGlobal>
 

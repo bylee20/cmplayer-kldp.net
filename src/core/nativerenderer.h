@@ -1,5 +1,5 @@
-#ifndef BACKEND_NATIVERENDERER_H
-#define BACKEND_NATIVERENDERER_H
+#ifndef CORE_NATIVERENDERER_H
+#define CORE_NATIVERENDERER_H
 
 #include <QtGui/QWidget>
 #include "videorendereriface.h"

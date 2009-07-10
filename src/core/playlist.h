@@ -1,5 +1,5 @@
-#ifndef BACKEND_PLAYLIST_H
-#define BACKEND_PLAYLIST_H
+#ifndef CORE_PLAYLIST_H
+#define CORE_PLAYLIST_H
 
 #include <QtCore/QList>
 #include "mediasource.h"

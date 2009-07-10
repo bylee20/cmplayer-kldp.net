@@ -1,5 +1,5 @@
-#ifndef BACKEND_NEWFRAMEEVENT_H
-#define BACKEND_NEWFRAMEEVENT_H
+#ifndef CORE_NEWFRAMEEVENT_H
+#define CORE_NEWFRAMEEVENT_H
 
 #include <QtCore/QList>
 #include "videoframe.h"

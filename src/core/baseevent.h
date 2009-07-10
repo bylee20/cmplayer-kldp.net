@@ -1,5 +1,5 @@
-#ifndef BACKEND_BASEEVENT_H
-#define BACKEND_BASEEVENT_H
+#ifndef CORE_BASEEVENT_H
+#define CORE_BASEEVENT_H
 
 #include <QtCore/QEvent>
 #include "mediasource.h"

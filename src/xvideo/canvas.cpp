@@ -36,6 +36,7 @@ Canvas::Canvas(VideoRenderer *parent)
 	d().scene = 0;
 	setMouseTracking(true);
 //	setAutoFillBackground(true);
+	setAttribute(Qt::WA_NativeWindow, true);
 	setAttribute(Qt::WA_PaintOnScreen, true);
 	setAttribute(Qt::WA_OpaquePaintEvent, true);
 //	setAttribute(Qt::WA_PaintUnclipped, true);
