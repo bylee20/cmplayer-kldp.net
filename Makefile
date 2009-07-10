@@ -13,14 +13,13 @@ ifeq ($(LOAD_CONFIG), yes)
 		CMPLAYER_ICON_PATH := $(shell grep \!\!CMPLAYER_ICON_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
 		CMPLAYER_APP_PATH := $(shell grep \!\!CMPLAYER_APP_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
 		CMPLAYER_ACTION_PATH := $(shell grep \!\!CMPLAYER_ACTION_PATH\!\! $(config_file) | sed s/^.*\\s=\\s//)
-		ENABLE_OPENGL := $(shell grep \!\!ENABLE_OPENGL\!\! $(config_file) | sed s/^.*\\s=\\s//)
-		ENGINE_LIST := $(shell grep \!\!ENGINE_LIST\!\! $(config_file) | sed s/^.*\\s=\\s//)
-		BUILD_PLUGIN_ONLY := $(shell grep \!\!BUILD_PLUGIN_ONLY\!\! $(config_file) | sed s/^.*\\s=\\s//)
+		BUILD_LIST := $(shell grep \!\!BUILD_LIST\!\! $(config_file) | sed s/^.*\\s=\\s//)
 	endif
 endif
 
 ifdef ALL_INTO
 	ifneq ($(ALL_INTO),)
+		PREFIX ?= $(ALL_INTO)
 		CMPLAYER_BIN_PATH ?= $(ALL_INTO)
  		CMPLAYER_DATA_PATH ?= $(ALL_INTO)
 		CMPLAYER_TRANSLATION_PATH ?= $(ALL_INTO)/translations
@@ -28,7 +27,7 @@ ifdef ALL_INTO
 		CMPLAYER_PLUGIN_PATH ?= $(ALL_INTO)/plugins
 		CMPLAYER_ICON_PATH ?= $(ALL_INTO)/icons
 		CMPLAYER_APP_PATH ?= $(ALL_INTO)
-		CMPLAYER_ACTION_PATH ?= $(ALL_INT)
+		CMPLAYER_ACTION_PATH ?= $(ALL_INTO)
 	endif
 endif
 
@@ -44,9 +43,7 @@ CMPLAYER_ICON_PATH ?= $(CMPLAYER_DATA_PATH)/icons/hicolor
 CMPLAYER_APP_PATH ?= $(CMPLAYER_DATA_PATH)/applications
 CMPLAYER_ACTION_PATH ?= $(CMPLAYER_DATA_PATH)/apps/solid/actions
 
-ENABLE_OPENGL ?= no
-ENGINE_LIST ?= xine mplayer
-BUILD_PLUGIN_ONLY ?= no
+BUILD_LIST ?= cmplayer xine mplayer
 QMAKE ?= qmake
 LRELEASE ?= lrelease
 
@@ -58,17 +55,14 @@ install_file := install -m 644
 install_exe := install -m 755
 qmake_env := CMPLAYER_RELEASE=\\\"yes\\\"
 make_env := CMPLAYER_TRANSLATION_DIR=\\\"$(CMPLAYER_TRANSLATION_PATH)\\\" CMPLAYER_PLUGIN_DIR=\\\"$(CMPLAYER_PLUGIN_PATH)\\\"
-subdirs := "SUBDIRS += core OPENGL ${ENGINE_LIST} CMPLAYER"
-ifeq ($(ENABLE_OPENGL),yes)
-	subdirs := $(subst OPENGL,opengl,$(subdirs))
-else
-	subdirs := $(subst OPENGL,,$(subdirs))
-endif
-ifeq ($(BUILD_PLUGIN_ONLY),yes)
-	subdirs := $(subst CMPLAYER,,$(subdirs))
-else
-	subdirs := $(subst CMPLAYER,cmplayer,$(subdirs))
-endif
+subdirs := "SUBDIRS += core $(BUILD_LIST)"
+
+build_xine := $(findstring xine,$(BUILD_LIST))
+build_mplayer := $(findstring mplayer,$(BUILD_LIST))
+build_opengl := $(findstring opengl,$(BUILD_LIST))
+build_xvideo := $(findstring xvideo,$(BUILD_LIST))
+build_cmplayer := $(findstring cmplayer,$(BUILD_LIST))
+build_any_plugin := $(strip $(subst cmplayer,,$(BUILD_LIST)))
 
 ifeq (,$(findstring $(CMPLAYER_BIN_PATH),${PATH}))
 	executable := $(CMPLAYER_BIN_PATH)/cmplayer
@@ -83,16 +77,19 @@ ifeq ($(config),)
 	cd src/libchardet && ./configure --enable-shared=no --enable-static=yes && make
 	cd src && $(qmake_env) $(QMAKE) $(subdirs) cmplayer.pro
 	cd src/core && $(qmake_env) $(QMAKE) core.pro
-ifneq (,$(findstring xine,${ENGINE_LIST}))
+ifneq ($(build_xine),)
 	cd src/xine && $(qmake_env) $(QMAKE) xine.pro
 endif
-ifneq (,$(findstring mplayer,${ENGINE_LIST}))
+ifneq ($(build_mplayer),)
 	cd src/mplayer && $(qmake_env) $(QMAKE) mplayer.pro
 endif
-ifeq ($(ENABLE_OPENGL),yes)
+ifneq ($(build_opengl),)
 	cd src/opengl && $(qmake_env) $(QMAKE) opengl.pro
 endif
-ifeq ($(BUILD_PLUGIN_ONLY),no)
+ifneq ($(build_xvideo),)
+	cd src/xvideo && $(qmake_env) $(QMAKE) xvideo.pro
+endif
+ifneq ($(build_cmplayer),)
 	cd src/cmplayer && $(qmake_env) $(QMAKE) cmplayer.pro
 endif
 	cd src && $(make_env) make && cd cmplayer && $(LRELEASE) cmplayer.pro
@@ -108,25 +105,20 @@ ifeq ($(LOAD_CONFIG),yes) # by Manje Woo
 	@echo "!!CMPLAYER_ICON_PATH!! = $(CMPLAYER_ICON_PATH)" >> $(config_file)
 	@echo "!!CMPLAYER_APP_PATH!! = $(CMPLAYER_APP_PATH)" >> $(config_file)
 	@echo "!!CMPLAYER_ACTION_PATH!! = $(CMPLAYER_ACTION_PATH)" >> $(config_file)
-	@echo "!!ENABLE_OPENGL!! = $(ENABLE_OPENGL)" >> $(config_file)
-	@echo "!!ENGINE_LIST!! = $(ENGINE_LIST)" >> $(config_file)
-	@echo "!!BUILD_PLUGIN_ONLY!! = $(BUILD_PLUGIN_ONLY)" >> $(config_file)
+	@echo "!!BUILD_LIST!! = $(BUILD_LIST)" >> $(config_file)
 endif
-	@echo && echo "===================== Compilation Finished! ====================="
+	@echo && echo "===================== Compilation Finished! =====================" && echo
 else
 	@echo "  There already exists config file."
 endif
-	@echo "  Run 'make install' or 'make clean' to install or re-make, repectively."
-	@echo "  You may need root permission to install." && echo && echo
+	@echo "  Run 'make install' or 'make clean' to install or rebuild, repectively."
+	@echo "  You may need root permission to install." && echo
 	@echo "=================== Installation Informations ===================" && echo
-	@echo "  CMPLAYER_BIN_PATH: $(CMPLAYER_BIN_PATH)"
-# 	@echo "  CMPLAYER_DATA_PATH: $(CMPLAYER_DATA_PATH)"
-	@echo "  CMPLAYER_TRANSLATION_PATH: $(CMPLAYER_TRANSLATION_PATH)"
-	@echo "  CMPLAYER_LIB_PATH: $(CMPLAYER_LIB_PATH)"
-	@echo "  CMPLAYER_PLUGIN_PATH: $(CMPLAYER_PLUGIN_PATH)"
-	@echo "  ENABLE_OPENGL: $(ENABLE_OPENGL)"
-	@echo "  ENGINE_LIST: $(ENGINE_LIST)"
-	@echo "  BUILD_PLUGIN_ONLY: $(BUILD_PLUGIN_ONLY)"
+	@echo "  Executable Path:   $(CMPLAYER_BIN_PATH)"
+	@echo "  Translations Path: $(CMPLAYER_TRANSLATION_PATH)"
+	@echo "  Library Path:      $(CMPLAYER_LIB_PATH)"
+	@echo "  Plugins Path:      $(CMPLAYER_PLUGIN_PATH)"
+	@echo "  Build List:        $(BUILD_LIST)" && echo
 
 # help:
 # 	@echo "\n===================== Configurable Options ======================\n\n"\
@@ -156,70 +148,70 @@ endif
 # "            Default: PREFIX/CMPLAYER_DIR/plugins\n"
 
 clean:
-	cd src && $(QMAKE) && make clean
+	cd src && $(qmake_env) $(QMAKE) $(subdirs) cmplayer.pro && make clean
+	cd src/libchardet && make distclean
 	rm -f $(config_file)
 
 install: cmplayer
-	@echo && echo "======================= Start to Install! ======================="
+	@echo "======================= Start to Install! ======================="
 # install plugin directory
-ifneq ($(strip $(ENGINE_LIST)),)
-	-install -d $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
-else
-ifeq ($(ENABLE_OPENGL),yes)
-	-install -d $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
-endif
+ifneq ($(build_any_plugin),)
+	-install -d $(DEST_DIR)$(CMPLAYER_PLUGIN_PATH)
 endif
 # install xine
-ifneq (,$(findstring xine,${ENGINE_LIST}))
-	$(install_file) src/bin/libcmplayer_engine_xine* $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
+ifneq ($(build_xine),)
+	$(install_file) src/bin/libcmplayer_engine_xine* $(DEST_DIR)$(CMPLAYER_PLUGIN_PATH)
 endif
 # install mplayer
-ifneq (,$(findstring mplayer,${ENGINE_LIST}))
-	$(install_file) src/bin/libcmplayer_engine_mplayer* $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
+ifneq ($(build_mplayer),)
+	$(install_file) src/bin/libcmplayer_engine_mplayer* $(DEST_DIR)$(CMPLAYER_PLUGIN_PATH)
 endif
 # install opengl
-ifeq ($(ENABLE_OPENGL),yes)
-	$(install_file) src/bin/libcmplayer_opengl* $(DESTDIR)$(CMPLAYER_PLUGIN_PATH)
+ifneq ($(build_opengl),)
+	$(install_file) src/bin/libcmplayer_opengl* $(DEST_DIR)$(CMPLAYER_PLUGIN_PATH)
 endif
-
+# install xvideo
+ifneq ($(build_xvideo),)
+	$(install_file) src/bin/libcmplayer_xvideo* $(DEST_DIR)$(CMPLAYER_PLUGIN_PATH)
+endif
 # install core and player
-ifeq ($(BUILD_PLUGIN_ONLY),no)
-	-install -d $(DESTDIR)$(CMPLAYER_BIN_PATH)
-	-install -d $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
-	-install -d $(DESTDIR)$(CMPLAYER_LIB_PATH)
-	-install -d $(DESTDIR)$(CMPLAYER_APP_PATH)
-	-install -d $(DESTDIR)$(CMPLAYER_ACTION_PATH)
-# 	-install -d $(DESTDIR)$(CMPLAYER_DATA_PATH)/pixmaps
-	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/16x16/apps
-	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/22x22/apps
-	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/32x32/apps
-	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/48x48/apps
-	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/64x64/apps
-	-install -d $(DESTDIR)$(CMPLAYER_ICON_PATH)/128x128/apps
-	$(install_exe) src/bin/cmplayer $(DESTDIR)$(CMPLAYER_BIN_PATH)
-	$(install_file) src/cmplayer/translations/cmplayer_*.qm $(DESTDIR)$(CMPLAYER_TRANSLATION_PATH)
-	$(install_file) src/bin/libcmplayer_core.so.$(cmplayer_version) $(DESTDIR)$(CMPLAYER_LIB_PATH)
+ifneq ($(build_cmplayer),)
+	-install -d $(DEST_DIR)$(CMPLAYER_BIN_PATH)
+	-install -d $(DEST_DIR)$(CMPLAYER_TRANSLATION_PATH)
+	-install -d $(DEST_DIR)$(CMPLAYER_LIB_PATH)
+	-install -d $(DEST_DIR)$(CMPLAYER_APP_PATH)
+	-install -d $(DEST_DIR)$(CMPLAYER_ACTION_PATH)
+# 	-install -d $(DEST_DIR)$(CMPLAYER_DATA_PATH)/pixmaps
+	-install -d $(DEST_DIR)$(CMPLAYER_ICON_PATH)/16x16/apps
+	-install -d $(DEST_DIR)$(CMPLAYER_ICON_PATH)/22x22/apps
+	-install -d $(DEST_DIR)$(CMPLAYER_ICON_PATH)/32x32/apps
+	-install -d $(DEST_DIR)$(CMPLAYER_ICON_PATH)/48x48/apps
+	-install -d $(DEST_DIR)$(CMPLAYER_ICON_PATH)/64x64/apps
+	-install -d $(DEST_DIR)$(CMPLAYER_ICON_PATH)/128x128/apps
+	$(install_exe) src/bin/cmplayer $(DEST_DIR)$(CMPLAYER_BIN_PATH)
+	$(install_file) src/cmplayer/translations/cmplayer_*.qm $(DEST_DIR)$(CMPLAYER_TRANSLATION_PATH)
+	$(install_file) src/bin/libcmplayer_core.so.$(cmplayer_version) $(DEST_DIR)$(CMPLAYER_LIB_PATH)
 ifeq ($(INSTALL_SYMBOLIC),yes)
-	cd $(DESTDIR)$(CMPLAYER_LIB_PATH) && ln -s libcmplayer_core.so.$(cmplayer_version) libcmplayer_core.so \
+	-cd $(DEST_DIR)$(CMPLAYER_LIB_PATH) && ln -s libcmplayer_core.so.$(cmplayer_version) libcmplayer_core.so \
 && ln -s libcmplayer_core.so.$(cmplayer_version) libcmplayer_core.so.$(cmplayer_major) \
 && ln -s libcmplayer_core.so.$(cmplayer_version) libcmplayer_core.so.$(cmplayer_major).$(cmplayer_minor)
 endif
-	$(install_file) cmplayer.desktop $(DESTDIR)$(CMPLAYER_APP_PATH)
-	$(install_file) cmplayer-opendvd.desktop $(DESTDIR)$(CMPLAYER_ACTION_PATH)
-	$(install_file) icons/cmplayer16.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/16x16/apps/cmplayer.png
-	$(install_file) icons/cmplayer22.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/22x22/apps/cmplayer.png
-	$(install_file) icons/cmplayer32.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/32x32/apps/cmplayer.png
-	$(install_file) icons/cmplayer48.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/48x48/apps/cmplayer.png
-	$(install_file) icons/cmplayer64.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/64x64/apps/cmplayer.png
-	$(install_file) icons/cmplayer128.png $(DESTDIR)$(CMPLAYER_ICON_PATH)/128x128/apps/cmplayer.png
-# 	$(install_file) icons/cmplayer.xpm $(DESTDIR)$(CMPLAYER_DATA_PATH)/pixmaps
+	$(install_file) cmplayer.desktop $(DEST_DIR)$(CMPLAYER_APP_PATH)
+	$(install_file) cmplayer-opendvd.desktop $(DEST_DIR)$(CMPLAYER_ACTION_PATH)
+	$(install_file) icons/cmplayer16.png $(DEST_DIR)$(CMPLAYER_ICON_PATH)/16x16/apps/cmplayer.png
+	$(install_file) icons/cmplayer22.png $(DEST_DIR)$(CMPLAYER_ICON_PATH)/22x22/apps/cmplayer.png
+	$(install_file) icons/cmplayer32.png $(DEST_DIR)$(CMPLAYER_ICON_PATH)/32x32/apps/cmplayer.png
+	$(install_file) icons/cmplayer48.png $(DEST_DIR)$(CMPLAYER_ICON_PATH)/48x48/apps/cmplayer.png
+	$(install_file) icons/cmplayer64.png $(DEST_DIR)$(CMPLAYER_ICON_PATH)/64x64/apps/cmplayer.png
+	$(install_file) icons/cmplayer128.png $(DEST_DIR)$(CMPLAYER_ICON_PATH)/128x128/apps/cmplayer.png
+# 	$(install_file) icons/cmplayer.xpm $(DEST_DIR)$(CMPLAYER_DATA_PATH)/pixmaps
 endif
 	@echo && echo "==================== Installation Finished!! ====================" && echo
 	@echo "  If you want to execute CMPlayer now, run '$(executable)'." && echo
 
 uninstall:
 # uninstall core and player files
-ifeq ($(BUILD_PLUGIN_ONLY),no)
+ifneq ($(build_cmplayer),)
 	-rm -f $(CMPLAYER_TRANSLATION_PATH)/cmplayer_*.qm
 	-rm -f $(CMPLAYER_LIB_PATH)/libcmplayer_core.so*
 	-rm -f $(CMPLAYER_BIN_PATH)/cmplayer
@@ -233,19 +225,23 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 # 	-rm -f $(CMPLAYER_DATA_PATH)/pixmaps/cmplayer.xpm
 endif
 # uninstall xine
-ifneq (,$(findstring xine,${ENGINE_LIST}))
+ifneq ($(build_xine),)
 	-rm -f $(CMPLAYER_PLUGIN_PATH)/libcmplayer_engine_xine*
 endif
 # uninstall mplayer
-ifneq (,$(findstring mplayer,${ENGINE_LIST}))
+ifneq ($(build_mplayer),)
 	-rm -f $(CMPLAYER_PLUGIN_PATH)/libcmplayer_engine_mplayer*
 endif
 # uninstall opengl
-ifeq ($(ENABLE_OPENGL),yes)
+ifneq ($(build_opengl),)
 	-rm -f $(CMPLAYER_PLUGIN_PATH)/libcmplayer_opengl*
 endif
+# uninstall xvideo
+ifneq ($(build_xvideo),)
+	-rm -f $(CMPLAYER_PLUGIN_PATH)/libcmplayer_xvideo*
+endif
 # uninstall directories
-ifeq ($(BUILD_PLUGIN_ONLY),no)
+ifneq ($(build_cmplayer),)
 	-rmdir $(CMPLAYER_TRANSLATION_PATH)
 	-rmdir $(CMPLAYER_LIB_PATH)
 	-rmdir $(CMPLAYER_BIN_PATH)
@@ -258,10 +254,6 @@ ifeq ($(BUILD_PLUGIN_ONLY),no)
 	-rmdir $(CMPLAYER_ICON_PATH)/128x128/apps
 # 	-rmdir $(CMPLAYER_DATA_PATH)/pixmaps
 endif
-ifneq ($(strip $(ENGINE_LIST)),)
+ifneq ($(build_any_plugin),)
 	-rmdir $(CMPLAYER_PLUGIN_PATH)
-else
-ifeq ($(ENABLE_OPENGL),yes)
-	-rmdir $(CMPLAYER_PLUGIN_PATH)
-endif
 endif

@@ -1,5 +1,3 @@
-1) 컴파일
-
 CMPlayer를 컴파일하기 위해서는 다음의 것들이 필요합니다.
 
 	1. Qt4.4.0 이상 개발용 라이브러리 및 해더파일, 개발 툴
@@ -15,41 +13,64 @@ CMPlayer를 컴파일하기 위해서는 다음의 것들이 필요합니다.
 
 make
 
-라고 입력하면 컴파일이 시작됩니다. make시에 선택할수 있는 옵션은 다음과 같습니다.
+라고 입력하면 컴파일이 시작됩니다. 이때 다음과 같은 옵션을 지정할 수 있습니다.
 
-	1. PREFIX: 빌드한 파일들 중 따로 경로가 지정되지 않은 항목에 대해서 전부 PREFIX/cmplayer 아래에 설치합니다.
-	구체적으로는 다음과 같이 각 경로를 자동으로 설정합니다.
-	CMPLAYER_BIN_PATH = PREFIX/cmplayer
-	CMPLAYER_DATA_PATH = PREFIX
-	CMPLAYER_TRANSLATION_PATH = PREFIX/cmplayer/translations
-	CMPLAYER_LIB_PATH = PREFIX/cmplayer/lib
-	CMPLAYER_PLUGIN_PATH = PREFIX/cmplayer/plugins
-	PREFIX를 설정하지 않거나, CMPLAYER_*_PATH의 값을 별도로 지정할 경우 본래의 CMPLAYER_*_PATH의 값이 우선됩니다.
+	1. 설치경로와 관련된 옵션
+		1. 시스템에 설치할 경우
+		/usr 혹은 /usr/local 등의 시스템 경로에 설치할 경우는 다음과 같은 옵션을 이용할 수 있습니다.
+
+			1. PREFIX: 빌드한 파일들을 PREFIX 아래 각 디렉토리로 설치합니다. 구체적으로는,
+				실행 파일 경로(CMPLAYER_BIN_PATH),
+				데이터 파일 경로(CMPLAYER_DATA_PATH),
+				라이브러리 파일 경로(CMPLAYER_LIB_PATH)
+			에 영향을 미칩니다. 지정되지 않을 경우, '/usr/local' 값을 가집니다.
+			
+			2. CMPLAYER_BIN_PATH: 실행 파일이 설치될 경로입니다. 지정되지 않을 경우 'PREFIX/bin'이 지정됩니다.
+
+			3. CMPLAYER_DATA_PATH: 각종 데이터 파일을 CMPLAYER_DATA_PATH/cmplayer에 설치할 것입니다.
+			지정되지 않을 경우 'PREFIX/share'로 지정됩니다.
+
+			4. CMPLAYER_TRANSLATION_PATH: 인터페이스의 번역 파일이 설치될 경로입니다.
+			지정되지 않을 경우 'CMPLAYER_DATA_PATH/cmplayer/translations'로 지정됩니다.
+
+			5. CMPLAYER_LIB_PATH: 플러그인을 포함한 공유 라이브러리 파일들이 설치될 경로입니다.
+			지정되지 않을 경우 'PREFIX/lib'가 선택됩니다.
+
+			6. CMPLAYER_PLUGIN_PATH: CMPlayer의 플러그인 파일이 설치될 경로입니다.
+			지정되지 않을 경우 'CMPLAYER_LIB_PATH/cmplayer/plugins'로 선택됩니다.
+
+		2. 특정 디렉토리에 설치할 경우
+		모든 파일을 특정 디렉토리 아래에 두고 싶은 경우에는 ALL_INTO 옵션을 이용할 수 있습니다.
+		ALL_INTO 옵션을 지정하면, 각 경로가 다음과 같이 설정됩니다.
+			PREFIX: ALL_INTO
+			CMPLAYER_BIN_PATH: ALL_INTO
+			CMPLAYER_DATA_PATH: ALL_INTO
+			CMPLAYER_TRANSLATION_PATH: ALL_INTO/translations
+			CMPLAYER_LIB_PATH: ALL_INTO/lib
+			CMPLAYER_PLUGIN_PATH: ALL_INTO/plugins
 	
-	2. CMPLAYER_BIN_PATH: 실행 파일이 설치될 경로입니다. 지정되지 않을 경우 '/usr/local/bin'이 지정됩니다.
+	* 주의: ALL_INTO 옵션과 PREFIX 옵션을 동시에 지정하지 마십시오.
 
-	3. CMPLAYER_DATA_PATH: 각종 데이터 파일을 CMPLAYER_DATA_PATH/cmplayer에 설치할 것입니다.
-	지정되지 않을 경우 '/usr/local/share'로 지정됩니다.
+	2. 빌드 관련 옵션
+		1. BUILD_LIST: 빌드하고 설치할 하위 프로젝트를 지정합니다. 다음 값을 하나 이상 선택할 수 있습니다.
+		cmplayer: CMPlayer 재생기 실행파일
+		xine: xine을 이용한 재생엔진
+		mplayer: mplayer를 이용한 재생엔진
+		opengl: OpenGL 지원 플러그인(시험중)
+		xvideo: X Video 지원 플러그인(시험중)
+		둘 이상을 선택하는 경우는 BUILD_LIST='xine cmplayer'와 같이 ''(또는 "")로 둘러싸야 합니다.
+		지정되지 않을 경우 'cmplayer mplayer xine'가 선택됩니다.
+		
+		2. QMAKE: 빌드할 때 이용할 qmake 실행파일을 지정합니다. 기본값은 'qmake'입니다.
+		
+		3. LRELEASE: 번역파일을 생성 할 때 이용한 lrelease 실행파일을 지정합니다. 기본값은 'lrelease'입니다.
 
-	4. CMPLAYER_TRANSLATION_PATH: 인터페이스의 번역 파일이 설치될 경로입니다.
-	지정되지 않을 경우 'CMPLAYER_DATA_PATH/cmplayer/translations'로 지정됩니다.
+옵션 지정의 예:
+	1. /usr 아래의 시스템경로에 설치하되, mplayer 재생엔진만 이용하고 싶은 경우
+	make PREFIX=/usr BUILD_LIST='cmplayer mplayer'
 
-	5. CMPLAYER_LIB_PATH: CMPlayer의 공유 라이브러리 파일이 설치될 경로입니다.
-	지정되지 않을 경우 '/usr/local/lib'가 선택됩니다.
-
-	6. CMPLAYER_PLUGIN_PATH: CMPlayer의 플러그인 파일이 설치될 경로입니다.
-	지정되지 않을 경우 'CMPLAYER_LIB_PATH/cmplayer/plugins'로 선택됩니다.
-
-	7. ENGINE_LIST: 재생엔진을 일부만 빌드할 경우 지정합니다. 현재 선택할 수 있는 값은 mplayer, xine입니다.
-	지정되지 않을 경우 모든 재생엔진을 빌드합니다.
-
-	8. ENABLE_OPENGL: (미구현) 'yes'로 지정되면 OpenGL 지원을 활성화합니다. 기본값은 'no'입니다.
-
-	9. BUILD_PLUGIN_ONLY: 'yes'로 지정되면 플레이어 실행 파일을 제외하고 플러그인만을 빌드합니다. 기본값은 'no'입니다.
-
-옵션을 이용하여 빌드할 경우는 다음과 같이 합니다.
-
-예: make PREFIX=${HOME} ENGINE_LIST=mplayer
+	2. 홈디렉토리아래의 cmplayer 디렉토리에 모든 파일을 설치할 경우
+	make ALL_INTO=${HOME}/cmplayer
 
 한번 make를 실행한 후, 옵션 변경등을 위해 다시 실행하는 경우, 그전에 
 
@@ -57,10 +78,8 @@ make clean
 
 을 실행하여 기존에 컴파일된 파일 및 설정사항들을 삭제하여야 합니다.
 
-2) 설치
-
 컴파일을 정상적으로 마친 후,
 
 make install
 
-을 입력하면 설치를 시작합니다.
+을 입력하면 설치를 시작합니다. 설치경로에 따라서 루트권한이 필요할 수도 있습니다.
