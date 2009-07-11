@@ -11,6 +11,7 @@
 #include <QtGui/QImage>
 #include "events.h"
 #include <QtGui/QPainter>
+#include <string.h>
 
 namespace Xine {
 
@@ -83,10 +84,10 @@ void SoftwareRenderer::cbRawOutput(void *user_data, int frame_format, int frame_
 		info.type = Core::VideoFrame::YV12;
 		const int count1 = frame_width*frame_height;
 		const int count2 = (frame_width/2) * (frame_height/2);
-		frame->reserve(count1 + count2*2 + 1);
-		frame->append(reinterpret_cast<const char*>(data0), count1);
-		frame->append(reinterpret_cast<const char*>(data2), count2);
-		frame->append(reinterpret_cast<const char*>(data1), count2);
+		frame->resize(count1 + count2*2 + 1);
+		memcpy(frame->data(), data0, count1);
+		memcpy(frame->data()+count1, data2, count2);
+		memcpy(frame->data()+count1+count2, data1, count2);
 	} else if (frame_format == XINE_VORAW_YUY2) {
 		info.type = Core::VideoFrame::YUY2;
 		frame->setData(data0, frame_width*frame_height*2);
