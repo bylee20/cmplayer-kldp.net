@@ -21,4 +21,15 @@ Architecture: any
 Depends: ${shlibs:Depends}, cmplayer, libxine1, libxcb1
 Description: Xine play engine for CMPlayer
  Xine play engine for CMPlayer.
- 
+
+Package: cmplayer-opengl
+Architecture: any
+Depends: ${shlibs:Depends}, cmplayer
+Description: OpenGL plugin for CMPlayer
+ OpenGL plugin for CMPlayer.
+
+Package: cmplayer-xvideo
+Architecture: any
+Depends: ${shlibs:Depends}, cmplayer
+Description: X Video plugin for CMPlayer
+ X Video plugin for CMPlayer.

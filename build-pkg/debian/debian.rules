@@ -20,7 +20,7 @@ build-stamp:
 	dh_testdir
 
 	# Add here commands to compile the package.
-	make QMAKE=qmake-qt4 LRELEASE=lrelease-qt4 LOAD_CONFIG=no BUILD_PLUGIN_ONLY=no CMPLAYER_LIB_PATH=/usr/lib CMPLAYER_BIN_PATH=/usr/bin CMPLAYER_DATA_PATH=/usr/share ENGINE_LIST="xine mplayer"
+	make QMAKE=qmake-qt4 LRELEASE=lrelease-qt4 LOAD_CONFIG=no BUILD_LIST="cmplayer xine mplayer opengl xvideo" CMPLAYER_LIB_PATH=/usr/lib CMPLAYER_BIN_PATH=/usr/bin CMPLAYER_DATA_PATH=/usr/share CMPLAYER_ACTION_PATH=/usr/share/kde4/apps/solid/actions
 
 	#touch build-stamp
 	touch $@
@@ -43,9 +43,11 @@ install: build
 
 	# Add here commands to install the package into debian/gentoo.
 	# The DESTDIR Has To Be Exactly /usr/src/packages/BUILD/debian/debian/<nameOfPackage>
-	make QMAKE=qmake-qt4 LRELEASE=lrelease-qt4 LOAD_CONFIG=no BUILD_PLUGIN_ONLY=no CMPLAYER_LIB_PATH=/usr/lib CMPLAYER_BIN_PATH=/usr/bin CMPLAYER_DATA_PATH=/usr/share ENGINE_LIST="" DESTDIR=$(CURDIR)/debian/cmplayer install
-	make QMAKE=qmake-qt4 LOAD_CONFIG=no BUILD_PLUGIN_ONLY=yes CMPLAYER_LIB_PATH=/usr/lib CMPLAYER_BIN_PATH=/usr/bin CMPLAYER_DATA_PATH=/usr/share ENGINE_LIST="mplayer" DESTDIR=$(CURDIR)/debian/cmplayer-mplayer install
-	make QMAKE=qmake-qt4 LOAD_CONFIG=no BUILD_PLUGIN_ONLY=yes CMPLAYER_LIB_PATH=/usr/lib CMPLAYER_BIN_PATH=/usr/bin CMPLAYER_DATA_PATH=/usr/share ENGINE_LIST="xine" DESTDIR=$(CURDIR)/debian/cmplayer-xine install
+	make QMAKE=qmake-qt4 LRELEASE=lrelease-qt4 LOAD_CONFIG=no BUILD_LIST="cmplayer" CMPLAYER_LIB_PATH=/usr/lib CMPLAYER_BIN_PATH=/usr/bin CMPLAYER_DATA_PATH=/usr/share CMPLAYER_ACTION_PATH=/usr/share/kde4/apps/solid/actions DEST_DIR=$(CURDIR)/debian/cmplayer install
+	make QMAKE=qmake-qt4 LOAD_CONFIG=no BUILD_LIST="mplayer" CMPLAYER_LIB_PATH=/usr/lib CMPLAYER_BIN_PATH=/usr/bin CMPLAYER_DATA_PATH=/usr/share DEST_DIR=$(CURDIR)/debian/cmplayer-mplayer install
+	make QMAKE=qmake-qt4 LOAD_CONFIG=no BUILD_LIST="xine" CMPLAYER_LIB_PATH=/usr/lib CMPLAYER_BIN_PATH=/usr/bin CMPLAYER_DATA_PATH=/usr/share DEST_DIR=$(CURDIR)/debian/cmplayer-xine install
+	make QMAKE=qmake-qt4 LOAD_CONFIG=no BUILD_LIST="opengl" CMPLAYER_LIB_PATH=/usr/lib CMPLAYER_BIN_PATH=/usr/bin CMPLAYER_DATA_PATH=/usr/share DEST_DIR=$(CURDIR)/debian/cmplayer-opengl install
+	make QMAKE=qmake-qt4 LOAD_CONFIG=no BUILD_LIST="xvideo" CMPLAYER_LIB_PATH=/usr/lib CMPLAYER_BIN_PATH=/usr/bin CMPLAYER_DATA_PATH=/usr/share DEST_DIR=$(CURDIR)/debian/cmplayer-xvideo install
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -83,4 +85,3 @@ binary-arch: build install
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install
- 
