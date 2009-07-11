@@ -148,9 +148,9 @@ endif
 # "            Default: PREFIX/CMPLAYER_DIR/plugins\n"
 
 clean:
-	cd src && $(qmake_env) $(QMAKE) $(subdirs) cmplayer.pro && make clean
-	cd src/libchardet && make distclean
-	rm -f $(config_file)
+	-cd src && $(qmake_env) $(QMAKE) $(subdirs) cmplayer.pro && make clean
+	-cd src/libchardet && make distclean
+	-rm -f $(config_file)
 
 install: cmplayer
 	@echo "======================= Start to Install! ======================="
