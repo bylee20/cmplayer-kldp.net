@@ -2,28 +2,28 @@
 # You need to install makepkg-git which supports spliting package from:
 # http://dev.archlinux.org/~allan/makepkg-git.html
 
-pkgname=('cmplayer' 'cmplayer-xine' 'cmplayer-mplayer')
-pkgver=0.3.1
+pkgname=('cmplayer' 'cmplayer-xine' 'cmplayer-mplayer' 'cmplayer-opengl' 'cmplayer-xvideo')
+pkgver=0.3.2
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://kldp.net/projects/cmplayer/"
 license=('GPL')
 depends=('qt>=4.4')
 #source=(http://kldp.net/frs/download.php/5212/$pkgname-$pkgver-src.tar.gz)
-source=(http://xylosper.net/$pkgname-$pkgver-src.tar.gz)
-md5sums=('b6ef09c175136ccc83860ef9f1b90a04')
+#source=(http://xylosper.net/$pkgname-$pkgver-src.tar.gz)
+#source=($pkgname-$pkgver.tar.gz)
+#md5sums=('29caaed75294d5ab3773a6fe6dbcc824')
 
 build() {
   cd "$srcdir/$pkgname-$pkgver"
-  make PREFIX=/usr || return 1
+  make PREFIX=/usr BUILD_LIST="cmplayer xine mplayer opengl xvideo" || return 1
 }
 
 package_cmplayer() {
   pkgdesc="CMPlayer is a multimedia player."
-  makedepends=('xine-lib')
 
   cd "$srcdir/$pkgname-$pkgver"
-  make DESTDIR=$pkgdir ENGINE_LIST="" install || return 1
+  make DEST_DIR=$pkgdir BUILD_LIST="cmplayer" install || return 1
 }
 
 package_cmplayer-xine() {
@@ -31,7 +31,7 @@ package_cmplayer-xine() {
   depends=('cmplayer' 'xine-lib')
 
   cd "$srcdir/$pkgname-$pkgver"
-  make DESTDIR=$pkgdir BUILD_PLUGIN_ONLY="yes" ENGINE_LIST="xine" install || return 1
+  make DEST_DIR=$pkgdir BUILD_LIST="xine" install || return 1
 }
 
 package_cmplayer-mplayer() {
@@ -39,5 +39,21 @@ package_cmplayer-mplayer() {
   depends=('cmplayer' 'mplayer')
 
   cd "$srcdir/$pkgname-$pkgver"
-  make DESTDIR=$pkgdir BUILD_PLUGIN_ONLY="yes" ENGINE_LIST="mplayer" install || return 1
+  make DEST_DIR=$pkgdir BUILD_LIST="mplayer" install || return 1
+}
+
+package_cmplayer-opengl() {
+  pkgdesc="OpenGL plugin for CMPlayer"
+  depends=('cmplayer')
+
+  cd "$srcdir/$pkgname-$pkgver"
+  make DEST_DIR=$pkgdir BUILD_LIST="opengl" install || return 1
+}
+
+package_cmplayer-xvideo() {
+  pkgdesc="X Video plugin for CMPlayer"
+  depends=('cmplayer' 'libxv')
+
+  cd "$srcdir/$pkgname-$pkgver"
+  make DEST_DIR=$pkgdir BUILD_LIST="xvideo" install || return 1
 }
