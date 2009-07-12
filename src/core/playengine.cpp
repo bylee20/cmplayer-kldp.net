@@ -283,7 +283,7 @@ void PlayEngine::slotTick(int time) {
 void PlayEngine::updateSubtitle(const Subtitle &subtitle) {
 	if (d->subRenderer) {
 		d->subRenderer->setSubtitle(&subtitle, d->frameRate);
-		if (subtitle.isEmpty() || !isSubtitleVisible())
+		if (subtitle.isEmpty() || !isSubtitleVisible() || isStopped())
 			d->subRenderer->clear();
 		else
 			d->subRenderer->show(currentTime());

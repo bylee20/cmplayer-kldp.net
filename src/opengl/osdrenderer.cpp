@@ -23,8 +23,6 @@ OsdRenderer::OsdRenderer(VideoRenderer *renderer)
 	if (d->hasFbuffer < 0)
 		d->hasFbuffer = QGLFramebufferObject::hasOpenGLFramebufferObjects();
 	d->renderer = renderer;
-	if (!d->renderer)
-		d->renderer = new VideoRenderer;
 	d->rendered = d->cleared = false;
 	d->widget = QSizeF(10, 10);
 	d->fbo = 0;

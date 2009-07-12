@@ -64,4 +64,4 @@ else {
 }
 INCLUDEPATH += ../libchardet/src
 LIBS += -L../libchardet/src/.libs \
-    -lchardet
+    -lchardet -lX11
