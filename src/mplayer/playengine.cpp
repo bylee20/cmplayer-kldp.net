@@ -244,12 +244,15 @@ bool PlayEngine::start(int time) {
 		d->renderer->setFrameSize(size);
 	} else
 		d->renderer->setFrameSize(d->renderer->videoSize());
-	if (d->info.audioFilter().contains("scaletempo"))
-		args << "-af-add" << "scaletempo";
-	if (isVolumeNormalized() && d->info.audioFilter().contains("volnorm"))
-		args << "-af-add" << "volnorm";
 	if (useSoftwareEqualizer() && d->info.videoFilters().contains("eq2"))
 		args << "-vf-add" << "eq2";
+	QStringList afs;
+	if (d->info.audioFilter().contains("scaletempo"))
+		afs << "scaletempo";
+	if (isVolumeNormalized() && d->info.audioFilter().contains("volnorm"))
+		afs << "volnorm";
+	if (!afs.isEmpty())
+		args << "-af" << afs.join(",");
 	if (time > 1000)
 		args << "-ss" << QString::number(double(time)/1000.);
 	const QStringList option = config.option();
