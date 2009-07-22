@@ -47,7 +47,7 @@ QSizeF PainterOsdRenderer::textSize(const QSizeF &area) {
 	if (d->px < 1 || text().isEmpty())
 		return QSizeF();
 	d->doc.setTextWidth(area.width() - 2.0*d->bw - leftMargin() - rightMargin());
-	d->doc.setHtml(text());
+	d->doc.setHtml(text().string());
 	return d->doc.size();
 	
 }
@@ -64,7 +64,7 @@ void PainterOsdRenderer::drawText(QPainter *painter, const QRectF &rect) {
 		return;
 	painter->save();
 	static QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
-	QString bgText = text();
+	QString bgText = text().string();
 	d->doc.setTextWidth(rect.width() - 2.0*d->bw - leftMargin() - rightMargin());
 	d->doc.setHtml(QString("<font color='%1'>").arg(style().bgColor.name())
 			+ bgText.remove(rxColor) + "</font>");
@@ -77,7 +77,7 @@ void PainterOsdRenderer::drawText(QPainter *painter, const QRectF &rect) {
 		painter->resetTransform();
 	}
 
-	d->doc.setHtml(QString("<font color='%1'>").arg(style().fgColor.name())+text()+"</font>");
+	d->doc.setHtml(QString("<font color='%1'>").arg(style().fgColor.name())+text().string()+"</font>");
 	
 	painter->setOpacity(style().fgColor.alphaF());
 	painter->translate(d->bw + pos.x(), d->bw + pos.y());

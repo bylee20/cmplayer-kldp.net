@@ -545,122 +545,122 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.cpp" line="519"/>
+        <location filename="../mainwindow.cpp" line="520"/>
         <source>Open File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="611"/>
+        <location filename="../mainwindow.cpp" line="612"/>
         <source>Open Subtitle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="802"/>
+        <location filename="../mainwindow.cpp" line="804"/>
         <source>Brightness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="805"/>
+        <location filename="../mainwindow.cpp" line="807"/>
         <source>Saturation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="808"/>
+        <location filename="../mainwindow.cpp" line="810"/>
         <source>Hue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="811"/>
+        <location filename="../mainwindow.cpp" line="813"/>
         <source>Contrast</source>
         <translation type="unfinished"></translation>
     </message>
     <message utf8="true">
-        <location filename="../mainwindow.cpp" line="823"/>
+        <location filename="../mainwindow.cpp" line="825"/>
         <source>Speed: Ã%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="830"/>
+        <location filename="../mainwindow.cpp" line="832"/>
         <source>Pause</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="834"/>
+        <location filename="../mainwindow.cpp" line="836"/>
         <source>Play</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1054"/>
+        <location filename="../mainwindow.cpp" line="1056"/>
         <source>Subtitle Sync: %1sec.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1061"/>
+        <location filename="../mainwindow.cpp" line="1063"/>
         <source>Volume: %1%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1063"/>
+        <location filename="../mainwindow.cpp" line="1065"/>
         <source>Subtitle Position: %1%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="608"/>
+        <location filename="../mainwindow.cpp" line="609"/>
         <source>Subtitle Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1008"/>
+        <location filename="../mainwindow.cpp" line="1010"/>
         <source>A-B Repeat: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1021"/>
+        <location filename="../mainwindow.cpp" line="1023"/>
         <source>Set A to %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1025"/>
+        <location filename="../mainwindow.cpp" line="1027"/>
         <source>Range is too short!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../mainwindow.cpp" line="1032"/>
         <source>Set B to %1. Start to repeat!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1039"/>
+        <location filename="../mainwindow.cpp" line="1041"/>
         <source>Quit repeating</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1043"/>
+        <location filename="../mainwindow.cpp" line="1045"/>
         <source>Repeat current subtitle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="902"/>
+        <location filename="../mainwindow.cpp" line="904"/>
         <source>Change Renderer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="903"/>
+        <location filename="../mainwindow.cpp" line="905"/>
         <source>Failed in changing renderer. The renderer fell back into previous one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1100"/>
+        <location filename="../mainwindow.cpp" line="1102"/>
         <source>Do not display this message again</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1096"/>
+        <location filename="../mainwindow.cpp" line="1098"/>
         <source>CMPlayer will be running in the system tray when the window closed.&lt;br&gt;You can change this behavior in the preferences.&lt;br&gt;If you want to exit CMPlayer, please use &apos;Exit&apos; menu.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1064"/>
+        <location filename="../mainwindow.cpp" line="1066"/>
         <source>Amp.: %1%</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1251,22 +1251,22 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="444"/>
+        <location filename="../pref_dialog.cpp" line="446"/>
         <source>System Default Locale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="448"/>
+        <location filename="../pref_dialog.cpp" line="450"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="451"/>
+        <location filename="../pref_dialog.cpp" line="453"/>
         <source>Japanese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../pref_dialog.cpp" line="454"/>
+        <location filename="../pref_dialog.cpp" line="456"/>
         <source>Korean</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1364,7 +1364,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="68"/>
-        <location filename="../ui/pref_dialog.ui" line="1387"/>
+        <location filename="../ui/pref_dialog.ui" line="1455"/>
         <source>Subtitle</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1385,7 +1385,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="109"/>
-        <location filename="../ui/pref_dialog.ui" line="1068"/>
+        <location filename="../ui/pref_dialog.ui" line="1136"/>
         <source>Play</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1421,10 +1421,10 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="533"/>
-        <location filename="../ui/pref_dialog.ui" line="1084"/>
-        <location filename="../ui/pref_dialog.ui" line="1110"/>
-        <location filename="../ui/pref_dialog.ui" line="1146"/>
-        <location filename="../ui/pref_dialog.ui" line="1433"/>
+        <location filename="../ui/pref_dialog.ui" line="1152"/>
+        <location filename="../ui/pref_dialog.ui" line="1178"/>
+        <location filename="../ui/pref_dialog.ui" line="1214"/>
+        <location filename="../ui/pref_dialog.ui" line="1501"/>
         <source>sec.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1485,7 +1485,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="398"/>
-        <location filename="../ui/pref_dialog.ui" line="1198"/>
+        <location filename="../ui/pref_dialog.ui" line="1266"/>
         <source>Audio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1496,7 +1496,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="414"/>
-        <location filename="../ui/pref_dialog.ui" line="1272"/>
+        <location filename="../ui/pref_dialog.ui" line="1340"/>
         <source>Video</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1536,11 +1536,6 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="633"/>
-        <source>Load Subtitle</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../ui/pref_dialog.ui" line="639"/>
         <source>Automatic Load</source>
         <translation type="unfinished"></translation>
@@ -1571,161 +1566,186 @@ p, li { white-space: pre-wrap; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="805"/>
-        <source>Subtitle Display</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_dialog.ui" line="811"/>
-        <source>Subtitle OSD</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_dialog.ui" line="837"/>
+        <location filename="../ui/pref_dialog.ui" line="905"/>
         <source>Unified/Multi-Subtitle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="843"/>
+        <location filename="../ui/pref_dialog.ui" line="911"/>
         <source>You can specify the order of unified(mulit) subtitles with the &apos;Name&apos; property in subtitle file.
 If not specified, They will be displayed in selected order.
 e.g.: English, Korean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="883"/>
+        <location filename="../ui/pref_dialog.ui" line="951"/>
         <source>UI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="889"/>
+        <location filename="../ui/pref_dialog.ui" line="957"/>
         <source>Window Style</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="901"/>
+        <location filename="../ui/pref_dialog.ui" line="969"/>
         <source>Locale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="934"/>
+        <location filename="../ui/pref_dialog.ui" line="1002"/>
         <source>Shortcut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="944"/>
+        <location filename="../ui/pref_dialog.ui" line="1012"/>
         <source>Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="949"/>
-        <location filename="../ui/pref_dialog.ui" line="993"/>
+        <location filename="../ui/pref_dialog.ui" line="1017"/>
+        <location filename="../ui/pref_dialog.ui" line="1061"/>
         <source>Shortcut1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="954"/>
-        <location filename="../ui/pref_dialog.ui" line="1006"/>
+        <location filename="../ui/pref_dialog.ui" line="1022"/>
+        <location filename="../ui/pref_dialog.ui" line="1074"/>
         <source>Shortcut2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="959"/>
-        <location filename="../ui/pref_dialog.ui" line="1019"/>
+        <location filename="../ui/pref_dialog.ui" line="1027"/>
+        <location filename="../ui/pref_dialog.ui" line="1087"/>
         <source>Shortcut3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="964"/>
         <location filename="../ui/pref_dialog.ui" line="1032"/>
+        <location filename="../ui/pref_dialog.ui" line="1100"/>
         <source>Shortcut4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="980"/>
+        <location filename="../ui/pref_dialog.ui" line="1048"/>
         <source>Change:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1042"/>
+        <location filename="../ui/pref_dialog.ui" line="1110"/>
         <source>Mouse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1062"/>
+        <location filename="../ui/pref_dialog.ui" line="1130"/>
         <source>Control Step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1074"/>
+        <location filename="../ui/pref_dialog.ui" line="1142"/>
         <source>Seek Step 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1100"/>
+        <location filename="../ui/pref_dialog.ui" line="1168"/>
         <source>Seek Step 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1139"/>
+        <location filename="../ui/pref_dialog.ui" line="1207"/>
         <source>Seek Step 3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1162"/>
+        <location filename="../ui/pref_dialog.ui" line="1230"/>
         <source>Speed Step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/pref_dialog.ui" line="760"/>
-        <location filename="../ui/pref_dialog.ui" line="1169"/>
-        <location filename="../ui/pref_dialog.ui" line="1214"/>
-        <location filename="../ui/pref_dialog.ui" line="1240"/>
-        <location filename="../ui/pref_dialog.ui" line="1285"/>
-        <location filename="../ui/pref_dialog.ui" line="1305"/>
-        <location filename="../ui/pref_dialog.ui" line="1338"/>
-        <location filename="../ui/pref_dialog.ui" line="1358"/>
-        <location filename="../ui/pref_dialog.ui" line="1400"/>
+        <location filename="../ui/pref_dialog.ui" line="1237"/>
+        <location filename="../ui/pref_dialog.ui" line="1282"/>
+        <location filename="../ui/pref_dialog.ui" line="1308"/>
+        <location filename="../ui/pref_dialog.ui" line="1353"/>
+        <location filename="../ui/pref_dialog.ui" line="1373"/>
+        <location filename="../ui/pref_dialog.ui" line="1406"/>
+        <location filename="../ui/pref_dialog.ui" line="1426"/>
+        <location filename="../ui/pref_dialog.ui" line="1468"/>
         <source>%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1204"/>
+        <location filename="../ui/pref_dialog.ui" line="633"/>
+        <source>Load</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="805"/>
+        <source>Display</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="811"/>
+        <source>Style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="823"/>
+        <source>Display Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="829"/>
+        <source>Next value will be used to calculate the end time of a subtitle line when it is not specified by subtitle file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="841"/>
+        <source>Milliseconds per one character:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="851"/>
+        <source>ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_dialog.ui" line="1272"/>
         <source>Volum Step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1230"/>
+        <location filename="../ui/pref_dialog.ui" line="1298"/>
         <source>Amp. Step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1278"/>
+        <location filename="../ui/pref_dialog.ui" line="1346"/>
         <source>Brightness Step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1298"/>
+        <location filename="../ui/pref_dialog.ui" line="1366"/>
         <source>Contrast Step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1331"/>
+        <location filename="../ui/pref_dialog.ui" line="1399"/>
         <source>Saturation Step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1351"/>
+        <location filename="../ui/pref_dialog.ui" line="1419"/>
         <source>Hue Step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1393"/>
+        <location filename="../ui/pref_dialog.ui" line="1461"/>
         <source>Position Step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_dialog.ui" line="1413"/>
+        <location filename="../ui/pref_dialog.ui" line="1481"/>
         <source>Sync Delay Step</source>
         <translation type="unfinished"></translation>
     </message>

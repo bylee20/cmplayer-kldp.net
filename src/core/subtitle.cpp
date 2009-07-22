@@ -54,18 +54,18 @@ Subtitle::Component &Subtitle::Component::unite(const Component &other, double f
 		int k1 = it1.next().key();
 		int k2 = it1.hasNext() ? it1.peekNext().key() : -1;
 		if (k3 != -1 && it2.hasPrevious())
-			(*this)[k1] = merged(it1.value(), it2.peekPrevious().value());
+			(*this)[k1] = it1.value().merged(it2.peekPrevious().value());
 		while(it2.hasNext()) {
 			k3 = convertKeyBase(it2.next().key(), other.base(), m_base, frameRate);
 			if (k2 == -1)
-				(*this)[k3] = merged(it1.value(), it2.value());
+				(*this)[k3] = it1.value().merged(it2.value());
 			else if (k3 >= k2) {
 				it2.previous();
 				break;
 			} else if (k3 == k1)
-				(*this)[k1] = merged(it1.value(), it2.value());
+				(*this)[k1] = it1.value().merged(it2.value());
 			else if (k3 > k1)
-				(*this)[k3] = merged(it1.value(), it2.value());
+				(*this)[k3] = it1.value().merged(it2.value());
 			else if (k3 < k1)
 				(*this)[k3] = it2.value();
 		}
@@ -95,14 +95,14 @@ int Subtitle::end(int time, double frameRate) const {
 	return e;
 }
 
-QString Subtitle::text(int time, double frameRate) const {
+RichString Subtitle::text(int time, double frameRate) const {
 	if (m_comp.isEmpty())
 		return QString();
-	QString text;
+	RichString text;
 	for (int i=0; i<m_comp.size(); ++i) {
 		const Component::const_iterator it = m_comp[i].start(time, frameRate);
 		if (it != m_comp[i].end())
-			text = merged(text, it.value());
+			text.merge(it.value());
 	}
 	return text;
 }

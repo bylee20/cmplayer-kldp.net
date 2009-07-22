@@ -316,7 +316,8 @@ Pref::Dialog::Dialog(QWidget *parent)
 	d->ui.priority->setAddingAndErasingEnabled(true);
 	d->ui.subEncAutoDet->setChecked(p.useSubtitleEncodingAutoDetection);
 	d->ui.subConf->setValue(p.subtitleEncodingConfidence);
-	
+	d->ui.msPerChar->setValue(p.msPerChar);
+
 	connect(d->ui.autoSelect, SIGNAL(currentIndexChanged(int))
 			, this, SLOT(checkSubtitleSelect(int)));
 	
@@ -411,6 +412,7 @@ void Pref::Dialog::apply() {
 	p.subtitlePriority = d->ui.priority->values();
 	p.useSubtitleEncodingAutoDetection = d->ui.subEncAutoDet->isChecked();
 	p.subtitleEncodingConfidence = d->ui.subConf->value();
+	p.msPerChar = d->ui.msPerChar->value();
 // 	for (int i=0; i<d->media.size(); ++i) {
 // 		MediaTreeItem *item = static_cast<MediaTreeItem*>(d->ui.media->topLevelItem(i));
 // 		p.setBackendName(d->media[i], item->checkedBackend());

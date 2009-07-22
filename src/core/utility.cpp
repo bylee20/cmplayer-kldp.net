@@ -52,10 +52,10 @@ const QSize &Utility::desktopSize() {
 	return size;
 }
 
-bool Utility::isEmpty(const QString &str) {
-	static const QRegExp rx("(</?\\s*[a-z]+[^>]*>|&nbsp;|[\\s\\n\\r]+)");
-	return  str.toLower().remove(rx).isEmpty();
-}
+//QString Utility::toPlainText(const QString &str) {
+//	static const QRegExp rx("(</?\\s*[a-zA-Z]+[^>]*>|&[nN][bB][sS][pP];|[\\s\\n\\r]+)");
+//	return  QString(str).remove(rx);
+//}
 
 QTime Utility::secsToTime(int secs) {
 	return data()->zero.addSecs(secs);

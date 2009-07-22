@@ -1,4 +1,5 @@
 #include "subcompview.h"
+#include <QtCore/QDebug>
 #include <QtGui/QTreeWidget>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
@@ -58,15 +59,15 @@ void SubCompView::setComponent(const Core::Subtitle::Component &comp) {
 			prev = 0;
 		}
 		static QRegExp rxTag("<\\s*[a-zA-Z][^>]*>");
-		QString text = it.value();
-		if (text.remove(rxTag).remove('\n').trimmed().isEmpty())
-			continue;
-		QTreeWidgetItem *item = new QTreeWidgetItem;
-		item->setText(Start, QString::number(it.key()));
-		item->setText(Text, QString(it.value()).remove(rxTag));
-		d->item[it.key()] = item;
-		d->tree->addTopLevelItem(item);
-		prev = item;
+		Core::RichString text = it.value();
+		if (text.hasWords()) {
+			QTreeWidgetItem *item = new QTreeWidgetItem;
+			item->setText(Start, QString::number(it.key()));
+			item->setText(Text, text.toPlain());
+			d->item[it.key()] = item;
+			d->tree->addTopLevelItem(item);
+			prev = item;
+		}
 	}
 	d->tree->resizeColumnToContents(Text);
 	d->tree->resizeColumnToContents(Start);

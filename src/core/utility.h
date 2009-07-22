@@ -20,7 +20,7 @@ public:
 	static const QTime &nullTime();
 	static double desktopRatio();
 	static const QSize &desktopSize();
-	static bool isEmpty(const QString &str);
+//	static QString toPlainText(const QString &str);
 	static void msleep(int msec);
 	static void setScreensaverDisabled(bool disabled);
 private slots:

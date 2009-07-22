@@ -21,7 +21,8 @@ SOURCES += abrepeater.cpp \
     mediainfo.cpp \
     charsetdetector.cpp \
     mrl.cpp \
-    config.cpp
+    config.cpp \
+    richstring.cpp
 HEADERS += abrepeater.h \
     playengine.h \
     mediasource.h \
@@ -48,7 +49,8 @@ HEADERS += abrepeater.h \
     mediainfo.h \
     charsetdetector.h \
     mrl.h \
-    config.h
+    config.h \
+    richstring.h
 CONFIG += debug_and_release \
     dll
 QT += network
@@ -64,4 +66,5 @@ else {
 }
 INCLUDEPATH += ../libchardet/src
 LIBS += -L../libchardet/src/.libs \
-    -lchardet -lX11
+    -lchardet \
+    -lX11

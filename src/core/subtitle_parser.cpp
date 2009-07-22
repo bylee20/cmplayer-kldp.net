@@ -8,6 +8,31 @@
 
 namespace Core {
 
+int Subtitle::Parser::msPerChar = -1;
+
+int Subtitle::Parser::predictEndTime(const Component::const_iterator &it) {
+	if (msPerChar > 0)
+		return it.value().size()*msPerChar + it.key();
+	return -1;
+}
+
+void Subtitle::Parser::appendLastTime(Subtitle *sub) {
+	if (msPerChar <= 0)
+		return;
+	for (int i=0; i<sub->size(); ++i) {
+		Component &comp = sub->m_comp[i];
+		if (comp.isEmpty())
+			continue;
+		const Component::const_iterator last = --comp.end();
+		if (!last.value().isEmpty())
+			comp.insert(predictEndTime(last), "");
+	}
+}
+
+QString &Subtitle::Parser::replaceEntity(QString &str) {
+	return str.replace("<", "&lt;").replace(">", "&gt;").replace(" ", "&nbsp;");
+}
+
 void Subtitle::Parser::setDevice(QIODevice *device) const {
 	m_stream.setDevice(device);
 	m_stream.setCodec(m_enc.toLocal8Bit());
@@ -103,12 +128,13 @@ class Subtitle::Parser::Sami : public Subtitle::Parser {
 				comp.m_lang.m_klass = klass;
 				sub.m_comp.push_back(comp);
 			}
-			if (Utility::isEmpty(text))
-				text.clear();
-	// 		text.remove(rxTag);
-			sub.m_comp[idxes[klass]].insert(time, text);
+			RichString rich(text);
+			if (!rich.hasWords())
+				rich.clear();
+			sub.m_comp[idxes[klass]].insert(time, rich);
 		}
 		dev.close();
+		appendLastTime(&sub);
 		return sub;
 	}
 	bool save(const QString &file, const Subtitle &sub, double frameRate) const {
@@ -120,11 +146,11 @@ class Subtitle::Parser::Sami : public Subtitle::Parser {
 		out << "<SAMI>" << endl << "<BODY>" << endl;
 		const Component comp = sub.component(frameRate);
 		ComponentIterator it(comp);
-		QString text;
+		RichString text;
 		while(it.hasNext()) {
 			it.next();
 			text = it.value().isEmpty() ? "&nbsp;" : it.value();
-			out << "<SYNC Start=" << it.key() << ">" << text << endl;
+			out << "<SYNC Start=" << it.key() << ">" << text.string() << endl;
 		}
 		out << "</BODY>" << endl << "</SAMI>" << endl;
 		dev.close();
@@ -143,18 +169,20 @@ class Subtitle::Parser::TMPlayer : public Subtitle::Parser {
 		Subtitle sub;
 		sub.append(Component(file));
 		Component &comp = sub.m_comp[0];
-		QString line;
+		int predictedEnd = -1;
 		while (!in.atEnd()) {
-			line = in.readLine().trimmed();
+			const QString line = in.readLine().trimmed();
 			static QRegExp rxLine("^\\s*(\\d?\\d)\\s*:"
 					"\\s*(\\d\\d)\\s*:\\s*(\\d\\d)\\s*:\\s*(.*)$");
 			if (rxLine.indexIn(line) == -1)
 				continue;
 			const int time = Utility::timeToMSecs(QTime(rxLine.cap(1).toInt()
 					, rxLine.cap(2).toInt(), rxLine.cap(3).toInt()));
+			if (predictedEnd > 0 && time > predictedEnd)
+				comp.insert(predictedEnd, "");
 			QString text = rxLine.cap(4);
-			text.replace('|', "<br>");
-			comp.insert(time, text);
+			replaceEntity(text).replace('|', "<br>");
+			predictedEnd = predictEndTime(comp.insert(time, text));
 		}
 		dev.close();
 		return sub;

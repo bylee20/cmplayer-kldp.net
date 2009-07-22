@@ -3,7 +3,7 @@
 
 #include <QtCore/QMap>
 #include <QtCore/QList>
-#include <QtCore/QString>
+#include "richstring.h"
 
 namespace Core {
 
@@ -27,7 +27,7 @@ public:
 		friend class Parser;
 		QString m_name, m_locale, m_klass;
 	};
-	class Component : public QMap<int, QString> {
+	class Component : public QMap<int, RichString> {
 	public:
 		enum Base {Time, Frame};
 		Component(const QString &file = QString(), Base base = Time)
@@ -44,8 +44,8 @@ public:
 		const Language &language() const {return m_lang;}
 		const_iterator start(int time, double frameRate) const;
 		const_iterator end(int time, double frameRate) const;
-		iterator end() {return QMap<int, QString>::end();}
-		const_iterator end() const {return QMap<int, QString>::end();}
+		iterator end() {return QMap<int, RichString>::end();}
+		const_iterator end() const {return QMap<int, RichString>::end();}
 		static int convertKeyBase(int key, Base from, Base to, double frameRate) {
 			if (from == to) return key;
 			if (to == Time) return msec(key, frameRate);
@@ -57,7 +57,7 @@ public:
 		Base m_base;
 		Language m_lang;
 	};
-	typedef QMapIterator<int, QString> ComponentIterator;
+	typedef QMapIterator<int, RichString> ComponentIterator;
 	const Component &operator[] (int rhs) const {return m_comp[rhs];}
 	Subtitle &operator += (const Subtitle &rhs) {
 		m_comp += rhs.m_comp;
@@ -69,7 +69,7 @@ public:
 	Component component(double frameRate) const;
 	int start(int time, double frameRate) const;
 	int end(int time, double frameRate) const;
-	QString text(int time, double frameRate) const;
+	RichString text(int time, double frameRate) const;
 	bool save(const QString &file, const QString &enc, double frameRate) const;
 	bool load(const QString &file, const QString &enc);
 	void clear() {m_comp.clear();}
@@ -82,14 +82,6 @@ private:
 	static int frame(int msec, double frameRate) {
 		return qRound(msec*0.001*frameRate);
 	}
-	static QString merged(const QString &s1, const QString &s2) {
-		QString s = s1; if (s2.isEmpty()) return s;
-		if (!s.isEmpty()) s += "<br>"; s += s2; return s;
-	}
-// 	static QString &merge(QString &s1, const QString &s2) {
-// 		if (s2.isEmpty()) return s1;
-// 		if (!s1.isEmpty()) s1 += "<br>"; s1 += s2; return s1;
-// 	}
 	QList<Component> m_comp;
 };
 

@@ -41,6 +41,7 @@ void Pref::save() const {
 	SAVE(subtitlePriority);
 	SAVE(useSubtitleEncodingAutoDetection);
 	SAVE(subtitleEncodingConfidence);
+	SAVE(msPerChar);
 	SAVE(seekingStep1);
 	SAVE(seekingStep2);
 	SAVE(seekingStep3);
@@ -93,6 +94,7 @@ void Pref::load() {
 	LOAD(subtitleEncoding, "UTF-8", toString);
 	LOAD(useSubtitleEncodingAutoDetection, true, toBool);
 	LOAD(subtitleEncodingConfidence, 70, toInt);
+	LOAD(msPerChar, 500, toInt);
 	LOAD(subtitlePriority, QStringList(), toStringList);
 	LOAD(seekingStep1, DefaultSeekingStep1, toInt);
 	LOAD(seekingStep2, DefaultSeekingStep2, toInt);

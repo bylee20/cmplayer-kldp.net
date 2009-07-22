@@ -18,7 +18,7 @@ AbstractOsdRenderer::~AbstractOsdRenderer() {
 	delete d;
 }
 
-void AbstractOsdRenderer::renderText(const QString &text, int duration) {
+void AbstractOsdRenderer::renderText(const RichString &text, int duration) {
 	setText(text);
 	render(duration);
 }
@@ -28,7 +28,7 @@ void AbstractOsdRenderer::renderTimeLine(double percent, int duration) {
 	render(duration);
 }
 
-void AbstractOsdRenderer::renderText(const QString &text) {
+void AbstractOsdRenderer::renderText(const RichString &text) {
 	setText(text);
 	render();
 }

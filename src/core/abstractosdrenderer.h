@@ -1,7 +1,7 @@
 #ifndef CORE_ABSTRACTOSDRENDERER_H
 #define CORE_ABSTRACTOSDRENDERER_H
 
-#include <QtCore/QString>
+#include "richstring.h"
 #include "osdstyle.h"
 
 class QSizeF;				class QPainter;
@@ -16,12 +16,12 @@ class AbstractOsdRenderer : public QObject {
 public:
 	AbstractOsdRenderer();
 	virtual ~AbstractOsdRenderer();
-	void renderText(const QString &text);
+	void renderText(const RichString &text);
 	void renderTimeLine(double percent);
-	void renderText(const QString &text, int duration);
+	void renderText(const RichString &text, int duration);
 	void renderTimeLine(double percent, int duration);
-	void setText(const QString &text) {d->text = text;}
-	const QString &text() const {return d->text;}
+	void setText(const RichString &text) {d->text = text;}
+	const RichString &text() const {return d->text;}
 	double timeLineRate() const {return d->timeRate;}
 	void setStyle(const OsdStyle &style);
 	const OsdStyle &style() const {return d->style;}
@@ -44,7 +44,7 @@ protected:
 private:
 	void setMargin(double &margin, double value);
 	struct Data {
-		QString text;
+		RichString text;
 		double timeRate, top, bottom, left, right;
 		OsdStyle style;
 		QTimer *hider;

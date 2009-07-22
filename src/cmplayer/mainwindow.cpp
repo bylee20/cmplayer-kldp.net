@@ -24,6 +24,7 @@
 #include <core/backendiface.h>
 #include <core/playlist.h>
 #include <core/subtitle.h>
+#include <core/subtitle_parser.h>
 #include <core/abrepeater.h>
 #include <core/utility.h>
 #include <core/mediainfo.h>
@@ -639,6 +640,7 @@ void MainWindow::updateOnTop() {
 }
 
 void MainWindow::updatePref() {
+	Core::Subtitle::Parser::setMsPerCharactor(d->pref.msPerChar);
 	Translator::load(d->pref.locale);
 	app()->setStyle(d->pref.windowStyle);
 	d->player->setSubtitleStyle(d->pref.subtitleStyle);

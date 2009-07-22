@@ -41,6 +41,7 @@ public:
 	QStringList subtitlePriority;
 	SubtitleAutoLoadEnum subtitleAutoLoad;
 	SubtitleAutoSelectEnum subtitleAutoSelect;
+	int msPerChar;
 	int daysToKeepRecords, maximumRecordCount;
 	int seekingStep1, seekingStep2, seekingStep3, speedStep;
 	int volumeStep, syncDelayStep, ampStep, subtitlePosStep;
