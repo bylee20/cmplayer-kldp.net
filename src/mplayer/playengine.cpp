@@ -120,7 +120,7 @@ const QStringList &PlayEngine::getDefaultArgs() {
 			<< "-input" << ("conf=\"" + getDontMessUp() + '"')
 			<< "-fontconfig" << "-zoom" << "-nokeepaspect"
 			<< "-noautosub" << "-osdlevel" << QString::number(0)
-			<< "-utf8" << "-subcp" << "UFT-8" << "-softvol"
+			<< "-utf8" << "-subcp" << "UTF-8" << "-softvol"
 			<< "-softvol-max" << QString::number(1000.0)
 			<< "-vf-add" << "screenshot";
 	

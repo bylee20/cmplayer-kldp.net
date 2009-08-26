@@ -41,9 +41,9 @@ Info::Data::Data() {
 		dir.cd(".cmplayer");
 		privatePath = dir.absolutePath();
 	}
-	videoExt << "asf" << "avi" << "dvix" << "mkv" << "mov"
+	videoExt << "asf" << "avi" << "dvix" << "flv" << "mkv" << "mov"
 			<< "mp4" << "mpeg" << "mpg" << "vob"
-			<< "ogg" << "ogm"<< "qt" << "rm" << "wmv";
+			<< "ogg" << "ogm"<< "qt" << "rm" << "rmvb" << "wmv";
 	audioExt << "mp3" << "ogg" << "ra" << "wav" << "wma";
 	subExt << "smi" << "srt" << "sub" << "txt";
 }

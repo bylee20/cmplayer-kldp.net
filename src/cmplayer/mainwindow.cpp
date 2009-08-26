@@ -669,9 +669,14 @@ void MainWindow::setFullScreen(bool full) {
 	if (full) {
 		d->prevWinSize = size();
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
+		if (d->pref.hideCursor && (!d->pref.hideInFullScreen || full))
+			d->hider.start(d->pref.hideDelay);
 	} else {
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
 		resize(d->prevWinSize);
+		d->hider.stop();
+		if (cursor().shape() == Qt::BlankCursor)
+			unsetCursor();
 	}
 }
 
