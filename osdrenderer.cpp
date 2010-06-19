@@ -1,5 +1,5 @@
 #include "osdrenderer.hpp"
-#include "gstimageoverlay.hpp"
+#include "gstvideoman.hpp"
 #include <QtCore/QSettings>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
@@ -44,18 +44,20 @@ void OsdStyle::load(QSettings *set, const QString &group) {
 
 struct OsdRenderer::Data {
 	OsdStyle style;
-//	QImage cache;
 	QRect area;
-//	QMutex mutex;
-	GstImageOverlay *overlay;
+	GstVideoMan *man;
 	int id;
+	double dis_x, dis_y;
 };
 
 OsdRenderer::OsdRenderer()
 : d(new Data) {
 	d->area = QRect(0, 0, 400, 300);
-	d->overlay = 0;
+	d->man = 0;
 	d->id = -1;
+	d->dis_x = d->dis_y = 1.0;
+
+	connect(this, SIGNAL(needToRerender()), this, SLOT(rerender()));
 }
 
 OsdRenderer::~OsdRenderer() {
@@ -71,15 +73,19 @@ const OsdStyle &OsdRenderer::style() const {
 	return d->style;
 }
 
-void OsdRenderer::setArea(const QRect &rect) {
-	if (d->area != rect) {
+void OsdRenderer::setArea(const QRect &rect, double dis_x, double dis_y) {
+	if (d->area != rect || !qFuzzyCompare(d->dis_x, dis_x) || !qFuzzyCompare(d->dis_y, dis_y)) {
 		d->area = rect;
+		d->dis_x = dis_x;
+		d->dis_y = dis_y;
 		areaChanged(rect);
 	}
 }
 
 QPoint OsdRenderer::pos() const {
 	QPoint p = posHint();
+	p.rx() /= d->dis_x;
+	p.ry() /= d->dis_y;
 	if (p.x()%2)
 		++p.rx();
 	if (p.y()%2)
@@ -92,10 +98,12 @@ QRect OsdRenderer::area() const {
 }
 
 void OsdRenderer::rerender() {
-	if (!d->overlay)
+	if (!d->man)
 		return;
 	QSize size = sizeHint();
 	if (!size.isEmpty()) {
+		size.rwidth() /= d->dis_x;
+		size.rheight() /= d->dis_y;
 		if (size.width()%2)
 			size.rwidth() += 1;
 		if (size.height()%2)
@@ -103,16 +111,16 @@ void OsdRenderer::rerender() {
 		QImage image(size, QImage::Format_ARGB32);
 		image.fill(0);
 		QPainter painter(&image);
+		painter.scale(1.0/d->dis_x, 1.0/d->dis_y);
 		render(&painter);
-		d->overlay->setImage(d->id, image, pos());
+		d->man->setOverlay(d->id, image, pos());
 	} else
-		d->overlay->setImage(d->id, QImage(), pos());
+		d->man->setOverlay(d->id, QImage(), pos());
 }
 
-void OsdRenderer::setImageOverlay(GstImageOverlay *overlay) {
-	d->overlay = overlay;
-	if (!d->overlay)
-		return;
-	d->id = d->overlay->register_();
-	rerender();
+void OsdRenderer::setVideoMan(GstVideoMan *man) {
+	if ((d->man = man)) {
+		d->id = d->man->newOverlay();
+		rerender();
+	}
 }

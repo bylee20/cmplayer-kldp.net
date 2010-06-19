@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/" >
+    <qresource prefix="/">
         <file>img/view-split-left-right.png</file>
         <file>img/arrow-down-gray.png</file>
         <file>img/arrow-left-double-gray.png</file>
@@ -90,5 +90,6 @@
         <file>img/favorites-color.png</file>
         <file>img/history-color.png</file>
         <file>img/history-gray.png</file>
+        <file>img/preferences-system-gray.png</file>
     </qresource>
 </RCC>

@@ -1,8 +1,13 @@
 #include "application.hpp"
 #include <gst/gst.h>
+#include <gst/controller/gstcontroller.h>
+#include <liboil/liboil.h>
 
 int main(int argc, char **argv) {
 	gst_init(NULL, NULL);
+	gst_controller_init(NULL, NULL);
+	oil_init ();
+
 	Application app(argc, argv);
 //	QApplication app(argc, argv);
 //	PlayEngine engine;

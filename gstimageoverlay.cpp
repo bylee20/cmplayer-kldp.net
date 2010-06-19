@@ -4,6 +4,7 @@
 #include <QtCore/QLinkedList>
 #include <QtCore/QDebug>
 #include <QtGui/QPainter>
+#include "playengine.hpp"
 #include "osdrenderer.hpp"
 
 static GType gst_image_overlay_get_type();
@@ -186,6 +187,8 @@ GstFlowReturn GstImageOverlay::transform_ip(GstBuffer *outbuf) {
 	if (!gst_buffer_is_writable(outbuf))
 		return GST_FLOW_OK;
 	for (QMultiMap<double, Image>::const_iterator it = d->image.begin(); it != d->image.end(); ++it) {
+		if (it->image.isNull())
+			continue;
 		it->mutex->lock();
 		blend(outbuf, *it);
 		it->mutex->unlock();
@@ -218,6 +221,9 @@ void GstImageOverlay::setImage(int id, const QImage &image, const QPoint &pos) {
 			img->pos.setY(pos.y());
 		img->image = image.copy(rect);
 		img->mutex->unlock();
+		if (d->engine && d->engine->state() == PausedState) {
+			d->engine->flush();//seek(d->engine->position());
+		}
 	}
 }
 

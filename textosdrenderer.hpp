@@ -12,8 +12,8 @@ public:
 	void showText(const RichString &text, int last = -1);
 	void clear();
 	void setMargin(double top, double bottom, double right, double left);
-protected:
 	void render(QPainter *painter);
+protected:
 	void areaChanged(const QRect &area);
 	void styleChanged(const OsdStyle &style);
 	QPoint posHint() const;

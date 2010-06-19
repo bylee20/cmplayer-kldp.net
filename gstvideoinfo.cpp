@@ -66,6 +66,9 @@ bool GstVideoInfo::setCaps(GstCaps */*in*/, GstCaps *out) {
 	int fr_d, fr_n;
 	if (!gst_video_parse_caps_framerate(out, &fr_n, &fr_d))
 		return false;
+	int pa_n, pa_d;
+	gst_video_parse_caps_pixel_aspect_ratio(out, &pa_n, &pa_d);
+//	qDebug() << pa_n << pa_d;
 	d->renderer->setFrameSize(s);
 	d->renderer->setFrameRate((double)fr_n/fr_d);
 	return true;

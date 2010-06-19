@@ -4,10 +4,12 @@
 #include <gst/gst.h>
 #include <QtCore/QObject>
 
+class PlayEngine;
+
 class AudioController : public QObject {
 	Q_OBJECT
 public:
-	AudioController();
+	AudioController(PlayEngine *engine);
 	~AudioController();
 	GstElement *bin() const;
 	int volume() const;

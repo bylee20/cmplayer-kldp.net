@@ -1,7 +1,4 @@
 #include "pref.hpp"
-//#include "helper.h"
-//#include "videoplayer.h"
-//#include <core/osdstyle.h>
 #include <QtCore/QMap>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
@@ -63,7 +60,7 @@ void Pref::save() const {
 	SAVE_ENUM(subtitleAutoLoad);
 	SAVE_ENUM(subtitleAutoSelect);
 
-//	subtitleStyle.save(&set, "SubtitleStyle");
+	subtitleStyle.save(&set, "SubtitleStyle");
 	saveMouse(set, "DoubleClickAction", doubleClickMap);
 	saveMouse(set, "MiddleClickAction", middleClickMap);
 	saveMouse(set, "WheelScrollAction", wheelScrollMap);
@@ -116,11 +113,11 @@ void Pref::load() {
 	LOAD_ENUM(subtitleAutoLoad, Contain);
 	LOAD_ENUM(subtitleAutoSelect, SameName);
 
-//	subtitleStyle.alignment = Qt::AlignHCenter | Qt::AlignBottom;
-//	subtitleStyle.borderWidth = 0.03;
-//	subtitleStyle.textSize = 0.04;
-//	subtitleStyle.font.setBold(true);
-//	subtitleStyle.load(&set, "SubtitleStyle");
+	subtitleStyle.alignment = Qt::AlignHCenter | Qt::AlignBottom;
+	subtitleStyle.borderWidth = 0.03;
+	subtitleStyle.textSize = 0.04;
+	subtitleStyle.font.setBold(true);
+	subtitleStyle.load(&set, "SubtitleStyle");
 	loadMouse(set, "DoubleClickAction", doubleClickMap
 			, Qt::NoModifier, ClickActionPair(true, ToggleFullScreen));
 	loadMouse(set, "DoubleClickAction", doubleClickMap

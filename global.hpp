@@ -8,10 +8,12 @@
 
 namespace Global {
 
-enum MediaState {StoppedState = 0, PlayingState, PausedState};
+enum MediaState {StoppedState = 0, PlayingState, PausedState, FinishedState};
 enum MediaStatus {NoMediaStatus = 0, EosStatus, BufferedStatus};
 enum StreamType {UnknownStream = 0, VideoStream, AudioStream, SubPicStream};
 enum MediaMetaData {LanguageCode};
+enum NavDVDCmd {NavAngleMenu, NavAudioMenu, NavChapterMenu
+		, NavToggleMenu, NavRootMenu, NavSubPicMenu, NavTitleMenu};
 
 namespace EnumSpace {template<typename E> class Enum;}
 
@@ -89,9 +91,8 @@ qint64 timeToMSecs(const QTime &time);
 qint64 stringToMSecs(const QString &str, const QString &format = QString("hh:mm:ss"));
 const QTime &nullTime();
 double desktopRatio();
-const QSize &desktopSize();
+QSize desktopSize();
 //static void msleep(int msec);
-void setScreensaverDisabled(bool disabled);
 
 }
 

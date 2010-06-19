@@ -1,0 +1,4 @@
+#ifndef GSTVIDEOMAN_C_HPP
+#define GSTVIDEOMAN_C_HPP
+
+#endif // GSTVIDEOMAN_C_HPP

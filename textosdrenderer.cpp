@@ -58,7 +58,8 @@ TextOsdRenderer::TextOsdRenderer(Qt::Alignment align): d(new Data) {
 	d->pos = getPos();
 	d->clearer.setSingleShot(true);
 	connect(&d->clearer, SIGNAL(timeout()), this, SLOT(clear()));
-	invokeRerender();
+
+	emit needToRerender();
 }
 
 TextOsdRenderer::~TextOsdRenderer() {
@@ -70,21 +71,19 @@ void TextOsdRenderer::render(QPainter *painter) {
 	if (area.isEmpty() || d->text.isEmpty())
 		return;
 	painter->save();
+	painter->translate(-d->pos.x(), 0);
 	static QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
 	QString bgText = text().string();
 	d->doc.setHtml(QString("<font color='%1'>").arg(style().bgColor.name())
 			+ bgText.remove(rxColor) + "</font>");
-
 	painter->setOpacity(style().bgColor.alphaF());
-//	QPointF pos = rect.topLeft();
 	for (int i=0; i<d->points.size(); ++i) {
-		painter->translate(d->points[i]/* + pos*/);
+		painter->save();
+		painter->translate(d->points[i]);
 		d->doc.drawContents(painter);
-		painter->resetTransform();
+		painter->restore();
 	}
-
 	d->doc.setHtml(QString("<font color='%1'>").arg(style().fgColor.name())+text().string()+"</font>");
-
 	painter->setOpacity(style().fgColor.alphaF());
 	painter->translate(d->bw, d->bw);
 	d->doc.drawContents(painter);
@@ -102,17 +101,17 @@ QPoint TextOsdRenderer::getPos() const {
 	int x = area.left();
 	int y = area.top();
 	if (align & Qt::AlignBottom)
-		y = area.bottom() - size.height() - size.height()*d->bottom;
+		y = area.bottom() - size.height() - area.height()*d->bottom;
 	else if (align & Qt::AlignVCenter)
 		y += (area.height() - size.height())*0.5;
 	else
-		y += size.height()*d->top;
+		y += area.height()*d->top;
 	if (align & Qt::AlignHCenter)
 		x += (area.width() - size.width())*0.5;
 	else if (align & Qt::AlignRight)
-		x = area.right() - size.width() - size.width()*d->right;
+		x = area.right() - size.width() - area.width()*d->right;
 	else
-		x += size.width()*d->left;
+		x += area.width()*d->left;
 	return QPoint(x, y);
 
 }
@@ -122,7 +121,7 @@ void TextOsdRenderer::showText(const RichString &text, int last) {
 	d->text = text;
 	d->doc.setHtml(text.string());
 	d->pos = getPos();
-	invokeRerender();
+	emit needToRerender();
 	if (last >= 0)
 		d->clearer.start(last);
 }
@@ -132,17 +131,18 @@ RichString TextOsdRenderer::text() const {
 }
 
 QSize TextOsdRenderer::sizeHint() const {
-	QSize size = d->doc.size().toSize();
-	size.rheight() += 2*d->bw;
-	return size;
+//	QSize size = d->doc.size().toSize();
+//	size.rheight() += 2*d->bw;
+	return QSize(d->doc.idealWidth() + 0.5, d->doc.size().height() + 2.0*d->bw + 0.5);
 }
 
 void TextOsdRenderer::updateFontSize() {
 	const QSize s = area().size();
 	int px = 0;
-	if (style().scale == OsdStyle::FitToDiagonal)
+	const OsdStyle::Scale scale = style().scale;
+	if (scale == OsdStyle::FitToDiagonal)
 		px = qRound(qSqrt(s.height()*s.height() + s.width()*s.width()) * style().textSize);
-	else if (style().scale == OsdStyle::FitToWidth)
+	else if (scale == OsdStyle::FitToWidth)
 		px = qRound(s.width()*style().textSize);
 	else
 		px = qRound(s.height()*style().textSize);
@@ -157,9 +157,10 @@ void TextOsdRenderer::updateFontSize() {
 }
 
 void TextOsdRenderer::areaChanged(const QRect &area) {
+	updateFontSize();
 	d->doc.setTextWidth(area.width() - 2.0*d->bw - d->left - d->right);
 	d->pos = getPos();
-	invokeRerender();
+	emit needToRerender();
 }
 
 void TextOsdRenderer::styleChanged(const OsdStyle &style) {
@@ -171,7 +172,7 @@ void TextOsdRenderer::styleChanged(const OsdStyle &style) {
 	d->doc.setDefaultTextOption(option);
 
 	d->pos = getPos();
-	invokeRerender();
+	emit needToRerender();
 }
 
 void TextOsdRenderer::clear() {
@@ -183,5 +184,7 @@ void TextOsdRenderer::setMargin(double top, double bottom, double right, double 
 	d->bottom = bottom;
 	d->right = right;
 	d->left = left;
-	areaChanged(area());
+
+	d->pos = getPos();
+	emit needToRerender();
 }

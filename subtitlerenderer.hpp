@@ -13,6 +13,15 @@ public:
 	~SubtitleRenderer();
 	OsdRenderer *osd() const;
 	void setSubtitle(const Subtitle &subtitle);
+	const Subtitle &subtitle() const;
+	double frameRate() const;
+	int delay() const;
+	int start(int pos) const;
+	int end(int pos) const;
+	void setDelay(int delay);
+	bool hasSubtitle() const;
+	double pos() const;
+	void setPos(double pos);
 public slots:
 	void setFrameRate(double frameRate);
 	void render(int ms);

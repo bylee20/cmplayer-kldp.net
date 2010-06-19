@@ -8,7 +8,7 @@
 #include <gst/video/video.h>
 #include <QtCore/QMultiMap>
 
-class OsdRenderer;
+class OsdRenderer;		class PlayEngine;
 
 struct GstImageOverlayClass {
 	GstBaseTransformClass parent;
@@ -31,11 +31,12 @@ public:
 	void setImage(int id, const QImage &image, const QPoint &pos);
 	void setZIndex(int id, double zIndex);
 	struct Data {
-		Data(): frameFormat(GST_VIDEO_FORMAT_UNKNOWN) {}
+		Data(): frameFormat(GST_VIDEO_FORMAT_UNKNOWN), engine(0) {}
 //		QMutex mutex;
 		QSize frameSize;
 		GstVideoFormat frameFormat;
 		QMultiMap<double, Image> image;
+		PlayEngine *engine;
 	};
 	static GstCaps *makeDefualtCaps();
 	static GType gtype();

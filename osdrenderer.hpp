@@ -6,7 +6,7 @@
 #include <QtGui/QColor>
 
 class QSettings;		class RichString;
-class GstImageOverlay;
+class GstVideoMan;
 
 class OsdStyle {
 public:
@@ -14,7 +14,7 @@ public:
 	OsdStyle(): bgColor(Qt::black), fgColor(Qt::white) {
 		alignment = Qt::AlignCenter;
 		borderWidth = 0.05;
-		textSize = 0.05;
+		textSize = 0.03;
 		scale = FitToDiagonal;
 	}
 	void save(QSettings *set, const QString &group) const;
@@ -32,7 +32,7 @@ class OsdRenderer : public QObject {
 public:
 	OsdRenderer();
 	~OsdRenderer();
-	void setArea(const QRect &rect);
+	void setArea(const QRect &rect, double dis_x, double dis_y);
 	QRect area() const;
 	QPoint pos() const;
 	void setStyle(const OsdStyle &style);
@@ -40,18 +40,20 @@ public:
 public slots:
 	void rerender();
 	virtual void clear() = 0;
+signals:
+	void needToRerender();
 protected:
 	virtual void render(QPainter *painter) = 0;
 	virtual QPoint posHint() const = 0;
 	virtual QSize sizeHint() const = 0;
 	virtual void areaChanged(const QRect &area) = 0;
 	virtual void styleChanged(const OsdStyle &style) = 0;
-	void invokeRerender() {
-		QMetaObject::invokeMethod(this, "rerender", Qt::QueuedConnection);
-	}
 private:
+//	void invokeRerender() {
+//		QMetaObject::invokeMethod(this, "rerender", Qt::QueuedConnection);
+//	}
 	friend class NativeVideoRenderer;
-	void setImageOverlay(GstImageOverlay *overlay);
+	void setVideoMan(GstVideoMan *man);
 	struct Data;
 	Data *d;
 };

@@ -18,29 +18,30 @@ struct PlayEngine::Data {
 	BusHelper *bus;
 	GstElement *playbin, *source;
 	QTimer busTimer, ticker;
-	bool seekable, hasAudio, hasVideo;
+	bool seekable, hasAudio, hasVideo, finishing;
 	double speed;
 	QList<StreamType> streamType;
 	QList<QMap<MediaMetaData, QVariant> > streamData;
 	NativeVideoRenderer *native;
 	AudioController *audio;
+	int prevTick;
 };
 
 PlayEngine::PlayEngine(): d(new Data) {
+	d->prevTick = 0;
+	d->finishing = false;
 	d->state = StoppedState;
 	d->status = NoMediaStatus;
 	d->hasAudio = d->hasVideo = d->seekable = false;
 	d->speed = 1.0;
 	d->native = new NativeVideoRenderer(this);
-	d->audio = new AudioController;
+	d->audio = new AudioController(this);
 	d->native->show();
 	d->lastPos = d->duration = 0;
 
 	d->playbin = gst_element_factory_make("playbin", 0);
 	gst_object_ref(GST_OBJECT(d->playbin));
 	gst_object_sink(GST_OBJECT(d->playbin));
-
-//	GstElement *identity = gst_element_factory_make("identity", 0);
 
 	g_object_set(G_OBJECT(d->playbin), "audio-sink", d->audio->bin(), NULL);
 	g_object_set(G_OBJECT(d->playbin), "video-sink", d->native->bin(), NULL);
@@ -66,6 +67,15 @@ PlayEngine::~PlayEngine() {
 	delete d;
 }
 
+//void PlayEngine::setMuted(bool muted) {
+//	g_object_set(G_OBJECT(d->playbin), "mute", muted, NULL);
+//}
+
+//void PlayEngine::setVolumeAmp(int volume, double amp) {
+//	const double v = qBound(0.0, volume*0.01*amp, 10.0);
+//	g_object_set(G_OBJECT(d->playbin), "volume", v, NULL);
+//}
+
 void PlayEngine::setMrl(const Mrl &mrl) {
 	if (mrl != d->mrl) {
 		d->mrl = mrl;
@@ -80,8 +90,8 @@ void PlayEngine::setMrl(const Mrl &mrl) {
 			emit streamsChanged();
 		}
 		if (d->playbin) {
-			const gchar *uri = d->mrl.url().toEncoded().constData();
-			g_object_set(G_OBJECT(d->playbin), "uri", uri, NULL);
+			const QByteArray uri = d->mrl.url().toEncoded();
+			g_object_set(G_OBJECT(d->playbin), "uri", uri.data(), NULL);
 		}
 	}
 }
@@ -141,6 +151,7 @@ static void addTagToMap(const GstTagList *list, const gchar *tag, gpointer user_
 
 void PlayEngine::handleGstMessage(void *ptr) {
 	GstMessage *msg = (GstMessage*)ptr;
+//	qDebug() << msg;
 	//tag message comes from elements inside playbin, not from playbin itself
 	if (GST_MESSAGE_TYPE(msg) == GST_MESSAGE_TAG) {
 		GstTagList *list = 0;
@@ -163,11 +174,16 @@ void PlayEngine::handleGstMessage(void *ptr) {
 		case GST_STATE_VOID_PENDING:
 		case GST_STATE_NULL:
 			setSeekable(false);
-			setState(StoppedState);
+			if (d->finishing) {
+				setState(FinishedState);
+				d->finishing = false;
+			} else
+				setState(StoppedState);
 			break;
 		case GST_STATE_READY:
 			setSeekable(false);
-			setState(StoppedState);
+			if (!d->finishing)
+				setState(StoppedState);
 			break;
 		case GST_STATE_PAUSED:
 			setState(PausedState);
@@ -279,8 +295,11 @@ double PlayEngine::speed() const {
 void PlayEngine::setSpeed(double speed) {
 	if (qFuzzyCompare(speed, 1.0))
 		speed = 1.0;
-	if (!qFuzzyCompare(d->speed, speed))
-		emit speedChanged(d->speed = speed);
+	if (!qFuzzyCompare(d->speed, speed)) {
+		d->speed = speed;
+		seek(position());
+		emit speedChanged(d->speed);
+	}
 }
 
 void PlayEngine::getStreamInfo() {
@@ -338,12 +357,28 @@ void PlayEngine::getStreamInfo() {
 	emit streamsChanged();
 }
 
+void PlayEngine::finish() {
+	d->finishing = true;
+	gst_element_set_state(d->playbin, GST_STATE_NULL);
+	qDebug() << "EOS!";
+//	d->status = EosStatus;
+//	const MediaState old = d->state;
+//	d->state = FinishedState;
+	//	emit stateChanged(d->state, old);
+	//	emit statusChanged(d->status);
+	emit finished();
+
+}
+
 void PlayEngine::eos() {
-	d->status = EosStatus;
-	const MediaState old = d->state;
-	d->state = StoppedState;
-	emit stateChanged(d->state, old);
-	emit statusChanged(d->status);
+	finish();
+//	qDebug() << "EOS!";
+//	d->status = EosStatus;
+//	const MediaState old = d->state;
+//	d->state = StoppedState;
+//	emit stateChanged(d->state, old);
+//	emit statusChanged(d->status);
+//	emit finished();
 }
 
 void PlayEngine::setStatus(MediaStatus status) {
@@ -363,8 +398,11 @@ void PlayEngine::queryDuration() {
 }
 
 bool PlayEngine::play() {
-	if (d->playbin && gst_element_set_state(d->playbin, GST_STATE_PLAYING) != GST_STATE_CHANGE_FAILURE)
-		return true;
+	if (d->playbin) {
+		const int ret = gst_element_set_state(d->playbin, GST_STATE_PLAYING);
+		if (ret != GST_STATE_CHANGE_FAILURE)
+			return true;
+	}
 	setState(StoppedState);
 	return false;
 //	qWarning() << "GStreamer; Unable to play -" << m_url.toString();
@@ -388,24 +426,24 @@ void PlayEngine::stop() {
 	setState(StoppedState);
 }
 
+void PlayEngine::flush() {
+	if (!d->playbin || d->state == StoppedState)
+		return;
+	const int flags = GST_SEEK_FLAG_ACCURATE | GST_SEEK_FLAG_FLUSH;
+	const gint64 pos = static_cast<gint64>(position())*GST_MSECOND;
+	gst_element_seek(d->playbin, d->speed
+		, GST_FORMAT_TIME, GstSeekFlags(flags)
+		, GST_SEEK_TYPE_SET, pos, GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE);
+}
+
 bool PlayEngine::seek(int ms) {
 	if (!d->playbin || d->state == StoppedState)
 		return false;
 	const gint64 pos = static_cast<gint64>(ms)*GST_MSECOND;
-	const GstSeekFlags flags = GstSeekFlags(
-		GST_SEEK_FLAG_ACCURATE | GST_SEEK_FLAG_SEGMENT | GST_SEEK_FLAG_FLUSH);
-
-//	gst_element_seek(m_playbin, rate, GST_FORMAT_TIME,
-//			 GstSeekFlags(GST_SEEK_FLAG_ACCURATE | GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT),
-//			 GST_SEEK_TYPE_NONE,0,
-//			 GST_SEEK_TYPE_NONE,0 );
-
-//	GstSeekFlags flags = static_cast<GstSeekFlags>(GST_SEEK_FLAG_KEY_UNIT | GST_SEEK_FLAG_SEGMENT | GST_SEEK_FLAG_FLUSH);
-//	gst_element_seek(d->pipeline->element(), speed(), GST_FORMAT_TIME, flags
-//			, GST_SEEK_TYPE_SET, time * GST_MSECOND, GST_SEEK_TYPE_NONE
-//			, GST_CLOCK_TIME_NONE);
-
-	return gst_element_seek_simple(d->playbin, GST_FORMAT_TIME, flags, pos);
+	const int flags = GST_SEEK_FLAG_ACCURATE | GST_SEEK_FLAG_SEGMENT | GST_SEEK_FLAG_FLUSH;
+	return gst_element_seek(d->playbin, d->speed
+		, GST_FORMAT_TIME, GstSeekFlags(flags)
+		, GST_SEEK_TYPE_SET, pos, GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE);
 }
 
 int PlayEngine::duration() const {
@@ -421,8 +459,14 @@ int PlayEngine::position() const {
 }
 
 void PlayEngine::ticking() {
-	if (d->state == PlayingState)
-		emit tick(position());
+	if (d->state == PlayingState) {
+		int tick = position();
+		if (tick != d->prevTick) {
+			emit this->tick(d->prevTick = tick);
+			if (duration() - tick < 100 && !d->mrl.isDVD())
+				finish();
+		}
+	}
 }
 
 NativeVideoRenderer *PlayEngine::renderer() const {
@@ -431,4 +475,42 @@ NativeVideoRenderer *PlayEngine::renderer() const {
 
 AudioController *PlayEngine::audio() const {
 	return d->audio;
+}
+
+Mrl PlayEngine::mrl() const {
+	return d->mrl;
+}
+
+void PlayEngine::navigateDVDMenu(int cmd) {
+	if (!d->mrl.isDVD())
+		return;
+	switch (cmd) {
+	case NavAngleMenu:
+		cmd = GST_NAVIGATION_COMMAND_DVD_ANGLE_MENU;
+		break;
+	case NavAudioMenu:
+		cmd = GST_NAVIGATION_COMMAND_DVD_AUDIO_MENU;
+		break;
+	case NavChapterMenu:
+		cmd = GST_NAVIGATION_COMMAND_DVD_CHAPTER_MENU;
+		break;
+	case NavToggleMenu:
+		cmd = GST_NAVIGATION_COMMAND_DVD_MENU;
+		break;
+	case NavRootMenu:
+		cmd = GST_NAVIGATION_COMMAND_DVD_ROOT_MENU;
+		break;
+	case NavSubPicMenu:
+		cmd = GST_NAVIGATION_COMMAND_DVD_SUBPICTURE_MENU;
+		break;
+	case NavTitleMenu:
+		qDebug() << "to titles";
+		cmd = GST_NAVIGATION_COMMAND_DVD_TITLE_MENU;
+		break;
+	default:
+		return;
+	}
+	GstNavigation *nav = d->native->nav();
+	gst_navigation_send_command(nav, GstNavigationCommand(cmd));
+//	qDebug() << cmd;
 }

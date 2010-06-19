@@ -6,7 +6,7 @@
 #include <QtCore/QLocale>
 #include <QtCore/QPair>
 #include <QtCore/QStringList>
-//#include <core/osdstyle.h>
+#include "osdrenderer.hpp"
 #include <QtCore/QSettings>
 #include "global.hpp"
 
@@ -21,7 +21,7 @@ public:
 	typedef QPair<bool, WheelActionEnum> WheelActionPair;
 	typedef QMap<ModifierEnum, ClickActionPair> ClickActionMap;
 	typedef QMap<ModifierEnum, WheelActionPair> WheelActionMap;
-	static const int DefaultSeekingStep1 = 10000;
+	static const int DefaultSeekingStep1 = 5000;
 	static const int DefaultSeekingStep2 = 30000;
 	static const int DefaultSeekingStep3 = 60000;
 	static const int DefaultVolumeStep = 2;
@@ -31,17 +31,18 @@ public:
 	static const int DefaultSpeedStep = 10;
 	static const int DefaultColorPropStep = 1;
 
+	SubtitleAutoLoadEnum subtitleAutoLoad;
+	SubtitleAutoSelectEnum subtitleAutoSelect;
+
 	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
 	bool askWhenRecordFound;
 	bool hideCursor, hideInFullScreen, normalizeVolume, useSoftwareEqualizer;
 	bool enableSystemTray, hideClosed, singleApplication;
 	bool disableScreensaver, useSubtitleEncodingAutoDetection;
 	AutoAddFilesEnum autoAddFiles;
-//	Core::OsdStyle subtitleStyle;
+	OsdStyle subtitleStyle;
 	QString subtitleEncoding, windowStyle, subtitleExtension;
 	QStringList subtitlePriority;
-	SubtitleAutoLoadEnum subtitleAutoLoad;
-	SubtitleAutoSelectEnum subtitleAutoSelect;
 	int msPerChar;
 	int daysToKeepRecords, maximumRecordCount;
 	int seekingStep1, seekingStep2, seekingStep3, speedStep;

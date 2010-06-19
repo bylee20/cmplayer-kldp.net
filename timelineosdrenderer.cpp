@@ -30,13 +30,13 @@ void TimeLineOsdRenderer::show(int time, int duration, int last) {
 	d->clearer.stop();
 	d->time = time;
 	d->duration = duration;
-	invokeRerender();
+	emit needToRerender();
 	d->clearer.start(last);
 }
 
 void TimeLineOsdRenderer::clear() {
 	d->time = d->duration = -1;
-	invokeRerender();
+	emit needToRerender();
 }
 
 void TimeLineOsdRenderer::render(QPainter *painter) {
@@ -79,9 +79,9 @@ void TimeLineOsdRenderer::areaChanged(const QRect &area) {
 	d->pos = area.topLeft();
 	d->pos.rx() += (area.width() - size.width())*0.5 + 0.5;
 	d->pos.ry() += (area.height() - size.height())*0.5 + 0.5;
-	invokeRerender();
+	emit needToRerender();
 }
 
 void TimeLineOsdRenderer::styleChanged(const OsdStyle &/*style*/) {
-	invokeRerender();
+	emit needToRerender();
 }

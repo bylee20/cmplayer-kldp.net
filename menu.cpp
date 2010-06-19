@@ -52,6 +52,16 @@ Menu &Menu::create(QWidget *parent) {
 	recent->addAction("seperator")->setSeparator(true);
 	recent->addAction("clear");
 
+	Menu *dvdMenu = root->addMenu("dvd-menu");
+	dvdMenu->setIcon(QIcon(":/img/media-optical.png"));
+	dvdMenu->addActionToGroup("toggle", false)->setData(NavToggleMenu);
+	dvdMenu->addActionToGroup("root", false)->setData(NavRootMenu);
+	dvdMenu->addActionToGroup("title", false)->setData(NavTitleMenu);
+	dvdMenu->addActionToGroup("chapter", false)->setData(NavChapterMenu);
+	dvdMenu->addActionToGroup("angle", false)->setData(NavAngleMenu);
+	dvdMenu->addActionToGroup("audio", false)->setData(NavAudioMenu);
+	dvdMenu->addActionToGroup("subpic", false)->setData(NavSubPicMenu);
+
 	Menu *screen = root->addMenu("screen");
 	screen->setIcon(QIcon(":/img/screen.png"));
 
@@ -111,7 +121,6 @@ Menu &Menu::create(QWidget *parent) {
 	snapshot->setShortcut(Qt::CTRL + Qt::Key_S);
 
 	Menu *play = root->addMenu("play");
-	play->addMenu("engine");
 	play->setIcon(QIcon(":/img/player-time.png"));
 
 	play->addSeparator();
@@ -143,10 +152,6 @@ Menu &Menu::create(QWidget *parent) {
 	reset->setData(0);
 	QAction *faster = speed->addActionToGroup("faster", false);
 	faster->setShortcuts(QList<QKeySequence>() << Qt::Key_Plus << Qt::Key_Equal);
-
-	play->addSeparator();
-
-	play->addAction("dvd menu");
 
 	play->addSeparator();
 
@@ -193,16 +198,16 @@ Menu &Menu::create(QWidget *parent) {
 
 	subtitle->addSeparator();
 
-	subtitle->addActionToGroup("pos up", false, "pos")->setShortcut(Qt::Key_W);
-	subtitle->addActionToGroup("pos down", false, "pos")->setShortcut(Qt::Key_S);
+	subtitle->addActionToGroup("pos-up", false, "pos")->setShortcut(Qt::Key_W);
+	subtitle->addActionToGroup("pos-down", false, "pos")->setShortcut(Qt::Key_S);
 
 	subtitle->addSeparator();
 
-	subtitle->addActionToGroup("sync add", false, "sync")->setShortcut(Qt::Key_D);
-	QAction *syncReset = subtitle->addActionToGroup("sync reset", false, "sync");
+	subtitle->addActionToGroup("sync-add", false, "sync")->setShortcut(Qt::Key_D);
+	QAction *syncReset = subtitle->addActionToGroup("sync-reset", false, "sync");
 	syncReset->setShortcut(Qt::Key_Q);
 	syncReset->setData(0);
-	subtitle->addActionToGroup("sync sub", false, "sync")->setShortcut(Qt::Key_A);
+	subtitle->addActionToGroup("sync-sub", false, "sync")->setShortcut(Qt::Key_A);
 
 	Menu *video = root->addMenu("video");
 	video->setIcon(QIcon(":/img/games-config-background.png"));
@@ -231,9 +236,9 @@ Menu &Menu::create(QWidget *parent) {
 
 	audio->addSeparator();
 
-	QAction *volUp = audio->addActionToGroup("volume up", false, "volume");
+	QAction *volUp = audio->addActionToGroup("volume-up", false, "volume");
 	volUp->setShortcut(Qt::Key_Up);
-	QAction *volDown = audio->addActionToGroup("volume down", false, "volume");
+	QAction *volDown = audio->addActionToGroup("volume-down", false, "volume");
 	volDown->setShortcut(Qt::Key_Down);
 	QAction *mute = audio->addAction("mute", true);
 	mute->setIcon(QIcon(":/img/irc-voice.png"));
@@ -241,8 +246,8 @@ Menu &Menu::create(QWidget *parent) {
 
 	audio->addSeparator();
 
-	QAction *ampUp = audio->addActionToGroup("amp up", false, "amp");
-	QAction *ampDown = audio->addActionToGroup("amp down", false, "amp");
+	QAction *ampUp = audio->addActionToGroup("amp-up", false, "amp");
+	QAction *ampDown = audio->addActionToGroup("amp-down", false, "amp");
 	ampUp->setShortcut(Qt::CTRL + Qt::Key_Up);
 	ampDown->setShortcut(Qt::CTRL + Qt::Key_Down);
 
@@ -272,6 +277,7 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_context = new QMenu(parent);
 	root->m_context->addMenu(open);
 	root->m_context->addSeparator();
+	root->m_context->addMenu(dvdMenu);
 	root->m_context->addMenu(screen);
 	root->m_context->addMenu(play);
 	root->m_context->addMenu(subtitle);
@@ -331,6 +337,16 @@ void Menu::updatePref() {
 	recent.setTitle(tr("Recent Open"));
 	recent["clear"]->setText(tr("Clear"));
 
+	Menu &dvdMenu = root("dvd-menu");
+	dvdMenu.setTitle(tr("DVD Menu"));
+	dvdMenu["toggle"]->setText(tr("Toggle Menu"));
+	dvdMenu["root"]->setText(tr("Main"));
+	dvdMenu["title"]->setText(tr("Title"));
+	dvdMenu["chapter"]->setText(tr("Chapter"));
+	dvdMenu["angle"]->setText(tr("Angles"));
+	dvdMenu["audio"]->setText(tr("Audio"));
+	dvdMenu["subpic"]->setText(tr("Subtitle"));
+
 	Menu &screen = root("screen");
 	screen.setTitle(tr("Screen"));
 	Menu &onTop = screen("on top");
@@ -361,7 +377,6 @@ void Menu::updatePref() {
 
 	Menu &play = root("play");
 	play.setTitle(tr("Play"));
-	play("engine").setTitle(tr("Play Engine"));
 	play["pause"]->setText(tr("Play"));
 	play["stop"]->setText(tr("Stop"));
 
@@ -375,8 +390,6 @@ void Menu::updatePref() {
 	setActionStep(speed["faster"], speed["slower"], "%1%", p.speedStep);
 
 	screen["snapshot"]->setText(tr("Take Snapshot"));
-
-	play["dvd menu"]->setText(tr("Toggle DVD Menu"));
 
 	Menu &repeat = play("repeat");
 	repeat.setTitle(tr("A-B Repeat"));
@@ -410,12 +423,12 @@ void Menu::updatePref() {
 	list["clear"]->setText(tr("Clear"));
 	list["hide"]->setText(tr("Hide"));
 	sub["viewer"]->setText(tr("View Current Subtitle"));
-	setActionAttr(sub["pos up"], -p.subtitlePosStep
+	setActionAttr(sub["pos-up"], -p.subtitlePosStep
 			, tr("Up %1%"), p.subtitlePosStep, false);
-	setActionAttr(sub["pos down"], p.subtitlePosStep
+	setActionAttr(sub["pos-down"], p.subtitlePosStep
 			, tr("Down %1%"), p.subtitlePosStep, false);
-	sub["sync reset"]->setText(tr("Reset Sync"));
-	setActionStep(sub["sync add"], sub["sync sub"]
+	sub["sync-reset"]->setText(tr("Reset Sync"));
+	setActionStep(sub["sync-add"], sub["sync-sub"]
 			, tr("Sync %1sec."), p.syncDelayStep, 0.001);
 
 	Menu &video = root("video");
@@ -435,10 +448,10 @@ void Menu::updatePref() {
 	audio("renderer").setTitle(tr("Renderer"));
 	audio("track").setTitle(tr("Track"));
 	audio["mute"]->setText(tr("Toggle Mute"));
-	setActionStep(audio["volume up"], audio["volume down"]
+	setActionStep(audio["volume-up"], audio["volume-down"]
 			, tr("Volume %1%"), p.volumeStep);
-	setActionStep(audio["amp up"], audio["amp down"]
-			, tr("Amp. %1%"), p.ampStep);
+	setActionStep(audio["amp-up"], audio["amp-down"]
+			, tr("PreAmp %1%"), p.ampStep);
 
 	root["pref"]->setText(tr("Preferences"));
 // 	root["help"]->setText(tr("Help"));

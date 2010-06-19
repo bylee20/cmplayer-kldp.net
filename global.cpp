@@ -7,17 +7,15 @@
 #include <QtCore/QTime>
 #include <QtCore/QThread>
 #include <QtCore/QTimer>
-//#include <X11/Xlib.h>
 
 namespace Global {
 
 struct Data {
 	Data(): zero() {
-//		connect(&d->ssTimer, SIGNAL(timeout()), this, SLOT(resetScreensaver()));
-//		d->ssTimer.setInterval(10000);
+
 	}
 	const QTime zero;
-//	QTimer ssTimer;
+	QTimer ssTimer;
 };
 
 static Data *data() {
@@ -28,13 +26,12 @@ static Data *data() {
 
 
 double desktopRatio() {
-	static const double ratio = double(desktopSize().width())/double(desktopSize().height());
-	return ratio;
+	const QSize size = desktopSize();
+	return double(size.width())/double(size.height());
 }
 
-const QSize &desktopSize() {
-	static const QSize size = QApplication::desktop()->size();
-	return size;
+QSize desktopSize() {
+	return QApplication::desktop()->size();
 }
 
 //QString toPlainText(const QString &str) {
@@ -69,16 +66,5 @@ qint64 stringToMSecs(const QString &str, const QString &format) {
 const QTime &nullTime() {
 	return data()->zero;
 }
-
-//void setScreensaverDisabled(bool disabled) {
-//	if (disabled)
-//		data()->ssTimer.start();
-//	else
-//		data()->ssTimer.stop();
-//}
-
-//void resetScreensaver() {
-//	XResetScreenSaver(QX11Info::display());
-//}
 
 }

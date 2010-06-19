@@ -25,12 +25,18 @@ public:
 	bool atEnd() const;
 	NativeVideoRenderer *renderer() const;
 	AudioController *audio() const;
+	Mrl mrl() const;
+	void flush();
+//	void setMuted(bool muted);
+//	void setVolumeAmp(int volume, double amp);
 public slots:
 	bool play();
 	void stop();
 	bool pause();
 	bool seek(int pos);
+	void navigateDVDMenu(int cmd);
 signals:
+	void finished();
 	void tick(int pos);
 	void mrlChanged(const Mrl &mrl);
 	void stateChanged(MediaState state, MediaState old);
@@ -54,6 +60,7 @@ private:
 	void getStreamInfo();
 	void queryDuration();
 private:
+	void finish();
 	struct Data;
 	Data *d;
 };

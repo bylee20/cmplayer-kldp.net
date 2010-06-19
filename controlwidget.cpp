@@ -104,7 +104,7 @@ struct ControlWidget::Data {
 	Lcd *lcd;
 	Slider *slider;
 	PlayEngine *engine;
-	Button *toggle;
+	Button *pref;
 	Button *open, *playlist, *fullScreen;
 	Button *play, *stop, *prev, *next, *forward, *backward;
 	QBrush bg, light;
@@ -132,7 +132,7 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->boundary = new Boundary(this);
 	d->lcd = new Lcd(this);
 	d->slider = new Slider(d->engine, this);
-	d->toggle = new Button(this);
+	d->pref = new Button(this);
 	d->open = new Button(this);
 	d->fullScreen = new Button(this);
 	d->playlist = new Button(this);
@@ -150,12 +150,12 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->next->setBlock(false);
 	d->fullScreen->setBlock(false);
 	d->open->setBlock(false);
-	d->toggle->setBlock(false);
+	d->pref->setBlock(false);
 	d->playlist->setBlock(false);
 	d->playlist->setIcon(QIcon(":/img/format-list-unordered-gray.png"));
 	d->open->setIcon(QIcon(":/img/open-media-gray.png"));
 	d->fullScreen->setIcon(QIcon(":/img/view-fullscreen-gray.png"));
-	d->toggle->setIcon(QIcon(":/img/toggle-panel.png"));
+	d->pref->setIcon(QIcon(":/img/preferences-system-gray.png"));
 	setState(StoppedState);
 	connect(&d->lcd->hider, SIGNAL(timeout()), this, SLOT(hideMessage()));
 	connect(d->engine, SIGNAL(stateChanged(MediaState, MediaState))
@@ -184,7 +184,7 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->backward->setIconSize(small);
 	d->playlist->setIconSize(small);
 	d->open->setIconSize(small);
-	d->toggle->setIconSize(small);
+	d->pref->setIconSize(small);
 	d->fullScreen->setIconSize(small);
 
 	QGridLayout *left = new QGridLayout;
@@ -202,7 +202,7 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	QGridLayout *right = new QGridLayout;
 	right->setContentsMargins(2, 0, 0, 0);
 	right->addWidget(d->open, 0, 0, 1, 1);
-	right->addWidget(d->toggle, 1, 0, 1, 1);
+	right->addWidget(d->pref, 1, 0, 1, 1);
 	right->addWidget(d->playlist, 0, 1, 1, 1);
 	right->addWidget(d->fullScreen, 1, 1, 1, 1);
 
@@ -340,7 +340,7 @@ void ControlWidget::retranslateUi() {
 	d->next->setToolTip(tr("Next"));
 	d->prev->setToolTip(tr("Previous"));
 	d->open->setToolTip(tr("Open File"));
-	d->toggle->setToolTip(tr("Toggle Panel Layout"));
+	d->pref->setToolTip(tr("Preferences"));
 // 	d->openUrl->setToolTip(tr("Open URL"));
 	d->fullScreen->setToolTip(tr("Toggle Full Screen Mode"));
 	d->playlist->setToolTip(tr("Toogle Tool Box Visibility"));
