@@ -1,9 +1,8 @@
 #include "nativevideorenderer.hpp"
 #include "gstvideoman.hpp"
-#include "mrl.hpp"
-#include <QtGui/QMouseEvent>
 #include "playengine.hpp"
 #include "osdrenderer.hpp"
+#include <QtGui/QMouseEvent>
 #include <QtGui/QApplication>
 #include <QtCore/QtEndian>
 #include <QtGui/QPainter>
@@ -14,7 +13,6 @@
 #include <QtCore/QDebug>
 #include <gst/video/gstvideosink.h>
 #include <gst/interfaces/navigation.h>
-#include "gstvideobox2.hpp"
 
 class NativeVideoRenderer::XOverlay : public QWidget {
 public:
@@ -89,36 +87,8 @@ private:
 	int m_vm, m_hm;
 };
 
-class NativeVideoRenderer::CropBox : public QWidget {
-public:
-	CropBox(PlayEngine *engine, NativeVideoRenderer *parent)
-	: QWidget(parent), m_xo(new XOverlay(engine, parent, this)) {
-
-	}
-	bool crop(double ratio) {
-		if (ratio < 0) {
-			resize(parentWidget()->size());
-		} else {
-			QSizeF size(ratio, 1.0);
-			size.scale(parentWidget()->size(), Qt::KeepAspectRatio);
-			resize(size.toSize());
-		}
-		moveToCenter();
-		return ratio > 0;
-	}
-	XOverlay *xOverlay() const {return m_xo;}
-private:
-	void moveToCenter() {
-		QWidget *w = parentWidget();
-		const int x = (w->width() - width())*0.5 + 0.5;
-		const int y = (w->height() - height())*0.5 + 0.5;
-		move(x, y);
-	}
-	XOverlay *m_xo;
-};
-
 struct NativeVideoRenderer::Data {
-	GstElement *bin, *sink, *info;
+	GstElement *bin, *sink;
 	GstVideoMan *man;
 	PlayEngine *engine;
 	XOverlay *xo;
@@ -128,7 +98,6 @@ struct NativeVideoRenderer::Data {
 	double frameRate;
 	QList<OsdRenderer*> osd;
 	double aspectRatio, cropRatio;
-	CropBox *crop;
 	GstNavigation *nav;
 };
 
@@ -138,8 +107,7 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 : QWidget(parent), d(new Data) {
 	d->expandedSize = d->frameSize = QSize(400, 300);
 	d->engine = engine;
-	d->crop = new CropBox(d->engine, this);
-	d->xo = d->crop->xOverlay();
+	d->xo = new XOverlay(engine, this, this);
 	d->nav = 0;
 	d->aspectRatio = -1.0;
 	d->cropRatio = -1;
@@ -149,16 +117,12 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	gst_object_sink(GST_OBJECT(d->bin));
 
 	d->sink = gst_element_factory_make("xvimagesink", 0);
-	d->info = GST_ELEMENT(g_object_new(GstVideoInfo::gtype(), 0));
-	reinterpret_cast<GstVideoInfo*>(d->info)->d->renderer = this;
-//	d->overlay = GST_ELEMENT(g_object_new(GstImageOverlay::gtype(), 0));
-//	reinterpret_cast<GstImageOverlay*>(d->overlay)->d->engine = engine;
 
 	GstElement *queue = gst_element_factory_make("queue", 0);
 	d->man = GST_VIDEO_MAN(g_object_new(gst_video_man_get_type(), 0));
 
-	gst_bin_add_many(GST_BIN(d->bin), GST_ELEMENT(d->man), d->info, /*d->overlay, */queue, d->sink, NULL);
-	gst_element_link_many(queue, d->info, d->man, /*d->overlay, */d->sink, NULL);
+	gst_bin_add_many(GST_BIN(d->bin), GST_ELEMENT(d->man), queue, d->sink, NULL);
+	gst_element_link_many(queue, GST_ELEMENT(d->man), d->sink, NULL);
 
 	GstPad *pad = gst_element_get_pad(queue, "sink");
 	gst_element_add_pad(d->bin, gst_ghost_pad_new("sink", pad));
@@ -173,16 +137,8 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 
 	setMouseTracking(true);
 	d->xo->setMouseTracking(true);
-	d->crop->setMouseTracking(true);
-
 	d->xo->setNavigation(d->nav);
-
-//	int vmargin = -1;
-//	int hmargin = 0;
-//	g_object_set(G_OBJECT(d->box), "top", 0, NULL);
-//	g_object_set(G_OBJECT(d->box), "bottom", 15, NULL);
-//	g_object_set(G_OBJECT(d->box), "left", -hmargin, NULL);
-//	g_object_set(G_OBJECT(d->box), "right", -hmargin, NULL);
+	d->man->d->renderer = this;
 }
 
 NativeVideoRenderer::~NativeVideoRenderer() {
@@ -226,29 +182,29 @@ static double ratio(const QSize &size) {
 }
 
 void NativeVideoRenderer::updateXOverlayGeometry() {
-	const QSizeF widget(size());
-	QSizeF video = d->aspectRatio > 0 ? QSizeF(d->aspectRatio, 1.0) : d->frameSize;
-	video.scale(widget, Qt::KeepAspectRatio);
-	QSizeF xo(desktopRatio(), 1);
-	if (d->crop->crop(d->cropRatio)) {
-		xo.scale(d->crop->size(), Qt::KeepAspectRatioByExpanding);
-	} else
-		xo.scale(video, Qt::KeepAspectRatioByExpanding);
-
-	d->xo->resize(xo.toSize());
-	d->xo->moveToCenter();
-
-	QRect area(QPoint(0, 0), d->xo->size());
-	area &= QRect(-d->xo->pos(), d->crop->size());
-	QSizeF box(desktopRatio(), 1.0);
-	box.scale(d->frameSize, Qt::KeepAspectRatioByExpanding);
-	const double r = (double)d->expandedSize.width()/d->xo->width();
-	area.setSize(area.size()*r);
-	area.moveTo(area.topLeft()*r);
-	for (int i=0; i<d->osd.size(); ++i)
-		d->osd[i]->setArea(area
-			, box.width() / d->expandedSize.width()
-			, box.height() / d->expandedSize.height());
+//	const QSizeF widget(size());
+//	QSizeF video = d->aspectRatio > 0 ? QSizeF(d->aspectRatio, 1.0) : d->frameSize;
+//	video.scale(widget, Qt::KeepAspectRatio);
+//	QSizeF xo(desktopRatio(), 1);
+//	if (d->crop->crop(d->cropRatio)) {
+//		xo.scale(d->crop->size(), Qt::KeepAspectRatioByExpanding);
+//	} else
+//		xo.scale(video, Qt::KeepAspectRatioByExpanding);
+//
+//	d->xo->resize(xo.toSize());
+//	d->xo->moveToCenter();
+//
+//	QRect area(QPoint(0, 0), d->xo->size());
+//	area &= QRect(-d->xo->pos(), d->crop->size());
+//	QSizeF box(desktopRatio(), 1.0);
+//	box.scale(d->frameSize, Qt::KeepAspectRatioByExpanding);
+//	const double r = (double)d->expandedSize.width()/d->xo->width();
+//	area.setSize(area.size()*r);
+//	area.moveTo(area.topLeft()*r);
+//	for (int i=0; i<d->osd.size(); ++i)
+//		d->osd[i]->setArea(area
+//			, box.width() / d->expandedSize.width()
+//			, box.height() / d->expandedSize.height());
 }
 
 void NativeVideoRenderer::resizeEvent(QResizeEvent *event) {
@@ -262,27 +218,16 @@ void NativeVideoRenderer::paintEvent(QPaintEvent */*event*/) {
 	painter.fillRect(rect(), Qt::black);
 }
 
-void NativeVideoRenderer::setFrameSize(const QSize &size) {
-	d->frameSize = size;
-	updateBoxSize();
-	updateXOverlayGeometry();
-}
-
 void NativeVideoRenderer::updateBoxSize() {
-
 	const double aspectRatio = (d->aspectRatio > 0 ? d->aspectRatio : ratio(d->frameSize));
 	const double desktopRatio = ::desktopRatio();
-	int hmargin = 0;
-	int vmargin = 0;
-
+	int hmargin = 0, vmargin = 0;
 	if (aspectRatio >= desktopRatio)
-		vmargin = d->frameSize.height()*(aspectRatio/desktopRatio - 1.0)*0.5;
+		vmargin = qRound(d->frameSize.height()*(aspectRatio/desktopRatio - 1.0)*0.5);
 	else
-		hmargin = d->frameSize.width()*(desktopRatio/aspectRatio - 1.0)*0.5;
-
+		hmargin = qRound(d->frameSize.width()*(desktopRatio/aspectRatio - 1.0)*0.5);
 	d->man->setBorder(hmargin, vmargin);
 	d->expandedSize = d->frameSize + 2*QSize(hmargin, vmargin);
-
 	d->xo->setMargin(vmargin, hmargin);
 }
 
@@ -305,9 +250,13 @@ void NativeVideoRenderer::addOsdRenderer(OsdRenderer *osd) {
 	osd->setVideoMan(d->man);
 }
 
-void NativeVideoRenderer::setFrameRate(double frameRate) {
-	if (d->frameRate != frameRate)
-		emit frameRateChanged(d->frameRate = frameRate);
+void NativeVideoRenderer::setInfo(const VideoInfo &info) {
+	if (!qFuzzyCompare(d->frameRate, info.fps))
+		emit frameRateChanged(d->frameRate = info.fps);
+	d->frameSize.setWidth(info.width);
+	d->frameSize.setHeight(info.height);
+	updateBoxSize();
+	updateXOverlayGeometry();
 }
 
 double NativeVideoRenderer::frameRate() const {

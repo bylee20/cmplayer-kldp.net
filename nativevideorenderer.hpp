@@ -6,6 +6,7 @@
 #include <gst/interfaces/navigation.h>
 
 class PlayEngine;	class OsdRenderer;
+class VideoInfo;
 
 class NativeVideoRenderer : public QWidget {
 	Q_OBJECT
@@ -35,15 +36,12 @@ protected:
 //	void mousePressEvent(QMouseEvent *event);
 //	void mouseReleaseEvent(QMouseEvent *event);
 private:
-
-	class CropBox;
+	friend class GstVideoMan;
+	void setInfo(const VideoInfo &info);
 	static bool isSameRatio(double r1, double r2) {
 		return (r1 < 0) ? r2 < 0 : qFuzzyCompare(r1, r2);
 	}
 	void updateBoxSize();
-	friend class GstVideoInfo;
-	void setFrameSize(const QSize &size);
-	void setFrameRate(double frameRate);
 	void updateXOverlayGeometry();
 	void windowExposed();
 	class XOverlay;

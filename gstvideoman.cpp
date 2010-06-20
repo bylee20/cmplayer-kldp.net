@@ -1,4 +1,5 @@
 #include "gstvideoman.hpp"
+#include "nativevideorenderer.hpp"
 #include "global.hpp"
 #include <QtCore/QDebug>
 #include <gst/video/video.h>
@@ -96,13 +97,14 @@ static void gst_video_man_fixate_caps(GstBaseTransform *trans
 void GstVideoMan::ctor() {
 	gst_base_transform_set_qos_enabled(GST_BASE_TRANSFORM(this), TRUE);
 	d = new Data;
-	d->in_h = d->in_w = d->out_h = d->out_w = 0;
+	d->in_height = d->in_width = d->out_height = d->out_width = 0;
 	d->from_pixfmt = d->to_pixfmt = PIX_FMT_NB;
 	d->border_v = d->border_h = 0;
-	d->crop_h = d->crop_v = 50;
+	d->crop_h = d->crop_v = 0;
 	d->tempBuffer = 0;
 	d->tempBufferSize = 0;
-	d->out_format = GST_VIDEO_FORMAT_UNKNOWN;
+	d->in_format = d->out_format = GST_VIDEO_FORMAT_UNKNOWN;
+	d->renderer = 0;
 }
 
 void GstVideoMan::dtor() {
@@ -113,7 +115,7 @@ void GstVideoMan::dtor() {
 }
 
 void GstVideoMan::updateTempBuffer() {
-	const int size = (d->in_w*d->in_h*3>>1);
+	const int size = (d->in_width*d->in_height*3>>1);
 	if (size == d->tempBufferSize)
 		return;
 	d->mutex.lock();
@@ -126,14 +128,14 @@ GstFlowReturn GstVideoMan::transform(GstBuffer *in, GstBuffer *out) {
 	if (G_UNLIKELY(d->from_pixfmt == PIX_FMT_NB || d->to_pixfmt == PIX_FMT_NB))
 		return GST_FLOW_NOT_NEGOTIATED;
 	AVPicture from;
-	avpicture_fill(&from, GST_BUFFER_DATA(in), d->from_pixfmt, d->in_w, d->in_h);
+	avpicture_fill(&from, GST_BUFFER_DATA(in), d->from_pixfmt, d->in_width, d->in_height);
 	QMutexLocker locker(&d->mutex);
 	YUV420Frame temp;
-	temp.init(d->tempBuffer, d->in_w, d->in_h);
-	if (!temp.fromPicture(from, d->from_pixfmt, d->in_w, d->in_h))
+	temp.init(d->tempBuffer, d->in_width, d->in_height);
+	if (!temp.fromPicture(from, d->from_pixfmt, d->in_width, d->in_height))
 		return GST_FLOW_NOT_SUPPORTED;
 	YUV420Frame frame;
-	frame.init(GST_BUFFER_DATA(out), d->out_format, d->out_w, d->out_h);
+	frame.init(GST_BUFFER_DATA(out), d->out_format, d->out_width, d->out_height);
 	frame.fill();
 	frame.lay(temp, d->crop_h, d->crop_v);
 	locker.unlock();
@@ -275,121 +277,58 @@ void GstVideoMan::fixateCaps(GstPadDirection /*dir*/, GstCaps *caps, GstCaps *op
 }
 
 bool GstVideoMan::setCaps(GstCaps *in, GstCaps *out) {
-	int in_height, in_width;
-	int out_height, out_width;
-	const GValue *in_framerate = 0;
-	const GValue *out_framerate = 0;
-	const GValue *in_par = 0;
-	const GValue *out_par = 0;
-	AVCodecContext *ctx;
+	d->from_pixfmt = PIX_FMT_NONE;
+	d->to_pixfmt = PIX_FMT_NONE;
 
-	/* parse in and output values */
-	GstStructure *str = gst_caps_get_structure(in, 0);
-
-	GstVideoFormat format;
-	gst_video_format_parse_caps(out, &format, &in_width, &in_height);
-	d->out_format = format;
-	qDebug() << "format" << format << in_width << in_height;
-	/* we have to have width and height */
-	bool ret = gst_structure_get_int(str, "width", &in_width)
-		&& gst_structure_get_int(str, "height", &in_height);
-	if (!ret)
-		goto no_width_height;
-
-	/* and framerate */
-	in_framerate = gst_structure_get_value (str, "framerate");
-	if (in_framerate == NULL || !GST_VALUE_HOLDS_FRACTION (in_framerate))
-		goto no_framerate;
-
-	/* this is optional */
-	in_par = gst_structure_get_value (str, "pixel-aspect-ratio");
-
-	str = gst_caps_get_structure (out, 0);
-
-	/* we have to have width and height */
-	ret = gst_structure_get_int (str, "width", &out_width);
-	ret &= gst_structure_get_int (str, "height", &out_height);
-	if (!ret)
-		goto no_width_height;
-
-	/* and framerate */
-	out_framerate = gst_structure_get_value (str, "framerate");
-	if (out_framerate == NULL || !GST_VALUE_HOLDS_FRACTION (out_framerate))
-		goto no_framerate;
-
-	/* this is optional */
-	out_par = gst_structure_get_value (str, "pixel-aspect-ratio");
-
-	/* these must match */
-	if ((in_width + d->border_h) != out_width
-			|| (in_height + d->border_v) != out_height
-			|| gst_value_compare (in_framerate, out_framerate) != GST_VALUE_EQUAL)
-		goto format_mismatch;
-
-	/* if present, these must match too */
-	if (in_par && out_par && gst_value_compare (in_par, out_par) != GST_VALUE_EQUAL)
-		goto format_mismatch;
-
-	ctx = avcodec_alloc_context ();
-
-	d->in_w = ctx->width = in_width;
-	d->in_h = ctx->height = in_height;
-	d->out_w = out_width;
-	d->out_h = out_height;
+	if (!gst_video_format_parse_caps(in, &d->in_format, &d->in_width, &d->in_height))
+		return false;
+	if (!gst_video_format_parse_caps(out, &d->out_format, &d->out_width, &d->out_height))
+		return false;
+	if ((d->in_width+d->border_h) != d->out_width || (d->in_height+d->border_v) != d->out_height)
+		return false;
 	updateTempBuffer();
+	int num, den;
+	if (!gst_video_parse_caps_framerate(in, &num, &den))
+		return false;
+	d->in_fps = (double)num/den;
+	if (!gst_video_parse_caps_framerate(out, &num, &den))
+		return false;
+	d->out_fps = (double)num/den;
+	if (!gst_video_parse_caps_pixel_aspect_ratio(in, &num, &den))
+		return false;
+	if (!qFuzzyCompare(d->in_fps, d->out_fps))
+		return false;
+	d->in_par = (double)num/den;
+	if (!gst_video_parse_caps_pixel_aspect_ratio(out, &num, &den))
+		return false;
+	d->out_par = (double)num/den;
 
-//	d->interlaced = false;
-//	gst_structure_get_boolean(str, "interlaced", &d->interlaced);
-
-	/* get from format */
-	ctx->pix_fmt = PIX_FMT_NB;
-	capsWithCodec(in, ctx);
-	if (ctx->pix_fmt == PIX_FMT_NB)
-		goto invalid_in_caps;
+	AVCodecContext *ctx = avcodec_alloc_context();
+	ctx->width = d->in_width;
+	ctx->height = d->in_height;
+	ctx->pix_fmt = PIX_FMT_NONE;
+	if (!capsWithCodec(in, ctx)) {
+		av_free(ctx);
+		return false;
+	}
 	d->from_pixfmt = ctx->pix_fmt;
-
-	/* get to format */
-	ctx->pix_fmt = PIX_FMT_NB;
-	capsWithCodec(out, ctx);
-	if (ctx->pix_fmt == PIX_FMT_NB)
-		goto invalid_out_caps;
+	ctx->pix_fmt = PIX_FMT_NONE;
+	if (!capsWithCodec(out, ctx)) {
+		av_free(ctx);
+		return false;
+	}
 	d->to_pixfmt = ctx->pix_fmt;
+	av_free(ctx);
 
-	av_free (ctx);
+	if (d->renderer) {
+		VideoInfo info;
+		info.fps = d->in_fps;
+		info.height = d->in_height;
+		info.width = d->in_width;
+		d->renderer->setInfo(info);
+	}
 
-//	qDebug() << PIX_FMT_YUV420P << "convert" << from_pixfmt << "to" << to_pixfmt;
-
-	qDebug() << "set end";
 	return true;
-
-	/* ERRORS */
-no_width_height:
-	d->from_pixfmt = PIX_FMT_NB;
-	d->to_pixfmt = PIX_FMT_NB;
-	qDebug() << "no width height";
-	return false;
-no_framerate:
-	d->from_pixfmt = PIX_FMT_NB;
-	d->to_pixfmt = PIX_FMT_NB;
-	qDebug() << "no framerate";
-	return false;
-format_mismatch:
-	d->from_pixfmt = PIX_FMT_NB;
-	d->to_pixfmt = PIX_FMT_NB;
-	qDebug() << "format mismatch";
-	return false;
-invalid_in_caps:
-	av_free(ctx);
-	d->from_pixfmt = PIX_FMT_NB;
-	d->to_pixfmt = PIX_FMT_NB;
-	qDebug() << "invalid in caps";
-	return false;
-invalid_out_caps:
-	av_free(ctx);
-	d->from_pixfmt = PIX_FMT_NB;
-	d->to_pixfmt = PIX_FMT_NB;
-	qDebug() << "invalid out caps";
-	return false;
 }
 
 ImageOverlay *GstVideoMan::getOverlay(int id) {

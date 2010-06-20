@@ -2,9 +2,11 @@
 #define GSTVIDEOMAN_HPP
 
 #include <gst/gst.h>
+#include <gst/video/video.h>
 #include <gst/base/gstbasetransform.h>
 #include <QtCore/QMutex>
-//#include "ffmpegcolorspace/avcodec.h"
+#include <QtCore/QMultiMap>
+#include <QtGui/QImage>
 #ifndef UINT64_C
 #define UINT64_C Q_UINT64_C
 #endif
@@ -12,20 +14,15 @@ extern "C" {
 #include <libavcodec/avcodec.h>
 }
 #undef UINT64_C
-#include <gst/video/video.h>
-#include <QtCore/QMultiMap>
-#include <QtGui/QImage>
 
-#define GST_TYPE_VIDEO_MAN 	      (gst_video_man_get_type())
-#define GST_VIDEO_MAN(obj) 	      (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_VIDEO_MAN,GstVideoMan))
-#define GST_VIDEO_MAN_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_VIDEO_MAN,GstVideoManClass))
-#define GST_IS_VIDEO_MAN(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_VIDEO_MAN))
-#define GST_IS_VIDEO_MAN_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_VIDEO_MAN))
+class ImageOverlay;		class NativeVideoRenderer;
 
-GType gst_video_man_get_type (void);
-
-class ImageOverlay;
 typedef QMultiMap<double, ImageOverlay*> OverlayMap;
+
+struct VideoInfo {
+	int width, height;
+	double fps;
+};
 
 struct GstVideoMan {
 	GstBaseTransform parent;
@@ -35,17 +32,17 @@ public:
 	void dtor();
 	struct Data {
 		QMutex mutex;
-		int in_w, in_h, out_w, out_h;
-//		gboolean interlaced;
-		float fps;
+		int in_width, in_height, out_width, out_height;
+		GstVideoFormat in_format, out_format;
 		PixelFormat from_pixfmt, to_pixfmt;
-//		int deltaHeight, deltaWidth;
+		double in_fps, out_fps;
+		double in_par, out_par; // pixel-aspect-ratio
 		int border_h, border_v;
 		int tempBufferSize;
-		GstVideoFormat out_format;
 		uchar *tempBuffer;
 		int crop_v, crop_h;
 		OverlayMap overlay;
+		NativeVideoRenderer *renderer;
 	};
 	Data *d;
 	void updateTempBuffer();
@@ -64,5 +61,13 @@ public:
 struct GstVideoManClass {
 	GstBaseTransformClass parent;
 };
+
+GType gst_video_man_get_type (void);
+
+#define GST_TYPE_VIDEO_MAN 	      (gst_video_man_get_type())
+#define GST_VIDEO_MAN(obj) 	      (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_VIDEO_MAN,GstVideoMan))
+#define GST_VIDEO_MAN_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_VIDEO_MAN,GstVideoManClass))
+#define GST_IS_VIDEO_MAN(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_VIDEO_MAN))
+#define GST_IS_VIDEO_MAN_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_VIDEO_MAN))
 
 #endif // GSTVIDEOMAN_HPP

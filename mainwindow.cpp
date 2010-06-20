@@ -269,7 +269,7 @@ void MainWindow::showContextMenu(const QPoint &pos) {
 	d->menu.contextMenu()->exec(mapToGlobal(pos));
 }
 
-void MainWindow::updateMrl(const Mrl &mrl) {
+void MainWindow::updateMrl(const Mrl &/*mrl*/) {
 	doSubtitleAutoLoad();
 	doSubtitleAutoSelection();
 

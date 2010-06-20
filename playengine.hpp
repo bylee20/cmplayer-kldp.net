@@ -3,8 +3,8 @@
 
 #include <QtCore/QObject>
 #include "global.hpp"
+#include "mrl.hpp"
 
-class Mrl;			class OsdRenderer;
 class NativeVideoRenderer;	class AudioController;
 
 class PlayEngine : public QObject {

@@ -1,33 +1,13 @@
 #include "gstvideoman_p.hpp"
-#include <gst/gst.h>
 #include <QtCore/QDebug>
-#include <libavutil/pixfmt.h>
 #include <string.h>
-#include <liboil/liboil.h>
+#include <gst/gst.h>
 #include <gst/controller/gstcontroller.h>
+#include <libavutil/pixfmt.h>
+#include <liboil/liboil.h>
 extern "C" {
 #include <libswscale/swscale.h>
 }
-
-//static const gint cog_ycbcr_sdtv_to_ycbcr_hdtv_matrix_8bit[] = {
-//  256, -30, -53, 10600,
-//  0, 261, 29, -4367,
-//  0, 19, 262, -3289,
-//};
-//
-//static const gint cog_ycbcr_hdtv_to_ycbcr_sdtv_matrix_8bit[] = {
-//  256, 25, 49, -9536,
-//  0, 253, -28, 3958,
-//  0, -19, 252, 2918,
-//};
-//
-//static const gint cog_identity_matrix_8bit[] = {
-//  256, 0, 0, 0,
-//  0, 256, 0, 0,
-//  0, 0, 256, 0,
-//};
-//
-//#define APPLY_MATRIX(m,o,v1,v2,v3) ((m[o*4] * v1 + m[o*4+1] * v2 + m[o*4+2] * v3 + m[o*4+3]) >> 8)
 
 void YUV420Frame::init(uchar *data, int width, int height) {
 	width_y = width;
@@ -380,185 +360,86 @@ GstCaps *capsFromPixFmt(enum PixelFormat pix_fmt) {
 	}
 }
 
+bool capsWithCodec(GstCaps *caps, AVCodecContext *ctx) {
+	if (!ctx || gst_caps_get_size(caps) != 1)
+		return false;
 
+	GstVideoFormat format;
+	if (!gst_video_format_parse_caps(caps, &format, &ctx->width, &ctx->height))
+		return false;
 
-/* Convert a GstCaps and a FFMPEG codec Type to a
- * AVCodecContext. If the context is ommitted, no fixed values
- * for video/audio size will be included in the context
- *
- * CodecType is primarily meant for uncompressed data GstCaps!
- */
+	int num, den;
+	if (!gst_video_parse_caps_framerate(caps, &num, &den))
+		return false;
+	ctx->time_base.den = num;
+	ctx->time_base.num = den;
 
-void capsWithCodec(const GstCaps *caps, AVCodecContext *ctx) {
-	if (!ctx)
-		return;
-
-	g_return_if_fail(gst_caps_get_size(caps) == 1);
-	GstStructure *str = gst_caps_get_structure(caps, 0);
-
-	bool ret = gst_structure_get_int(str, "width", &ctx->width)
-		&& gst_structure_get_int(str, "height", &ctx->height);
-	g_return_if_fail(ret == true);
-
-	const GValue *fps = gst_structure_get_value(str, "framerate");
-	g_return_if_fail(GST_VALUE_HOLDS_FRACTION(fps));
-
-	/* framerate does not really matter */
-//	ctx->frame_rate = gst_value_get_fraction_numerator(fps);
-//	ctx->frame_rate_base = gst_value_get_fraction_denominator(fps);
-	ctx->time_base.den = gst_value_get_fraction_numerator(fps);
-	ctx->time_base.num = gst_value_get_fraction_denominator(fps);
-
-	if (gst_structure_has_name(str, "video/x-raw-yuv")) {
-		guint32 fourcc;
-		if (gst_structure_get_fourcc(str, "format", &fourcc)) {
-			switch (fourcc) {
-			case GST_MAKE_FOURCC ('Y', 'U', 'Y', '2'):
-				ctx->pix_fmt = PIX_FMT_YUYV422;
-				break;
-			case GST_MAKE_FOURCC ('U', 'Y', 'V', 'Y'):
-				ctx->pix_fmt = PIX_FMT_UYVY422;
-				break;
-//			case GST_MAKE_FOURCC ('Y', 'V', 'Y', 'U'):
-//				ctx->pix_fmt = PIX_FMT_YVYU422;
-//				break;
-			case GST_MAKE_FOURCC ('I', 'Y', 'U', '1'):
-				ctx->pix_fmt = PIX_FMT_UYYVYY411;
-				break;
-			case GST_MAKE_FOURCC ('I', '4', '2', '0'):
-				ctx->pix_fmt = PIX_FMT_YUV420P;
-				break;
-			case GST_MAKE_FOURCC ('N', 'V', '1', '2'):
-				ctx->pix_fmt = PIX_FMT_NV12;
-				break;
-			case GST_MAKE_FOURCC ('N', 'V', '2', '1'):
-				ctx->pix_fmt = PIX_FMT_NV21;
-				break;
-			case GST_MAKE_FOURCC ('Y', 'V', '1', '2'):
-				ctx->pix_fmt = PIX_FMT_YUV420P; // u v swapped
-				break;
-			case GST_MAKE_FOURCC ('Y', '4', '1', 'B'):
-				ctx->pix_fmt = PIX_FMT_YUV411P;
-				break;
-			case GST_MAKE_FOURCC ('Y', '4', '2', 'B'):
-				ctx->pix_fmt = PIX_FMT_YUV422P;
-				break;
-			case GST_MAKE_FOURCC ('Y', 'U', 'V', '9'):
-				ctx->pix_fmt = PIX_FMT_YUV410P;
-				break;
-			case GST_MAKE_FOURCC ('Y', 'V', 'U', '9'):
-				ctx->pix_fmt = PIX_FMT_YUV410P; // u v swapped
-				break;
-//			case GST_MAKE_FOURCC ('v', '3', '0', '8'):
-//				ctx->pix_fmt = PIX_FMT_V308;
-//				break;
-//			case GST_MAKE_FOURCC ('A', 'Y', 'U', 'V'):
-//				ctx->pix_fmt = PIX_FMT_AYUV4444;
-//				break;
-			case GST_MAKE_FOURCC ('Y', '4', '4', '4'):
-				ctx->pix_fmt = PIX_FMT_YUV444P;
-				break;
-			case GST_MAKE_FOURCC ('Y', '8', '0', '0'):
-				ctx->pix_fmt = PIX_FMT_GRAY8;
-				break;
-			}
-		}
-	} else if (gst_structure_has_name(str, "video/x-raw-rgb")) {
-		int bpp = 0, rmask = 0, endianness = 0, amask = 0, depth = 0;
-		if (gst_structure_get_int(str, "bpp", &bpp) &&
-				gst_structure_get_int (str, "endianness", &endianness)) {
-			if (gst_structure_get_int (str, "red_mask", &rmask)) {
-				switch (bpp) {
-				case 32:
-					if (gst_structure_get_int(str, "alpha_mask", &amask)) {
-#if (Q_BYTE_ORDER == Q_BIG_ENDIAN)
-						if (rmask == 0x0000ff00)
-							ctx->pix_fmt = PIX_FMT_BGRA;
-						else if (rmask == 0x00ff0000)
-							ctx->pix_fmt = PIX_FMT_RGBA;
-						else if (rmask == 0xff000000)
-							ctx->pix_fmt = PIX_FMT_ARGB;
-						else              // if (r_mask = 0x000000ff)
-							ctx->pix_fmt = PIX_FMT_ABGR;
-#else
-						if (rmask == 0x00ff0000)
-							ctx->pix_fmt = PIX_FMT_BGRA;
-						else if (rmask == 0x0000ff00)
-							ctx->pix_fmt = PIX_FMT_RGBA;
-						else if (rmask == 0x000000ff)
-							ctx->pix_fmt = PIX_FMT_ARGB;
-						else              // if (rmask == 0xff000000)
-							ctx->pix_fmt = PIX_FMT_ABGR;
-#endif
-					} else {
-#if (Q_BYTE_ORDER == Q_BIG_ENDIAN)
-						if (rmask == 0x00ff0000)
-							ctx->pix_fmt = PIX_FMT_RGB32;
-						else if (rmask == 0x0000ff00)
-							ctx->pix_fmt = PIX_FMT_BGR32;
-						else if (rmask == 0xff000000)
-							ctx->pix_fmt = PIX_FMT_ARGB;
-						else              // if (rmask == 0x000000ff)
-							ctx->pix_fmt = PIX_FMT_ABGR;
-#else
-						if (rmask == 0x0000ff00)
-							ctx->pix_fmt = PIX_FMT_RGB32;
-						else if (rmask == 0x00ff0000)
-							ctx->pix_fmt = PIX_FMT_BGR32;
-						else if (rmask == 0x000000ff)
-							ctx->pix_fmt = PIX_FMT_ARGB;
-						else              // if (rmask == 0xff000000)
-							ctx->pix_fmt = PIX_FMT_ABGR;
-#endif
-					}
-					break;
-				case 24:
-					if (rmask == 0x0000FF)
-						ctx->pix_fmt = PIX_FMT_BGR24;
-					else
-						ctx->pix_fmt = PIX_FMT_RGB24;
-					break;
-				case 16:
-					if (endianness == G_BYTE_ORDER) {
-						ctx->pix_fmt = PIX_FMT_RGB565;
-					if (gst_structure_get_int(str, "depth", &depth)) {
-						if (depth == 15)
-							ctx->pix_fmt = PIX_FMT_RGB555;
-						}
-					}
-					break;
-				case 15:
-					if (endianness == G_BYTE_ORDER)
-						ctx->pix_fmt = PIX_FMT_RGB555;
-					break;
-				default:
-					/* nothing */
-				break;
-				}
-			}
-		}
-	} else if (gst_structure_has_name(str, "video/x-raw-gray")) {
-		int bpp = 0;
-		if (gst_structure_get_int(str, "bpp", &bpp)) {
-			switch (bpp) {
-			case 8:
-				ctx->pix_fmt = PIX_FMT_GRAY8;
-				break;
-			case 16:{
-				int endianness = 0;
-				if (gst_structure_get_int (str, "endianness", &endianness)) {
-					if (endianness == G_LITTLE_ENDIAN)
-						ctx->pix_fmt = PIX_FMT_GRAY16LE;
-					else if (endianness == G_BIG_ENDIAN)
-						ctx->pix_fmt = PIX_FMT_GRAY16BE;
-				}
-				break;
-			} default:
-				break;
-
-			}
-		}
+	switch (format) {
+	case GST_VIDEO_FORMAT_I420:
+	case GST_VIDEO_FORMAT_YV12:
+		ctx->pix_fmt = PIX_FMT_YUV420P;
+		break;
+	case GST_VIDEO_FORMAT_YUY2:
+		ctx->pix_fmt = PIX_FMT_YUYV422;
+		break;
+	case GST_VIDEO_FORMAT_UYVY:
+		ctx->pix_fmt = PIX_FMT_UYVY422;
+		break;
+//	case GST_VIDEO_FORMAT_AYUV:
+	case GST_VIDEO_FORMAT_RGBx:
+	case GST_VIDEO_FORMAT_RGBA:
+		ctx->pix_fmt = PIX_FMT_RGBA;
+		break;
+	case GST_VIDEO_FORMAT_RGB:
+		ctx->pix_fmt = PIX_FMT_RGB24;
+		break;
+	case GST_VIDEO_FORMAT_BGRx:
+	case GST_VIDEO_FORMAT_BGRA:
+		ctx->pix_fmt = PIX_FMT_BGRA;
+		break;
+	case GST_VIDEO_FORMAT_xRGB:
+	case GST_VIDEO_FORMAT_ARGB:
+		ctx->pix_fmt = PIX_FMT_ARGB;
+		break;
+	case GST_VIDEO_FORMAT_xBGR:
+	case GST_VIDEO_FORMAT_ABGR:
+		ctx->pix_fmt = PIX_FMT_ABGR;
+		break;
+	case GST_VIDEO_FORMAT_BGR:
+		ctx->pix_fmt = PIX_FMT_BGR24;
+		break;
+	case GST_VIDEO_FORMAT_Y41B:
+		ctx->pix_fmt = PIX_FMT_YUV411P;
+		break;
+	case GST_VIDEO_FORMAT_Y42B:
+		ctx->pix_fmt = PIX_FMT_YUV422P;
+		break;
+//		  GST_VIDEO_FORMAT_YVYU,
+	case GST_VIDEO_FORMAT_Y444:
+		ctx->pix_fmt = PIX_FMT_YUV444P;
+		break;
+//	case GST_VIDEO_FORMAT_v210:
+//		  GST_VIDEO_FORMAT_v216,
+	case GST_VIDEO_FORMAT_NV12:
+		ctx->pix_fmt = PIX_FMT_NV12;
+		break;
+	case GST_VIDEO_FORMAT_NV21:
+		ctx->pix_fmt = PIX_FMT_NV21;
+		break;
+	case GST_VIDEO_FORMAT_GRAY8:
+		ctx->pix_fmt = PIX_FMT_GRAY8;
+		break;
+	case GST_VIDEO_FORMAT_GRAY16_BE:
+		ctx->pix_fmt = PIX_FMT_GRAY16BE;
+		break;
+	case GST_VIDEO_FORMAT_GRAY16_LE:
+		ctx->pix_fmt = PIX_FMT_GRAY16LE;
+		break;
+	default:
+		ctx->pix_fmt = PIX_FMT_NONE;
+		return false;
 	}
+	return true;
 }
 
 #define Y_FROM_RGB(R, G, B) ((( 66*(int)(R)+129*(int)(G) +25*(int)(B))>>8)+16)

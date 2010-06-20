@@ -39,7 +39,7 @@ struct YUV420Frame {
 
 GstCaps *makeVideoCaps(const char *mimetype, const char *fieldname, ...);
 GstCaps *capsFromPixFmt(PixelFormat pix_fmt);
-void capsWithCodec(const GstCaps *caps, AVCodecContext *context);
+bool capsWithCodec(GstCaps *caps, AVCodecContext *context);
 
 //void fillFrame(YUV420Frame *frame, uchar *data, GstVideoFormat format, int width, int height);
 

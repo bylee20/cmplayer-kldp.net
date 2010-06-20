@@ -45,7 +45,6 @@ HEADERS += playengine.hpp \
     glvideorenderer.hpp \
     nativevideorenderer.hpp \
     osdrenderer.hpp \
-    gstimageoverlay.hpp \
     subtitle.hpp \
     richstring.hpp \
     subtitle_parser.hpp \
@@ -64,17 +63,9 @@ HEADERS += playengine.hpp \
     playlistmodel.hpp \
     playlistview.hpp \
     gstvolnorm.hpp \
-    gstvideoman.hpp \ # ffmpegcolorspace/imgconvert_template.h \
-# ffmpegcolorspace/gstffmpegcodecmap.h \
-# ffmpegcolorspace/dsputil.h \
-# ffmpegcolorspace/avcodec.h \
-    gstvideoman_p.hpp # gstvideoman_c.hpp
+    gstvideoman.hpp \
+    gstvideoman_p.hpp
 
-# libswscale/swscale_internal.h \
-# libswscale/swscale.h \
-# libswscale/rgb2rgb.h \
-# libswscale/avutil_log.h \
-# libswscale/sws_misc.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     bushelper.cpp \
@@ -100,7 +91,6 @@ SOURCES += main.cpp \
     glvideorenderer.cpp \
     nativevideorenderer.cpp \
     osdrenderer.cpp \
-    gstimageoverlay.cpp \
     subtitle.cpp \
     richstring.cpp \
     subtitle_parser.cpp \
@@ -119,21 +109,7 @@ SOURCES += main.cpp \
     playlistmodel.cpp \
     playlistview.cpp \
     gstvolnorm.cpp \
-    gstvideobox2.cpp \
-    gstvideoman.cpp \ # ffmpegcolorspace/imgconvert.c \
-# ffmpegcolorspace/gstffmpegcodecmap.c \
-# ffmpegcolorspace/dsputil.c \
-# ffmpegcolorspace/utils.c \
-# ffmpegcolorspace/mem.c \
+    gstvideoman.cpp \
     gstvideoman_p.cpp
 
-# libswscale/yuv2rgb.c \
-# libswscale/sws_utils.c \
-# libswscale/swscale_template.c \
-# libswscale/swscale.c \
-# libswscale/swscale-test.c \
-# libswscale/rgb2rgb_template.c \
-# libswscale/rgb2rgb.c \
-# libswscale/options.c \
-# libswscale/colorspace-test.c
 DEFINES += CMPLAYER_TRANSLATION_DIR_PATH=$(CMPLAYER_TRANSLATION_DIR)
