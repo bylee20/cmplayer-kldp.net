@@ -18,6 +18,9 @@ TimeLineOsdRenderer::TimeLineOsdRenderer(): d(new Data) {
 	style.fgColor.setAlphaF(0.5);
 	style.bgColor.setAlphaF(0.5);
 	setStyle(style);
+
+	connect(this, SIGNAL(areaChanged(QRect)), this, SLOT(slotAreaChanged(QRect)));
+	connect(this, SIGNAL(styleChanged(OsdStyle)), this, SLOT(slotStyleChanged(OsdStyle)));
 }
 
 TimeLineOsdRenderer::~TimeLineOsdRenderer() {
@@ -31,12 +34,14 @@ void TimeLineOsdRenderer::show(int time, int duration, int last) {
 	d->time = time;
 	d->duration = duration;
 	emit needToRerender();
+//	invokeRerender();
 	d->clearer.start(last);
 }
 
 void TimeLineOsdRenderer::clear() {
 	d->time = d->duration = -1;
 	emit needToRerender();
+//	invokeRerender();
 }
 
 void TimeLineOsdRenderer::render(QPainter *painter) {
@@ -74,14 +79,16 @@ QSize TimeLineOsdRenderer::sizeHint() const {
 	return QSize(width, height);
 }
 
-void TimeLineOsdRenderer::areaChanged(const QRect &area) {
+void TimeLineOsdRenderer::slotAreaChanged(const QRect &area) {
 	const QSize size = sizeHint();
 	d->pos = area.topLeft();
 	d->pos.rx() += (area.width() - size.width())*0.5 + 0.5;
 	d->pos.ry() += (area.height() - size.height())*0.5 + 0.5;
 	emit needToRerender();
+//	invokeRerender();
 }
 
-void TimeLineOsdRenderer::styleChanged(const OsdStyle &/*style*/) {
+void TimeLineOsdRenderer::slotStyleChanged(const OsdStyle &/*style*/) {
 	emit needToRerender();
+//	invokeRerender();
 }

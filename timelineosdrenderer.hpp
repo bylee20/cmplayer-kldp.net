@@ -12,10 +12,10 @@ public:
 	void render(QPainter *painter);
 public slots:
 	void clear();
+private slots:
+	void slotAreaChanged(const QRect &area);
+	void slotStyleChanged(const OsdStyle &style);
 private:
-	void areaChanged(const QRect &area);
-	void styleChanged(const OsdStyle &style);
-
 	QPoint posHint() const;
 	QSize sizeHint() const;
 	struct Data;

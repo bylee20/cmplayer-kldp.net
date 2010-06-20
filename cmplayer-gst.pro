@@ -63,8 +63,10 @@ HEADERS += playengine.hpp \
     playlistview.hpp \
     gstvolnorm.hpp \
     gstvideoman.hpp \
-    gstvideoman_p.hpp
-
+    gstvideoman_p.hpp \
+    recentinfo.hpp \
+    history.hpp \
+    historyview.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     bushelper.cpp \
@@ -108,6 +110,8 @@ SOURCES += main.cpp \
     playlistview.cpp \
     gstvolnorm.cpp \
     gstvideoman.cpp \
-    gstvideoman_p.cpp
-
+    gstvideoman_p.cpp \
+    recentinfo.cpp \
+    history.cpp \
+    historyview.cpp
 DEFINES += CMPLAYER_TRANSLATION_DIR_PATH=$(CMPLAYER_TRANSLATION_DIR)

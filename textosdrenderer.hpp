@@ -13,9 +13,10 @@ public:
 	void clear();
 	void setMargin(double top, double bottom, double right, double left);
 	void render(QPainter *painter);
+private slots:
+	void slotAreaChanged(const QRect &area);
+	void slotStyleChanged(const OsdStyle &style);
 protected:
-	void areaChanged(const QRect &area);
-	void styleChanged(const OsdStyle &style);
 	QPoint posHint() const;
 	QSize sizeHint() const;
 	QRect rectHint() const;

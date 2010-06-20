@@ -8,8 +8,17 @@ public:
 	Mrl() {}
 	Mrl(const QString &location);
 	Mrl(const QUrl &url): m_url(url) {}
+	Mrl(const Mrl &other): m_url(other.m_url) {}
 	bool operator == (const Mrl &rhs) const {return m_url == rhs.m_url;}
 	bool operator != (const Mrl &rhs) const {return !(*this == rhs);}
+	Mrl &operator=(const Mrl &other) {
+		if (this != &other)
+			m_url = other.m_url;
+		return *this;
+	}
+	bool operator < (const Mrl &rhs) const {
+		return m_url < rhs.m_url;
+	}
 	const QUrl &url() const {return m_url;}
 	QString toString() const {return m_url.toString();}
 	static Mrl fromLocalFile(const QString &file) {return Mrl(QUrl::fromLocalFile(file));}

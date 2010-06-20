@@ -38,6 +38,8 @@ protected:
 private:
 	friend class GstVideoMan;
 	void setInfo(const VideoInfo &info);
+	void showFrame(GstBuffer *buffer);
+	GstBuffer *allocBuffer(int size, GstCaps *caps);
 	static bool isSameRatio(double r1, double r2) {
 		return (r1 < 0) ? r2 < 0 : qFuzzyCompare(r1, r2);
 	}

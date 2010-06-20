@@ -41,17 +41,20 @@ public slots:
 	void rerender();
 	virtual void clear() = 0;
 signals:
+	void areaChanged(const QRect &area);
+	void styleChanged(const OsdStyle &style);
 	void needToRerender();
 protected:
 	virtual void render(QPainter *painter) = 0;
 	virtual QPoint posHint() const = 0;
 	virtual QSize sizeHint() const = 0;
-	virtual void areaChanged(const QRect &area) = 0;
-	virtual void styleChanged(const OsdStyle &style) = 0;
-private:
+//	virtual void areaChanged(const QRect &area) = 0;
+//	virtual void styleChanged(const OsdStyle &style) = 0;
 //	void invokeRerender() {
 //		QMetaObject::invokeMethod(this, "rerender", Qt::QueuedConnection);
 //	}
+
+private:
 	friend class NativeVideoRenderer;
 	void setVideoMan(GstVideoMan *man);
 	struct Data;

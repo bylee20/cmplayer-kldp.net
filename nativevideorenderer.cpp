@@ -8,6 +8,7 @@
 #include <QtCore/QDebug>
 #include <gst/interfaces/xoverlay.h>
 #include <gst/interfaces/navigation.h>
+#include <gst/video/gstvideosink.h>
 
 class NativeVideoRenderer::XOverlay : public QWidget {
 public:
@@ -94,12 +95,12 @@ struct NativeVideoRenderer::Data {
 	QList<OsdRenderer*> osd;
 	double aspectRatio, cropRatio;
 	GstNavigation *nav;
+	int crop_h, crop_v, border_h, border_v;
 };
-
-//	GstElement *vrate = gst_element_factory_make("videorate", 0);
 
 NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 : QWidget(parent), d(new Data) {
+	d->crop_h = d->crop_v = d->border_h = d->border_v;
 	d->expandedSize = d->frameSize = QSize(400, 300);
 	d->engine = engine;
 	d->xo = new XOverlay(engine, this, this);
@@ -111,10 +112,9 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	gst_object_ref(GST_OBJECT(d->bin));
 	gst_object_sink(GST_OBJECT(d->bin));
 
-	d->sink = gst_element_factory_make("xvimagesink", 0);
-
 	GstElement *queue = gst_element_factory_make("queue", 0);
 	d->man = GST_VIDEO_MAN(g_object_new(gst_video_man_get_type(), 0));
+	d->sink = gst_element_factory_make("xvimagesink", 0);
 
 	gst_bin_add_many(GST_BIN(d->bin), GST_ELEMENT(d->man), queue, d->sink, NULL);
 	gst_element_link_many(queue, GST_ELEMENT(d->man), d->sink, NULL);
@@ -195,15 +195,23 @@ void NativeVideoRenderer::updateXOverlayGeometry() {
 
 	QSizeF widget(size());
 	widget.scale(video.size(), Qt::KeepAspectRatioByExpanding);
-	QRect area = video.toRect();
-	if (area.width() < widget.width()) {
-		area.moveLeft(area.left() - qRound(0.5*(widget.width()-area.width())));
-		area.setWidth(widget.width());
+	QPoint pos = video.topLeft().toPoint();
+	QSize size = video.size().toSize();
+	if (widget.width() > scaled.width()) {
+		pos.rx() = 0;
+		size.rwidth() = scaled.width() + 0.5;
+	} else if (widget.width() > size.width()) {
+		pos.rx() -= qRound(0.5*(widget.width()-size.width()));
+		size.rwidth() = widget.width() + 0.5;
 	}
-	if (area.height() < widget.height()) {
-		area.moveTop(area.top() - qRound(0.5*(widget.height()-area.height())));
-		area.setHeight(widget.height());
+	if (widget.height() > scaled.height()) {
+		pos.ry() = 0;
+		size.rheight() = scaled.height() + 0.5;
+	} else if (widget.height() > size.height()) {
+		pos.ry() -= qRound(0.5*(widget.height()-size.height()));
+		size.rheight() = widget.height();
 	}
+	const QRect area(pos, size);
 	for (int i=0; i<d->osd.size(); ++i)
 		d->osd[i]->setArea(area, scale_h, scale_v);
 }
@@ -216,7 +224,7 @@ void NativeVideoRenderer::resizeEvent(QResizeEvent *event) {
 
 void NativeVideoRenderer::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);
-	painter.fillRect(rect(), Qt::white);
+	painter.fillRect(rect(), Qt::black);
 }
 
 void NativeVideoRenderer::updateBoxSize() {
@@ -243,7 +251,10 @@ void NativeVideoRenderer::updateBoxSize() {
 		crop_v = cv*d->expandedSize.height()/xo.height() + 0.5;
 	}
 	d->man->crop(crop_h, crop_v);
-//	d->xo->setMargin(vmargin, hmargin);
+	d->crop_h = crop_h;
+	d->crop_v = crop_v;
+	d->border_h = hmargin;
+	d->border_v = vmargin;
 }
 
 QSize NativeVideoRenderer::sizeHint() const {
@@ -291,6 +302,10 @@ void NativeVideoRenderer::setAspectRatio(double ratio) {
 		d->aspectRatio = ratio;
 		updateBoxSize();
 		updateXOverlayGeometry();
+		if (d->engine->isPaused()) {
+			d->man->rerender();
+			d->engine->flush();
+		}
 	}
 }
 
@@ -304,4 +319,20 @@ void NativeVideoRenderer::setCropRatio(double ratio) {
 
 GstNavigation *NativeVideoRenderer::nav() const {
 	return d->nav;
+}
+
+void NativeVideoRenderer::showFrame(GstBuffer *buffer) {
+	GstBaseSink *sink = GST_BASE_SINK(d->sink);
+	GstBaseSinkClass *klass = GST_BASE_SINK_GET_CLASS(sink);
+	if (klass->render)
+		klass->render(sink, buffer);
+}
+
+GstBuffer *NativeVideoRenderer::allocBuffer(int size, GstCaps *caps) {
+	GstBaseSink *sink = GST_BASE_SINK(d->sink);
+	GstBaseSinkClass *klass = GST_BASE_SINK_GET_CLASS(sink);
+	GstBuffer *buffer;
+	if (GST_FLOW_OK != klass->buffer_alloc(sink, 0, size, caps, &buffer))
+		return 0;
+	return buffer;
 }

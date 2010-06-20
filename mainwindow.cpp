@@ -518,10 +518,13 @@ void MainWindow::updateState(MediaState state, MediaState old) {
 		d->menu("play")["pause"]->setIcon(QIcon(":/img/media-playback-start.png"));
 		d->menu("play")["pause"]->setText(tr("Play"));
 	}
-	if (old == StoppedState)
+	if (old == StoppedState) {
+		qDebug() << "set current widget to renderer";
 		d->stack->setCurrentWidget(d->engine->renderer());
-	else if (state == StoppedState)
+	} else if (state == StoppedState) {
+		qDebug() << "set current widget to logo by state" << state;
 		d->stack->setCurrentWidget(d->logo);
+	}
 //	if (state == PausedState && d->pausedByHiding)
 //		return;
 //	updateOnTop();
@@ -679,11 +682,12 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 }
 
 void MainWindow::handleFinished() {
+	qDebug() << "set current widget to logo";
 	d->stack->setCurrentWidget(d->logo);
 }
 
 void MainWindow::setSyncDelay(int diff) {
-	int delay = d->subtitle->delay() + diff;
+	int delay = diff ? d->subtitle->delay() + diff : 0;
 	d->subtitle->setDelay(delay);
 	showMessage("Subtitle Sync", delay*0.001, "sec", true);
 

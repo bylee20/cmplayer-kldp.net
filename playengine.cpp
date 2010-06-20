@@ -8,6 +8,8 @@
 #include "nativevideorenderer.hpp"
 #include "audiocontroller.hpp"
 #include "mrl.hpp"
+#include "recentinfo.hpp"
+#include "pref.hpp"
 
 struct PlayEngine::Data {
 	MediaState state;
@@ -66,15 +68,6 @@ PlayEngine::~PlayEngine() {
 	delete d->native;
 	delete d;
 }
-
-//void PlayEngine::setMuted(bool muted) {
-//	g_object_set(G_OBJECT(d->playbin), "mute", muted, NULL);
-//}
-
-//void PlayEngine::setVolumeAmp(int volume, double amp) {
-//	const double v = qBound(0.0, volume*0.01*amp, 10.0);
-//	g_object_set(G_OBJECT(d->playbin), "volume", v, NULL);
-//}
 
 void PlayEngine::setMrl(const Mrl &mrl) {
 	if (mrl != d->mrl) {
@@ -360,14 +353,8 @@ void PlayEngine::getStreamInfo() {
 void PlayEngine::finish() {
 	d->finishing = true;
 	gst_element_set_state(d->playbin, GST_STATE_NULL);
-	qDebug() << "EOS!";
-//	d->status = EosStatus;
-//	const MediaState old = d->state;
-//	d->state = FinishedState;
-	//	emit stateChanged(d->state, old);
-	//	emit statusChanged(d->status);
-	emit finished();
-
+	qDebug() << "finished:" << d->mrl.toString();
+	emit finished(d->mrl);
 }
 
 void PlayEngine::eos() {
@@ -398,10 +385,16 @@ void PlayEngine::queryDuration() {
 }
 
 bool PlayEngine::play() {
-	if (d->playbin) {
-		const int ret = gst_element_set_state(d->playbin, GST_STATE_PLAYING);
-		if (ret != GST_STATE_CHANGE_FAILURE)
-			return true;
+	if (d->playbin && !d->mrl.url().isEmpty()) {
+		int time = 0;
+		if ((d->state == StoppedState || d->state == FinishedState) && Pref::get().rememberStopped)
+			time = RecentInfo::get().stoppedTime(d->mrl);
+		if (!gst_element_set_state(d->playbin, GST_STATE_PLAYING))
+			return false;
+		qDebug() << "seek" << time;
+		if (time)
+			return seek(time);
+		return true;
 	}
 	setState(StoppedState);
 	return false;
@@ -420,8 +413,14 @@ bool PlayEngine::pause() {
 }
 
 void PlayEngine::stop() {
-	if (d->playbin)
+	if (d->playbin) {
+		int pos = -1;
+		if (!isStopped())
+			pos = position();
 		gst_element_set_state(d->playbin, GST_STATE_NULL);
+		if (pos != -1)
+			emit stopped(d->mrl, pos);
+	}
 	//we have to do it here, since gstreamer will not emit bus messages any more
 	setState(StoppedState);
 }
@@ -429,8 +428,10 @@ void PlayEngine::stop() {
 void PlayEngine::flush() {
 	if (!d->playbin || d->state == StoppedState)
 		return;
+	static int hack = 1;
 	const int flags = GST_SEEK_FLAG_ACCURATE | GST_SEEK_FLAG_FLUSH;
-	const gint64 pos = static_cast<gint64>(position())*GST_MSECOND;
+	const gint64 pos = static_cast<gint64>(position())*GST_MSECOND + hack;
+	hack = -hack;
 	gst_element_seek(d->playbin, d->speed
 		, GST_FORMAT_TIME, GstSeekFlags(flags)
 		, GST_SEEK_TYPE_SET, pos, GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE);
@@ -504,7 +505,6 @@ void PlayEngine::navigateDVDMenu(int cmd) {
 		cmd = GST_NAVIGATION_COMMAND_DVD_SUBPICTURE_MENU;
 		break;
 	case NavTitleMenu:
-		qDebug() << "to titles";
 		cmd = GST_NAVIGATION_COMMAND_DVD_TITLE_MENU;
 		break;
 	default:

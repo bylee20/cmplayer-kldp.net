@@ -5,6 +5,7 @@
 
 //class PlaylistModel;			class VideoPlayer;
 class MainWindow;		class PlaylistView;
+class HistoryView;
 
 class ToolBox : public QDialog {
 	Q_OBJECT
@@ -12,6 +13,7 @@ public:
 	ToolBox(/*VideoPlayer *player, PlaylistModel *model, */MainWindow *mainWindow);
 	~ToolBox();
 	PlaylistView *playlist() const;
+	HistoryView *history() const;
 signals:
 	void hidingRequested();
 	void snapRequested();

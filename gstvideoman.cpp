@@ -4,7 +4,6 @@
 #include <QtCore/QDebug>
 #include <gst/video/video.h>
 #include "gstvideoman_p.hpp"
-
 #include <QTime>
 
 GST_BOILERPLATE(GstVideoMan, gst_video_man, GstBaseTransform, GST_TYPE_BASE_TRANSFORM);
@@ -12,8 +11,8 @@ GST_BOILERPLATE(GstVideoMan, gst_video_man, GstBaseTransform, GST_TYPE_BASE_TRAN
 static gboolean gst_video_man_set_caps(GstBaseTransform *trans, GstCaps *incaps, GstCaps *outcaps);
 static gboolean gst_video_man_get_unit_size(GstBaseTransform *trans, GstCaps *caps, guint *size);
 static GstFlowReturn gst_video_man_transform(GstBaseTransform *btrans, GstBuffer *inbuf, GstBuffer *outbuf);
-static void gst_video_man_fixate_caps(GstBaseTransform *trans
-		, GstPadDirection direction, GstCaps *caps, GstCaps *opp);
+//static void gst_video_man_fixate_caps(GstBaseTransform *trans
+//		, GstPadDirection direction, GstCaps *caps, GstCaps *opp);
 
 static GstCaps *gst_video_man_transform_caps(GstBaseTransform *trans, GstPadDirection dir, GstCaps *caps) {
 	return GST_VIDEO_MAN(trans)->transformCaps(dir, caps);
@@ -71,7 +70,7 @@ static void gst_video_man_class_init(GstVideoManClass *klass) {
 	trans->set_caps = GST_DEBUG_FUNCPTR (gst_video_man_set_caps);
 	trans->get_unit_size = GST_DEBUG_FUNCPTR (gst_video_man_get_unit_size);
 	trans->transform = GST_DEBUG_FUNCPTR (gst_video_man_transform);
-	trans->fixate_caps = gst_video_man_fixate_caps;
+//	trans->fixate_caps = gst_video_man_fixate_caps;
 	trans->passthrough_on_same_caps = FALSE;
 }
 
@@ -87,10 +86,10 @@ static GstFlowReturn gst_video_man_transform(GstBaseTransform *trans, GstBuffer 
 	return GST_VIDEO_MAN(trans)->transform(inbuf, outbuf);
 }
 
-static void gst_video_man_fixate_caps(GstBaseTransform *trans
-		, GstPadDirection direction, GstCaps *caps, GstCaps *opp) {
-	GST_VIDEO_MAN(trans)->fixateCaps(direction, caps, opp);
-}
+//static void gst_video_man_fixate_caps(GstBaseTransform *trans
+//		, GstPadDirection direction, GstCaps *caps, GstCaps *opp) {
+//	GST_VIDEO_MAN(trans)->fixateCaps(direction, caps, opp);
+//}
 
 /*********************************************************************/
 
@@ -118,10 +117,10 @@ void GstVideoMan::updateTempBuffer() {
 	const int size = (d->in_width*d->in_height*3>>1);
 	if (size == d->tempBufferSize)
 		return;
-	d->mutex.lock();
+//	d->mutex.lock();
 	delete[] d->tempBuffer;
 	d->tempBuffer = new uchar[d->tempBufferSize = size];
-	d->mutex.unlock();
+//	d->mutex.unlock();
 }
 
 GstFlowReturn GstVideoMan::transform(GstBuffer *in, GstBuffer *out) {
@@ -129,24 +128,11 @@ GstFlowReturn GstVideoMan::transform(GstBuffer *in, GstBuffer *out) {
 		return GST_FLOW_NOT_NEGOTIATED;
 	AVPicture from;
 	avpicture_fill(&from, GST_BUFFER_DATA(in), d->from_pixfmt, d->in_width, d->in_height);
-	QMutexLocker locker(&d->mutex);
 	YUV420Frame temp;
 	temp.init(d->tempBuffer, d->in_width, d->in_height);
 	if (!temp.fromPicture(from, d->from_pixfmt, d->in_width, d->in_height))
 		return GST_FLOW_NOT_SUPPORTED;
-	YUV420Frame frame;
-	frame.init(GST_BUFFER_DATA(out), d->out_format, d->out_width, d->out_height);
-	frame.fill();
-	frame.lay(temp, d->crop_h, d->crop_v);
-	locker.unlock();
-	for (OverlayMap::const_iterator it = d->overlay.begin(); it != d->overlay.end(); ++it) {
-		const ImageOverlay &overlay = *(*it);
-		if (overlay.image.isNull())
-			continue;
-		overlay.mutex.lock();
-		frame.blend(overlay);
-		overlay.mutex.unlock();
-	}
+	renderIn(out);
 	return GST_FLOW_OK;
 }
 
@@ -220,6 +206,7 @@ void GstVideoMan::setBorder(int h, int v) {
 	d->border_h = h;
 	d->border_v = v;
 	gst_base_transform_reconfigure(GST_BASE_TRANSFORM(this));
+	rerender();
 }
 
 void GstVideoMan::crop(int h, int v) {
@@ -228,6 +215,7 @@ void GstVideoMan::crop(int h, int v) {
 	d->crop_h = h;
 	d->crop_v = v;
 	gst_base_transform_reconfigure(GST_BASE_TRANSFORM(this));
+	rerender();
 }
 
 GstCaps *GstVideoMan::transformCaps(GstPadDirection dir, GstCaps *from) {
@@ -266,15 +254,21 @@ GstCaps *GstVideoMan::transformCaps(GstPadDirection dir, GstCaps *from) {
 	return ret;
 }
 
-void GstVideoMan::fixateCaps(GstPadDirection /*dir*/, GstCaps *caps, GstCaps *opp) {
-	int width, height;
-	if (!gst_video_format_parse_caps(caps, NULL, &width, &height))
-		return;
-	GstStructure *str = gst_caps_get_structure(opp, 0);
-	gst_structure_fixate_field_nearest_int(str, "width", width);
-	gst_structure_fixate_field_nearest_int(str, "height", height);
-	qDebug() << "fix:" << width << height;
-}
+//void GstVideoMan::fixateCaps(GstPadDirection dir, GstCaps *caps, GstCaps *opp) {
+//	int width, height;
+//	if (!gst_video_format_parse_caps(caps, NULL, &width, &height))
+//		return;
+//	GstStructure *str = gst_caps_get_structure(opp, 0);
+//	if (dir == GST_PAD_SRC) {
+//		gst_structure_fixate_field_nearest_int(str, "width", width+d->border_h);
+//		gst_structure_fixate_field_nearest_int(str, "height", height+d->border_v);
+//	} else if (dir == GST_PAD_SINK) {
+//		gst_structure_fixate_field_nearest_int(str, "width", width-d->border_h);
+//		gst_structure_fixate_field_nearest_int(str, "height", height-d->border_v);
+//	}
+////	qDebug() << (dir==GST_PAD_SRC)?
+//	qDebug() << "fix:" << dir << width << height;
+//}
 
 bool GstVideoMan::setCaps(GstCaps *in, GstCaps *out) {
 	d->from_pixfmt = PIX_FMT_NONE;
@@ -328,6 +322,7 @@ bool GstVideoMan::setCaps(GstCaps *in, GstCaps *out) {
 		d->renderer->setInfo(info);
 	}
 
+//	qDebug() << "set caps!";
 	return true;
 }
 
@@ -350,7 +345,7 @@ void GstVideoMan::setOverlay(int id, const QImage &image, const QPoint &pos) {
 	ImageOverlay *overlay = getOverlay(id);
 	if (!overlay)
 		return;
-	overlay->mutex.lock();
+	overlay->lock.lockForWrite();
 	QRect rect = image.rect();
 	if (pos.x() < 0) {
 		overlay->pos.setX(0);
@@ -363,17 +358,122 @@ void GstVideoMan::setOverlay(int id, const QImage &image, const QPoint &pos) {
 	} else
 		overlay->pos.setY(pos.y());
 	overlay->image = image.copy(rect);
-	overlay->mutex.unlock();
-//	if (d->engine && d->engine->state() == PausedState) {
-//		d->engine->flush();//seek(d->engine->position());
-//	}
+	overlay->lock.unlock();
+	rerender();
 }
 
 void GstVideoMan::setZIndex(int id, double zIndex) {
 	ImageOverlay *overlay = getOverlay(id);
 	if (overlay) {
-		overlay->mutex.lock();
+		overlay->lock.lockForWrite();
 		overlay->zIndex = zIndex;
-		overlay->mutex.unlock();
+		overlay->lock.unlock();
+		rerender();
 	}
 }
+
+void GstVideoMan::renderIn(GstBuffer *buffer) {
+	const int size = gst_video_format_get_size(d->out_format, d->out_width, d->out_height);
+	if (size != GST_BUFFER_SIZE(buffer)) {
+		qDebug() << "buffer size mismatch!";
+		return;
+	}
+	YUV420Frame temp, frame;
+	temp.init(d->tempBuffer, d->in_width, d->in_height);
+	frame.init(GST_BUFFER_DATA(buffer), d->out_format, d->out_width, d->out_height);
+	frame.fill();
+	frame.lay(temp, d->crop_h, d->crop_v);
+	for (OverlayMap::const_iterator it = d->overlay.begin(); it != d->overlay.end(); ++it) {
+		const ImageOverlay &overlay = *(*it);
+		if (overlay.image.isNull())
+			continue;
+		if (overlay.lock.tryLockForRead()) {
+			frame.blend(overlay);
+			overlay.lock.unlock();
+		} else
+			qDebug() << "cannot lock. pass it.";
+	}
+}
+
+void GstVideoMan::rerender() {
+	if (d->tempBufferSize <= 0 || !d->renderer)
+		return;
+	GstState state;
+	gst_element_get_state(GST_ELEMENT(this), &state, 0, 100*GST_MSECOND);
+	if (state != GST_STATE_PAUSED)
+		return;
+	const int size = gst_video_format_get_size(d->out_format, d->out_width, d->out_height);
+	if (size <= 0)
+		return;
+	GstCaps *caps = GST_PAD_CAPS(GST_BASE_TRANSFORM(this)->srcpad);
+	if (!caps)
+		return;
+	GstBuffer *buffer = d->renderer->allocBuffer(size, caps);
+	renderIn(buffer);
+//	YUV420Frame temp, frame;
+//	temp.init(d->tempBuffer, d->in_width, d->in_height);
+//	frame.init(GST_BUFFER_DATA(buffer), d->out_format, d->out_width, d->out_height);
+//	frame.fill();
+//	frame.lay(temp, d->crop_h, d->crop_v);
+//	for (OverlayMap::const_iterator it = d->overlay.begin(); it != d->overlay.end(); ++it) {
+//		const ImageOverlay &overlay = *(*it);
+//		if (overlay.image.isNull())
+//			continue;
+//		overlay.mutex.lock();
+//		frame.blend(overlay);
+//		overlay.mutex.unlock();
+//	}
+	d->renderer->showFrame(buffer);
+}
+
+bool GstVideoMan::renegotiate()//gst_base_transform_prepare_output_buffer (GstBaseTransform * trans,
+    //GstBuffer * in_buf, GstBuffer ** out_buf)
+{
+	GstBaseTransform *trans = GST_BASE_TRANSFORM(this);
+	GstPad *srcpad = trans->srcpad;
+	if (!srcpad)
+		return true;
+	GstCaps *caps = GST_PAD_CAPS(srcpad);
+	if (!caps)
+		return true;
+	caps = gst_caps_copy(caps);
+	GstStructure *str = gst_caps_get_structure(caps, 0);
+	GstVideoFormat format;
+	int width, height;
+	if (!gst_video_format_parse_caps(caps, &format, &width, &height)) {
+		gst_caps_unref(caps);
+		return true;
+	}
+	const int target_width = d->in_width + d->border_h;
+	const int target_height = d->in_height + d->border_v;
+	if (width == target_width && height == target_height) {
+		gst_caps_unref(caps);
+		return true;
+	}
+	if (width != target_width) {
+		GValue val = {0,};
+		g_value_init(&val, G_TYPE_INT);
+		g_value_set_int(&val, target_width);
+		gst_caps_set_value(caps, "width", &val);
+		g_value_unset(&val);
+	}
+	if (height != target_height) {
+		GValue val = {0,};
+		g_value_init(&val, G_TYPE_INT);
+		g_value_set_int(&val, target_height);
+		gst_caps_set_value(caps, "height", &val);
+		g_value_unset(&val);
+	}
+	const int size = gst_video_format_get_size(format, target_width, target_height);
+	GstBuffer *buffer = 0;
+	const GstFlowReturn ret = gst_pad_alloc_buffer_and_set_caps(srcpad, 0, size, caps, &buffer);
+	qDebug() << ret << GST_FLOW_OK << size;
+	gst_buffer_unref(buffer);
+	return true;
+
+//	caps
+//	GstBuffer *buffer;
+//	gst_pad_alloc_buffer(srcpad, 0, )
+//	gst_pad_alloc_buffer_and_set_caps(srcpad, 0, )
+}
+

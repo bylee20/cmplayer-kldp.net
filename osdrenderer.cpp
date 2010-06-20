@@ -57,7 +57,7 @@ OsdRenderer::OsdRenderer()
 	d->id = -1;
 	d->dis_x = d->dis_y = 1.0;
 
-	connect(this, SIGNAL(needToRerender()), this, SLOT(rerender()));
+	connect(this, SIGNAL(needToRerender()), this, SLOT(rerender()), Qt::QueuedConnection);
 }
 
 OsdRenderer::~OsdRenderer() {

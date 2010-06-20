@@ -13,9 +13,10 @@ extern "C" {
 }
 #undef UINT64_C
 #include <gst/video/video.h>
+#include <QtCore/QReadWriteLock>
 
 struct ImageOverlay {
-	mutable QMutex mutex;
+	mutable QReadWriteLock lock;
 	ImageOverlay(int id = 0, double zIndex = 0.0)
 	: zIndex(zIndex), id(id) {}
 	double zIndex; int id;

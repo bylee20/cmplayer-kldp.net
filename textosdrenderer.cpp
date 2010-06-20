@@ -7,6 +7,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 #include <qmath.h>
+#include <QtCore/QMutex>
 
 class SineCosine {
 public:
@@ -58,7 +59,9 @@ TextOsdRenderer::TextOsdRenderer(Qt::Alignment align): d(new Data) {
 	d->pos = getPos();
 	d->clearer.setSingleShot(true);
 	connect(&d->clearer, SIGNAL(timeout()), this, SLOT(clear()));
-
+	connect(this, SIGNAL(areaChanged(QRect)), this, SLOT(slotAreaChanged(QRect)));
+	connect(this, SIGNAL(styleChanged(OsdStyle)), this, SLOT(slotStyleChanged(OsdStyle)));
+//	invokeRerender();
 	emit needToRerender();
 }
 
@@ -121,6 +124,7 @@ void TextOsdRenderer::showText(const RichString &text, int last) {
 	d->text = text;
 	d->doc.setHtml(text.string());
 	d->pos = getPos();
+//	invokeRerender();
 	emit needToRerender();
 	if (last >= 0)
 		d->clearer.start(last);
@@ -151,26 +155,28 @@ void TextOsdRenderer::updateFontSize() {
 	}
 	QFont font = style().font;
 	font.setPixelSize(px);
-	d->doc.setDefaultFont(QFont());
+	d->doc.setDefaultFont(font);
 }
 
-void TextOsdRenderer::areaChanged(const QRect &area) {
+void TextOsdRenderer::slotAreaChanged(const QRect &area) {
 	updateFontSize();
 	d->doc.setTextWidth(area.width() - 2.0*d->bw - d->left - d->right);
 	d->pos = getPos();
 	emit needToRerender();
+//	invokeRerender();
 }
 
-void TextOsdRenderer::styleChanged(const OsdStyle &style) {
+void TextOsdRenderer::slotStyleChanged(const OsdStyle &style) {
 	updateFontSize();
 
 	QTextOption option(style.alignment);
 	option.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-	option.setUseDesignMetrics(true);
+//	option.setUseDesignMetrics(true);
 	d->doc.setDefaultTextOption(option);
 
 	d->pos = getPos();
 	emit needToRerender();
+//	invokeRerender();
 }
 
 void TextOsdRenderer::clear() {
@@ -184,5 +190,6 @@ void TextOsdRenderer::setMargin(double top, double bottom, double right, double 
 	d->left = left;
 
 	d->pos = getPos();
+//	invokeRerender();
 	emit needToRerender();
 }

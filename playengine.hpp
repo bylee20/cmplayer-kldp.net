@@ -27,8 +27,9 @@ public:
 	AudioController *audio() const;
 	Mrl mrl() const;
 	void flush();
-//	void setMuted(bool muted);
-//	void setVolumeAmp(int volume, double amp);
+	bool isPlaying() const {return state() == PlayingState;}
+	bool isPaused() const {return state() == PausedState;}
+	bool isStopped() const {return state() == StoppedState;}
 public slots:
 	bool play();
 	void stop();
@@ -36,7 +37,8 @@ public slots:
 	bool seek(int pos);
 	void navigateDVDMenu(int cmd);
 signals:
-	void finished();
+	void stopped(Mrl mrl, int pos);
+	void finished(Mrl mrl);
 	void tick(int pos);
 	void mrlChanged(const Mrl &mrl);
 	void stateChanged(MediaState state, MediaState old);

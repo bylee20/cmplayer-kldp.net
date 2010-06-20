@@ -1,4 +1,5 @@
 #include "toolbox.hpp"
+#include "historyview.hpp"
 #include "mainwindow.hpp"
 #include "playlistview.hpp"
 //#include "favoriteswidget.h"
@@ -125,6 +126,7 @@ private:
 
 struct ToolBox::Data {
 	PlaylistView *playlist;
+	HistoryView *history;
 //	PlaylistWidget *playlist;
 //	FavoritesWidget *favorite;
 //	HistoryWidget *history;
@@ -141,11 +143,11 @@ ToolBox::ToolBox(/*VideoPlayer *player, PlaylistModel *model,*/ MainWindow *main
 	d->button = new ButtonWidget(this);
 	d->playlist = new PlaylistView(mainWindow->engine(), d->frame);
 //	d->favorite = new FavoritesWidget(player, d->frame);
-//	d->history = new HistoryWidget(player, d->frame);
+	d->history = new HistoryView(mainWindow->engine(), d->frame);
 //	d->color = new VideoColorWidget(player, d->frame);
 	addPage(d->playlist, tr("Playlist"), ":/img/view-media-playlist-%1.png");
 //	addPage(d->favorite, tr("Favorites"), ":/img/favorites-%1.png");
-//	addPage(d->history, tr("History"), ":/img/history-%1.png");
+	addPage(d->history, tr("History"), ":/img/history-%1.png");
 //	addPage(d->color, tr("Video Color"), ":/img/view-media-equalizer-%1.png");
 //	titleBar()->connect(this);
 // 	titleBar()->addButton(QIcon(":/img/view-split-left-right.png"), this, SIGNAL(snapRequested()));

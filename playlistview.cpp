@@ -71,7 +71,7 @@ PlaylistView::PlaylistView(PlayEngine *engine, QWidget *parent)
 	vbox->addWidget(d->table);
 
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(updateCurrentMrl(Mrl)));
-	connect(d->engine, SIGNAL(finished()), this, SLOT(handleFinished()));
+	connect(d->engine, SIGNAL(finished(Mrl)), this, SLOT(handleFinished()));
 }
 
 PlaylistView::~PlaylistView() {
@@ -134,6 +134,7 @@ const Playlist &PlaylistView::playlist() const {
 void PlaylistView::setPlaylist(const Playlist &list) {
 	d->list = list;
 	d->item.clear();
+	d->idx = -1;
 	d->table->setRowCount(list.size());
 	for (int i=0; i<d->list.size(); ++i) {
 		Item item(d->list[i]);
@@ -169,6 +170,7 @@ void PlaylistView::playPrevious() {
 void PlaylistView::setCurrentIndex(int idx) {
 	if (d->idx == idx || idx >= d->item.size())
 		return;
+	qDebug() << d->idx << d->item.size();
 	if (d->idx >= 0)
 		d->item[d->idx].setCurrent(false);
 	if ((d->idx = idx) >= 0)

@@ -27,6 +27,7 @@ struct VideoInfo {
 struct GstVideoMan {
 	GstBaseTransform parent;
 	ImageOverlay *getOverlay(int id);
+	void renderIn(GstBuffer *buffer);
 public:
 	void ctor();
 	void dtor();
@@ -43,6 +44,7 @@ public:
 		int crop_v, crop_h;
 		OverlayMap overlay;
 		NativeVideoRenderer *renderer;
+		double brightness, hue, saturation, contrast;
 	};
 	Data *d;
 
@@ -53,6 +55,8 @@ public:
 		const int height = d->out_height-(y<<1);
 		return QRect(x, y, width, height);
 	}
+	bool renegotiate();
+	void rerender();
 	void updateTempBuffer();
 	void setBorder(int h, int v);
 	void crop(int h, int v);
@@ -70,7 +74,7 @@ struct GstVideoManClass {
 	GstBaseTransformClass parent;
 };
 
-GType gst_video_man_get_type (void);
+GType gst_video_man_get_type(void);
 
 #define GST_TYPE_VIDEO_MAN 	      (gst_video_man_get_type())
 #define GST_VIDEO_MAN(obj) 	      (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_VIDEO_MAN,GstVideoMan))
