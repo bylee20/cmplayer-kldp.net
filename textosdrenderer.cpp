@@ -131,8 +131,6 @@ RichString TextOsdRenderer::text() const {
 }
 
 QSize TextOsdRenderer::sizeHint() const {
-//	QSize size = d->doc.size().toSize();
-//	size.rheight() += 2*d->bw;
 	return QSize(d->doc.idealWidth() + 0.5, d->doc.size().height() + 2.0*d->bw + 0.5);
 }
 
@@ -153,7 +151,7 @@ void TextOsdRenderer::updateFontSize() {
 	}
 	QFont font = style().font;
 	font.setPixelSize(px);
-	d->doc.setDefaultFont(font);
+	d->doc.setDefaultFont(QFont());
 }
 
 void TextOsdRenderer::areaChanged(const QRect &area) {

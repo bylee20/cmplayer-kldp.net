@@ -45,6 +45,14 @@ public:
 		NativeVideoRenderer *renderer;
 	};
 	Data *d;
+
+	QRect videoRect() const {
+		const int x = (d->border_h+d->crop_h)>>1;
+		const int y = (d->border_v+d->crop_v)>>1;
+		const int width = d->out_width-(x<<1);
+		const int height = d->out_height-(y<<1);
+		return QRect(x, y, width, height);
+	}
 	void updateTempBuffer();
 	void setBorder(int h, int v);
 	void crop(int h, int v);

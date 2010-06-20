@@ -4,14 +4,9 @@
 #include "osdrenderer.hpp"
 #include <QtGui/QMouseEvent>
 #include <QtGui/QApplication>
-#include <QtCore/QtEndian>
 #include <QtGui/QPainter>
-#include <QtGui/QTextDocument>
-#include <gst/interfaces/xoverlay.h>
-#include "gstvideoinfo.hpp"
-#include <gst/interfaces/propertyprobe.h>
 #include <QtCore/QDebug>
-#include <gst/video/gstvideosink.h>
+#include <gst/interfaces/xoverlay.h>
 #include <gst/interfaces/navigation.h>
 
 class NativeVideoRenderer::XOverlay : public QWidget {
@@ -182,29 +177,35 @@ static double ratio(const QSize &size) {
 }
 
 void NativeVideoRenderer::updateXOverlayGeometry() {
-//	const QSizeF widget(size());
-//	QSizeF video = d->aspectRatio > 0 ? QSizeF(d->aspectRatio, 1.0) : d->frameSize;
-//	video.scale(widget, Qt::KeepAspectRatio);
-//	QSizeF xo(desktopRatio(), 1);
-//	if (d->crop->crop(d->cropRatio)) {
-//		xo.scale(d->crop->size(), Qt::KeepAspectRatioByExpanding);
-//	} else
-//		xo.scale(video, Qt::KeepAspectRatioByExpanding);
-//
-//	d->xo->resize(xo.toSize());
-//	d->xo->moveToCenter();
-//
-//	QRect area(QPoint(0, 0), d->xo->size());
-//	area &= QRect(-d->xo->pos(), d->crop->size());
-//	QSizeF box(desktopRatio(), 1.0);
-//	box.scale(d->frameSize, Qt::KeepAspectRatioByExpanding);
-//	const double r = (double)d->expandedSize.width()/d->xo->width();
-//	area.setSize(area.size()*r);
-//	area.moveTo(area.topLeft()*r);
-//	for (int i=0; i<d->osd.size(); ++i)
-//		d->osd[i]->setArea(area
-//			, box.width() / d->expandedSize.width()
-//			, box.height() / d->expandedSize.height());
+	QRectF video = d->man->videoRect();
+	QSizeF scaled(desktopRatio(), 1.0);
+	scaled.scale(d->expandedSize, Qt::KeepAspectRatio);
+	const double scale_h = scaled.width()/d->expandedSize.width();
+	const double scale_v = scaled.height()/d->expandedSize.height();
+	video.setWidth(video.width()*scale_h);
+	video.setHeight(video.height()*scale_v);
+	video.moveTop(video.top()*scale_v);
+	video.moveLeft(video.left()*scale_h);
+	QSizeF box = video.size();
+	box.scale(size(), Qt::KeepAspectRatio);
+	const int w = scaled.width()*(box.width()/video.width()) + 0.5;
+	const int h = scaled.height()*(box.height()/video.height()) + 0.5;
+	d->xo->resize(w, h);
+	d->xo->moveToCenter();
+
+	QSizeF widget(size());
+	widget.scale(video.size(), Qt::KeepAspectRatioByExpanding);
+	QRect area = video.toRect();
+	if (area.width() < widget.width()) {
+		area.moveLeft(area.left() - qRound(0.5*(widget.width()-area.width())));
+		area.setWidth(widget.width());
+	}
+	if (area.height() < widget.height()) {
+		area.moveTop(area.top() - qRound(0.5*(widget.height()-area.height())));
+		area.setHeight(widget.height());
+	}
+	for (int i=0; i<d->osd.size(); ++i)
+		d->osd[i]->setArea(area, scale_h, scale_v);
 }
 
 void NativeVideoRenderer::resizeEvent(QResizeEvent *event) {
@@ -215,7 +216,7 @@ void NativeVideoRenderer::resizeEvent(QResizeEvent *event) {
 
 void NativeVideoRenderer::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);
-	painter.fillRect(rect(), Qt::black);
+	painter.fillRect(rect(), Qt::white);
 }
 
 void NativeVideoRenderer::updateBoxSize() {
@@ -223,12 +224,26 @@ void NativeVideoRenderer::updateBoxSize() {
 	const double desktopRatio = ::desktopRatio();
 	int hmargin = 0, vmargin = 0;
 	if (aspectRatio >= desktopRatio)
-		vmargin = qRound(d->frameSize.height()*(aspectRatio/desktopRatio - 1.0)*0.5);
+		vmargin = qRound(d->frameSize.height()*(aspectRatio/desktopRatio - 1.0));
 	else
-		hmargin = qRound(d->frameSize.width()*(desktopRatio/aspectRatio - 1.0)*0.5);
+		hmargin = qRound(d->frameSize.width()*(desktopRatio/aspectRatio - 1.0));
 	d->man->setBorder(hmargin, vmargin);
-	d->expandedSize = d->frameSize + 2*QSize(hmargin, vmargin);
-	d->xo->setMargin(vmargin, hmargin);
+	d->expandedSize = d->frameSize + QSize(hmargin, vmargin);
+	int crop_h = 0, crop_v = 0;
+	if (d->cropRatio > 0) {
+		QSizeF xo(desktopRatio, 1.0);
+		xo.scale(d->expandedSize, Qt::KeepAspectRatio);
+		QSizeF video(aspectRatio, 1.0);
+		video.scale(xo, Qt::KeepAspectRatio);
+		QSizeF crop(d->cropRatio, 1.0);
+		crop.scale(video, Qt::KeepAspectRatio);
+		const double ch = video.width() - crop.width();
+		const double cv = video.height() - crop.height();
+		crop_h = ch*d->expandedSize.width()/xo.width() + 0.5;
+		crop_v = cv*d->expandedSize.height()/xo.height() + 0.5;
+	}
+	d->man->crop(crop_h, crop_v);
+//	d->xo->setMargin(vmargin, hmargin);
 }
 
 QSize NativeVideoRenderer::sizeHint() const {
@@ -272,20 +287,19 @@ double NativeVideoRenderer::cropRatio() const {
 }
 
 void NativeVideoRenderer::setAspectRatio(double ratio) {
-	if (isSameRatio(ratio, d->aspectRatio))
-		return;
-	d->aspectRatio = ratio;
-	if (qFuzzyCompare(d->aspectRatio, ::ratio(d->frameSize)))
-		return;
-	updateBoxSize();
-	updateXOverlayGeometry();
+	if (!isSameRatio(ratio, d->aspectRatio)) {
+		d->aspectRatio = ratio;
+		updateBoxSize();
+		updateXOverlayGeometry();
+	}
 }
 
 void NativeVideoRenderer::setCropRatio(double ratio) {
-	if (isSameRatio(ratio, d->cropRatio))
-		return;
-	d->cropRatio = ratio;
-	updateXOverlayGeometry();
+	if (!isSameRatio(ratio, d->cropRatio)) {
+		d->cropRatio = ratio;
+		updateBoxSize();
+		updateXOverlayGeometry();
+	}
 }
 
 GstNavigation *NativeVideoRenderer::nav() const {

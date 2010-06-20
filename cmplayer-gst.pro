@@ -48,7 +48,6 @@ HEADERS += playengine.hpp \
     subtitle.hpp \
     richstring.hpp \
     subtitle_parser.hpp \
-    gstvideoinfo.hpp \
     subtitlerenderer.hpp \
     textosdrenderer.hpp \
     timelineosdrenderer.hpp \
@@ -94,7 +93,6 @@ SOURCES += main.cpp \
     subtitle.cpp \
     richstring.cpp \
     subtitle_parser.cpp \
-    gstvideoinfo.cpp \
     subtitlerenderer.cpp \
     textosdrenderer.cpp \
     timelineosdrenderer.cpp \
