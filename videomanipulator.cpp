@@ -1,12 +1,14 @@
 #include "videomanipulator.hpp"
 #include "videomanipulator_p.hpp"
 #include "i420picture.hpp"
+#include "imageoverlayfilter.hpp"
 #include <QtCore/QRect>
 #include <QtCore/QDebug>
 
 struct VideoManipulator::Data {
 	GstVideoMan *man;
 	CropMixFilter *mixer;
+	ImageOverlayFilter *overlay;
 	VideoInfo info_in, info_out;
 };
 
@@ -17,6 +19,8 @@ VideoManipulator::VideoManipulator()
 	gst_object_ref(GST_OBJECT(d->man));
 	d->mixer = new CropMixFilter;
 	d->mixer->setManipulator(this);
+	d->overlay = new ImageOverlayFilter;
+	d->overlay->setManipulator(this);
 }
 
 VideoManipulator::~VideoManipulator() {
@@ -68,9 +72,14 @@ void VideoManipulator::transform(GstBuffer *in, GstBuffer *out) {
 	I420Picture in_pic, out_pic;
 	in_pic.init(in);
 	out_pic.init(out);
-	d->mixer->transform(&out_pic, in_pic);
-//	d->filter[1]->transform(&out_pic);
+//	d->mixer->transform(&out_pic, in_pic);
+//	d->overlay->transform(&out_pic);
 }
+
+ImageOverlayFilter *VideoManipulator::overlay() const {
+	return d->overlay;
+}
+
 //
 //void GstVideoMan::renderIn(GstBuffer *buffer) {
 ////	d->filter[1]->transform(d->buffer, buffer);

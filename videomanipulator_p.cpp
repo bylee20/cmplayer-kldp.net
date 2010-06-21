@@ -3,6 +3,7 @@
 #include "videomanipulator.hpp"
 #include <string.h>
 #include <liboil/liboil.h>
+#include <gst/controller/gstcontroller.h>
 #include <gst/video/video.h>
 #include <QtCore/QDebug>
 
@@ -42,7 +43,7 @@ bool CropMixFilter::transform(I420Picture *out, const I420Picture &in) {
 }
 
 void CropMixFilter::crop(int crop_h, int crop_v) {
-	if (m_crop_h != crop_h || m_crop_h != crop_v) {
+	if (m_crop_h != crop_h || m_crop_v != crop_v) {
 		m_crop_h = crop_h;
 		m_crop_v = crop_v;
 		reconfigure();
@@ -109,6 +110,8 @@ void GstVideoManClass::classInit(GstVideoManClass *klass) {
 	trans->set_caps = setCaps;
 	trans->get_unit_size = getUnitSize;
 	trans->transform = transform;
+	trans->fixate_caps = fixateCaps;
+	trans->before_transform = beforeTransform;
 	trans->passthrough_on_same_caps = FALSE;
 }
 
@@ -125,14 +128,12 @@ gboolean GstVideoManClass::setCaps(GstBaseTransform *trans, GstCaps *in, GstCaps
 	GstVideoMan *man = GST_VIDEO_MAN(trans);
 	GstVideoMan::Data *d = man->d;
 	GstVideoFormat format;
-	if (!gst_video_format_parse_caps(in, &format, &d->in_width, &d->in_height)
-			|| format != GST_VIDEO_FORMAT_I420)
+	if (!gst_video_format_parse_caps(in, &format, &d->in_width, &d->in_height))
 		return false;
-	if (!gst_video_format_parse_caps(out, &format, &d->out_width, &d->out_height)
-			|| format != GST_VIDEO_FORMAT_I420)
+	if (!gst_video_format_parse_caps(out, &format, &d->out_width, &d->out_height))
 		return false;
-	if ((d->in_width+d->border_h) != d->out_width || (d->in_height+d->border_v) != d->out_height)
-		return false;
+//	if ((d->in_width+d->border_h) != d->out_width || (d->in_height+d->border_v) != d->out_height)
+//		return false;
 	int num, den;
 	if (!gst_video_parse_caps_framerate(in, &num, &den))
 		return false;
@@ -140,9 +141,9 @@ gboolean GstVideoManClass::setCaps(GstBaseTransform *trans, GstCaps *in, GstCaps
 	if (!gst_video_parse_caps_framerate(out, &num, &den))
 		return false;
 	d->out_fps = (double)num/den;
+//	if (!qFuzzyCompare(d->in_fps, d->out_fps))
+//		return false;
 	if (!gst_video_parse_caps_pixel_aspect_ratio(in, &num, &den))
-		return false;
-	if (!qFuzzyCompare(d->in_fps, d->out_fps))
 		return false;
 	d->in_par = (double)num/den;
 	if (!gst_video_parse_caps_pixel_aspect_ratio(out, &num, &den))
@@ -261,9 +262,21 @@ GstFlowReturn GstVideoManClass::transform(GstBaseTransform *trans, GstBuffer *in
 	return GST_FLOW_OK;
 }
 
+void GstVideoManClass::fixateCaps(GstBaseTransform */*trans*/, GstPadDirection /*dir*/, GstCaps *caps, GstCaps *opp) {
+	int width, height;
+	if (!gst_video_format_parse_caps(caps, 0, &width, &height))
+		return;
+	GstStructure *str = gst_caps_get_structure(opp, 0);
+	gst_structure_fixate_field_nearest_int(str, "width", width);
+	gst_structure_fixate_field_nearest_int(str, "height", height);
+}
 
-
-/*********************************************************************/
+void GstVideoManClass::beforeTransform(GstBaseTransform *trans, GstBuffer *in) {
+	GstClockTime timestamp = GST_BUFFER_TIMESTAMP(in);
+	GstClockTime streamTime = gst_segment_to_stream_time(&trans->segment, GST_FORMAT_TIME, timestamp);
+	if (GST_CLOCK_TIME_IS_VALID(streamTime))
+		gst_object_sync_values(G_OBJECT (trans), streamTime);
+}
 
 void GstVideoMan::ctor() {
 	gst_base_transform_set_qos_enabled(GST_BASE_TRANSFORM(this), true);
@@ -276,27 +289,3 @@ void GstVideoMan::ctor() {
 void GstVideoMan::dtor() {
 	delete d;
 }
-
-
-
-
-struct VideoManipulator::Data {
-	GstVideoMan *man;
-};
-//
-//VideoManipulator::VideoManipulator()
-//: d(new Data) {
-//	d->man =
-//}
-//
-//VideoManipulator::~VideoManipulator() {
-//	delete d;
-//}
-//
-//GstElement *VideoManipulator::element() const {
-//	return GST_ELEMENT(d->man);
-//}
-//
-//void VideoManipulator::manipulate() {
-//
-//}

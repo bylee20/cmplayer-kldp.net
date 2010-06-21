@@ -73,6 +73,7 @@ int ImageOverlayFilter::newOverlay() {
 }
 
 void ImageOverlayFilter::setOverlay(int id, const QImage &image, const QPoint &pos) {
+	return;
 	Item *item = getItem(id);
 	if (!item)
 		return;
@@ -89,6 +90,7 @@ void ImageOverlayFilter::setOverlay(int id, const QImage &image, const QPoint &p
 		rect.setTop(-pos.y());
 	} else
 		item->y = pos.y();
+
 	delete[] item->image;
 	item->image = new uchar[image.byteCount()];
 	item->width = image.width();
@@ -127,6 +129,10 @@ void ImageOverlayFilter::setZIndex(int id, double zIndex) {
 void ImageOverlayFilter::blend(I420Picture *pic, const Item &item) {
 	const int image_w = item.width;
 	const int image_h = item.height;
+
+	if (image_w <= 0 || image_h <= 0)
+		return; // nothing to blend
+	qDebug() << "never blend";
 	const int frame_w = qMin(pic->width_y, (pic->width_uv<<1));
 	const int frame_h = qMin(pic->height_y, (pic->height_uv<<1));
 	const int image_w_h = (image_w >> 1);

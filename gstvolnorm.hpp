@@ -4,8 +4,6 @@
 #include <gst/gst.h>
 #include <gst/audio/gstaudiofilter.h>
 
-
-
 class GstVolNorm {
 	GstAudioFilter parent;
 	void doInt16_1(GstBuffer *outbuf);

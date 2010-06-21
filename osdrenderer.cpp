@@ -1,5 +1,5 @@
 #include "osdrenderer.hpp"
-#include "gstvideoman.hpp"
+#include "imageoverlayfilter.hpp"
 #include <QtCore/QSettings>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
@@ -45,7 +45,7 @@ void OsdStyle::load(QSettings *set, const QString &group) {
 struct OsdRenderer::Data {
 	OsdStyle style;
 	QRect area;
-	GstVideoMan *man;
+	ImageOverlayFilter *overlay;
 	int id;
 	double dis_x, dis_y;
 };
@@ -53,7 +53,7 @@ struct OsdRenderer::Data {
 OsdRenderer::OsdRenderer()
 : d(new Data) {
 	d->area = QRect(0, 0, 400, 300);
-	d->man = 0;
+	d->overlay = 0;
 	d->id = -1;
 	d->dis_x = d->dis_y = 1.0;
 
@@ -98,7 +98,7 @@ QRect OsdRenderer::area() const {
 }
 
 void OsdRenderer::rerender() {
-	if (!d->man)
+	if (!d->overlay)
 		return;
 	QSize size = sizeHint();
 	if (!size.isEmpty()) {
@@ -113,15 +113,14 @@ void OsdRenderer::rerender() {
 		QPainter painter(&image);
 		painter.scale(1.0/d->dis_x, 1.0/d->dis_y);
 		render(&painter);
-//		d->man->setOverlay(d->id, image, pos());
-//	} else
-//		d->man->setOverlay(d->id, QImage(), pos());
-	}
+		d->overlay->setOverlay(d->id, image, pos());
+	} else
+		d->overlay->setOverlay(d->id, QImage(), pos());
 }
 
-void OsdRenderer::setVideoMan(GstVideoMan *man) {
-//	if ((d->man = man)) {
-//		d->id = d->man->newOverlay();
-//		rerender();
-//	}
+void OsdRenderer::setImageOverlay(ImageOverlayFilter *overlay) {
+	if ((d->overlay = overlay)) {
+		d->id = d->overlay->newOverlay();
+		rerender();
+	}
 }

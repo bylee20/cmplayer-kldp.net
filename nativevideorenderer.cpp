@@ -114,7 +114,7 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	d->sink = gst_element_factory_make("xvimagesink", 0);
 	GstElement *conv = gst_element_factory_make("ffmpegcolorspace", 0);
 	gst_bin_add_many(GST_BIN(d->bin), conv, d->man.element(), queue, d->sink, NULL);
-	gst_element_link_many(queue, conv, d->man.element(), d->sink, NULL);
+	gst_element_link_many(queue, /*conv, */d->man.element(), d->sink, NULL);
 
 	GstPad *pad = gst_element_get_pad(queue, "sink");
 	gst_element_add_pad(d->bin, gst_ghost_pad_new("sink", pad));
@@ -270,11 +270,10 @@ QSize NativeVideoRenderer::sizeHint() const {
 
 void NativeVideoRenderer::addOsdRenderer(OsdRenderer *osd) {
 	d->osd.push_back(osd);
-//	osd->setVideoMan(d->man);
+	osd->setImageOverlay(d->man.overlay());
 }
 
 void NativeVideoRenderer::setInfo(const VideoInfo &info) {
-	qDebug() << "set info" << info.width << info.height;
 	if (!qFuzzyCompare(d->frameRate, info.fps))
 		emit frameRateChanged(d->frameRate = info.fps);
 	d->frameSize.setWidth(info.width);
@@ -301,7 +300,6 @@ void NativeVideoRenderer::setAspectRatio(double ratio) {
 		updateBoxSize();
 		updateXOverlayGeometry();
 		if (d->engine->isPaused()) {
-//			d->man->rerender();
 			d->engine->flush();
 		}
 	}

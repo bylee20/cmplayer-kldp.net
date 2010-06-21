@@ -176,10 +176,11 @@ GstFlowReturn GstVolNorm::transform_ip(GstBuffer *outbuf) {
 		return GST_FLOW_OK;
 	const GstRingBufferSpec &format = GST_AUDIO_FILTER(this)->format;
 	if (isInt16(format))
-		normalize1<int16_t, int>(outbuf, this);
-	else if (isFloat32(format))
-		normalize1<float, float>(outbuf, this);
+		normalize2<int16_t, int>(outbuf, this);
+	else if (isFloat32(format)) {
+		normalize2<float, float>(outbuf, this);
+	}
 	else
-		return GST_FLOW_ERROR;
+		return GST_FLOW_NOT_SUPPORTED;
 	return GST_FLOW_OK;
 }

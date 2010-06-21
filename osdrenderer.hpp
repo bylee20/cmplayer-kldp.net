@@ -6,7 +6,7 @@
 #include <QtGui/QColor>
 
 class QSettings;		class RichString;
-class GstVideoMan;
+class ImageOverlayFilter;
 
 class OsdStyle {
 public:
@@ -48,15 +48,9 @@ protected:
 	virtual void render(QPainter *painter) = 0;
 	virtual QPoint posHint() const = 0;
 	virtual QSize sizeHint() const = 0;
-//	virtual void areaChanged(const QRect &area) = 0;
-//	virtual void styleChanged(const OsdStyle &style) = 0;
-//	void invokeRerender() {
-//		QMetaObject::invokeMethod(this, "rerender", Qt::QueuedConnection);
-//	}
-
 private:
 	friend class NativeVideoRenderer;
-	void setVideoMan(GstVideoMan *man);
+	void setImageOverlay(ImageOverlayFilter *overlay);
 	struct Data;
 	Data *d;
 };

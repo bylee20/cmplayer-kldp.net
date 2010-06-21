@@ -48,6 +48,9 @@ public:
 	static void finalize(GObject *obj);
 	static GstCaps *makeAvailableCaps();
 
+
+	static void beforeTransform(GstBaseTransform *trans, GstBuffer *in);
+	static void fixateCaps(GstBaseTransform *trans, GstPadDirection dir, GstCaps *caps, GstCaps *opp);
 	static gboolean setCaps(GstBaseTransform *trans, GstCaps *incaps, GstCaps *outcaps);
 	static gboolean getUnitSize(GstBaseTransform *trans, GstCaps *caps, guint *size);
 	static GstFlowReturn transform(GstBaseTransform *btrans, GstBuffer *inbuf, GstBuffer *outbuf);
