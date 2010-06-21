@@ -1,5 +1,4 @@
 #include "nativevideorenderer.hpp"
-#include "gstvideoman.hpp"
 #include "playengine.hpp"
 #include "osdrenderer.hpp"
 #include <QtGui/QMouseEvent>
@@ -112,7 +111,6 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	gst_object_sink(GST_OBJECT(d->bin));
 
 	GstElement *queue = gst_element_factory_make("queue", 0);
-//	d->man = GST_VIDEO_MAN(g_object_new(GstVideoManClass::getType(), 0));
 	d->sink = gst_element_factory_make("xvimagesink", 0);
 	GstElement *conv = gst_element_factory_make("ffmpegcolorspace", 0);
 	gst_bin_add_many(GST_BIN(d->bin), conv, d->man.element(), queue, d->sink, NULL);
@@ -132,6 +130,8 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	d->xo->setNavigation(d->nav);
 
 	updateXOverlayGeometry();
+
+	connect(&d->man, SIGNAL(videoInfoObtained(VideoInfo)), this, SLOT(setInfo(VideoInfo)));
 }
 
 NativeVideoRenderer::~NativeVideoRenderer() {
@@ -249,6 +249,9 @@ void NativeVideoRenderer::updateBoxSize() {
 		crop_v = cv*d->expandedSize.height()/xo.height() + 0.5;
 	}
 	d->man.crop(crop_h, crop_v);
+	qDebug() << d->expandedSize;
+	qDebug() << hmargin << vmargin;
+	qDebug() << crop_h << crop_v;
 }
 
 QSize NativeVideoRenderer::sizeHint() const {
@@ -271,6 +274,7 @@ void NativeVideoRenderer::addOsdRenderer(OsdRenderer *osd) {
 }
 
 void NativeVideoRenderer::setInfo(const VideoInfo &info) {
+	qDebug() << "set info" << info.width << info.height;
 	if (!qFuzzyCompare(d->frameRate, info.fps))
 		emit frameRateChanged(d->frameRate = info.fps);
 	d->frameSize.setWidth(info.width);

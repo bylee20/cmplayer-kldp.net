@@ -2,10 +2,10 @@
 #include "videomanipulator_p.hpp"
 #include "i420picture.hpp"
 #include <QtCore/QRect>
+#include <QtCore/QDebug>
 
 struct VideoManipulator::Data {
 	GstVideoMan *man;
-	int border_h, border_v;
 	CropMixFilter *mixer;
 	VideoInfo info_in, info_out;
 };
@@ -13,8 +13,10 @@ struct VideoManipulator::Data {
 VideoManipulator::VideoManipulator()
 : d(new Data) {
 	d->man = GST_VIDEO_MAN(g_object_new(GstVideoManClass::getType(), 0));
+	d->man->d->man = this;
 	gst_object_ref(GST_OBJECT(d->man));
 	d->mixer = new CropMixFilter;
+	d->mixer->setManipulator(this);
 }
 
 VideoManipulator::~VideoManipulator() {
@@ -28,18 +30,18 @@ GstElement *VideoManipulator::element() const {
 }
 
 QRect VideoManipulator::videoRect() const {
-	const int x = (d->border_h + d->mixer->horizontalCropSize())>>1;
-	const int y = (d->border_v + d->mixer->verticalCropSize())>>1;
+	const int x = (d->man->d->border_h + d->mixer->horizontalCropSize())>>1;
+	const int y = (d->man->d->border_v + d->mixer->verticalCropSize())>>1;
 	const int width = d->info_out.width - (x<<1);
 	const int height = d->info_out.height - (y<<1);
 	return QRect(x, y, width, height);
 }
 
 void VideoManipulator::setBorder(int h, int v) {
-	if (d->border_h == h && d->border_v == v)
+	if (d->man->d->border_h == h && d->man->d->border_v == v)
 		return;
-	d->border_h = h;
-	d->border_v = v;
+	d->man->d->border_h = h;
+	d->man->d->border_v = v;
 	reconfigure();
 	rerender();
 }
@@ -69,17 +71,6 @@ void VideoManipulator::transform(GstBuffer *in, GstBuffer *out) {
 	d->mixer->transform(&out_pic, in_pic);
 //	d->filter[1]->transform(&out_pic);
 }
-
-//void GstVideoMan::crop(int h, int v) {
-//	if (d->crop_h == h && d->crop_v == v)
-//		return;
-//	d->crop_h = h;
-//	d->crop_v = v;
-//	gst_base_transform_reconfigure(GST_BASE_TRANSFORM(this));
-//	rerender();
-//}
-//
-//
 //
 //void GstVideoMan::renderIn(GstBuffer *buffer) {
 ////	d->filter[1]->transform(d->buffer, buffer);

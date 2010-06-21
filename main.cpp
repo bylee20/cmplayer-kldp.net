@@ -2,6 +2,8 @@
 #include <gst/gst.h>
 #include <gst/controller/gstcontroller.h>
 #include <liboil/liboil.h>
+#include <QtCore/QMetaType>
+#include "videomanipulator.hpp"
 
 int main(int argc, char **argv) {
 	gst_init(NULL, NULL);
@@ -9,6 +11,7 @@ int main(int argc, char **argv) {
 	oil_init ();
 	Application app(argc, argv);
 
+	qRegisterMetaType<VideoInfo>("VideoInfo");
 //	PlayEngine engine;
 //	engine.setMrl(QUrl::fromLocalFile("/media/sda2/videos/slayers/4-revolution/Slayers REVOLUTION 01.avi"));
 //	engine.play();

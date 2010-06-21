@@ -28,6 +28,7 @@ signals:
 private slots:
 	void mrlChanged();
 	void setXOverlay();
+	void setInfo(const VideoInfo &info);
 protected:
 	void paintEvent(QPaintEvent *event);
 	void showEvent(QShowEvent *event);
@@ -38,7 +39,7 @@ protected:
 private:
 	friend class GstVideoMan;
 	friend class GstVideoManClass;
-	void setInfo(const VideoInfo &info);
+
 	void showFrame(GstBuffer *buffer);
 	GstBuffer *allocBuffer(int size, GstCaps *caps);
 	static bool isSameRatio(double r1, double r2) {
