@@ -130,7 +130,6 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	setMouseTracking(true);
 	d->xo->setMouseTracking(true);
 	d->xo->setNavigation(d->nav);
-	d->man.setRenderer(this);
 
 	updateXOverlayGeometry();
 }
