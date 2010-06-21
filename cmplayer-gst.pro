@@ -59,17 +59,8 @@ HEADERS += playengine.hpp \
     playlistmodel.hpp \
     playlistview.hpp \
     gstvolnorm.hpp \
-    gstvideoman.hpp \
-    gstvideoman_p.hpp \
     recentinfo.hpp \
-    history.hpp \
     historyview.hpp \
-    gstmybasetransform.hpp \ # gstpp/ptr.hpp \
-# gstpp/videofilter.hpp \
-# gstpp/videofilter_p.hpp \
-# gstpp/videomanipulator.hpp \
-# gstpp/videomanipulator_p.hpp \
-    avcodec_w.hpp \
     imageoverlayfilter.hpp \
     i420picture.hpp \
     videofilter.hpp \
@@ -117,16 +108,8 @@ SOURCES += main.cpp \
     playlistmodel.cpp \
     playlistview.cpp \
     gstvolnorm.cpp \
-    gstvideoman.cpp \
-    gstvideoman_p.cpp \
     recentinfo.cpp \
-    history.cpp \
     historyview.cpp \
-    gstmybasetransform.cpp \ # gstpp/ptr.cpp \
-# gstpp/videofilter.cpp \
-# gstpp/videofilter_p.cpp \
-# gstpp/videomanipulator.cpp \
-# gstpp/videomanipulator_p.cpp \
     imageoverlayfilter.cpp \
     i420picture.cpp \
     videofilter.cpp \
