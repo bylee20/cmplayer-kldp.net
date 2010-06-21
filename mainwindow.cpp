@@ -203,6 +203,7 @@ void MainWindow::setupUi() {
 	d->logo = new LogoView(d->stack);
 	d->stack->addWidget(d->logo);
 	d->stack->addWidget(d->engine->renderer());
+	d->stack->setCurrentWidget(d->engine->renderer());
 
 	d->screen = new VideoScreen(d->stack, center);
 
@@ -506,28 +507,32 @@ void MainWindow::setVideoSize(double rate) {
 }
 
 void MainWindow::updateState(MediaState state, MediaState old) {
-	if (old == state)
+	qDebug() << "MainWindow::updateState() begin";
+	qDebug() << "state" << state << "from" << old;
+	if (old == state) {
+		qDebug() << "MainWindow::updateState() end";
 		return;
+	}
 	if (state == PlayingState) {
+		qDebug() << "may disable the screensaver";
 		ScreensaverManager::setDisabled(d->pref.disableScreensaver);
 		d->menu("play")["pause"]->setIcon(QIcon(":/img/media-playback-pause.png"));
 		d->menu("play")["pause"]->setText(tr("Pause"));
 
 	} else {
+		qDebug() << "enable the screensaver";
 		ScreensaverManager::setDisabled(false);
 		d->menu("play")["pause"]->setIcon(QIcon(":/img/media-playback-start.png"));
 		d->menu("play")["pause"]->setText(tr("Play"));
 	}
 	if (old == StoppedState) {
 		qDebug() << "set current widget to renderer";
-		d->stack->setCurrentWidget(d->engine->renderer());
+//		d->stack->setCurrentWidget(d->engine->renderer());
 	} else if (state == StoppedState) {
-		qDebug() << "set current widget to logo by state" << state;
-		d->stack->setCurrentWidget(d->logo);
+		qDebug() << "set current widget to logo";
+//		d->stack->setCurrentWidget(d->logo);
 	}
-//	if (state == PausedState && d->pausedByHiding)
-//		return;
-//	updateOnTop();
+	qDebug() << "MainWindow::updateState() end";
 }
 
 void MainWindow::setSpeed(int diff) {
@@ -682,8 +687,10 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 }
 
 void MainWindow::handleFinished() {
+	qDebug() << "MainWindow::handleFinished() begin";
 	qDebug() << "set current widget to logo";
-	d->stack->setCurrentWidget(d->logo);
+//	d->stack->setCurrentWidget(d->logo);
+	qDebug() << "MainWindow::handleFinished() end";
 }
 
 void MainWindow::setSyncDelay(int diff) {

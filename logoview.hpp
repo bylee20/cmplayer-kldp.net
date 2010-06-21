@@ -5,6 +5,18 @@
 
 class RichString;
 
+//class Logo {
+//public:
+//	Logo(QWidget *widget);
+//	~Logo();
+//	QSize defaultSize() const {return
+//	void showText(const RichString &text, int last = 2500);
+//	void showTimeLine(int pos, int duration, int last = 2500);
+//private:
+//	struct Data;
+//	Data *d;
+//};
+
 class LogoView : public QWidget {
 	Q_OBJECT
 public:

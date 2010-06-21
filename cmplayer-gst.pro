@@ -66,7 +66,9 @@ HEADERS += playengine.hpp \
     gstvideoman_p.hpp \
     recentinfo.hpp \
     history.hpp \
-    historyview.hpp
+    historyview.hpp \
+    gstmybasetransform.hpp \
+    gstpp/ptr.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     bushelper.cpp \
@@ -113,5 +115,7 @@ SOURCES += main.cpp \
     gstvideoman_p.cpp \
     recentinfo.cpp \
     history.cpp \
-    historyview.cpp
+    historyview.cpp \
+    gstmybasetransform.cpp \
+    gstpp/ptr.cpp
 DEFINES += CMPLAYER_TRANSLATION_DIR_PATH=$(CMPLAYER_TRANSLATION_DIR)

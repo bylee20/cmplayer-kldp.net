@@ -4,6 +4,20 @@
 #include "timelineosdrenderer.hpp"
 #include <QtCore/QTimer>
 
+//struct LogoViewIface::Data {
+
+//};
+
+//LogoViewIface::LogoViewIface()
+//: d(new Data) {
+
+//}
+
+//LogoViewIface::~LogoViewIface() {
+//	delete d;
+//}
+
+
 struct LogoView::Data {
 	QPixmap logo;
 	QBrush bgBrush, lightBrush;

@@ -95,12 +95,10 @@ struct NativeVideoRenderer::Data {
 	QList<OsdRenderer*> osd;
 	double aspectRatio, cropRatio;
 	GstNavigation *nav;
-	int crop_h, crop_v, border_h, border_v;
 };
 
 NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 : QWidget(parent), d(new Data) {
-	d->crop_h = d->crop_v = d->border_h = d->border_v;
 	d->expandedSize = d->frameSize = QSize(400, 300);
 	d->engine = engine;
 	d->xo = new XOverlay(engine, this, this);
@@ -117,15 +115,15 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	d->sink = gst_element_factory_make("xvimagesink", 0);
 
 	gst_bin_add_many(GST_BIN(d->bin), GST_ELEMENT(d->man), queue, d->sink, NULL);
-	gst_element_link_many(queue, GST_ELEMENT(d->man), d->sink, NULL);
+	gst_element_link_many(/*queue, */GST_ELEMENT(d->man), d->sink, NULL);
 
-	GstPad *pad = gst_element_get_pad(queue, "sink");
+	GstPad *pad = gst_element_get_pad(GST_ELEMENT(d->man), "sink");
 	gst_element_add_pad(d->bin, gst_ghost_pad_new("sink", pad));
 	gst_object_unref(GST_OBJECT(pad));
 
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(mrlChanged()));
 
-	g_object_set(G_OBJECT(d->sink), "handle-events", 0, NULL);
+//	g_object_set(G_OBJECT(d->sink), "handle-events", 0, NULL);
 
 	if (GST_IS_NAVIGATION(d->sink))
 		d->nav = GST_NAVIGATION(d->sink);
@@ -134,6 +132,8 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	d->xo->setMouseTracking(true);
 	d->xo->setNavigation(d->nav);
 	d->man->d->renderer = this;
+
+	updateXOverlayGeometry();
 }
 
 NativeVideoRenderer::~NativeVideoRenderer() {
@@ -251,24 +251,20 @@ void NativeVideoRenderer::updateBoxSize() {
 		crop_v = cv*d->expandedSize.height()/xo.height() + 0.5;
 	}
 	d->man->crop(crop_h, crop_v);
-	d->crop_h = crop_h;
-	d->crop_v = crop_v;
-	d->border_h = hmargin;
-	d->border_v = vmargin;
 }
 
 QSize NativeVideoRenderer::sizeHint() const {
-	if (d->cropRatio < 0) {
-		if (d->aspectRatio < 0)
-			return d->frameSize;
-		QSizeF size(d->aspectRatio, 1.0);
-		size.scale(d->frameSize, Qt::KeepAspectRatioByExpanding);
-		return size.toSize();
-	} else {
-		QSizeF size(d->cropRatio, 1.0);
-		size.scale(d->frameSize, Qt::KeepAspectRatio);
-		return size.toSize();
+	QSizeF size(d->aspectRatio, 1.0);
+	if (d->aspectRatio > 0)
+		size.scale(d->expandedSize, Qt::KeepAspectRatio);
+	else
+		size = d->frameSize;
+	if (d->cropRatio > 0) {
+		QSizeF crop(d->cropRatio, 1.0);
+		crop.scale(size, Qt::KeepAspectRatio);
+		size = crop;
 	}
+	return size.toSize();
 }
 
 void NativeVideoRenderer::addOsdRenderer(OsdRenderer *osd) {

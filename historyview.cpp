@@ -1,20 +1,22 @@
 #include "historyview.hpp"
+#include <QtCore/QDebug>
 #include "playengine.hpp"
 #include "recentinfo.hpp"
 
 struct HistoryView::Item : public QTreeWidgetItem {
-	enum Column {Name, Latest, Location, ColumnCount};
+	enum Column {Name = 0, Latest = 1, Location = 2, ColumnCount = 3};
 	Item() {}
-	Item(const Mrl &mrl, const QDateTime &date = QDateTime::currentDateTime());
+	Item(const Mrl &mrl, const QDateTime &date);
 	~Item() {}
 	int stoppedTime() const {return m_stopped;}
 	void setStoppedTime(int time) {m_stopped = time;}
 	bool isStopped() const {return time >= 0;}
 	const Mrl &mrl() const {return m_mrl;}
-	void update(const QDateTime &date = QDateTime::currentDateTime()) {
+	void update(const QDateTime &date) {
 		m_date = date;
-		setText(Latest, date.toString(Qt::ISODate));
+		setText(Latest, m_date.toString(Qt::ISODate));
 	}
+	void update() {update(QDateTime::currentDateTime());}
 	void setMrl(const Mrl &mrl) {
 		m_mrl = mrl;
 		setText(Name, mrl.fileName());
@@ -28,6 +30,7 @@ private:
 
 HistoryView::Item::Item(const Mrl &mrl, const QDateTime &date)
 : m_mrl(mrl), m_date(m_date) {
+	qDebug() << "create item" << mrl.toString();
 	setMrl(mrl);
 	update(date);
 	m_stopped = -1;
@@ -110,7 +113,13 @@ void HistoryView::handleStateChanged(MediaState state, MediaState old) {
 			item->update();
 			item->setStoppedTime(-1);
 		} else {
-			Item *item = new Item(mrl);
+			const QDateTime date = QDateTime::currentDateTime();
+			qDebug() << "date" << date;
+			qDebug() << "mrl" << mrl.toString();
+			Item *item = new Item();
+			item->setMrl(mrl);
+			item->update(date);
+			qDebug() << "item created";
 			insertTopLevelItem(0, item);
 			emit historyChanged();
 		}

@@ -22,6 +22,20 @@ static gboolean gst_video_man_set_caps(GstBaseTransform *trans, GstCaps *in, Gst
 	return GST_VIDEO_MAN(trans)->setCaps(in, out);
 }
 
+static GstFlowReturn gst_video_man_prepare_output_buffer(GstBaseTransform * trans,
+		GstBuffer *input, gint size, GstCaps *caps, GstBuffer **buf) {
+	GstVideoFormat format;
+	int width, height;
+	gst_video_format_parse_caps(caps, &format, &width, &height);
+	int s = gst_video_format_get_size(format, width, height);
+	qDebug() << s << size;
+	*buf = gst_buffer_new_and_alloc(size);
+	gst_buffer_copy_metadata(*buf, input, GstBufferCopyFlags(GST_BUFFER_COPY_FLAGS | GST_BUFFER_COPY_TIMESTAMPS));
+	gst_buffer_set_caps(*buf, caps);
+
+
+}
+
 static GstCaps *makeAcceptableCaps() {
 	GstCaps *temp;
 	GstCaps *caps = gst_caps_new_empty();
@@ -70,6 +84,7 @@ static void gst_video_man_class_init(GstVideoManClass *klass) {
 	trans->set_caps = GST_DEBUG_FUNCPTR (gst_video_man_set_caps);
 	trans->get_unit_size = GST_DEBUG_FUNCPTR (gst_video_man_get_unit_size);
 	trans->transform = GST_DEBUG_FUNCPTR (gst_video_man_transform);
+//	trans->prepare_output_buffer = gst_video_man_prepare_output_buffer;
 //	trans->fixate_caps = gst_video_man_fixate_caps;
 	trans->passthrough_on_same_caps = FALSE;
 }
@@ -104,6 +119,8 @@ void GstVideoMan::ctor() {
 	d->tempBufferSize = 0;
 	d->in_format = d->out_format = GST_VIDEO_FORMAT_UNKNOWN;
 	d->renderer = 0;
+
+//	GST_BASE_TRANSFORM(this)->passthrough = true;
 }
 
 void GstVideoMan::dtor() {

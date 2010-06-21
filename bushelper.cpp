@@ -13,11 +13,11 @@ void BusHelper::run() {
 		if (m_bus) {
 			GstMessage *msg = 0;
 			if (!m_quit && (msg = gst_bus_pop(m_bus))) {
-				QMetaObject::invokeMethod(m_engine
-					, "handleGstMessage"
-					, Qt::QueuedConnection
-					, Q_ARG(void*, (void*)msg)
-				);
+//				QMetaObject::invokeMethod(m_engine
+//					, "handleGstMessage"
+//					, Qt::QueuedConnection
+//					, Q_ARG(void*, (void*)msg)
+//				);
 			}
 		}
 		if (m_quit)
