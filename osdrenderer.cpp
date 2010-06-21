@@ -113,14 +113,15 @@ void OsdRenderer::rerender() {
 		QPainter painter(&image);
 		painter.scale(1.0/d->dis_x, 1.0/d->dis_y);
 		render(&painter);
-		d->man->setOverlay(d->id, image, pos());
-	} else
-		d->man->setOverlay(d->id, QImage(), pos());
+//		d->man->setOverlay(d->id, image, pos());
+//	} else
+//		d->man->setOverlay(d->id, QImage(), pos());
+	}
 }
 
 void OsdRenderer::setVideoMan(GstVideoMan *man) {
-	if ((d->man = man)) {
-		d->id = d->man->newOverlay();
-		rerender();
-	}
+//	if ((d->man = man)) {
+//		d->id = d->man->newOverlay();
+//		rerender();
+//	}
 }

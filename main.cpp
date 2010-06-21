@@ -2,19 +2,16 @@
 #include <gst/gst.h>
 #include <gst/controller/gstcontroller.h>
 #include <liboil/liboil.h>
-#include "playengine.hpp"
-#include "nativevideorenderer.hpp"
 
 int main(int argc, char **argv) {
 	gst_init(NULL, NULL);
 	gst_controller_init(NULL, NULL);
 	oil_init ();
+	Application app(argc, argv);
 
-	QApplication app(argc, argv);
-
-	PlayEngine engine;
-	engine.setMrl(QUrl::fromLocalFile("/media/sda2/videos/ww.avi"));
-	engine.play();
+//	PlayEngine engine;
+//	engine.setMrl(QUrl::fromLocalFile("/media/sda2/videos/slayers/4-revolution/Slayers REVOLUTION 01.avi"));
+//	engine.play();
 //	engine.renderer()->show();
 //	QApplication app(argc, argv);
 //	PlayEngine engine;

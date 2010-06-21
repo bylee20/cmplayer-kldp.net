@@ -37,6 +37,7 @@ protected:
 //	void mouseReleaseEvent(QMouseEvent *event);
 private:
 	friend class GstVideoMan;
+	friend class GstVideoManClass;
 	void setInfo(const VideoInfo &info);
 	void showFrame(GstBuffer *buffer);
 	GstBuffer *allocBuffer(int size, GstCaps *caps);

@@ -1,5 +1,5 @@
-#include "gstpp/ptr.hpp"
-
-gstpp::gstpp()
-{
-}
+//#include "gstpp/ptr.hpp"
+//
+//gstpp::gstpp()
+//{
+//}

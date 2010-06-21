@@ -1,10 +1,14 @@
-#ifndef PTR_HPP
-#define PTR_HPP
-
-class gstpp
-{
-public:
-    gstpp();
-};
-
-#endif // PTR_HPP
+//#ifndef PTR_HPP
+//#define PTR_HPP
+//
+//namespace GstPP {
+//
+//class Ptr {
+//public:
+//	gstpp();
+//private:
+//};
+//
+//}
+//
+//#endif // PTR_HPP

@@ -9,6 +9,7 @@
 #include <gst/interfaces/xoverlay.h>
 #include <gst/interfaces/navigation.h>
 #include <gst/video/gstvideosink.h>
+#include "videomanipulator.hpp"
 
 class NativeVideoRenderer::XOverlay : public QWidget {
 public:
@@ -85,7 +86,7 @@ private:
 
 struct NativeVideoRenderer::Data {
 	GstElement *bin, *sink;
-	GstVideoMan *man;
+	VideoManipulator man;
 	PlayEngine *engine;
 	XOverlay *xo;
 	QSize frameSize;
@@ -111,19 +112,17 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	gst_object_sink(GST_OBJECT(d->bin));
 
 	GstElement *queue = gst_element_factory_make("queue", 0);
-	d->man = GST_VIDEO_MAN(g_object_new(gst_video_man_get_type(), 0));
+//	d->man = GST_VIDEO_MAN(g_object_new(GstVideoManClass::getType(), 0));
 	d->sink = gst_element_factory_make("xvimagesink", 0);
+	GstElement *conv = gst_element_factory_make("ffmpegcolorspace", 0);
+	gst_bin_add_many(GST_BIN(d->bin), conv, d->man.element(), queue, d->sink, NULL);
+	gst_element_link_many(queue, conv, d->man.element(), d->sink, NULL);
 
-	gst_bin_add_many(GST_BIN(d->bin), GST_ELEMENT(d->man), queue, d->sink, NULL);
-	gst_element_link_many(/*queue, */GST_ELEMENT(d->man), d->sink, NULL);
-
-	GstPad *pad = gst_element_get_pad(GST_ELEMENT(d->man), "sink");
+	GstPad *pad = gst_element_get_pad(queue, "sink");
 	gst_element_add_pad(d->bin, gst_ghost_pad_new("sink", pad));
 	gst_object_unref(GST_OBJECT(pad));
 
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(mrlChanged()));
-
-//	g_object_set(G_OBJECT(d->sink), "handle-events", 0, NULL);
 
 	if (GST_IS_NAVIGATION(d->sink))
 		d->nav = GST_NAVIGATION(d->sink);
@@ -131,7 +130,7 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	setMouseTracking(true);
 	d->xo->setMouseTracking(true);
 	d->xo->setNavigation(d->nav);
-	d->man->d->renderer = this;
+	d->man.setRenderer(this);
 
 	updateXOverlayGeometry();
 }
@@ -177,7 +176,7 @@ static double ratio(const QSize &size) {
 }
 
 void NativeVideoRenderer::updateXOverlayGeometry() {
-	QRectF video = d->man->videoRect();
+	QRectF video = d->man.videoRect();
 	QSizeF scaled(desktopRatio(), 1.0);
 	scaled.scale(d->expandedSize, Qt::KeepAspectRatio);
 	const double scale_h = scaled.width()/d->expandedSize.width();
@@ -235,7 +234,7 @@ void NativeVideoRenderer::updateBoxSize() {
 		vmargin = qRound(d->frameSize.height()*(aspectRatio/desktopRatio - 1.0));
 	else
 		hmargin = qRound(d->frameSize.width()*(desktopRatio/aspectRatio - 1.0));
-	d->man->setBorder(hmargin, vmargin);
+	d->man.setBorder(hmargin, vmargin);
 	d->expandedSize = d->frameSize + QSize(hmargin, vmargin);
 	int crop_h = 0, crop_v = 0;
 	if (d->cropRatio > 0) {
@@ -250,7 +249,7 @@ void NativeVideoRenderer::updateBoxSize() {
 		crop_h = ch*d->expandedSize.width()/xo.width() + 0.5;
 		crop_v = cv*d->expandedSize.height()/xo.height() + 0.5;
 	}
-	d->man->crop(crop_h, crop_v);
+	d->man.crop(crop_h, crop_v);
 }
 
 QSize NativeVideoRenderer::sizeHint() const {
@@ -269,7 +268,7 @@ QSize NativeVideoRenderer::sizeHint() const {
 
 void NativeVideoRenderer::addOsdRenderer(OsdRenderer *osd) {
 	d->osd.push_back(osd);
-	osd->setVideoMan(d->man);
+//	osd->setVideoMan(d->man);
 }
 
 void NativeVideoRenderer::setInfo(const VideoInfo &info) {
@@ -299,7 +298,7 @@ void NativeVideoRenderer::setAspectRatio(double ratio) {
 		updateBoxSize();
 		updateXOverlayGeometry();
 		if (d->engine->isPaused()) {
-			d->man->rerender();
+//			d->man->rerender();
 			d->engine->flush();
 		}
 	}

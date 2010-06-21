@@ -17,10 +17,7 @@ INCLUDEPATH += /usr/include/gstreamer-0.10 \
 INCLUDEPATH += libchardet-1.0.1/src
 LIBS += -Llibchardet-1.0.1/src/.libs \
     -lchardet \
-    -lX11 \
-    -lavutil \
-    -lavcodec \
-    -lswscale
+    -lX11
 RESOURCES += rsclist.qrc
 HEADERS += playengine.hpp \
     bushelper.hpp \
@@ -67,8 +64,17 @@ HEADERS += playengine.hpp \
     recentinfo.hpp \
     history.hpp \
     historyview.hpp \
-    gstmybasetransform.hpp \
-    gstpp/ptr.hpp
+    gstmybasetransform.hpp \ # gstpp/ptr.hpp \
+# gstpp/videofilter.hpp \
+# gstpp/videofilter_p.hpp \
+# gstpp/videomanipulator.hpp \
+# gstpp/videomanipulator_p.hpp \
+    avcodec_w.hpp \
+    imageoverlayfilter.hpp \
+    i420picture.hpp \
+    videofilter.hpp \
+    videomanipulator.hpp \
+    videomanipulator_p.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     bushelper.cpp \
@@ -116,6 +122,14 @@ SOURCES += main.cpp \
     recentinfo.cpp \
     history.cpp \
     historyview.cpp \
-    gstmybasetransform.cpp \
-    gstpp/ptr.cpp
+    gstmybasetransform.cpp \ # gstpp/ptr.cpp \
+# gstpp/videofilter.cpp \
+# gstpp/videofilter_p.cpp \
+# gstpp/videomanipulator.cpp \
+# gstpp/videomanipulator_p.cpp \
+    imageoverlayfilter.cpp \
+    i420picture.cpp \
+    videofilter.cpp \
+    videomanipulator.cpp \
+    videomanipulator_p.cpp
 DEFINES += CMPLAYER_TRANSLATION_DIR_PATH=$(CMPLAYER_TRANSLATION_DIR)
