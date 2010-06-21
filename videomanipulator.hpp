@@ -7,6 +7,7 @@
 class NativeVideoRenderer;		class QRect;
 
 struct VideoInfo {
+	VideoInfo() {width = height = 0; fps = 0.0;}
 	int width, height;
 	double fps;
 };

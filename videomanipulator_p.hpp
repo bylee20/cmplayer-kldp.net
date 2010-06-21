@@ -1,11 +1,7 @@
 #ifndef VIDEOMANIPULATOR_P_HPP
 #define VIDEOMANIPULATOR_P_HPP
 
-#include <QtCore/QtGlobal>
 #include <QtCore/QMutex>
-#include <QtCore/QReadWriteLock>
-#include <gst/gst.h>
-#include <gst/video/video.h>
 #include <gst/base/gstbasetransform.h>
 #include "videofilter.hpp"
 
@@ -25,7 +21,6 @@ private:
 
 struct GstVideoMan {
 	GstBaseTransform parent;
-	void renderIn(GstBuffer *buffer);
 	void ctor();
 	void dtor();
 	friend class GstVideoManClass;
@@ -39,11 +34,6 @@ public:
 		int border_h, border_v;
 	};
 	Data *d;
-//	void reconfigure();
-//	bool renegotiate();
-//	void rerender();
-//	void setBorder(int h, int v);
-//	void crop(int h, int v);
 };
 
 struct GstVideoManClass {

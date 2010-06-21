@@ -1,18 +1,25 @@
 #include "videomanipulator.hpp"
 #include "videomanipulator_p.hpp"
+#include "i420picture.hpp"
 #include <QtCore/QRect>
 
 struct VideoManipulator::Data {
 	GstVideoMan *man;
 	int border_h, border_v;
 	CropMixFilter *mixer;
+	VideoInfo info_in, info_out;
 };
 
 VideoManipulator::VideoManipulator()
 : d(new Data) {
+	d->man = GST_VIDEO_MAN(g_object_new(GstVideoManClass::getType(), 0));
+	gst_object_ref(GST_OBJECT(d->man));
+	d->mixer = new CropMixFilter;
 }
 
 VideoManipulator::~VideoManipulator() {
+	gst_object_unref(GST_OBJECT(d->man));
+	delete d->mixer;
 	delete d;
 }
 
@@ -23,20 +30,46 @@ GstElement *VideoManipulator::element() const {
 QRect VideoManipulator::videoRect() const {
 	const int x = (d->border_h + d->mixer->horizontalCropSize())>>1;
 	const int y = (d->border_v + d->mixer->verticalCropSize())>>1;
-//	const int width = d->out_width - (x<<1);
-//	const int height = d->out_height - (y<<1);
-//	return QRect(x, y, width, height);
+	const int width = d->info_out.width - (x<<1);
+	const int height = d->info_out.height - (y<<1);
+	return QRect(x, y, width, height);
 }
-//
-//void GstVideoMan::setBorder(int h, int v) {
-//	if (d->border_h == h && d->border_v == v)
-//		return;
-//	d->border_h = h;
-//	d->border_v = v;
-//	gst_base_transform_reconfigure(GST_BASE_TRANSFORM(this));
-//	rerender();
-//}
-//
+
+void VideoManipulator::setBorder(int h, int v) {
+	if (d->border_h == h && d->border_v == v)
+		return;
+	d->border_h = h;
+	d->border_v = v;
+	reconfigure();
+	rerender();
+}
+
+void VideoManipulator::reconfigure() {
+	gst_base_transform_reconfigure(GST_BASE_TRANSFORM(d->man));
+}
+
+void VideoManipulator::rerender() {
+
+}
+
+void VideoManipulator::crop(int h, int v) {
+	d->mixer->crop(h, v);
+}
+
+void VideoManipulator::setVideoInfo(const VideoInfo &in, const VideoInfo &out) {
+	d->info_in = in;
+	d->info_out = out;
+	emit videoInfoObtained(d->info_in);
+}
+
+void VideoManipulator::transform(GstBuffer *in, GstBuffer *out) {
+	I420Picture in_pic, out_pic;
+	in_pic.init(in);
+	out_pic.init(out);
+	d->mixer->transform(&out_pic, in_pic);
+//	d->filter[1]->transform(&out_pic);
+}
+
 //void GstVideoMan::crop(int h, int v) {
 //	if (d->crop_h == h && d->crop_v == v)
 //		return;
@@ -47,9 +80,6 @@ QRect VideoManipulator::videoRect() const {
 //}
 //
 //
-//void GstVideoMan::reconfigure() {
-//	gst_base_transform_reconfigure(GST_BASE_TRANSFORM(this));
-//}
 //
 //void GstVideoMan::renderIn(GstBuffer *buffer) {
 ////	d->filter[1]->transform(d->buffer, buffer);

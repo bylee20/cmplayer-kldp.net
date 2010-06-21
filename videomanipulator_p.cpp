@@ -1,14 +1,10 @@
 #include "videomanipulator_p.hpp"
-#include "gstvideoman_p.hpp"
-#include "gstvideoman.hpp"
-#include <QtCore/QDebug>
-#include <string.h>
-#include <gst/gst.h>
-#include <gst/controller/gstcontroller.h>
-#include <libavutil/pixfmt.h>
-#include <liboil/liboil.h>
 #include "i420picture.hpp"
 #include "videomanipulator.hpp"
+#include <string.h>
+#include <liboil/liboil.h>
+#include <gst/video/video.h>
+#include <QtCore/QDebug>
 
 inline static void mix(uchar *dest, int dest_w, int dest_h
 		, const uchar *src, int src_w, int src_h
@@ -54,18 +50,7 @@ void CropMixFilter::crop(int crop_h, int crop_v) {
 	}
 }
 
-
-
-
-#include "gstvideoman.hpp"
-#include "i420picture.hpp"
-#include "nativevideorenderer.hpp"
-#include "global.hpp"
-#include <QtCore/QDebug>
-#include <gst/video/video.h>
-#include "gstvideoman_p.hpp"
-#include <QTime>
-#include "imageoverlayfilter.hpp"
+/*****************************************************************************************/
 
 GstBaseTransformClass *GstVideoManClass::parentClass = 0;
 
@@ -173,8 +158,6 @@ gboolean GstVideoManClass::setCaps(GstBaseTransform *trans, GstCaps *in, GstCaps
 		out.height = d->out_height;
 		d->man->setVideoInfo(in, out);
 	}
-
-//	qDebug() << "set caps!";
 	return true;
 }
 
@@ -275,13 +258,6 @@ gboolean GstVideoManClass::getUnitSize(GstBaseTransform */*trans*/, GstCaps *cap
 GstFlowReturn GstVideoManClass::transform(GstBaseTransform *trans, GstBuffer *in, GstBuffer *out) {
 	VideoManipulator *man = GST_VIDEO_MAN(trans)->d->man;
 	man->transform(in, out);
-//	GstVideoMan::Data *d = man->d;
-//	d->
-//	I420Picture in_pic, out_pic;
-//	in_pic.init(in);
-//	out_pic.init(out);
-//	d->filter[0]->transform(&out_pic, in_pic);
-//	d->filter[1]->transform(&out_pic);
 	return GST_FLOW_OK;
 }
 
