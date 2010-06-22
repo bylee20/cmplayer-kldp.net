@@ -11,14 +11,14 @@ struct ImageOverlayFilter::Item {
 	Item(int id = 0, double zIndex = 0.0) {
 		this->zIndex = zIndex;
 		this->id = id;
-		image = 0;
 		x = y = width = height = 0;
+		data = 0;
 	}
-	~Item() {delete[] image;}
-	double zIndex; int id;
-	uchar *image;
+	~Item() {delete[] data;}
+	uchar *data;
+	int bufLen;
 	int width, height;
-//	QImage image;
+	double zIndex; int id;
 	int x, y;
 	mutable QReadWriteLock lock;
 	mutable QWaitCondition cond;
@@ -44,9 +44,10 @@ ImageOverlayFilter::~ImageOverlayFilter() {
 bool ImageOverlayFilter::transform(I420Picture *pic) {
 	for (ItemMap::const_iterator it = d->item.begin(); it != d->item.end(); ++it) {
 		const Item &item = *(const Item*)(*it);
-//		if (!item.lock.tryLockForRead())
-//			continue;
+		if (!item.lock.tryLockForRead())
+			continue;
 		blend(pic, item);
+		item.lock.unlock();
 //		item.lock.unlock();
 //		item.cond.wakeAll();
 	}
@@ -72,45 +73,41 @@ int ImageOverlayFilter::newOverlay() {
 	return item->id;
 }
 
-void ImageOverlayFilter::setOverlay(int id, const QImage &image, const QPoint &pos) {
-	return;
+void ImageOverlayFilter::removeOverlay(int id) {
+	ItemMap::iterator it = d->item.begin();
+	for (; it != d->item.end(); ++it) {
+		Item *item = (Item*)(*it);
+		if (item->id == id)
+			break;
+	}
+	if (it != d->item.end()) {
+		delete (Item*)(*it);
+		d->item.erase(it);
+	}
+}
+
+void ImageOverlayFilter::setOverlay(int id, uchar *data, const QSize &size, const QPoint &pos) {
 	Item *item = getItem(id);
 	if (!item)
 		return;
-//	while (!item->lock.tryLockForWrite())
-//		item->cond.wait(&item->lock, 10);
-	QRect rect = image.rect();
-	if (pos.x() < 0) {
-		item->x = 0;
-		rect.setLeft(-pos.x());
-	} else
-		item->x = pos.x();
-	if (pos.y() < 0) {
-		item->y = 0;
-		rect.setTop(-pos.y());
-	} else
-		item->y = pos.y();
-
-	delete[] item->image;
-	item->image = new uchar[image.byteCount()];
-	item->width = image.width();
-	item->height = image.height();
-	memcpy(item->image, image.bits(), image.byteCount());
-
-//	item->image = image.copy(rect);
-//	item->lock.unlock();
-//	rerender();
+	item->lock.lockForWrite();
+	delete[] item->data;
+	item->data = data;
+	item->width = size.width();
+	item->height = size.height();
+	item->x = pos.x();
+	item->y = pos.y();
+	item->lock.unlock();
+	rerender();
 }
 
 void ImageOverlayFilter::setZIndex(int id, double zIndex) {
 	Item *item = getItem(id);
 	if (item) {
-		while (!item->lock.tryLockForWrite())
-			item->cond.wait(&item->lock, 10);
-//		item->lock.lockForWrite();
+		item->lock.lockForWrite();
 		item->zIndex = zIndex;
-//		item->lock.unlock();
-//		rerender();
+		item->lock.unlock();
+		rerender();
 	}
 }
 
@@ -132,7 +129,7 @@ void ImageOverlayFilter::blend(I420Picture *pic, const Item &item) {
 
 	if (image_w <= 0 || image_h <= 0)
 		return; // nothing to blend
-	qDebug() << "never blend";
+
 	const int frame_w = qMin(pic->width_y, (pic->width_uv<<1));
 	const int frame_h = qMin(pic->height_y, (pic->height_uv<<1));
 	const int image_w_h = (image_w >> 1);
@@ -149,7 +146,7 @@ void ImageOverlayFilter::blend(I420Picture *pic, const Item &item) {
 	uchar *v = pic->v + uv_offset;
 	uchar *u = pic->u + uv_offset;
 
-	const uchar *r1 = item.image;
+	const uchar *r1 = item.data;
 	const uchar *r2 = r1 + 4;
 	const uchar *r3 = r1 + (image_w << 2);
 	const uchar *r4 = r3 + 4;

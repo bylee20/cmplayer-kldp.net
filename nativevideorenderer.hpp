@@ -37,9 +37,7 @@ protected:
 //	void mousePressEvent(QMouseEvent *event);
 //	void mouseReleaseEvent(QMouseEvent *event);
 private:
-	friend class GstVideoMan;
-	friend class GstVideoManClass;
-
+	friend class VideoManipulator;
 	void showFrame(GstBuffer *buffer);
 	GstBuffer *allocBuffer(int size, GstCaps *caps);
 	static bool isSameRatio(double r1, double r2) {

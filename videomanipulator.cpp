@@ -2,18 +2,24 @@
 #include "videomanipulator_p.hpp"
 #include "i420picture.hpp"
 #include "imageoverlayfilter.hpp"
+#include "nativevideorenderer.hpp"
+#include <gst/video/video.h>
 #include <QtCore/QRect>
 #include <QtCore/QDebug>
 
 struct VideoManipulator::Data {
 	GstVideoMan *man;
 	CropMixFilter *mixer;
+	ConvertToI420Filter *conv;
 	ImageOverlayFilter *overlay;
 	VideoInfo info_in, info_out;
+	I420Picture pic;
+	NativeVideoRenderer *renderer;
 };
 
 VideoManipulator::VideoManipulator()
 : d(new Data) {
+	static bool init = false; if (!init) {avcodec_init(); init = true;}
 	d->man = GST_VIDEO_MAN(g_object_new(GstVideoManClass::getType(), 0));
 	d->man->d->man = this;
 	gst_object_ref(GST_OBJECT(d->man));
@@ -21,6 +27,8 @@ VideoManipulator::VideoManipulator()
 	d->mixer->setManipulator(this);
 	d->overlay = new ImageOverlayFilter;
 	d->overlay->setManipulator(this);
+	d->conv = new ConvertToI420Filter;
+	d->renderer = 0;
 }
 
 VideoManipulator::~VideoManipulator() {
@@ -47,15 +55,45 @@ void VideoManipulator::setBorder(int h, int v) {
 	d->man->d->border_h = h;
 	d->man->d->border_v = v;
 	reconfigure();
-	rerender();
 }
 
 void VideoManipulator::reconfigure() {
 	gst_base_transform_reconfigure(GST_BASE_TRANSFORM(d->man));
 }
 
-void VideoManipulator::rerender() {
+void VideoManipulator::setRenderer(NativeVideoRenderer *renderer) {
+	d->renderer = renderer;
+}
 
+void VideoManipulator::rerender() {
+	if (!d->renderer)
+		return;
+	GstState state;
+	if (!gst_element_get_state(GST_ELEMENT(d->man), &state, 0, 100*GST_MSECOND))
+		return;
+	if (state != GST_STATE_PAUSED)
+		return;
+	const int size = gst_video_format_get_size(GST_VIDEO_FORMAT_I420, d->info_out.width, d->info_out.height);
+	if (size <= 0)
+		return;
+	GstBaseTransform *trans = GST_BASE_TRANSFORM(d->man);
+	if (!trans->srcpad || !trans->srcpad->caps)
+		return;
+	GstCaps *caps = trans->srcpad->caps;
+	GstBuffer *buffer = d->renderer->allocBuffer(size, caps);
+	if (render(buffer))
+		d->renderer->showFrame(buffer);
+	gst_buffer_unref(buffer);
+}
+
+bool VideoManipulator::render(GstBuffer *buffer) {
+	if (!buffer)
+		return false;
+	I420Picture out_pic;
+	out_pic.init(buffer);
+	d->mixer->transform(&out_pic, d->pic);
+	d->overlay->transform(&out_pic);
+	return true;
 }
 
 void VideoManipulator::crop(int h, int v) {
@@ -68,57 +106,18 @@ void VideoManipulator::setVideoInfo(const VideoInfo &in, const VideoInfo &out) {
 	emit videoInfoObtained(d->info_in);
 }
 
-void VideoManipulator::transform(GstBuffer *in, GstBuffer *out) {
-	I420Picture in_pic, out_pic;
-	in_pic.init(in);
-	out_pic.init(out);
-//	d->mixer->transform(&out_pic, in_pic);
-//	d->overlay->transform(&out_pic);
+GstFlowReturn VideoManipulator::transform(GstBuffer *in, GstBuffer *out) {
+	if (d->man->d->in_pix == PIX_FMT_NB)
+		return GST_FLOW_NOT_NEGOTIATED;
+	d->pic.free();
+	d->pic.alloc(d->info_in.width, d->info_in.height);
+	if (!d->conv->transform(&d->pic, in->data, d->info_in.width, d->info_in.height, d->man->d->in_pix))
+		return GST_FLOW_NOT_SUPPORTED;
+	render(out);
+	return GST_FLOW_OK;
 }
 
 ImageOverlayFilter *VideoManipulator::overlay() const {
 	return d->overlay;
 }
 
-//
-//void GstVideoMan::renderIn(GstBuffer *buffer) {
-////	d->filter[1]->transform(d->buffer, buffer);
-////	const int size = gst_video_format_get_size(d->out_format, d->out_width, d->out_height);
-////	if (size != GST_BUFFER_SIZE(buffer)) {
-////		qDebug() << "buffer size mismatch!";
-////		return;
-////	}
-////	YUV420Frame temp, frame;
-////	temp.init(d->buffer->data, d->in_width, d->in_height);
-////	frame.init(GST_BUFFER_DATA(buffer), d->out_format, d->out_width, d->out_height);
-////	frame.fill();
-////	frame.lay(temp, d->crop_h, d->crop_v);
-////	for (OverlayMap::const_iterator it = d->overlay.begin(); it != d->overlay.end(); ++it) {
-////		const ImageOverlay &overlay = *(*it);
-////		if (overlay.image.isNull())
-////			continue;
-////		if (overlay.lock.tryLockForRead()) {
-////			frame.blend(overlay);
-////			overlay.lock.unlock();
-////		} else
-////			qDebug() << "cannot lock. pass it.";
-////	}
-//}
-//
-//void GstVideoMan::rerender() {
-//	if (!d->renderer)
-//		return;
-//	GstState state;
-//	gst_element_get_state(GST_ELEMENT(this), &state, 0, 100*GST_MSECOND);
-//	if (state != GST_STATE_PAUSED)
-//		return;
-//	const int size = gst_video_format_get_size(GST_VIDEO_FORMAT_I420, d->out_width, d->out_height);
-//	if (size <= 0)
-//		return;
-//	GstCaps *caps = GST_PAD_CAPS(GST_BASE_TRANSFORM(this)->srcpad);
-//	if (!caps)
-//		return;
-//	GstBuffer *buffer = d->renderer->allocBuffer(size, caps);
-//	renderIn(buffer);
-//	d->renderer->showFrame(buffer);
-//}

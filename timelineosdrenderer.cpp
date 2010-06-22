@@ -33,21 +33,18 @@ void TimeLineOsdRenderer::show(int time, int duration, int last) {
 	d->clearer.stop();
 	d->time = time;
 	d->duration = duration;
-	emit needToRerender();
-//	invokeRerender();
+	update();
 	d->clearer.start(last);
 }
 
 void TimeLineOsdRenderer::clear() {
 	d->time = d->duration = -1;
-	emit needToRerender();
-//	invokeRerender();
+	update();
 }
 
 void TimeLineOsdRenderer::render(QPainter *painter) {
 	if (d->time < 0 || d->duration <= 0)
 		return;
-
 	const OsdStyle &style = this->style();
 	const QSizeF size = sizeHint();
 	const int b = style.borderWidth * size.height() + 0.5;
@@ -84,11 +81,9 @@ void TimeLineOsdRenderer::slotAreaChanged(const QRect &area) {
 	d->pos = area.topLeft();
 	d->pos.rx() += (area.width() - size.width())*0.5 + 0.5;
 	d->pos.ry() += (area.height() - size.height())*0.5 + 0.5;
-	emit needToRerender();
-//	invokeRerender();
+	update();
 }
 
 void TimeLineOsdRenderer::slotStyleChanged(const OsdStyle &/*style*/) {
-	emit needToRerender();
-//	invokeRerender();
+	update();
 }

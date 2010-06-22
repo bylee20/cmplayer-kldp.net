@@ -19,7 +19,6 @@ private slots:
 protected:
 	QPoint posHint() const;
 	QSize sizeHint() const;
-	QRect rectHint() const;
 private:
 	QPoint getPos() const;
 	void updateFontSize();

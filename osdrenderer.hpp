@@ -38,17 +38,19 @@ public:
 	void setStyle(const OsdStyle &style);
 	const OsdStyle &style() const;
 public slots:
-	void rerender();
+	void update();
 	virtual void clear() = 0;
 signals:
 	void areaChanged(const QRect &area);
 	void styleChanged(const OsdStyle &style);
-	void needToRerender();
+//	void needToRerender();
 protected:
 	virtual void render(QPainter *painter) = 0;
 	virtual QPoint posHint() const = 0;
 	virtual QSize sizeHint() const = 0;
 private:
+	void customEvent(QEvent *event);
+	void rerender();
 	friend class NativeVideoRenderer;
 	void setImageOverlay(ImageOverlayFilter *overlay);
 	struct Data;

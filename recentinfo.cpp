@@ -1,6 +1,7 @@
 #include "recentinfo.hpp"
 #include <QtCore/QList>
 #include <QtCore/QMap>
+#include <QSettings>
 
 struct RecentInfo::Data {
 	QList<Mrl> open;
@@ -37,4 +38,12 @@ void RecentInfo::setFinished(const Mrl &mrl) {
 
 int RecentInfo::stoppedTime(const Mrl &mrl) {
 	return d->stopped.value(mrl, 0);
+}
+
+void RecentInfo::save() const {
+	QSettings set()
+}
+
+void RecentInfo::load() {
+
 }

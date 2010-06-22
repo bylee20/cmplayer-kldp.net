@@ -112,9 +112,8 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 
 	GstElement *queue = gst_element_factory_make("queue", 0);
 	d->sink = gst_element_factory_make("xvimagesink", 0);
-	GstElement *conv = gst_element_factory_make("ffmpegcolorspace", 0);
-	gst_bin_add_many(GST_BIN(d->bin), conv, d->man.element(), queue, d->sink, NULL);
-	gst_element_link_many(queue, /*conv, */d->man.element(), d->sink, NULL);
+	gst_bin_add_many(GST_BIN(d->bin), d->man.element(), queue, d->sink, NULL);
+	gst_element_link_many(queue, d->man.element(), d->sink, NULL);
 
 	GstPad *pad = gst_element_get_pad(queue, "sink");
 	gst_element_add_pad(d->bin, gst_ghost_pad_new("sink", pad));
@@ -132,6 +131,8 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	updateXOverlayGeometry();
 
 	connect(&d->man, SIGNAL(videoInfoObtained(VideoInfo)), this, SLOT(setInfo(VideoInfo)));
+
+	d->man.setRenderer(this);
 }
 
 NativeVideoRenderer::~NativeVideoRenderer() {
@@ -249,9 +250,6 @@ void NativeVideoRenderer::updateBoxSize() {
 		crop_v = cv*d->expandedSize.height()/xo.height() + 0.5;
 	}
 	d->man.crop(crop_h, crop_v);
-	qDebug() << d->expandedSize;
-	qDebug() << hmargin << vmargin;
-	qDebug() << crop_h << crop_v;
 }
 
 QSize NativeVideoRenderer::sizeHint() const {
@@ -299,9 +297,8 @@ void NativeVideoRenderer::setAspectRatio(double ratio) {
 		d->aspectRatio = ratio;
 		updateBoxSize();
 		updateXOverlayGeometry();
-		if (d->engine->isPaused()) {
+		if (d->engine->isPaused())
 			d->engine->flush();
-		}
 	}
 }
 
@@ -328,7 +325,6 @@ GstBuffer *NativeVideoRenderer::allocBuffer(int size, GstCaps *caps) {
 	GstBaseSink *sink = GST_BASE_SINK(d->sink);
 	GstBaseSinkClass *klass = GST_BASE_SINK_GET_CLASS(sink);
 	GstBuffer *buffer;
-	if (GST_FLOW_OK != klass->buffer_alloc(sink, 0, size, caps, &buffer))
-		return 0;
-	return buffer;
+	const GstFlowReturn ret = klass->buffer_alloc(sink, 0, size, caps, &buffer);
+	return ret == GST_FLOW_OK ? buffer : 0;
 }

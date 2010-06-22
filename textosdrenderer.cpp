@@ -61,8 +61,6 @@ TextOsdRenderer::TextOsdRenderer(Qt::Alignment align): d(new Data) {
 	connect(&d->clearer, SIGNAL(timeout()), this, SLOT(clear()));
 	connect(this, SIGNAL(areaChanged(QRect)), this, SLOT(slotAreaChanged(QRect)));
 	connect(this, SIGNAL(styleChanged(OsdStyle)), this, SLOT(slotStyleChanged(OsdStyle)));
-//	invokeRerender();
-	emit needToRerender();
 }
 
 TextOsdRenderer::~TextOsdRenderer() {
@@ -74,7 +72,13 @@ void TextOsdRenderer::render(QPainter *painter) {
 	if (area.isEmpty() || d->text.isEmpty())
 		return;
 	painter->save();
-	painter->translate(-d->pos.x(), 0);
+	double x = 0.0;
+	const Qt::Alignment align = style().alignment;
+	if (align & Qt::AlignHCenter)
+		x = -(d->doc.textWidth() - d->doc.idealWidth())*0.5;
+	else if (align & Qt::AlignRight)
+		x = -(d->doc.textWidth() - d->doc.idealWidth());
+	painter->translate(x, 0);
 	static QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
 	QString bgText = text().string();
 	d->doc.setHtml(QString("<font color='%1'>").arg(style().bgColor.name())
@@ -124,8 +128,7 @@ void TextOsdRenderer::showText(const RichString &text, int last) {
 	d->text = text;
 	d->doc.setHtml(text.string());
 	d->pos = getPos();
-//	invokeRerender();
-	emit needToRerender();
+	update();
 	if (last >= 0)
 		d->clearer.start(last);
 }
@@ -162,21 +165,17 @@ void TextOsdRenderer::slotAreaChanged(const QRect &area) {
 	updateFontSize();
 	d->doc.setTextWidth(area.width() - 2.0*d->bw - d->left - d->right);
 	d->pos = getPos();
-	emit needToRerender();
-//	invokeRerender();
+	update();
 }
 
 void TextOsdRenderer::slotStyleChanged(const OsdStyle &style) {
 	updateFontSize();
-
 	QTextOption option(style.alignment);
 	option.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 //	option.setUseDesignMetrics(true);
 	d->doc.setDefaultTextOption(option);
-
 	d->pos = getPos();
-	emit needToRerender();
-//	invokeRerender();
+	update();
 }
 
 void TextOsdRenderer::clear() {
@@ -188,8 +187,6 @@ void TextOsdRenderer::setMargin(double top, double bottom, double right, double 
 	d->bottom = bottom;
 	d->right = right;
 	d->left = left;
-
 	d->pos = getPos();
-//	invokeRerender();
-	emit needToRerender();
+	update();
 }

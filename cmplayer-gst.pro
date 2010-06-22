@@ -65,7 +65,12 @@ HEADERS += playengine.hpp \
     i420picture.hpp \
     videofilter.hpp \
     videomanipulator.hpp \
-    videomanipulator_p.hpp
+    videomanipulator_p.hpp \
+    gst_fcs/gst_fcs_avcodec.h \
+    gst_fcs/gst_fcs_dsputil.h \
+    gst_fcs/gst_fcs_gstffmpegcodecmap.h \
+    gst_fcs/gst_fcs_imgconvert_template.h \
+    record.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     bushelper.cpp \
@@ -114,5 +119,11 @@ SOURCES += main.cpp \
     i420picture.cpp \
     videofilter.cpp \
     videomanipulator.cpp \
-    videomanipulator_p.cpp
+    videomanipulator_p.cpp \
+    gst_fcs/gst_fcs_imgconvert.c \
+    gst_fcs/gst_fcs_dsputil.c \
+    gst_fcs/gst_fcs_gstffmpegcodecmap.c \
+    gst_fcs/gst_fcs_utils.c \
+    gst_fcs/gst_fcs_mem.c \
+    record.cpp
 DEFINES += CMPLAYER_TRANSLATION_DIR_PATH=$(CMPLAYER_TRANSLATION_DIR)

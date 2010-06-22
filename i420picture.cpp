@@ -22,3 +22,14 @@ bool I420Picture::init(GstBuffer *buffer) {
 	init(buffer->data, width, height);
 	return true;
 }
+
+void I420Picture::alloc(int width, int height) {
+	const int size = gst_video_format_get_size(GST_VIDEO_FORMAT_I420, width, height);
+	buffer = new uchar[size];
+	init(buffer, width, height);
+}
+
+void I420Picture::free() {
+	delete[] buffer;
+	buffer = 0;
+}

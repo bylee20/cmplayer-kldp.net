@@ -6,6 +6,20 @@
 #include <gst/controller/gstcontroller.h>
 #include <gst/video/video.h>
 #include <QtCore/QDebug>
+#include "gst_fcs/gst_fcs_gstffmpegcodecmap.h"
+
+bool ConvertToI420Filter::transform(I420Picture *out
+		, const uchar *data, int width, int height, PixelFormat pix) {
+	AVPicture pic;
+	gst_ffmpegcsp_avpicture_fill(&pic, const_cast<uchar*>(data), pix, width, height, false);
+	AVPicture out_pic;
+	out_pic.data[0] = out->y;
+	out_pic.data[1] = out->u;
+	out_pic.data[2] = out->v;
+	out_pic.linesize[0] = out->width_y;
+	out_pic.linesize[1] = out_pic.linesize[2] = out->width_uv;
+	return img_convert(&out_pic, PIX_FMT_YUV420P, &pic, pix, width, height) != -1;
+}
 
 inline static void mix(uchar *dest, int dest_w, int dest_h
 		, const uchar *src, int src_w, int src_h
@@ -46,7 +60,6 @@ void CropMixFilter::crop(int crop_h, int crop_v) {
 	if (m_crop_h != crop_h || m_crop_v != crop_v) {
 		m_crop_h = crop_h;
 		m_crop_v = crop_v;
-		reconfigure();
 		rerender();
 	}
 }
@@ -83,20 +96,27 @@ void GstVideoManClass::classInitTrampoline(gpointer klass, gpointer /*data*/) {
 	classInit(reinterpret_cast<GstVideoManClass*>(klass));
 }
 
-GstCaps *GstVideoManClass::makeAvailableCaps() {
-	return gst_caps_new_simple("video/x-raw-yuv",
-		"format", GST_TYPE_FOURCC, GST_MAKE_FOURCC ('I', '4', '2', '0'),
-		"width", GST_TYPE_INT_RANGE, 1, G_MAXINT,
-		"height", GST_TYPE_INT_RANGE, 1, G_MAXINT,
-		"framerate", GST_TYPE_FRACTION_RANGE, 0, 1, G_MAXINT, 1, NULL);
+GstCaps *GstVideoManClass::makeSrcCaps() {
+	return gst_ffmpeg_pixfmt_to_caps(PIX_FMT_YUV420P);
+}
+
+GstCaps *GstVideoManClass::makeSinkCaps() {
+	GstCaps *caps = gst_caps_new_empty();
+	for (int i = 0; i < PIX_FMT_NB; ++i) {
+		const PixelFormat pix = static_cast<PixelFormat>(i);
+		GstCaps *temp = gst_ffmpeg_pixfmt_to_caps(pix);
+		if (temp)
+			gst_caps_append(caps, temp);
+	}
+	return caps;
 }
 
 void GstVideoManClass::baseInit(gpointer klass) {
 	GstElementClass *elem = GST_ELEMENT_CLASS(klass);
 	static GstPadTemplate *src = gst_pad_template_new("src",
-		GST_PAD_SRC, GST_PAD_ALWAYS, makeAvailableCaps());
+		GST_PAD_SRC, GST_PAD_ALWAYS, makeSrcCaps());
 	static GstPadTemplate *sink = gst_pad_template_new("sink",
-		GST_PAD_SINK, GST_PAD_ALWAYS, makeAvailableCaps());
+		GST_PAD_SINK, GST_PAD_ALWAYS, makeSinkCaps());
 	gst_element_class_add_pad_template(elem, src);
 	gst_element_class_add_pad_template(elem, sink);
 }
@@ -132,8 +152,8 @@ gboolean GstVideoManClass::setCaps(GstBaseTransform *trans, GstCaps *in, GstCaps
 		return false;
 	if (!gst_video_format_parse_caps(out, &format, &d->out_width, &d->out_height))
 		return false;
-//	if ((d->in_width+d->border_h) != d->out_width || (d->in_height+d->border_v) != d->out_height)
-//		return false;
+	if ((d->in_width+d->border_h) != d->out_width || (d->in_height+d->border_v) != d->out_height)
+		return false;
 	int num, den;
 	if (!gst_video_parse_caps_framerate(in, &num, &den))
 		return false;
@@ -141,14 +161,20 @@ gboolean GstVideoManClass::setCaps(GstBaseTransform *trans, GstCaps *in, GstCaps
 	if (!gst_video_parse_caps_framerate(out, &num, &den))
 		return false;
 	d->out_fps = (double)num/den;
-//	if (!qFuzzyCompare(d->in_fps, d->out_fps))
-//		return false;
+	if (!qFuzzyCompare(d->in_fps, d->out_fps))
+		return false;
 	if (!gst_video_parse_caps_pixel_aspect_ratio(in, &num, &den))
 		return false;
 	d->in_par = (double)num/den;
 	if (!gst_video_parse_caps_pixel_aspect_ratio(out, &num, &den))
 		return false;
 	d->out_par = (double)num/den;
+	d->in_pix = gst_ffmpeg_caps_to_pixfmt(in);
+	if (d->in_pix == PIX_FMT_NB)
+		return false;
+	const PixelFormat pix = gst_ffmpeg_caps_to_pixfmt(out);
+	if (pix != PIX_FMT_YUV420P)
+		return false;
 	if (d->man) {
 		VideoInfo in, out;
 		in.fps = d->in_fps;
@@ -213,12 +239,12 @@ GstCaps *GstVideoManClass::transformCaps(GstBaseTransform *trans, GstPadDirectio
 	int dh = 0, dw = 0;
 	GstPad *opp = 0;
 	if (dir == GST_PAD_SINK) {
-		def = makeAvailableCaps();
+		def = makeSinkCaps();
 		dh = d->border_v;
 		dw = d->border_h;
 		opp = trans->srcpad;
 	} else if (dir == GST_PAD_SRC) {
-		def = makeAvailableCaps();
+		def = makeSrcCaps();
 		dh = -d->border_v;
 		dw = -d->border_h;
 		opp = trans->sinkpad;
@@ -248,8 +274,10 @@ gboolean GstVideoManClass::getUnitSize(GstBaseTransform */*trans*/, GstCaps *cap
 	Q_ASSERT(size);
 	GstVideoFormat format;
 	int width, height;
-	if (!gst_video_format_parse_caps(caps, &format, &width, &height)
-			|| format != GST_VIDEO_FORMAT_I420)
+	const PixelFormat pix = gst_ffmpeg_caps_to_pixfmt(caps);
+	if (pix == PIX_FMT_NB)
+		return false;
+	if (!gst_video_format_parse_caps(caps, &format, &width, &height))
 		return false;
 	*size = gst_video_format_get_size(format, width, height);
 	return true;
@@ -258,8 +286,7 @@ gboolean GstVideoManClass::getUnitSize(GstBaseTransform */*trans*/, GstCaps *cap
 
 GstFlowReturn GstVideoManClass::transform(GstBaseTransform *trans, GstBuffer *in, GstBuffer *out) {
 	VideoManipulator *man = GST_VIDEO_MAN(trans)->d->man;
-	man->transform(in, out);
-	return GST_FLOW_OK;
+	return man->transform(in, out);
 }
 
 void GstVideoManClass::fixateCaps(GstBaseTransform */*trans*/, GstPadDirection /*dir*/, GstCaps *caps, GstCaps *opp) {
@@ -284,6 +311,7 @@ void GstVideoMan::ctor() {
 	d->in_height = d->in_width = d->out_height = d->out_width = 0;
 	d->border_v = d->border_h = 0;
 	d->man = 0;
+	d->in_pix = PIX_FMT_NB;
 }
 
 void GstVideoMan::dtor() {

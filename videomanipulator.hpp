@@ -29,7 +29,8 @@ public:
 signals:
 	void videoInfoObtained(const VideoInfo &info);
 private:
-	void transform(GstBuffer *in, GstBuffer *out);
+	bool render(GstBuffer *buffer);
+	GstFlowReturn transform(GstBuffer *in, GstBuffer *out);
 	friend class GstVideoMan;
 	friend class GstVideoManClass;
 	void setVideoInfo(const VideoInfo &in, const VideoInfo &out);

@@ -4,6 +4,7 @@
 #include <QtCore/QMutex>
 #include <gst/base/gstbasetransform.h>
 #include "videofilter.hpp"
+#include "gst_fcs/gst_fcs_avcodec.h"
 
 class VideoManipulator;
 
@@ -19,6 +20,12 @@ private:
 	int m_crop_h, m_crop_v;
 };
 
+class ConvertToI420Filter {
+public:
+	GstFlowReturn transform(I420Picture *out, GstBuffer *buffer);
+	bool transform(I420Picture *out, const uchar *data, int width, int height, PixelFormat pix);
+};
+
 struct GstVideoMan {
 	GstBaseTransform parent;
 	void ctor();
@@ -32,6 +39,7 @@ public:
 		double in_fps, out_fps;
 		double in_par, out_par; // pixel-aspect-ratio
 		int border_h, border_v;
+		PixelFormat in_pix;
 	};
 	Data *d;
 };
@@ -46,8 +54,8 @@ public:
 	static void classInit(GstVideoManClass *klass);
 	static void init(GstVideoMan *video, GstVideoManClass *klass);
 	static void finalize(GObject *obj);
-	static GstCaps *makeAvailableCaps();
-
+	static GstCaps *makeSrcCaps();
+	static GstCaps *makeSinkCaps();
 
 	static void beforeTransform(GstBaseTransform *trans, GstBuffer *in);
 	static void fixateCaps(GstBaseTransform *trans, GstPadDirection dir, GstCaps *caps, GstCaps *opp);

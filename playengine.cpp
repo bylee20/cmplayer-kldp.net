@@ -26,11 +26,12 @@ struct PlayEngine::Data {
 	QList<QMap<MediaMetaData, QVariant> > streamData;
 	NativeVideoRenderer *native;
 	AudioController *audio;
-	int prevTick;
+	int prevTick, seek;
 };
 
 PlayEngine::PlayEngine(): d(new Data) {
 	d->prevTick = 0;
+	d->seek = -1;
 	d->finishing = false;
 	d->state = StoppedState;
 	d->status = NoMediaStatus;
@@ -38,7 +39,6 @@ PlayEngine::PlayEngine(): d(new Data) {
 	d->speed = 1.0;
 	d->native = new NativeVideoRenderer(this);
 	d->audio = new AudioController(this);
-	d->native->show();
 	d->lastPos = d->duration = 0;
 
 	d->playbin = gst_element_factory_make("playbin", 0);
@@ -59,7 +59,6 @@ PlayEngine::~PlayEngine() {
 	stop();
 	d->bus->stop();
 	d->ticker.stop();
-	gst_object_unref(G_OBJECT(d->playbin));
 	if (d->native->parentWidget()) {
 		d->native->hide();
 		d->native->setParent(0);
@@ -181,6 +180,10 @@ void PlayEngine::handleGstMessage(void *ptr) {
 			setState(PausedState);
 			if (oldState == GST_STATE_READY) {
 				setSeekable(true);
+				if (d->seek > 500) {
+					seek(d->seek);
+					d->seek = -1;
+				}
 //				if (!qFuzzyCompare(m_playbackRate, qreal(1.0)))
 //					setPlaybackRate(m_playbackRate);
 //				if (m_renderer)
@@ -386,28 +389,26 @@ void PlayEngine::queryDuration() {
 bool PlayEngine::play() {
 	qDebug() << "PlayEngine::play() begin";
 	if (d->playbin && !d->mrl.url().isEmpty()) {
-		int time = 0;
+		d->seek = -1;
 		if ((d->state == StoppedState || d->state == FinishedState) && Pref::get().rememberStopped)
-			time = RecentInfo::get().stoppedTime(d->mrl);
+			d->seek = RecentInfo::get().stoppedTime(d->mrl);
 		if (!gst_element_set_state(d->playbin, GST_STATE_PLAYING)) {
 			qDebug() << "cannot set playing";
 			qDebug() << "PlayEngine::play() end" << false;
 			return false;
 		}
-		if (time) {
-			qDebug() << "seek to" << time;
-			const bool ret = seek(time);
-			qDebug() << "PlayEngine::play() end" << ret;
-		}
-		qDebug() << "PlayEngine::play() end" << true;
+//		qDebug() << time << d->mrl.toString();
+//		if (time) {
+//			qDebug() << "seek to" << time;
+//			const bool ret = seek(time);
+//			qDebug() << "PlayEngine::play() end" << ret;
+//		}
+//		qDebug() << "PlayEngine::play() end" << true;
 		return true;
 	}
 	setState(StoppedState);
 	qDebug() << "PlayEngine::play() end" << false;
 	return false;
-//	qWarning() << "GStreamer; Unable to play -" << m_url.toString();
-//	emit error(int(QMediaPlayer::ResourceError), tr("Unable to play %1").arg(m_url.path()));
-//	return false;
 }
 
 bool PlayEngine::pause() {
