@@ -49,7 +49,7 @@ Menu &Menu::create(QWidget *parent) {
 	Menu *recent = open->addMenu("recent");
 	recent->setIcon(QIcon(":/img/document-open-recent.png"));
 
-	recent->addAction("seperator")->setSeparator(true);
+	recent->addSeparator();
 	recent->addAction("clear");
 
 	Menu *dvdMenu = root->addMenu("dvd-menu");

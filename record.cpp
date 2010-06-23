@@ -1,5 +1,5 @@
 #include "record.hpp"
 
-Record::Record()
-{
+Record::Record(QObject *parent)
+: QSettings("xylosper.net", "CMPlayer", parent) {
 }

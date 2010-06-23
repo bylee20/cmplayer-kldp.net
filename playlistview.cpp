@@ -146,6 +146,12 @@ void PlaylistView::setPlaylist(const Playlist &list) {
 }
 
 void PlaylistView::play(const Mrl &mrl) {
+//	if (mrl.isPlaylist()) {
+//		Playlist list;
+//		list.load(mrl);
+//		setPlaylist(list);
+//	} else
+//		load(mrl);
 	d->engine->stop();
 	d->engine->setMrl(mrl);
 	d->engine->play();

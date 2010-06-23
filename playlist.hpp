@@ -3,7 +3,7 @@
 
 #include "mrl.hpp"
 
-class QFile;
+class QFile;		class Record;
 
 class Playlist : public QList<Mrl> {
 public:
@@ -11,6 +11,8 @@ public:
 	Playlist();
 	Playlist(const Playlist &rhs);
 	Playlist(const QList<Mrl> &rhs);
+	void save(const QString &prefix, Record *r) const;
+	void load(const QString &prefix, Record *r);
 	bool save(const QString &filePath, Type type = Unknown) const;
 	bool load(const QString &filePath, const QString &enc = QString(), Type type = Unknown);
 	bool load(const Mrl &url, const QString &enc = QString(), Type type = Unknown);

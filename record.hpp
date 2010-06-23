@@ -1,10 +1,12 @@
 #ifndef RECORD_HPP
 #define RECORD_HPP
 
-class Record
-{
+#include <QtCore/QSettings>
+
+class Record : public QSettings {
 public:
-    Record();
+	Record(QObject *parent = 0);
+private:
 };
 
 #endif // RECORD_HPP

@@ -1,4 +1,5 @@
 #include "playlist.hpp"
+#include "record.hpp"
 //#include "downloader.h"
 #include "info.hpp"
 #include <QtCore/QFileInfo>
@@ -126,4 +127,23 @@ bool Playlist::loadM3U(QFile *file, const QString &enc) {
 	}
 	in.seek(pos);
 	return true;
+}
+
+void Playlist::save(const QString &name, Record *r) const {
+	r->beginWriteArray(name, size());
+	for (int i=0; i<size(); ++i) {
+		r->setArrayIndex(i);
+		r->setValue("mrl", at(i).url());
+	}
+	r->endArray();
+}
+
+void Playlist::load(const QString &name, Record *r) {
+	clear();
+	const int size = r->beginReadArray(name);
+	for (int i=0; i<size; ++i) {
+		r->setArrayIndex(i);
+		push_back(r->value("mrl", QUrl()).toUrl());
+	}
+	r->endArray();
 }

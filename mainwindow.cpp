@@ -1,4 +1,5 @@
 #include "mainwindow.hpp"
+#include "playlist.hpp"
 #include <QtGui/QMouseEvent>
 #include "playlistview.hpp"
 #include "screensavermanager.hpp"
@@ -18,6 +19,7 @@
 #include "timelineosdrenderer.hpp"
 #include <QtGui/QPainter>
 
+#include "recentinfo.hpp"
 #include "textosdrenderer.hpp"
 #include "audiocontroller.hpp"
 #include "pref.hpp"
@@ -91,13 +93,15 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	d->menu.updatePref();
 	d->ab = new ABRepeater(d->engine, d->subtitle);
 
+	RecentInfo &recent = RecentInfo::get();
+
 	Menu &menu = d->menu;
 	Menu &open = d->menu("open");
 	connect(open["file"], SIGNAL(triggered()), this, SLOT(openFile()));
 //	connect(open["url"], SIGNAL(triggered()), this, SLOT(open()));
 	connect(open["dvd"], SIGNAL(triggered()), this, SLOT(openDvd()));
-//	connect(open("recent").g(), SIGNAL(triggered(Core::Mrl)), this, SLOT(openMrl(Core::Mrl)));
-//	connect(open("recent")["clear"], SIGNAL(triggered()), d->recent, SLOT(clearStack()));
+	connect(open("recent").g(), SIGNAL(triggered(Mrl)), this, SLOT(openMrl(Mrl)));
+	connect(open("recent")["clear"], SIGNAL(triggered()), &recent, SLOT(clear()));
 	Menu &dvdMenu = d->menu("dvd-menu");
 	connect(dvdMenu.g(), SIGNAL(triggered(int)), d->engine, SLOT(navigateDVDMenu(int)));
 
@@ -170,10 +174,8 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 //			, this, SLOT(updatePlaylistInfo()));
 //	connect(d->model, SIGNAL(rowCountChanged(int))
 //			, this, SLOT(updatePlaylistInfo()));
-//	connect(d->recent, SIGNAL(sourcesChanged(const RecentStack&))
-//			, this, SLOT(updateRecentActions(const RecentStack&)));
-//	connect(d->recent, SIGNAL(rememberCountChanged(int))
-//			, this, SLOT(updateRecentSize(int)));
+	connect(&recent, SIGNAL(openListChanged(QList<Mrl>))
+		, this, SLOT(updateRecentActions(QList<Mrl>)));
 //	connect(&d->hider, SIGNAL(timeout()), this, SLOT(hideCursor()));
 //	d->hider.setSingleShot(true);
 //	connect(d->tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
@@ -185,9 +187,20 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	connect(d->engine->renderer(), SIGNAL(frameRateChanged(double))
 		, d->subtitle, SLOT(setFrameRate(double)));
 	connect(d->engine, SIGNAL(tick(int)), d->subtitle, SLOT(render(int)));
+
+	d->tool->playlist()->setPlaylist(recent.lastPlaylist());
+	d->engine->setMrl(recent.lastMrl());
+	updateRecentActions(recent.openList());
 }
 
 MainWindow::~MainWindow() {
+	d->engine->stop();
+	RecentInfo &recent = RecentInfo::get();
+	recent.setLastPlaylist(d->tool->playlist()->playlist());
+	recent.setLastMrl(d->engine->mrl());
+	recent.save();
+//	saveState();
+//	RecentInfo::get()->save();
 	delete d->subtitle;
 	delete d->timeLine;
 	delete d->message;
@@ -243,18 +256,53 @@ void MainWindow::setupUi() {
 	d->tool = new ToolBox(this);
 }
 
+void MainWindow::updateRecentActions(const QList<Mrl> &list) {
+	Menu &recent = d->menu("open")("recent");
+	ActionGroup *group = recent.g();
+	const int diff = group->actions().size() - list.size();
+	if (diff < 0) {
+		QList<QAction*> acts = recent.actions();
+		QAction *sprt = acts[acts.size()-2];
+		for (int i=0; i<-diff; ++i) {
+			QAction *action = new QAction(&recent);
+			recent.insertAction(sprt, action);
+			recent.g()->addAction(action);
+		}
+	} else if (diff > 0) {
+		QList<QAction*> acts = recent.g()->actions();
+		for (int i=0; i<diff; ++i)
+			delete acts.takeLast();
+	}
+	QList<QAction*> acts = group->actions();
+	for (int i=0; i<list.size(); ++i) {
+		QAction *act = acts[i];
+		act->setData(list[i].url());
+		act->setText(list[i].displayName());
+		act->setVisible(!list[i].isEmpty());
+	}
+}
+
+void MainWindow::openMrl(const Mrl &mrl) {
+	if (mrl == d->engine->mrl())
+		return;
+	if (mrl.isPlaylist())
+		return;
+	d->tool->playlist()->load(mrl);
+	d->tool->playlist()->play(mrl);
+	if (!mrl.isDVD())
+		RecentInfo::get().stack(mrl);
+}
+
 void MainWindow::openFile() {
 	const QString filter = Info::mediaExtensionFilter();
 	const QString file = QFileDialog::getOpenFileName(this
 		, tr("Open File"), QString(), filter);
-	if (file.isEmpty())
-		return;
-	d->tool->playlist()->load(Mrl::fromLocalFile(file));
-	d->tool->playlist()->play(Mrl::fromLocalFile(file));
+	if (!file.isEmpty())
+		openMrl(Mrl::fromLocalFile(file));
 }
 
 void MainWindow::openDvd() {
-	Mrl mrl(QUrl("dvd://"));
+	const Mrl mrl(QUrl("dvd://"));
 	d->engine->setMrl(mrl);
 	d->engine->play();
 }

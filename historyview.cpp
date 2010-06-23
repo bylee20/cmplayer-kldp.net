@@ -2,6 +2,7 @@
 #include <QtCore/QDebug>
 #include "playengine.hpp"
 #include "recentinfo.hpp"
+#include "record.hpp"
 
 struct HistoryView::Item : public QTreeWidgetItem {
 	enum Column {Name = 0, Latest = 1, Location = 2, ColumnCount = 3};
@@ -22,6 +23,7 @@ struct HistoryView::Item : public QTreeWidgetItem {
 		setText(Name, mrl.fileName());
 		setText(Location, mrl.toString());
 	}
+	const QDateTime &date() const {return m_date;}
 private:
 	Mrl m_mrl;
 	QDateTime m_date;
@@ -30,7 +32,6 @@ private:
 
 HistoryView::Item::Item(const Mrl &mrl, const QDateTime &date)
 : m_mrl(mrl), m_date(m_date) {
-	qDebug() << "create item" << mrl.toString();
 	setMrl(mrl);
 	update(date);
 	m_stopped = -1;
@@ -51,9 +52,11 @@ HistoryView::HistoryView(PlayEngine *engine, QWidget *parent)
 	connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int))
 		, this, SLOT(play(QTreeWidgetItem*)));
 	d->engine = engine;
+	load();
 }
 
 HistoryView::~HistoryView() {
+	save();
 	delete d;
 }
 
@@ -69,15 +72,6 @@ int HistoryView::findIndex(const Mrl &mrl) const {
 HistoryView::Item *HistoryView::item(int index) const {
 	return static_cast<Item*>(topLevelItem(index));
 }
-
-//HistoryView::Item *HistoryView::getItem(const Mrl &mrl) const {
-//	for (int i=0; i<topLevelItemCount(); ++i) {
-//		Item *item = static_cast<Item*>(topLevelItem(i));
-//		if (item->mrl() == mrl)
-//			return item;
-//	}
-//	return 0;
-//}
 
 void HistoryView::handleFinished(Mrl mrl) {
 	Item *item = findItem(mrl);
@@ -114,12 +108,9 @@ void HistoryView::handleStateChanged(MediaState state, MediaState old) {
 			item->setStoppedTime(-1);
 		} else {
 			const QDateTime date = QDateTime::currentDateTime();
-			qDebug() << "date" << date;
-			qDebug() << "mrl" << mrl.toString();
 			Item *item = new Item();
 			item->setMrl(mrl);
 			item->update(date);
-			qDebug() << "item created";
 			insertTopLevelItem(0, item);
 			emit historyChanged();
 		}
@@ -151,4 +142,41 @@ void HistoryView::play(QTreeWidgetItem *treeItem) {
 
 void HistoryView::clearAll() {
 	clear();
+}
+
+void HistoryView::save() const {
+	Record r;
+	r.beginGroup("history");
+	const int size = topLevelItemCount();
+	r.beginWriteArray("list", size);
+	for (int i=0; i<size; ++i) {
+		const Item *item = this->item(i);
+		r.setArrayIndex(i);
+		r.setValue("mrl", item->mrl().url());
+		r.setValue("date", item->date());
+		r.setValue("stopped-position", item->stoppedTime());
+	}
+	r.endArray();
+	r.endGroup();
+}
+
+void HistoryView::load() {
+	Record r;
+	r.beginGroup("history");
+	const int size = r.beginReadArray("list");
+	for (int i=0; i<size; ++i) {
+		r.setArrayIndex(i);
+		const Mrl mrl = r.value("mrl", QUrl()).toUrl();
+		if (mrl.isEmpty())
+			continue;
+		const QDateTime date = r.value("date", QDateTime()).toDateTime();
+		int stopped = r.value("stopped-position", -1).toInt();
+		Item *item = new Item;
+		item->setMrl(mrl);
+		item->update(date);
+		item->setStoppedTime(stopped);
+		addTopLevelItem(item);
+		if (stopped > 0)
+			RecentInfo::get().setStopped(mrl, stopped);
+	}
 }

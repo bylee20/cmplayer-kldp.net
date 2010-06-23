@@ -14,6 +14,7 @@ public:
 	PlayEngine *engine() const;
 private slots:
 	void openFile();
+	void openMrl(const Mrl &mrl);
 	void openDvd();
 	void togglePlayPause();
 	void showContextMenu(const QPoint &pos);
@@ -33,6 +34,7 @@ private slots:
 	void updateSubtitle(QAction *action);
 	void handleFinished();
 	void setSyncDelay(int diff);
+	void updateRecentActions(const QList<Mrl> &list);
 private:
 	template<typename M, typename A>
 	static typename A::mapped_type getTriggerAction(uint mod, const M &map

@@ -4,13 +4,26 @@
 #include <QtCore/QObject>
 #include "mrl.hpp"
 
+class Playlist;
+
 class RecentInfo : public QObject {
 	Q_OBJECT
 public:
 	~RecentInfo();
-	QList<Mrl> open() const;
+	QList<Mrl> openList() const;
 	int stoppedTime(const Mrl &mrl);
 	static RecentInfo &get();
+	void save() const;
+	void load();
+	void stack(const Mrl &mrl);
+	void setLastPlaylist(const Playlist &list);
+	void setLastMrl(const Mrl &mrl);
+	Mrl lastMrl() const;
+	Playlist lastPlaylist() const;
+public slots:
+	void clear();
+signals:
+	void openListChanged(const QList<Mrl> &list);
 private:
 	friend class HistoryView;
 	void setStopped(const Mrl &mrl, int time);

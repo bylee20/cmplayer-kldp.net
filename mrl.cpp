@@ -2,9 +2,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QRegExp>
 
-//Mrl::Mrl()
-//{
-//}
 Mrl::Mrl(const QString &location) {
 	static const QRegExp rx("^\\w+://");
 	if (location.contains(rx))
@@ -20,3 +17,12 @@ bool Mrl::isPlaylist() const {
 QString Mrl::fileName() const {
 	return QFileInfo(m_url.path()).fileName();
 }
+
+QString Mrl::displayName() const {
+	if (isLocalFile())
+		return fileName();
+	if (isDVD())
+		return "DVD";
+	return toString();
+}
+

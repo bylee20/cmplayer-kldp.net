@@ -3,6 +3,8 @@
 
 #include <QtCore/QUrl>
 
+class Record;
+
 class Mrl {
 public:
 	Mrl() {}
@@ -28,6 +30,8 @@ public:
 	bool isPlaylist() const;
 	bool isLocalFile() const {return m_url.scheme().toLower() == "file";}
 	bool isDVD() const {return m_url.scheme().toLower() == "dvd";}
+	QString displayName() const;
+	bool isEmpty() const {return m_url.isEmpty();}
 private:
 	QUrl m_url;
 };

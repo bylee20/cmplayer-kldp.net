@@ -2,6 +2,7 @@
 #include "historyview.hpp"
 #include "mainwindow.hpp"
 #include "playlistview.hpp"
+#include "subtitleview.hpp"
 //#include "favoriteswidget.h"
 //#include "playlistwidget.h"
 //#include "historywidget.h"
@@ -127,6 +128,7 @@ private:
 struct ToolBox::Data {
 	PlaylistView *playlist;
 	HistoryView *history;
+	Subtitle *subtitle;
 //	PlaylistWidget *playlist;
 //	FavoritesWidget *favorite;
 //	HistoryWidget *history;

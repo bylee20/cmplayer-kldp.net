@@ -2,7 +2,6 @@
 #define INFO_HPP
 
 #include <QtCore/QStringList>
-#include <QtCore/QSettings>
 
 class Info {
 public:

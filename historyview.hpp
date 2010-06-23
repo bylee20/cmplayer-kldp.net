@@ -14,6 +14,7 @@ public:
 	~HistoryView();
 	QList<Mrl> top(int count = 10) const;
 	int stoppedTime(const Mrl &mrl) const;
+	void save() const;
 signals:
 	void historyChanged();
 private slots:
@@ -23,6 +24,7 @@ private slots:
 	void play(QTreeWidgetItem *treeItem);
 	void clearAll();
 private:
+	void load();
 	int findIndex(const Mrl &mrl) const;
 	struct Item;
 	Item *item(int index) const;
