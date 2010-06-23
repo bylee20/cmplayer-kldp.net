@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>616</width>
-    <height>689</height>
+    <width>579</width>
+    <height>536</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -81,21 +81,12 @@
           <normaloff>:/img/preferences-desktop-keyboard.png</normaloff>:/img/preferences-desktop-keyboard.png</iconset>
         </property>
        </item>
-       <item>
-        <property name="text">
-         <string>Play Engine</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../rsclist.qrc">
-          <normaloff>:/img/applications-multimedia.png</normaloff>:/img/applications-multimedia.png</iconset>
-        </property>
-       </item>
       </widget>
      </item>
      <item>
       <widget class="QStackedWidget" name="stack">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page">
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -108,7 +99,7 @@
             <attribute name="title">
              <string>Play</string>
             </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_19">
+            <layout class="QVBoxLayout" name="verticalLayout_17">
              <item>
               <widget class="QGroupBox" name="groupBox_5">
                <property name="title">
@@ -184,20 +175,13 @@
                   </item>
                  </layout>
                 </item>
-                <item>
-                 <widget class="Line" name="line">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
                </layout>
               </widget>
              </item>
              <item>
               <widget class="QGroupBox" name="groupBox_17">
                <property name="title">
-                <string>Replay stopped files</string>
+                <string>Replay Stopped Files</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_12">
                 <item>
@@ -208,8 +192,8 @@
                  </widget>
                 </item>
                 <item>
-                 <layout class="QGridLayout" name="gridLayout_7">
-                  <item row="0" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                  <item>
                    <spacer name="horizontalSpacer_13">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -225,7 +209,7 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="0" column="1">
+                  <item>
                    <widget class="QCheckBox" name="askWhenRecordFound">
                     <property name="enabled">
                      <bool>false</bool>
@@ -234,112 +218,6 @@
                      <string>Ask when stopped record found</string>
                     </property>
                    </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <spacer name="horizontalSpacer_17">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                     <enum>QSizePolicy::Fixed</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>30</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="1" column="1">
-                   <layout class="QHBoxLayout" name="horizontalLayout_11">
-                    <item>
-                     <widget class="QLabel" name="label_4">
-                      <property name="text">
-                       <string>Maximum count to record:</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSpinBox" name="maximumRecordCount">
-                      <property name="specialValueText">
-                       <string>No Limit</string>
-                      </property>
-                      <property name="accelerated">
-                       <bool>true</bool>
-                      </property>
-                      <property name="maximum">
-                       <number>9999</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_14">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
-                  </item>
-                  <item row="2" column="0">
-                   <spacer name="horizontalSpacer_18">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                     <enum>QSizePolicy::Fixed</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>30</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="2" column="1">
-                   <layout class="QHBoxLayout" name="horizontalLayout_12">
-                    <item>
-                     <widget class="QLabel" name="label_8">
-                      <property name="text">
-                       <string>Days to keep a record:</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QSpinBox" name="daysToKeepRecords">
-                      <property name="specialValueText">
-                       <string>Forever</string>
-                      </property>
-                      <property name="accelerated">
-                       <bool>true</bool>
-                      </property>
-                      <property name="maximum">
-                       <number>999</number>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <spacer name="horizontalSpacer_15">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                   </layout>
                   </item>
                  </layout>
                 </item>
@@ -373,6 +251,102 @@
               </widget>
              </item>
              <item>
+              <widget class="QGroupBox" name="groupBox_10">
+               <property name="title">
+                <string>Screen</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_14">
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                  <item>
+                   <widget class="QCheckBox" name="hideCursor_2">
+                    <property name="text">
+                     <string>Hide cursor when it doesn't move during next time:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QSpinBox" name="hideDelay_2">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="accelerated">
+                     <bool>true</bool>
+                    </property>
+                    <property name="suffix">
+                     <string>sec.</string>
+                    </property>
+                    <property name="minimum">
+                     <number>1</number>
+                    </property>
+                    <property name="value">
+                     <number>3</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="horizontalSpacer_14">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>0</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_13">
+                  <item>
+                   <spacer name="horizontalSpacer_15">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                     <enum>QSizePolicy::Fixed</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>30</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="hideInFullScreen_2">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Hide in only full screen mode</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="Line" name="line_3">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="disableSS_2">
+                  <property name="text">
+                   <string>Disable screensaver while playing</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
               <spacer name="verticalSpacer">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -380,59 +354,7 @@
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
-                 <height>0</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="tab_2">
-            <attribute name="title">
-             <string>Audio / Video</string>
-            </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_14">
-             <item>
-              <widget class="QGroupBox" name="groupBox_15">
-               <property name="title">
-                <string>Audio</string>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_17">
-                <item>
-                 <widget class="QCheckBox" name="volnorm">
-                  <property name="text">
-                   <string>Normalize volume</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <widget class="QGroupBox" name="groupBox_14">
-               <property name="title">
-                <string>Video</string>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_20">
-                <item>
-                 <widget class="QCheckBox" name="softEq">
-                  <property name="text">
-                   <string>Use software equalizer when it is supported by play engine</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <spacer name="spacer_10">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>0</width>
-                 <height>0</height>
+                 <height>17</height>
                 </size>
                </property>
               </spacer>
@@ -500,102 +422,6 @@
                  <widget class="QCheckBox" name="singleApp">
                   <property name="text">
                    <string>Run only single CMPlayer application at the same time</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </widget>
-             </item>
-             <item>
-              <widget class="QGroupBox" name="groupBox_10">
-               <property name="title">
-                <string>Screen</string>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_5">
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_3">
-                  <item>
-                   <widget class="QCheckBox" name="hideCursor">
-                    <property name="text">
-                     <string>Hide cursor when it doesn't move during next time:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QSpinBox" name="hideDelay">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="accelerated">
-                     <bool>true</bool>
-                    </property>
-                    <property name="suffix">
-                     <string>sec.</string>
-                    </property>
-                    <property name="minimum">
-                     <number>1</number>
-                    </property>
-                    <property name="value">
-                     <number>3</number>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <spacer name="horizontalSpacer_8">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>0</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_4">
-                  <item>
-                   <spacer name="horizontalSpacer_9">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                     <enum>QSizePolicy::Fixed</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>30</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="hideInFullScreen">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="text">
-                     <string>Hide in only full screen mode</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <widget class="Line" name="line_2">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="disableSS">
-                  <property name="text">
-                   <string>Disable screensaver while playing</string>
                   </property>
                  </widget>
                 </item>
@@ -1533,34 +1359,16 @@ e.g.: English, Korean</string>
          </item>
         </layout>
        </widget>
-       <widget class="PlayEngineConfigWidget" name="playEngine"/>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <spacer name="horizontalSpacer_16">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="standardButtons">
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -1568,7 +1376,7 @@ e.g.: English, Korean</string>
   <customwidget>
    <class>EncodingComboBox</class>
    <extends>QComboBox</extends>
-   <header>encodingcombobox.h</header>
+   <header>controls.hpp</header>
   </customwidget>
   <customwidget>
    <class>PrefOsdWidget</class>
@@ -1580,12 +1388,6 @@ e.g.: English, Korean</string>
    <class>SimpleListWidget</class>
    <extends>QWidget</extends>
    <header>simplelistwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>PlayEngineConfigWidget</class>
-   <extends>QWidget</extends>
-   <header>playengineconfigwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -1626,38 +1428,6 @@ e.g.: English, Korean</string>
    </hints>
   </connection>
   <connection>
-   <sender>tray</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>hideWhenClosed</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>243</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>254</x>
-     <y>110</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>startStopped</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>askWhenRecordFound</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>271</x>
-     <y>226</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>281</x>
-     <y>255</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
    <receiver>Pref_Dialog</receiver>
@@ -1692,64 +1462,32 @@ e.g.: English, Korean</string>
   <connection>
    <sender>startStopped</sender>
    <signal>toggled(bool)</signal>
-   <receiver>label_4</receiver>
+   <receiver>askWhenRecordFound</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>214</x>
-     <y>218</y>
+     <x>271</x>
+     <y>226</y>
     </hint>
     <hint type="destinationlabel">
-     <x>223</x>
-     <y>272</y>
+     <x>281</x>
+     <y>255</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>startStopped</sender>
+   <sender>tray</sender>
    <signal>toggled(bool)</signal>
-   <receiver>maximumRecordCount</receiver>
+   <receiver>hideWhenClosed</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>189</x>
-     <y>216</y>
+     <x>243</x>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
-     <x>360</x>
-     <y>276</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>startStopped</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_8</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>166</x>
-     <y>217</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>194</x>
-     <y>306</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>startStopped</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>daysToKeepRecords</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>395</x>
-     <y>219</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>338</x>
-     <y>306</y>
+     <x>254</x>
+     <y>110</y>
     </hint>
    </hints>
   </connection>

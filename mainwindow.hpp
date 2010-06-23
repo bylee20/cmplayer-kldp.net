@@ -23,19 +23,19 @@ private slots:
 	void setVolume(int volume);
 	void setMuted(bool muted);
 	void setVideoSize(double times);
-	void setFullScreen(bool full);
 	void updateState(MediaState state, MediaState old);
 	void setSpeed(int speed);
 	void setAmp(int amp);
 	void doRepeat(int key);
 	void moveSubtitle(int dy);
-	void togglePlaylist();
+	void toggleToolBox();
 	void clearSubtitles();
 	void updateSubtitle(QAction *action);
 	void handleFinished();
 	void setSyncDelay(int diff);
 	void updateRecentActions(const QList<Mrl> &list);
 private:
+	void setFullScreen(bool full);
 	template<typename M, typename A>
 	static typename A::mapped_type getTriggerAction(uint mod, const M &map
 			, const A &act, const typename A::mapped_type &def) {

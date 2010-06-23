@@ -77,7 +77,7 @@ DEC_ENUM(AutoAddFiles, 3, AllFiles, SimilarFiles, DoNotAddFiles)
 DEC_ENUM(SeekingStep, 3, SeekingStep1, SeekingStep2, SeekingStep3)
 DEC_ENUM(SubtitleAutoLoad, 4, NoAutoLoad, Matched, Contain, SamePath)
 DEC_ENUM(SubtitleAutoSelect, 4, FirstFile, SameName, AllLoaded, EachLanguage)
-DEC_ENUM(ClickAction, 5, OpenFile, ToggleFullScreen, TogglePlayPause, ToggleMute, TogglePlaylist)
+DEC_ENUM(ClickAction, 5, OpenFile, ToggleFullScreen, TogglePlayPause, ToggleMute, ToggleToolBox)
 DEC_ENUM(WheelAction, 6, Seek1, Seek2, Seek3, NextPrevious, VolumeUpDown, AmpUpDown)
 DEC_ENUM_CLASS(Qt::KeyboardModifier, 4, Qt::NoModifier, Qt::ShiftModifier
 		, Qt::ControlModifier, Qt::AltModifier)

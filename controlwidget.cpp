@@ -105,7 +105,7 @@ struct ControlWidget::Data {
 	Slider *slider;
 	PlayEngine *engine;
 	Button *pref;
-	Button *open, *playlist, *fullScreen;
+	Button *open, *tool, *fullScreen;
 	Button *play, *stop, *prev, *next, *forward, *backward;
 	QBrush bg, light;
 	QPainterPath path;
@@ -135,7 +135,7 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->pref = new Button(this);
 	d->open = new Button(this);
 	d->fullScreen = new Button(this);
-	d->playlist = new Button(this);
+	d->tool = new Button(this);
 	d->play = new Button(this);
 	d->stop = new Button(this);
 	d->prev = new Button(this);
@@ -151,11 +151,12 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->fullScreen->setBlock(false);
 	d->open->setBlock(false);
 	d->pref->setBlock(false);
-	d->playlist->setBlock(false);
-	d->playlist->setIcon(QIcon(":/img/format-list-unordered-gray.png"));
-	d->open->setIcon(QIcon(":/img/open-media-gray.png"));
-	d->fullScreen->setIcon(QIcon(":/img/view-fullscreen-gray.png"));
-	d->pref->setIcon(QIcon(":/img/preferences-system-gray.png"));
+	d->tool->setBlock(false);
+//	d->tool->setIcon(QIcon(":/img/format-list-unordered-gray.png"));
+	d->tool->setIcon(QIcon(":/img/preferences-plugin.png"));
+	d->open->setIcon(QIcon(":/img/go-next-view-page.png"));
+	d->fullScreen->setIcon(QIcon(":/img/view-fullscreen.png"));
+	d->pref->setIcon(QIcon(":/img/preferences-system.png"));
 	setState(StoppedState);
 	connect(&d->lcd->hider, SIGNAL(timeout()), this, SLOT(hideMessage()));
 	connect(d->engine, SIGNAL(stateChanged(MediaState, MediaState))
@@ -182,7 +183,7 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->next->setIconSize(small);
 	d->forward->setIconSize(small);
 	d->backward->setIconSize(small);
-	d->playlist->setIconSize(small);
+	d->tool->setIconSize(small);
 	d->open->setIconSize(small);
 	d->pref->setIconSize(small);
 	d->fullScreen->setIconSize(small);
@@ -203,7 +204,7 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	right->setContentsMargins(2, 0, 0, 0);
 	right->addWidget(d->open, 0, 0, 1, 1);
 	right->addWidget(d->pref, 1, 0, 1, 1);
-	right->addWidget(d->playlist, 0, 1, 1, 1);
+	right->addWidget(d->tool, 0, 1, 1, 1);
 	right->addWidget(d->fullScreen, 1, 1, 1, 1);
 
 	QHBoxLayout *hbox = new QHBoxLayout;
@@ -325,8 +326,8 @@ void ControlWidget::connectOpen(QAction *action) {
 	d->open->setAction(action, false);
 }
 
-void ControlWidget::connectPlaylist(QAction *action) {
-	d->playlist->setAction(action, false);
+void ControlWidget::connectToolBox(QAction *action) {
+	d->tool->setAction(action, false);
 }
 
 void ControlWidget::connectFullScreen(QAction *action) {
@@ -342,8 +343,8 @@ void ControlWidget::retranslateUi() {
 	d->open->setToolTip(tr("Open File"));
 	d->pref->setToolTip(tr("Preferences"));
 // 	d->openUrl->setToolTip(tr("Open URL"));
-	d->fullScreen->setToolTip(tr("Toggle Full Screen Mode"));
-	d->playlist->setToolTip(tr("Toogle Tool Box Visibility"));
+	d->fullScreen->setToolTip(tr("Full Screen"));
+	d->tool->setToolTip(tr("Tool Box"));
 }
 
 void ControlWidget::changeEvent(QEvent *event) {

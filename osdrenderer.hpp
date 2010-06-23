@@ -1,31 +1,12 @@
 #ifndef OSDRENDERER_HPP
 #define OSDRENDERER_HPP
 
-#include <QtCore/QString>
-#include <QtGui/QFont>
-#include <QtGui/QColor>
+#include <QtCore/QObject>
 
 class QSettings;		class RichString;
-class ImageOverlayFilter;
-
-class OsdStyle {
-public:
-	enum Scale {FitToWidth, FitToHeight, FitToDiagonal};
-	OsdStyle(): bgColor(Qt::black), fgColor(Qt::white) {
-		alignment = Qt::AlignCenter;
-		borderWidth = 0.05;
-		textSize = 0.03;
-		scale = FitToDiagonal;
-	}
-	void save(QSettings *set, const QString &group) const;
-	void load(QSettings *set, const QString &group);
-	QFont font;
-	QColor bgColor, fgColor;
-	double borderWidth, textSize;
-	Qt::Alignment alignment;
-	Scale scale;
-};
-
+class ImageOverlayFilter;	class OsdStyle;
+class QRect;			class QPoint;
+class QPainter;			class QSize;
 
 class OsdRenderer : public QObject {
 	Q_OBJECT

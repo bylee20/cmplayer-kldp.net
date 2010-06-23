@@ -1,6 +1,7 @@
 #include "subtitlerenderer.hpp"
 #include "textosdrenderer.hpp"
 #include <QtCore/QDebug>
+#include "osdstyle.hpp"
 
 struct SubtitleRenderer::Data {
 	TextOsdRenderer *osd;
@@ -38,6 +39,10 @@ void SubtitleRenderer::setSubtitle(const Subtitle &subtitle) {
 	d->sub = subtitle;
 	d->comp = d->sub.component(d->frameRate);
 	d->prev = d->comp.end();
+	if (d->comp.isEmpty())
+		clear();
+	else
+		render(d->ms);
 }
 
 void SubtitleRenderer::setFrameRate(double frameRate) {
@@ -57,6 +62,11 @@ void SubtitleRenderer::render(int ms) {
 		if (it != d->comp.end())
 			d->osd->showText(it.value());
 	}
+}
+
+void SubtitleRenderer::clear() {
+	d->prev = d->comp.end();
+	d->osd->clear();
 }
 
 const Subtitle &SubtitleRenderer::subtitle() const {

@@ -65,23 +65,15 @@ Menu &Menu::create(QWidget *parent) {
 	Menu *screen = root->addMenu("screen");
 	screen->setIcon(QIcon(":/img/screen.png"));
 
-	Menu *onTop = screen->addMenu("on top");
-	onTop->setIcon(QIcon(":/img/go-top.png"));
-	onTop->addActionToGroup("disable", true)->setData("Disable");
-	onTop->addActionToGroup("always", true)->setData("Always");
-	onTop->addActionToGroup("playing", true)->setData("Playing");
-
-	screen->addSeparator();
-
 	Menu *size = screen->addMenu("size");
-	size->setIcon(QIcon(":/img/transform-scale.png"));
+//	size->setIcon(QIcon(":/img/transform-scale.png"));
 	QAction *to25 = size->addActionToGroup("25%", false);
 	QAction *to50 = size->addActionToGroup("50%", false);
 	QAction *to100 = size->addActionToGroup("100%", false);
 	QAction *to200 = size->addActionToGroup("200%", false);
 	QAction *to300 = size->addActionToGroup("300%", false);
 	QAction *to400 = size->addActionToGroup("400%", false);
-	QAction *toFull = size->addActionToGroup("full", true);
+	QAction *toFull = size->addActionToGroup("full", false);
 	size->g()->setExclusive(false);
 	to25->setData(0.25);
 	to50->setData(0.5);
@@ -100,7 +92,7 @@ Menu &Menu::create(QWidget *parent) {
 			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
 
 	Menu *aspect = screen->addMenu("aspect");
-	aspect->setIcon(QIcon(":/img/zoom-fit-best.png"));
+//	aspect->setIcon(QIcon(":/img/zoom-fit-best.png"));
 	aspect->addActionToGroup("auto", true)->setData(-1.0);
 	aspect->addActionToGroup("4:3", true)->setData(4.0/3.0);
 	aspect->addActionToGroup("16:9", true)->setData(16.0/9.0);
@@ -108,7 +100,7 @@ Menu &Menu::create(QWidget *parent) {
 	aspect->addActionToGroup("2.35:1", true)->setData(2.35);
 
 	Menu *crop = screen->addMenu("crop");
-	crop->setIcon(QIcon(":/img/transform-crop-and-resize.png"));
+//	crop->setIcon(QIcon(":/img/transform-crop-and-resize.png"));
 	crop->addActionToGroup("off", true)->setData(-1.0);
 	crop->addActionToGroup("4:3", true)->setData(4.0/3.0);
 	crop->addActionToGroup("16:9", true)->setData(16.0/9.0);
@@ -117,7 +109,7 @@ Menu &Menu::create(QWidget *parent) {
 
 	screen->addSeparator();
 	QAction *snapshot = screen->addAction("snapshot");
-	snapshot->setIcon(QIcon(":/img/snapshot.png"));
+//	snapshot->setIcon(QIcon(":/img/snapshot.png"));
 	snapshot->setShortcut(Qt::CTRL + Qt::Key_S);
 
 	Menu *play = root->addMenu("play");
@@ -128,20 +120,16 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *pause = play->addAction("pause");
 	pause->setIcon(QIcon(":/img/media-playback-start.png"));
 	pause->setShortcut(Qt::Key_Space);
-	play->addAction("stop")->setIcon(QIcon(":/img/media-playback-stop.png"));
+	play->addAction("stop")/*->setIcon(QIcon(":/img/media-playback-stop.png"))*/;
 
 	play->addSeparator();
 
 	QAction *prev = play->addAction("prev");
 	QAction *next = play->addAction("next");
-	QAction *list = play->addAction("list");
-	prev->setIcon(QIcon(":/img/media-skip-backward.png"));
+//	prev->setIcon(QIcon(":/img/media-skip-backward.png"));
 	prev->setShortcut(Qt::CTRL + Qt::Key_Left);
-	next->setIcon(QIcon(":/img/media-skip-forward.png"));
+//	next->setIcon(QIcon(":/img/media-skip-forward.png"));
 	next->setShortcut(Qt::CTRL + Qt::Key_Right);
-	list->setIcon(QIcon(":/img/view-media-playlist.png"));
-	list->setShortcut(Qt::Key_L);
-	list->setCheckable(true);
 
 	play->addSeparator();
 
@@ -159,14 +147,12 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *range = repeat->addActionToGroup("range", false);
 	QAction *srange = repeat->addActionToGroup("subtitle", false);
 	QAction *quitRepeat = repeat->addActionToGroup("quit", false);
-	QAction *advanced = repeat->addActionToGroup("advanced", false);
 	range->setShortcut(Qt::Key_R);
 	range->setData(int('r'));
 	srange->setShortcut(Qt::Key_E);
 	srange->setData(int('s'));
 	quitRepeat->setShortcut(Qt::Key_Escape);
 	quitRepeat->setData(int('q'));
-	advanced->setData(int('a'));
 
 	play->addSeparator();
 
@@ -194,7 +180,6 @@ Menu &Menu::create(QWidget *parent) {
 	sList->addAction("open");
 	sList->addAction("clear");
 	sList->addAction("hide")->setCheckable(true);
-	subtitle->addAction("viewer");
 
 	subtitle->addSeparator();
 
@@ -251,8 +236,13 @@ Menu &Menu::create(QWidget *parent) {
 	ampUp->setShortcut(Qt::CTRL + Qt::Key_Up);
 	ampDown->setShortcut(Qt::CTRL + Qt::Key_Down);
 
+	QAction *tool = root->addAction("tool-box");
+	tool->setIcon(QIcon(":/img/preferences-plugin.png"));
+	tool->setShortcut(Qt::Key_B);
+
 	QAction *pref = root->addAction("pref");
 	pref->setIcon(QIcon(":/img/preferences-system.png"));
+	pref->setShortcut(Qt::Key_P);
 // 	root->addAction("help")->setIcon(QIcon(":/img/help-contents.png"));
 	QAction *about = root->addAction("about");
 	about->setIcon(QIcon(":/img/help-about.png"));
@@ -266,7 +256,7 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_click[ToggleFullScreen] = toFull;
 	root->m_click[TogglePlayPause] = pause;
 	root->m_click[ToggleMute] = mute;
-	root->m_click[TogglePlaylist] = list;
+	root->m_click[ToggleToolBox] = tool;
 	root->m_wheel[Seek1] = WheelActionPair(forward1, backward2);
 	root->m_wheel[Seek2] = WheelActionPair(forward2, backward2);
 	root->m_wheel[Seek3] = WheelActionPair(forward3, backward2);
@@ -284,6 +274,7 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_context->addMenu(video);
 	root->m_context->addMenu(audio);
 	root->m_context->addSeparator();
+	root->m_context->addAction(tool);
 	root->m_context->addAction(pref);
 // 	root->m_context->addAction(help);
 	root->m_context->addAction(about);
@@ -349,11 +340,6 @@ void Menu::updatePref() {
 
 	Menu &screen = root("screen");
 	screen.setTitle(tr("Screen"));
-	Menu &onTop = screen("on top");
-	onTop.setTitle(tr("Stays On Top"));
-	onTop["disable"]->setText(tr("Disable"));
-	onTop["always"]->setText(tr("Always"));
-	onTop["playing"]->setText(tr("Only Playing"));
 
 	Menu &size = screen("size");
 	size.setTitle(tr("Size"));
@@ -379,10 +365,8 @@ void Menu::updatePref() {
 	play.setTitle(tr("Play"));
 	play["pause"]->setText(tr("Play"));
 	play["stop"]->setText(tr("Stop"));
-
 	play["prev"]->setText(tr("Previous"));
 	play["next"]->setText(tr("Next"));
-	play["list"]->setText(tr("Toggle Playlist"));
 
 	Menu &speed = play("speed");
 	speed.setTitle(tr("Speed"));
@@ -396,7 +380,6 @@ void Menu::updatePref() {
 	repeat["range"]->setText(tr("Set Range to Current Time"));
 	repeat["subtitle"]->setText(tr("Repeat Current Subtitle"));
 	repeat["quit"]->setText(tr("Quit"));
-	repeat["advanced"]->setText(tr("Advanced..."));
 
 	Menu &seek = play("seek");
 	seek.setTitle(tr("Seek"));
@@ -422,7 +405,6 @@ void Menu::updatePref() {
 	list["open"]->setText(tr("Open"));
 	list["clear"]->setText(tr("Clear"));
 	list["hide"]->setText(tr("Hide"));
-	sub["viewer"]->setText(tr("View Current Subtitle"));
 	setActionAttr(sub["pos-up"], -p.subtitlePosStep
 			, tr("Up %1%"), p.subtitlePosStep, false);
 	setActionAttr(sub["pos-down"], p.subtitlePosStep
@@ -453,6 +435,7 @@ void Menu::updatePref() {
 	setActionStep(audio["amp-up"], audio["amp-down"]
 			, tr("PreAmp %1%"), p.ampStep);
 
+	root["tool-box"]->setText(tr("Tool Box"));
 	root["pref"]->setText(tr("Preferences"));
 // 	root["help"]->setText(tr("Help"));
 	root["about"]->setText(tr("About..."));

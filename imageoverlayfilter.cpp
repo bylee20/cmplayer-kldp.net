@@ -88,17 +88,18 @@ void ImageOverlayFilter::removeOverlay(int id) {
 
 void ImageOverlayFilter::setOverlay(int id, uchar *data, const QSize &size, const QPoint &pos) {
 	Item *item = getItem(id);
-	if (!item)
-		return;
-	item->lock.lockForWrite();
-	delete[] item->data;
-	item->data = data;
-	item->width = size.width();
-	item->height = size.height();
-	item->x = pos.x();
-	item->y = pos.y();
-	item->lock.unlock();
-	rerender();
+	if (item) {
+		uchar *old = item->data;
+		item->lock.lockForWrite();
+		item->data = data;
+		item->width = size.width();
+		item->height = size.height();
+		item->x = pos.x();
+		item->y = pos.y();
+		item->lock.unlock();
+		delete[] old;
+	} else
+		delete data;
 }
 
 void ImageOverlayFilter::setZIndex(int id, double zIndex) {

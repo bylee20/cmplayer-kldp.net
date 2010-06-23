@@ -23,6 +23,7 @@ public:
 	double pos() const;
 	void setPos(double pos);
 public slots:
+	void clear();
 	void setFrameRate(double frameRate);
 	void render(int ms);
 private:

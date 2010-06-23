@@ -5,7 +5,7 @@
 
 //class PlaylistModel;			class VideoPlayer;
 class MainWindow;		class PlaylistView;
-class HistoryView;
+class HistoryView;		class SubtitleView;
 
 class ToolBox : public QDialog {
 	Q_OBJECT
@@ -14,6 +14,7 @@ public:
 	~ToolBox();
 	PlaylistView *playlist() const;
 	HistoryView *history() const;
+	SubtitleView *subtitle() const;
 signals:
 	void hidingRequested();
 	void snapRequested();

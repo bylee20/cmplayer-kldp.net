@@ -8,6 +8,7 @@
 #include <QtGui/QStackedWidget>
 #include <QtGui/QFileDialog>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QApplication>
 #include <QtGui/QMenuBar>
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
@@ -18,7 +19,7 @@
 #include "nativevideorenderer.hpp"
 #include "timelineosdrenderer.hpp"
 #include <QtGui/QPainter>
-
+#include "subtitleview.hpp"
 #include "recentinfo.hpp"
 #include "textosdrenderer.hpp"
 #include "audiocontroller.hpp"
@@ -111,7 +112,6 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 		, d->engine->renderer(), SLOT(setAspectRatio(double)));
 	connect(screen("crop").g(), SIGNAL(triggered(double))
 		, d->engine->renderer(), SLOT(setCropRatio(double)));
-//	connect(screen("on top").g(), SIGNAL(triggered(QAction*)), this, SLOT(updateOnTop()));
 //	connect(screen["snapshot"], SIGNAL(triggered()), this, SLOT(takeSnapshot()));
 	Menu &play = menu("play");
 	connect(play["stop"], SIGNAL(triggered()), d->engine, SLOT(stop()));
@@ -119,9 +119,6 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	connect(play["prev"], SIGNAL(triggered()), d->tool->playlist(), SLOT(playPrevious()));
 	connect(play["next"], SIGNAL(triggered()), d->tool->playlist(), SLOT(playNext()));
 	connect(play["pause"], SIGNAL(triggered()), this, SLOT(togglePlayPause()));
-	connect(play["list"], SIGNAL(triggered()), this, SLOT(togglePlaylist()));
-//	connect(play("engine").g(), SIGNAL(triggered(const QString &))
-//			, d->engine, SLOT(setBackend(const QString &)));
 	connect(play("repeat").g(), SIGNAL(triggered(int)), this, SLOT(doRepeat(int)));
 	connect(play("seek").g(), SIGNAL(triggered(int)), this, SLOT(seek(int)));
 	Menu &video = menu("video");
@@ -143,13 +140,14 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 //	connect(sub("list")["open"], SIGNAL(triggered()), this, SLOT(openSubFile()));
 //	connect(sub("list")["clear"], SIGNAL(triggered()), this, SLOT(clearSubs()));
 	connect(sub("list").g(), SIGNAL(triggered(QAction*)), this, SLOT(updateSubtitle(QAction*)));
-//	connect(sub["viewer"], SIGNAL(triggered()), this, SLOT(openSubViewer()));
 	connect(sub.g("pos"), SIGNAL(triggered(int)), this, SLOT(moveSubtitle(int)));
 	connect(sub.g("sync"), SIGNAL(triggered(int)), this, SLOT(setSyncDelay(int)));
+
+	connect(menu["tool-box"], SIGNAL(triggered()), this, SLOT(toggleToolBox()));
 //	connect(menu["pref"], SIGNAL(triggered()), this, SLOT(showPrefDialog()));
 //	connect(menu["about"], SIGNAL(triggered()), this, SLOT(showAbout()));
 //// 	connect(menu["help"], SIGNAL(triggered()), this, SLOT(slotHelp()));
-//	connect(menu["exit"], SIGNAL(triggered()), qApp, SLOT(quit()));
+	connect(menu["exit"], SIGNAL(triggered()), qApp, SLOT(quit()));
 
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(updateMrl(Mrl)));
 	connect(d->engine, SIGNAL(stateChanged(MediaState,MediaState))
@@ -160,20 +158,12 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 //			, this, SLOT(slotTracksChanged(const QStringList&)));
 //	connect(d->engine, SIGNAL(currentTrackChanged(const QString&))
 //			, this, SLOT(slotCurrentTrackChanged(const QString&)));
-//	connect(d->engine, SIGNAL(spusChanged(const QStringList&))
-//			, this, SLOT(slotSpusChanged(const QStringList&)));
-//	connect(d->engine, SIGNAL(currentSpuChanged(const QString&))
-//			, this, SLOT(slotCurrentSpuChanged(const QString&)));
 	connect(d->engine->renderer(), SIGNAL(customContextMenuRequested(const QPoint&))
 		, this, SLOT(showContextMenu(const QPoint&)));
 	connect(d->logo, SIGNAL(customContextMenuRequested(QPoint))
 		, this, SLOT(showContextMenu(QPoint)));
 //	connect(d->toolBox, SIGNAL(hidingRequested())
 //			, this, SLOT(toggleToolBoxVisibility()));
-//	connect(d->model, SIGNAL(currentRowChanged(int))
-//			, this, SLOT(updatePlaylistInfo()));
-//	connect(d->model, SIGNAL(rowCountChanged(int))
-//			, this, SLOT(updatePlaylistInfo()));
 	connect(&recent, SIGNAL(openListChanged(QList<Mrl>))
 		, this, SLOT(updateRecentActions(QList<Mrl>)));
 //	connect(&d->hider, SIGNAL(timeout()), this, SLOT(hideCursor()));
@@ -234,7 +224,7 @@ void MainWindow::setupUi() {
 	d->control->connectBackward(play("seek")["backward1"]);
 	d->control->connectOpen(d->menu("open")["file"]);
 	d->control->connectFullScreen(d->menu("screen")("size")["full"]);
-	d->control->connectPlaylist(d->menu("play")["list"]);
+	d->control->connectToolBox(d->menu["tool-box"]);
 
 	QVBoxLayout *vbox = new QVBoxLayout(center);
 	vbox->addWidget(d->screen);
@@ -340,6 +330,7 @@ void MainWindow::clearSubtitles() {
 	for (int i=0; i<acts.size(); ++i)
 		delete acts[i];
 	d->subtitle->setSubtitle(d->subLoaded);
+	d->tool->subtitle()->setSubtitle(d->subLoaded);
 //	d->subViewer->showCurrentSubtitle();
 }
 
@@ -456,6 +447,7 @@ void MainWindow::updateSubtitle() {
 	for (int i=0; i<order.size(); ++i)
 		subtitle.append(d->subLoaded[order[i]]);
 	d->subtitle->setSubtitle(subtitle);
+	d->tool->subtitle()->setSubtitle(subtitle);
 //	if (d->subViewer->isVisible())
 //		d->subViewer->showCurrentSubtitle();
 //		d->subViewer->setSubtitle(d->sub);
@@ -645,7 +637,7 @@ void MainWindow::moveSubtitle(int dy) {
 	showMessage(tr("Subtitle Position"), newPos, "%");
 }
 
-void MainWindow::togglePlaylist() {
+void MainWindow::toggleToolBox() {
 	d->tool->setVisible(!d->tool->isVisible());
 }
 

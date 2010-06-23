@@ -128,7 +128,7 @@ private:
 struct ToolBox::Data {
 	PlaylistView *playlist;
 	HistoryView *history;
-	Subtitle *subtitle;
+	SubtitleView *subtitle;
 //	PlaylistWidget *playlist;
 //	FavoritesWidget *favorite;
 //	HistoryWidget *history;
@@ -146,10 +146,12 @@ ToolBox::ToolBox(/*VideoPlayer *player, PlaylistModel *model,*/ MainWindow *main
 	d->playlist = new PlaylistView(mainWindow->engine(), d->frame);
 //	d->favorite = new FavoritesWidget(player, d->frame);
 	d->history = new HistoryView(mainWindow->engine(), d->frame);
+	d->subtitle = new SubtitleView(mainWindow->engine(), d->frame);
 //	d->color = new VideoColorWidget(player, d->frame);
 	addPage(d->playlist, tr("Playlist"), ":/img/view-media-playlist-%1.png");
 //	addPage(d->favorite, tr("Favorites"), ":/img/favorites-%1.png");
 	addPage(d->history, tr("History"), ":/img/history-%1.png");
+	addPage(d->subtitle, tr("Subtitle"), ":/img/subtitle-view-icon-%1.png");
 //	addPage(d->color, tr("Video Color"), ":/img/view-media-equalizer-%1.png");
 //	titleBar()->connect(this);
 // 	titleBar()->addButton(QIcon(":/img/view-split-left-right.png"), this, SIGNAL(snapRequested()));
@@ -222,4 +224,8 @@ void ToolBox::changeWidget(int id) {
 
 PlaylistView *ToolBox::playlist() const {
 	return d->playlist;
+}
+
+SubtitleView *ToolBox::subtitle() const {
+	return d->subtitle;
 }

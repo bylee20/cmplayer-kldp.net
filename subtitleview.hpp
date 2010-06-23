@@ -14,7 +14,10 @@ public:
 	void setFrameRate(double fps);
 private slots:
 	void updateCurrent(int time);
+	void setTimeVisible(bool visible);
+	void setAutoScrollEnabled(bool enabled);
 private:
+	void showEvent(QShowEvent *evene);
 	class CompView;
 	struct Data;
 	Data *d;

@@ -3,6 +3,7 @@
 #include <QtCore/QPoint>
 #include <QtGui/QPainter>
 #include <QtCore/QDebug>
+#include "osdstyle.hpp"
 
 struct TimeLineOsdRenderer::Data {
 	int time, duration;

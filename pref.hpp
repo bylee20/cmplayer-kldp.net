@@ -6,7 +6,7 @@
 #include <QtCore/QLocale>
 #include <QtCore/QPair>
 #include <QtCore/QStringList>
-#include "osdrenderer.hpp"
+#include "osdstyle.hpp"
 #include <QtCore/QSettings>
 #include "global.hpp"
 
@@ -55,8 +55,8 @@ public:
 
 	void save() const;
 	void load();
-	class Dialog;
 private:
+	class Dialog;
 	Pref() {load();}
 	static Pref &ref();
 	template<typename T>

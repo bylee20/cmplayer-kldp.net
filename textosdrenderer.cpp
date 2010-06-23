@@ -7,6 +7,7 @@
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 #include <qmath.h>
+#include "osdstyle.hpp"
 #include <QtCore/QMutex>
 
 class SineCosine {

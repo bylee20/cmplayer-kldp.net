@@ -3,6 +3,7 @@
 
 #include <QtGui/QSlider>
 #include <QtGui/QToolButton>
+#include <QtGui/QComboBox>
 
 class PlayEngine;
 
@@ -52,5 +53,16 @@ private:
 	struct Data;
 	Data *d;
 };
+
+class EncodingComboBox : public QComboBox {
+	Q_OBJECT
+public:
+	EncodingComboBox(QWidget *parent = 0);
+	QString encoding() const;
+	void setEncoding(const QString &encoding);
+private:
+	QStringList enc;
+};
+
 
 #endif // CONTROLS_HPP

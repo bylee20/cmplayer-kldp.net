@@ -71,7 +71,9 @@ HEADERS += playengine.hpp \
     gst_fcs/gst_fcs_gstffmpegcodecmap.h \
     gst_fcs/gst_fcs_imgconvert_template.h \
     record.hpp \
-    subtitleview.hpp
+    subtitleview.hpp \
+    pref_dialog.hpp \
+    osdstyle.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     bushelper.cpp \
@@ -127,5 +129,9 @@ SOURCES += main.cpp \
     gst_fcs/gst_fcs_utils.c \
     gst_fcs/gst_fcs_mem.c \
     record.cpp \
-    subtitleview.cpp
+    subtitleview.cpp \
+    pref_dialog.cpp \
+    osdstyle.cpp
 DEFINES += CMPLAYER_TRANSLATION_DIR_PATH=$(CMPLAYER_TRANSLATION_DIR)
+FORMS += ui/pref_dialog.ui \
+    ui/osdstyle_widget.ui
