@@ -1,8 +1,13 @@
 TEMPLATE = app
-TARGET = cmplayer-gst
-CONFIG += link_pkgconfig \
-    debug_and_release \
-    debug
+TARGET = ../bin/cmplayer
+CONFIG += link_pkgconfig debug_and_release
+RELEASE = $$(CMPLAYER_RELEASE)
+!isEmpty(RELEASE) {
+    CONFIG += release
+}
+else {
+    CONFIG += debug
+ }
 QT += network
 PKGCONFIG += gstreamer-0.10 \
     gstreamer-base-0.10 \

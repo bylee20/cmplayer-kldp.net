@@ -1,92 +1,41 @@
 <RCC>
     <qresource prefix="/">
-        <file>img/view-split-left-right.png</file>
-        <file>img/arrow-down-gray.png</file>
         <file>img/arrow-left-double-gray.png</file>
         <file>img/go-first-view-gray.png</file>
         <file>img/arrow-right-double-gray.png</file>
         <file>img/go-last-view-gray.png</file>
-        <file>img/go-top-gray.png</file>
         <file>img/open-media-gray.png</file>
-        <file>img/format-list-unordered-gray.png</file>
-        <file>img/view-fullscreen-gray.png</file>
-        <file>img/toggle-panel.png</file>
-        <file>img/edit-delete-gray.png</file>
-        <file>img/window-duplicate-gray.png</file>
         <file>img/irc-voice.png</file>
         <file>img/irc-unvoice.png</file>
         <file>img/zoom-original.png</file>
         <file>img/zoom-in.png</file>
         <file>img/zoom-out.png</file>
         <file>img/snapshot.png</file>
-        <file>img/media-open.png</file>
-        <file>img/media-eject.png</file>
         <file>img/cmplayer-icon.png</file>
         <file>img/cmplayer-logo.svg</file>
         <file>img/cmplayer-logo-center.png</file>
         <file>img/subtitle.png</file>
         <file>img/system-run.png</file>
-        <file>img/format-text-color.png</file>
-        <file>img/screen.png</file>
         <file>img/format-text-bold.png</file>
         <file>img/player-time.png</file>
-        <file>img/speaker.png</file>
-        <file>img/view-list-details.png</file>
-        <file>img/applications-multimedia.png</file>
-        <file>img/tools-wizard.png</file>
         <file>img/qt-logo.png</file>
-        <file>img/format-indent-more.png</file>
         <file>img/help-about.png</file>
         <file>img/help-contents.png</file>
-        <file>img/format-line-spacing-normal.png</file>
-        <file>img/edit-delete.png</file>
-        <file>img/format-list-ordered.png</file>
-        <file>img/format-list-unordered.png</file>
-        <file>img/arrow-right-double.png</file>
-        <file>img/edit-undo.png</file>
-        <file>img/zoom-fit-best.png</file>
         <file>img/document-open-folder.png</file>
-        <file>img/video-x-generic.png</file>
         <file>img/media-optical.png</file>
-        <file>img/view-restore.png</file>
-        <file>img/format-justify-center.png</file>
-        <file>img/transform-scale.png</file>
-        <file>img/transform-crop-and-resize.png</file>
         <file>img/application-exit.png</file>
-        <file>img/arrow-down.png</file>
-        <file>img/arrow-left.png</file>
-        <file>img/arrow-right.png</file>
-        <file>img/arrow-up.png</file>
-        <file>img/document-open-recent.png</file>
-        <file>img/games-solve.png</file>
         <file>img/document-open.png</file>
-        <file>img/document-save.png</file>
-        <file>img/edit-clear-list.png</file>
         <file>img/games-config-background.png</file>
         <file>img/go-top.png</file>
-        <file>img/list-add.png</file>
-        <file>img/list-remove.png</file>
         <file>img/media-playback-pause.png</file>
         <file>img/media-playback-start.png</file>
-        <file>img/media-playback-stop.png</file>
-        <file>img/media-seek-backward.png</file>
-        <file>img/media-seek-forward.png</file>
-        <file>img/media-skip-backward.png</file>
-        <file>img/media-skip-forward.png</file>
-        <file>img/player-volume.png</file>
         <file>img/preferences-system.png</file>
         <file>img/preferences-desktop-keyboard.png</file>
         <file>img/view-fullscreen.png</file>
-        <file>img/view-media-equalizer.png</file>
-        <file>img/view-media-playlist.png</file>
-        <file>img/window-close.png</file>
-        <file>img/network-workgroup.png</file>
         <file>img/folder.png</file>
         <file>img/favorites-gray.png</file>
         <file>img/view-media-playlist-gray.png</file>
-        <file>img/view-media-equalizer-gray.png</file>
         <file>img/view-media-playlist-color.png</file>
-        <file>img/view-media-equalizer-color.png</file>
         <file>img/favorites-color.png</file>
         <file>img/history-color.png</file>
         <file>img/history-gray.png</file>
@@ -97,5 +46,6 @@
         <file>img/go-next-view-page.png</file>
         <file>translations/cmplayer_ko</file>
         <file>translations/cmplayer_en</file>
+        <file>translations/cmplayer_ja</file>
     </qresource>
 </RCC>
