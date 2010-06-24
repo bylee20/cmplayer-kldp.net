@@ -14,7 +14,6 @@ PKGCONFIG += gstreamer-0.10 \
     gstreamer-interfaces-0.10 \
     gstreamer-audio-0.10 \
     gstreamer-video-0.10 \
-    gstreamer-app-0.10 \
     gstreamer-controller-0.10 \
     liboil-0.3
 INCLUDEPATH += /usr/include/gstreamer-0.10 \

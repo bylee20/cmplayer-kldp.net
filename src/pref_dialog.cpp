@@ -3,13 +3,11 @@
 #include "ui_pref_dialog.h"
 #include "dialogs.hpp"
 #include "translator.hpp"
-#include "menu.h"
 #include "info.hpp"
 #include <QtCore/QMap>
 #include <QtGui/QStyleFactory>
 #include <QtCore/QCoreApplication>
 #include <QtGui/QHeaderView>
-//#include <core/mediasource.h>
 #include <QtCore/QDebug>
 
 struct Pref::Dialog::Data {
