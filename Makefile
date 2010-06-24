@@ -53,10 +53,10 @@ cmplayer:
 	@echo && echo "======================= Start to complile! ======================" && echo
 ifeq ($(config),)
 	cd src/libchardet* && ./configure --enable-shared=no --enable-static=yes && make
-	cd src && $(qmake_env) $(QMAKE) cmplayer.pro
 	cd src/translations && $(LRELEASE) cmplayer_ko.ts -qm cmplayer_ko
 	cd src/translations && $(LRELEASE) cmplayer_en.ts -qm cmplayer_en
 	cd src/translations && $(LRELEASE) cmplayer_ja.ts -qm cmplayer_ja
+	cd src && $(qmake_env) $(QMAKE) cmplayer.pro
 	cd src && make
 ifeq ($(LOAD_CONFIG),yes) # by Manje Woo
 	@-rm -f $(config_file)
