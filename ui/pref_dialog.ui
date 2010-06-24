@@ -86,7 +86,7 @@
      <item>
       <widget class="QStackedWidget" name="stack">
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page">
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -114,37 +114,8 @@
                  </widget>
                 </item>
                 <item>
-                 <layout class="QGridLayout" name="gridLayout_6">
-                  <item row="0" column="0">
-                   <spacer name="spacer">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                     <enum>QSizePolicy::Fixed</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>30</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QCheckBox" name="playRestored">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="text">
-                     <string>Start to play when restored</string>
-                    </property>
-                    <property name="checked">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
+                 <layout class="QHBoxLayout" name="horizontalLayout_3">
+                  <item>
                    <spacer name="horizontalSpacer_7">
                     <property name="orientation">
                      <enum>Qt::Horizontal</enum>
@@ -160,7 +131,7 @@
                     </property>
                    </spacer>
                   </item>
-                  <item row="1" column="1">
+                  <item>
                    <widget class="QCheckBox" name="pauseVideoOnly">
                     <property name="enabled">
                      <bool>false</bool>
@@ -257,16 +228,16 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_14">
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                 <layout class="QHBoxLayout" name="horizontalLayout">
                   <item>
-                   <widget class="QCheckBox" name="hideCursor_2">
+                   <widget class="QCheckBox" name="hideCursor">
                     <property name="text">
                      <string>Hide cursor when it doesn't move during next time:</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QSpinBox" name="hideDelay_2">
+                   <widget class="QSpinBox" name="hideDelay">
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
@@ -274,7 +245,7 @@
                      <bool>true</bool>
                     </property>
                     <property name="suffix">
-                     <string>sec.</string>
+                     <string>sec</string>
                     </property>
                     <property name="minimum">
                      <number>1</number>
@@ -300,44 +271,7 @@
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_13">
-                  <item>
-                   <spacer name="horizontalSpacer_15">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                     <enum>QSizePolicy::Fixed</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>30</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="hideInFullScreen_2">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="text">
-                     <string>Hide in only full screen mode</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <widget class="Line" name="line_3">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QCheckBox" name="disableSS_2">
+                 <widget class="QCheckBox" name="disableSS">
                   <property name="text">
                    <string>Disable screensaver while playing</string>
                   </property>
@@ -354,7 +288,7 @@
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>0</width>
-                 <height>17</height>
+                 <height>53</height>
                 </size>
                </property>
               </spacer>
@@ -638,7 +572,7 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_11">
                 <item>
-                 <widget class="PrefOsdWidget" name="subOsd" native="true"/>
+                 <widget class="OsdStyle::Widget" name="subOsd" native="true"/>
                 </item>
                </layout>
               </widget>
@@ -937,7 +871,7 @@ e.g.: English, Korean</string>
             </attribute>
             <layout class="QVBoxLayout" name="_2">
              <item>
-              <spacer name="spacer_3">
+              <spacer name="spacer">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
@@ -1379,15 +1313,15 @@ e.g.: English, Korean</string>
    <header>controls.hpp</header>
   </customwidget>
   <customwidget>
-   <class>PrefOsdWidget</class>
+   <class>OsdStyle::Widget</class>
    <extends>QWidget</extends>
-   <header>prefosdwidget.h</header>
+   <header>osdstyle.hpp</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>SimpleListWidget</class>
    <extends>QWidget</extends>
-   <header>simplelistwidget.h</header>
+   <header>simplelistwidget.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -1418,12 +1352,12 @@ e.g.: English, Korean</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>160</x>
-     <y>337</y>
+     <x>285</x>
+     <y>333</y>
     </hint>
     <hint type="destinationlabel">
-     <x>551</x>
-     <y>336</y>
+     <x>547</x>
+     <y>334</y>
     </hint>
    </hints>
   </connection>
@@ -1434,8 +1368,8 @@ e.g.: English, Korean</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>429</x>
-     <y>458</y>
+     <x>433</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
      <x>200</x>
@@ -1450,8 +1384,8 @@ e.g.: English, Korean</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>409</x>
-     <y>461</y>
+     <x>413</x>
+     <y>531</y>
     </hint>
     <hint type="destinationlabel">
      <x>240</x>
@@ -1466,12 +1400,12 @@ e.g.: English, Korean</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>271</x>
-     <y>226</y>
+     <x>391</x>
+     <y>184</y>
     </hint>
     <hint type="destinationlabel">
-     <x>281</x>
-     <y>255</y>
+     <x>436</x>
+     <y>212</y>
     </hint>
    </hints>
   </connection>
@@ -1482,12 +1416,28 @@ e.g.: English, Korean</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>243</x>
-     <y>83</y>
+     <x>201</x>
+     <y>67</y>
     </hint>
     <hint type="destinationlabel">
-     <x>254</x>
-     <y>110</y>
+     <x>200</x>
+     <y>95</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pauseMinimized</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>pauseVideoOnly</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>208</x>
+     <y>78</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>102</y>
     </hint>
    </hints>
   </connection>

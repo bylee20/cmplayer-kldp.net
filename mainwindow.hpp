@@ -2,6 +2,7 @@
 #define MAINWINDOW_HPP
 
 #include <QtGui/QMainWindow>
+#include <QtGui/QSystemTrayIcon>
 #include "global.hpp"
 
 class Mrl;		class PlayEngine;
@@ -12,9 +13,11 @@ public:
 	MainWindow();
 	~MainWindow();
 	PlayEngine *engine() const;
-private slots:
-	void openFile();
+public slots:
 	void openMrl(const Mrl &mrl);
+private slots:
+	void setVolumeNormalized(bool norm);
+	void openFile();
 	void openDvd();
 	void togglePlayPause();
 	void showContextMenu(const QPoint &pos);
@@ -24,6 +27,8 @@ private slots:
 	void setMuted(bool muted);
 	void setVideoSize(double times);
 	void updateState(MediaState state, MediaState old);
+	void setSoftEqEnabled(bool enabled);
+	void setColorProperty(QAction *action);
 	void setSpeed(int speed);
 	void setAmp(int amp);
 	void doRepeat(int key);
@@ -34,7 +39,18 @@ private slots:
 	void handleFinished();
 	void setSyncDelay(int diff);
 	void updateRecentActions(const QList<Mrl> &list);
+	void setPref();
+	void hideCursor();
+	void handleTray(QSystemTrayIcon::ActivationReason reason);
+	void updateStreamInfo();
+	void setTrack(int i);
 private:
+	void loadState();
+	void saveState();
+	void closeEvent(QCloseEvent *event);
+	void applyPref();
+	void showEvent(QShowEvent *event);
+	void hideEvent(QHideEvent *event);
 	void setFullScreen(bool full);
 	template<typename M, typename A>
 	static typename A::mapped_type getTriggerAction(uint mod, const M &map
@@ -61,6 +77,7 @@ private:
 	void showMessage(const QString &cmd, const QString &description, int last = 2500);
 	void showMessage(const QString &cmd, double value
 		, const QString &unit, bool sign = false, int last = 2500);
+	void showMessage(const QString &cmd, bool value, int last = 2500);
 	void setupUi();
 	struct Data;
 	Data *d;

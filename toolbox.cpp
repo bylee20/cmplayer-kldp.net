@@ -129,42 +129,31 @@ struct ToolBox::Data {
 	PlaylistView *playlist;
 	HistoryView *history;
 	SubtitleView *subtitle;
-//	PlaylistWidget *playlist;
 //	FavoritesWidget *favorite;
-//	HistoryWidget *history;
-//	VideoColorWidget *color;
 	Frame *frame;
 	ButtonWidget *button;
-//	DragCharm dragCharm;
 };
 
-ToolBox::ToolBox(/*VideoPlayer *player, PlaylistModel *model,*/ MainWindow *mainWindow)
-: QDialog(mainWindow, Qt::Tool), d(new Data) {
+ToolBox::ToolBox(MainWindow *mw)
+: QDialog(mw, Qt::Tool), d(new Data) {
 	setFocusPolicy(Qt::NoFocus);
 	d->frame = new Frame(this);
 	d->button = new ButtonWidget(this);
-	d->playlist = new PlaylistView(mainWindow->engine(), d->frame);
+	d->playlist = new PlaylistView(mw->engine(), d->frame);
 //	d->favorite = new FavoritesWidget(player, d->frame);
-	d->history = new HistoryView(mainWindow->engine(), d->frame);
-	d->subtitle = new SubtitleView(mainWindow->engine(), d->frame);
-//	d->color = new VideoColorWidget(player, d->frame);
+	d->history = new HistoryView(mw->engine(), d->frame);
+	d->subtitle = new SubtitleView(mw->engine(), d->frame);
+
 	addPage(d->playlist, tr("Playlist"), ":/img/view-media-playlist-%1.png");
 //	addPage(d->favorite, tr("Favorites"), ":/img/favorites-%1.png");
 	addPage(d->history, tr("History"), ":/img/history-%1.png");
 	addPage(d->subtitle, tr("Subtitle"), ":/img/subtitle-view-icon-%1.png");
-//	addPage(d->color, tr("Video Color"), ":/img/view-media-equalizer-%1.png");
-//	titleBar()->connect(this);
-// 	titleBar()->addButton(QIcon(":/img/view-split-left-right.png"), this, SIGNAL(snapRequested()));
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
-//	vbox->addWidget(titleBar());
 	vbox->addWidget(d->frame);
 	vbox->addWidget(d->button);
 	vbox->setContentsMargins(3, 3, 3, 3);
 	vbox->setSpacing(0);
-
-//	d->dragCharm.activate(this);
-//	d->dragCharm.setBorder(7);
 
 //	connect(d->history, SIGNAL(openRequested(Core::Mrl)), mainWindow, SLOT(openMrl(Core::Mrl)));
 //	connect(d->favorite, SIGNAL(openRequested(Core::Mrl)), mainWindow, SLOT(openMrl(Core::Mrl)));
@@ -187,10 +176,10 @@ void ToolBox::addPage(QWidget *widget, const QString &name, const QString &iconH
 	d->frame->stack->addWidget(widget);
 }
 
-void ToolBox::closeEvent(QCloseEvent *event) {
-	event->ignore();
-	emit hidingRequested();
-}
+//void ToolBox::closeEvent(QCloseEvent *event) {
+//	event->ignore();
+//	emit hidingRequested();
+//}
 
 void ToolBox::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);
@@ -200,7 +189,6 @@ void ToolBox::paintEvent(QPaintEvent */*event*/) {
 	painter.drawRect(1, 1, width() - 3, height() - 3);
 	painter.restore();
 
-//	drawBackground(&painter, this);
 	const QRectF box = boxRect();
 // 	const double frameBound = d->frame->geometry().bottom();
 	QLinearGradient grad(box.topLeft(), box.bottomLeft());
@@ -212,14 +200,12 @@ void ToolBox::paintEvent(QPaintEvent */*event*/) {
 
 void ToolBox::resizeEvent(QResizeEvent *event) {
 	QDialog::resizeEvent(event);
-//	d->dragCharm.setRect(boxRect());
 }
 
 void ToolBox::changeWidget(int id) {
 	d->frame->stack->setCurrentIndex(id);
-	const QString title = "TOOL BOX - " + d->button->group->button(id)->toolTip();
+	const QString title = tr("TOOL BOX") + " - " + d->button->group->button(id)->toolTip();
 	setWindowTitle(title);
-//	titleBar()->setTitle(title);
 }
 
 PlaylistView *ToolBox::playlist() const {

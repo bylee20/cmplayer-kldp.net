@@ -3,11 +3,14 @@
 #include <QtCore/QMap>
 #include "record.hpp"
 #include "playlist.hpp"
+#include <QtCore/QDateTime>
+
+typedef QMap<Mrl, QPair<int, QDateTime> > StoppedMap;
 
 struct RecentInfo::Data {
 	int max;
 	Playlist openList, lastList;
-	QMap<Mrl, int> stopped;
+	StoppedMap stopped;
 	Mrl lastMrl;
 };
 
@@ -30,19 +33,28 @@ QList<Mrl> RecentInfo::openList() const {
 	return d->openList;
 }
 
-void RecentInfo::setStopped(const Mrl &mrl, int time) {
+void RecentInfo::setStopped(const Mrl &mrl, int time, const QDateTime &date) {
 	if (time == -1)
 		setFinished(mrl);
-	else
-		d->stopped[mrl] = time;
+	else {
+		StoppedMap::iterator it = d->stopped.find(mrl);
+		if (it != d->stopped.end()) {
+			it->first = time;
+			it->second = date;
+		} else
+			d->stopped.insert(mrl, qMakePair(time, date));
+	}
 }
 
 void RecentInfo::setFinished(const Mrl &mrl) {
 	d->stopped.remove(mrl);
 }
 
-int RecentInfo::stoppedTime(const Mrl &mrl) {
-	return d->stopped.value(mrl, 0);
+int RecentInfo::stoppedTime(const Mrl &mrl) const {
+	if (mrl.isDVD())
+		return 0;
+	StoppedMap::const_iterator it = d->stopped.find(mrl);
+	return it == d->stopped.end() ? 0 : it->first;
 }
 
 void RecentInfo::stack(const Mrl &mrl) {
@@ -92,4 +104,9 @@ void RecentInfo::setLastMrl(const Mrl &mrl) {
 
 Mrl RecentInfo::lastMrl() const {
 	return d->lastMrl;
+}
+
+QDateTime RecentInfo::stoppedDate(const Mrl &mrl) const {
+	StoppedMap::const_iterator it = d->stopped.find(mrl);
+	return it == d->stopped.end() ? QDateTime() : it->second;
 }

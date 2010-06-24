@@ -73,7 +73,11 @@ HEADERS += playengine.hpp \
     record.hpp \
     subtitleview.hpp \
     pref_dialog.hpp \
-    osdstyle.hpp
+    osdstyle.hpp \
+    simplelistwidget.hpp \
+    appstate.hpp \
+    dialogs.hpp \
+    videoeqfilter.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     bushelper.cpp \
@@ -131,7 +135,13 @@ SOURCES += main.cpp \
     record.cpp \
     subtitleview.cpp \
     pref_dialog.cpp \
-    osdstyle.cpp
-DEFINES += CMPLAYER_TRANSLATION_DIR_PATH=$(CMPLAYER_TRANSLATION_DIR)
+    osdstyle.cpp \
+    simplelistwidget.cpp \
+    appstate.cpp \
+    dialogs.cpp \
+    videoeqfilter.cpp
+TRANSLATIONS += translations/cmplayer_ko.ts \
+    translations/cmplayer_en.ts \
+    translations/cmplayer_ja.ts
 FORMS += ui/pref_dialog.ui \
     ui/osdstyle_widget.ui

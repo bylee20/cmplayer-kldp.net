@@ -1,10 +1,8 @@
 #include "osdstyle.hpp"
-#include "prefosdwidget.h"
-#include "ui_prefosdwidget.h"
-#include <core/osdstyle.h>
+#include "ui_osdstyle_widget.h"
 #include <QtGui/QColorDialog>
 #include <QtGui/QFontDialog>
-
+#include <QtCore/QSettings>
 
 void OsdStyle::save(QSettings *set, const QString &group) const {
 	set->beginGroup(group);
@@ -41,30 +39,30 @@ void OsdStyle::load(QSettings *set, const QString &group) {
 	set->endGroup();
 }
 
-struct PrefOsdWidget::Data {
-	Ui::PrefOsdWidget ui;
-	Core::OsdStyle style;
+struct OsdStyle::Widget::Data {
+	Ui::OsdStyle_Widget ui;
+	OsdStyle style;
 };
 
-PrefOsdWidget::PrefOsdWidget(QWidget *parent)
+OsdStyle::Widget::Widget(QWidget *parent)
 : QWidget(parent), d(new Data) {
 	d->ui.setupUi(this);
 	d->ui.fgColorLabel->setAutoFillBackground(true);
 	d->ui.bgColorLabel->setAutoFillBackground(true);
-	d->ui.scale->addItem(tr("Fit to Diagonal"), Core::OsdStyle::FitToDiagonal);
-	d->ui.scale->addItem(tr("Fit to Height"), Core::OsdStyle::FitToHeight);
-	d->ui.scale->addItem(tr("Fit to Width"), Core::OsdStyle::FitToWidth);
+	d->ui.scale->addItem(tr("Fit to Diagonal"), OsdStyle::FitToDiagonal);
+	d->ui.scale->addItem(tr("Fit to Height"), OsdStyle::FitToHeight);
+	d->ui.scale->addItem(tr("Fit to Width"), OsdStyle::FitToWidth);
 	setStyle(d->style);
 	connect(d->ui.fontButton, SIGNAL(clicked()), this, SLOT(slotFont()));
 	connect(d->ui.fgColorButton, SIGNAL(clicked()), this, SLOT(slotColor()));
 	connect(d->ui.bgColorButton, SIGNAL(clicked()), this, SLOT(slotColor()));
 }
 
-PrefOsdWidget::~PrefOsdWidget() {
+OsdStyle::Widget::~Widget() {
 	delete d;
 }
 
-void PrefOsdWidget::slotColor() {
+void OsdStyle::Widget::slotColor() {
 	QLabel *label = 0;
 	QColor *before = 0;
 	if (sender() == d->ui.fgColorButton) {
@@ -83,14 +81,14 @@ void PrefOsdWidget::slotColor() {
 	}
 }
 
-void PrefOsdWidget::slotFont() {
+void OsdStyle::Widget::slotFont() {
 	bool ok = false;
 	const QFont font = QFontDialog::getFont(&ok, d->style.font, this);
 	if (ok)
 		updateFont(font);
 }
 
-void PrefOsdWidget::updateFont(const QFont &font) {
+void OsdStyle::Widget::updateFont(const QFont &font) {
 	d->style.font = font;
 	d->style.font.setPointSize(this->font().pointSize());
 	d->style.font.setPixelSize(this->font().pixelSize());
@@ -98,7 +96,7 @@ void PrefOsdWidget::updateFont(const QFont &font) {
 	d->ui.fontLabel->setText(d->style.font.family());
 }
 
-void PrefOsdWidget::setStyle(const Core::OsdStyle &style) {
+void OsdStyle::Widget::setStyle(const OsdStyle &style) {
 	d->style = style;
 	updateFont(d->style.font);
 	setColor(d->ui.fgColorLabel, d->style.fgColor);
@@ -107,7 +105,7 @@ void PrefOsdWidget::setStyle(const Core::OsdStyle &style) {
 	d->ui.size->setValue(d->style.textSize*100.);
 }
 
-void PrefOsdWidget::setColor(QLabel *label, const QColor &color) {
+void OsdStyle::Widget::setColor(QLabel *label, const QColor &color) {
 	QPalette p = label->palette();
 	p.setColor(QPalette::Window, color);
 	p.setColor(QPalette::Button, color);
@@ -120,10 +118,10 @@ void PrefOsdWidget::setColor(QLabel *label, const QColor &color) {
 	label->setText(color.name());
 }
 
-const Core::OsdStyle &PrefOsdWidget::style() const {
+const OsdStyle &OsdStyle::Widget::style() const {
 	const int scale = d->ui.scale->currentIndex();
 	if (scale != -1)
-		d->style.scale = (Core::OsdStyle::Scale)(d->ui.scale->itemData(scale).toInt());
+		d->style.scale = (OsdStyle::Scale)(d->ui.scale->itemData(scale).toInt());
 	d->style.textSize = d->ui.size->value()/100.;
 	return d->style;
 }

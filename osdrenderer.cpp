@@ -66,6 +66,7 @@ QRect OsdRenderer::area() const {
 }
 
 void OsdRenderer::update() {
+	emit needToRerender();
 	QEvent *event = new QEvent(static_cast<QEvent::Type>(RerenderEvent));
 	QCoreApplication::postEvent(this, event);
 }
@@ -105,8 +106,6 @@ void OsdRenderer::rerender() {
 		painter.translate(x, y);
 		painter.scale(1.0/d->dis_x, 1.0/d->dis_y);
 		render(&painter);
-//		delete[] data;
-//		return;
 		d->overlay->setOverlay(d->id, data, size, pos);
 	}
 }

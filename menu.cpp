@@ -35,19 +35,15 @@ Menu &Menu::create(QWidget *parent) {
 
 	QAction *file = open->addAction("file");
 	file->setShortcut(Qt::CTRL + Qt::Key_F);
-	file->setIcon(QIcon(":/img/video-x-generic.png"));
 	file->setData(int('f'));
-	QAction *url = open->addAction("url");
-	url->setIcon(QIcon(":/img/network-workgroup.png"));
-	url->setData(int('u'));
+//	QAction *url = open->addAction("url");
+//	url->setData(int('u'));
 	QAction *dvd = open->addAction("dvd");
-	dvd->setIcon(QIcon(":/img/media-optical.png"));
 	dvd->setData(QUrl("dvd://"));
 
 	open->addSeparator();
 
 	Menu *recent = open->addMenu("recent");
-	recent->setIcon(QIcon(":/img/document-open-recent.png"));
 
 	recent->addSeparator();
 	recent->addAction("clear");
@@ -62,73 +58,20 @@ Menu &Menu::create(QWidget *parent) {
 	dvdMenu->addActionToGroup("audio", false)->setData(NavAudioMenu);
 	dvdMenu->addActionToGroup("subpic", false)->setData(NavSubPicMenu);
 
-	Menu *screen = root->addMenu("screen");
-	screen->setIcon(QIcon(":/img/screen.png"));
-
-	Menu *size = screen->addMenu("size");
-//	size->setIcon(QIcon(":/img/transform-scale.png"));
-	QAction *to25 = size->addActionToGroup("25%", false);
-	QAction *to50 = size->addActionToGroup("50%", false);
-	QAction *to100 = size->addActionToGroup("100%", false);
-	QAction *to200 = size->addActionToGroup("200%", false);
-	QAction *to300 = size->addActionToGroup("300%", false);
-	QAction *to400 = size->addActionToGroup("400%", false);
-	QAction *toFull = size->addActionToGroup("full", false);
-	size->g()->setExclusive(false);
-	to25->setData(0.25);
-	to50->setData(0.5);
-	to100->setData(1.0);
-	to200->setData(2.0);
-	to300->setData(3.0);
-	to400->setData(4.0);
-	toFull->setData(-1.0);
-	to25->setShortcut(QKeySequence("Shift+`"));
-	to50->setShortcut(QKeySequence("`"));
-	to100->setShortcut(Qt::Key_1);
-	to200->setShortcut(Qt::Key_2);
-	to300->setShortcut(Qt::Key_3);
-	to400->setShortcut(Qt::Key_4);
-	toFull->setShortcuts(QList<QKeySequence>()
-			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
-
-	Menu *aspect = screen->addMenu("aspect");
-//	aspect->setIcon(QIcon(":/img/zoom-fit-best.png"));
-	aspect->addActionToGroup("auto", true)->setData(-1.0);
-	aspect->addActionToGroup("4:3", true)->setData(4.0/3.0);
-	aspect->addActionToGroup("16:9", true)->setData(16.0/9.0);
-	aspect->addActionToGroup("1.85:1", true)->setData(1.85);
-	aspect->addActionToGroup("2.35:1", true)->setData(2.35);
-
-	Menu *crop = screen->addMenu("crop");
-//	crop->setIcon(QIcon(":/img/transform-crop-and-resize.png"));
-	crop->addActionToGroup("off", true)->setData(-1.0);
-	crop->addActionToGroup("4:3", true)->setData(4.0/3.0);
-	crop->addActionToGroup("16:9", true)->setData(16.0/9.0);
-	crop->addActionToGroup("1.85:1", true)->setData(1.85);
-	crop->addActionToGroup("2.35:1", true)->setData(2.35);
-
-	screen->addSeparator();
-	QAction *snapshot = screen->addAction("snapshot");
-//	snapshot->setIcon(QIcon(":/img/snapshot.png"));
-	snapshot->setShortcut(Qt::CTRL + Qt::Key_S);
-
 	Menu *play = root->addMenu("play");
 	play->setIcon(QIcon(":/img/player-time.png"));
 
 	play->addSeparator();
 
 	QAction *pause = play->addAction("pause");
-	pause->setIcon(QIcon(":/img/media-playback-start.png"));
 	pause->setShortcut(Qt::Key_Space);
-	play->addAction("stop")/*->setIcon(QIcon(":/img/media-playback-stop.png"))*/;
+	play->addAction("stop");
 
 	play->addSeparator();
 
 	QAction *prev = play->addAction("prev");
 	QAction *next = play->addAction("next");
-//	prev->setIcon(QIcon(":/img/media-skip-backward.png"));
 	prev->setShortcut(Qt::CTRL + Qt::Key_Left);
-//	next->setIcon(QIcon(":/img/media-skip-forward.png"));
 	next->setShortcut(Qt::CTRL + Qt::Key_Right);
 
 	play->addSeparator();
@@ -163,8 +106,6 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *backward1 = seek->addActionToGroup("backward1", false);
 	QAction *backward2 = seek->addActionToGroup("backward2", false);
 	QAction *backward3 = seek->addActionToGroup("backward3", false);
-	forward1->setIcon(QIcon(":/img/media-seek-forward.png"));
-	backward1->setIcon(QIcon(":/img/media-seek-backward.png"));
 	forward1->setShortcut(Qt::Key_Right);
 	forward2->setShortcut(Qt::Key_PageDown);
 	forward3->setShortcut(Qt::Key_End);
@@ -197,7 +138,44 @@ Menu &Menu::create(QWidget *parent) {
 	Menu *video = root->addMenu("video");
 	video->setIcon(QIcon(":/img/games-config-background.png"));
 
-	video->addMenu("renderer");
+	Menu *size = video->addMenu("size");
+	QAction *to25 = size->addActionToGroup("25%", false);
+	QAction *to50 = size->addActionToGroup("50%", false);
+	QAction *to100 = size->addActionToGroup("100%", false);
+	QAction *to200 = size->addActionToGroup("200%", false);
+	QAction *to300 = size->addActionToGroup("300%", false);
+	QAction *to400 = size->addActionToGroup("400%", false);
+	QAction *toFull = size->addActionToGroup("full", false);
+	size->g()->setExclusive(false);
+	to25->setData(0.25);
+	to50->setData(0.5);
+	to100->setData(1.0);
+	to200->setData(2.0);
+	to300->setData(3.0);
+	to400->setData(4.0);
+	toFull->setData(-1.0);
+	to25->setShortcut(QKeySequence("Shift+`"));
+	to50->setShortcut(QKeySequence("`"));
+	to100->setShortcut(Qt::Key_1);
+	to200->setShortcut(Qt::Key_2);
+	to300->setShortcut(Qt::Key_3);
+	to400->setShortcut(Qt::Key_4);
+	toFull->setShortcuts(QList<QKeySequence>()
+			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
+
+	Menu *aspect = video->addMenu("aspect");
+	aspect->addActionToGroup("auto", true)->setData(-1.0);
+	aspect->addActionToGroup("4:3", true)->setData(4.0/3.0);
+	aspect->addActionToGroup("16:9", true)->setData(16.0/9.0);
+	aspect->addActionToGroup("1.85:1", true)->setData(1.85);
+	aspect->addActionToGroup("2.35:1", true)->setData(2.35);
+
+	Menu *crop = video->addMenu("crop");
+	crop->addActionToGroup("off", true)->setData(-1.0);
+	crop->addActionToGroup("4:3", true)->setData(4.0/3.0);
+	crop->addActionToGroup("16:9", true)->setData(16.0/9.0);
+	crop->addActionToGroup("1.85:1", true)->setData(1.85);
+	crop->addActionToGroup("2.35:1", true)->setData(2.35);
 
 	video->addSeparator();
 
@@ -210,12 +188,14 @@ Menu &Menu::create(QWidget *parent) {
 	video->addActionToGroup("hue+", false, "color")->setShortcut(Qt::Key_I);
 	video->addActionToGroup("hue-", false, "color")->setShortcut(Qt::Key_K);
 
+	video->addAction("soft-eq", true)->setShortcut(Qt::Key_O);
+	//	video->addSeparator();
+	//	QAction *snapshot = video->addAction("snapshot");
+	//	snapshot->setIcon(QIcon(":/img/snapshot.png"));
+	//	snapshot->setShortcut(Qt::CTRL + Qt::Key_S);
+
 	Menu *audio = root->addMenu("audio");
 	audio->setIcon(QIcon(":/img/speaker.png"));
-
-	audio->addMenu("renderer");
-
-	audio->addSeparator();
 
 	audio->addMenu("track");
 
@@ -226,8 +206,9 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *volDown = audio->addActionToGroup("volume-down", false, "volume");
 	volDown->setShortcut(Qt::Key_Down);
 	QAction *mute = audio->addAction("mute", true);
-	mute->setIcon(QIcon(":/img/irc-voice.png"));
 	mute->setShortcut(Qt::Key_M);
+	QAction *volnorm = audio->addAction("normalize-volume", true);
+	volnorm->setShortcut(Qt::Key_N);
 
 	audio->addSeparator();
 
@@ -244,8 +225,8 @@ Menu &Menu::create(QWidget *parent) {
 	pref->setIcon(QIcon(":/img/preferences-system.png"));
 	pref->setShortcut(Qt::Key_P);
 // 	root->addAction("help")->setIcon(QIcon(":/img/help-contents.png"));
-	QAction *about = root->addAction("about");
-	about->setIcon(QIcon(":/img/help-about.png"));
+//	QAction *about = root->addAction("about");
+//	about->setIcon(QIcon(":/img/help-about.png"));
 
 	QAction *exit = root->addAction("exit");
 	exit->setShortcut(Qt::CTRL + Qt::Key_Q);
@@ -268,7 +249,6 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_context->addMenu(open);
 	root->m_context->addSeparator();
 	root->m_context->addMenu(dvdMenu);
-	root->m_context->addMenu(screen);
 	root->m_context->addMenu(play);
 	root->m_context->addMenu(subtitle);
 	root->m_context->addMenu(video);
@@ -277,12 +257,14 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_context->addAction(tool);
 	root->m_context->addAction(pref);
 // 	root->m_context->addAction(help);
-	root->m_context->addAction(about);
+//	root->m_context->addAction(about);
 	root->m_context->addSeparator();
 	root->m_context->addAction(exit);
 	parent->addActions(root->m_context->actions());
 
 	loadShortcut();
+
+	dvdMenu->menuAction()->setVisible(false);
 	return *(obj = root);
 }
 
@@ -321,7 +303,7 @@ void Menu::updatePref() {
 	Menu &open = root("open");
 	open.setTitle(tr("Open"));
 	open["file"]->setText(tr("File"));
-	open["url"]->setText(tr("URL"));
+//	open["url"]->setText(tr("URL"));
 	open["dvd"]->setText(tr("DVD"));
 
 	Menu &recent = open("recent");
@@ -338,29 +320,6 @@ void Menu::updatePref() {
 	dvdMenu["audio"]->setText(tr("Audio"));
 	dvdMenu["subpic"]->setText(tr("Subtitle"));
 
-	Menu &screen = root("screen");
-	screen.setTitle(tr("Screen"));
-
-	Menu &size = screen("size");
-	size.setTitle(tr("Size"));
-	size["full"]->setText(tr("Full Screen"));
-
-	Menu &aspect = screen("aspect");
-	aspect.setTitle(tr("Aspect Ratio"));
-	aspect["auto"]->setText(tr("Auto"));
-	aspect["4:3"]->setText(tr("4:3 (TV)"));
-	aspect["16:9"]->setText(tr("16:9 (HDTV)"));
-	aspect["1.85:1"]->setText(tr("1.85:1 (Wide Vision)"));
-	aspect["2.35:1"]->setText(tr("2.35:1 (CinemaScope)"));
-
-	Menu &crop = screen("crop");
-	crop.setTitle(tr("Crop"));
-	crop["off"]->setText(tr("Off"));
-	crop["4:3"]->setText(tr("4:3 (TV)"));
-	crop["16:9"]->setText(tr("16:9 (HDTV)"));
-	crop["1.85:1"]->setText(tr("1.85:1 (Wide Vision)"));
-	crop["2.35:1"]->setText(tr("2.35:1 (CinemaScope)"));
-
 	Menu &play = root("play");
 	play.setTitle(tr("Play"));
 	play["pause"]->setText(tr("Play"));
@@ -372,8 +331,6 @@ void Menu::updatePref() {
 	speed.setTitle(tr("Speed"));
 	speed["reset"]->setText(tr("Reset"));
 	setActionStep(speed["faster"], speed["slower"], "%1%", p.speedStep);
-
-	screen["snapshot"]->setText(tr("Take Snapshot"));
 
 	Menu &repeat = play("repeat");
 	repeat.setTitle(tr("A-B Repeat"));
@@ -415,7 +372,27 @@ void Menu::updatePref() {
 
 	Menu &video = root("video");
 	video.setTitle(tr("Video"));
-	video("renderer").setTitle(tr("Renderer"));
+
+	Menu &size = video("size");
+	size.setTitle(tr("Size"));
+	size["full"]->setText(tr("Full Screen"));
+
+	Menu &aspect = video("aspect");
+	aspect.setTitle(tr("Aspect Ratio"));
+	aspect["auto"]->setText(tr("Auto"));
+	aspect["4:3"]->setText(tr("4:3 (TV)"));
+	aspect["16:9"]->setText(tr("16:9 (HDTV)"));
+	aspect["1.85:1"]->setText(tr("1.85:1 (Wide Vision)"));
+	aspect["2.35:1"]->setText(tr("2.35:1 (CinemaScope)"));
+
+	Menu &crop = video("crop");
+	crop.setTitle(tr("Crop"));
+	crop["off"]->setText(tr("Off"));
+	crop["4:3"]->setText(tr("4:3 (TV)"));
+	crop["16:9"]->setText(tr("16:9 (HDTV)"));
+	crop["1.85:1"]->setText(tr("1.85:1 (Wide Vision)"));
+	crop["2.35:1"]->setText(tr("2.35:1 (CinemaScope)"));
+
 	setVideoPropStep(video, "brightness", ColorProperty::Brightness
 			, tr("Brightness %1%"), p.brightnessStep);
 	setVideoPropStep(video, "saturation", ColorProperty::Saturation
@@ -424,12 +401,15 @@ void Menu::updatePref() {
 			, tr("Contrast %1%"), p.brightnessStep);
 	setVideoPropStep(video, "hue", ColorProperty::Hue
 			, tr("Hue %1%"), p.brightnessStep);
+	video["soft-eq"]->setText(tr("Use Software Process"));
+
+	//	screen["snapshot"]->setText(tr("Take Snapshot"));
 
 	Menu &audio = root("audio");
 	audio.setTitle(tr("Audio"));
-	audio("renderer").setTitle(tr("Renderer"));
 	audio("track").setTitle(tr("Track"));
 	audio["mute"]->setText(tr("Toggle Mute"));
+	audio["normalize-volume"]->setText(tr("Normalize Volume"));
 	setActionStep(audio["volume-up"], audio["volume-down"]
 			, tr("Volume %1%"), p.volumeStep);
 	setActionStep(audio["amp-up"], audio["amp-down"]
@@ -438,7 +418,7 @@ void Menu::updatePref() {
 	root["tool-box"]->setText(tr("Tool Box"));
 	root["pref"]->setText(tr("Preferences"));
 // 	root["help"]->setText(tr("Help"));
-	root["about"]->setText(tr("About..."));
+//	root["about"]->setText(tr("About..."));
 	root["exit"]->setText(tr("Exit"));
 
 	saveShortcut();

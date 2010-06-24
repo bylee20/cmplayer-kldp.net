@@ -2,10 +2,13 @@
 #define PLAYENGINE_HPP
 
 #include <QtCore/QObject>
+#include <gst/gst.h>
 #include "global.hpp"
 #include "mrl.hpp"
 
 class NativeVideoRenderer;	class AudioController;
+
+typedef QMap<MediaMetaData, QVariant> StreamData;
 
 class PlayEngine : public QObject {
 	Q_OBJECT
@@ -30,13 +33,17 @@ public:
 	bool isPlaying() const {return state() == PlayingState;}
 	bool isPaused() const {return state() == PausedState;}
 	bool isStopped() const {return state() == StoppedState;}
+	const QList<StreamData> &audioStreams() const;
+	int currentAudioStream() const;
 public slots:
+	void setCurrentAudioStream(int idx);
 	bool play();
 	void stop();
 	bool pause();
 	bool seek(int pos);
 	void navigateDVDMenu(int cmd);
 signals:
+	void aboutToFinished();
 	void stopped(Mrl mrl, int pos);
 	void finished(Mrl mrl);
 	void tick(int pos);
@@ -62,6 +69,7 @@ private:
 	void getStreamInfo();
 	void queryDuration();
 private:
+	static void getAboutToFinish(GstElement *object, gpointer user_data);
 	void finish();
 	struct Data;
 	Data *d;

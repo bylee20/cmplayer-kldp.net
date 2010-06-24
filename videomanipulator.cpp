@@ -1,4 +1,5 @@
 #include "videomanipulator.hpp"
+#include "videoeqfilter.hpp"
 #include "videomanipulator_p.hpp"
 #include "i420picture.hpp"
 #include "imageoverlayfilter.hpp"
@@ -13,6 +14,7 @@ struct VideoManipulator::Data {
 	ConvertToI420Filter *conv;
 	ImageOverlayFilter *overlay;
 	VideoInfo info_in, info_out;
+	VideoEqFilter *eq;
 	I420Picture pic;
 	NativeVideoRenderer *renderer;
 };
@@ -28,17 +30,26 @@ VideoManipulator::VideoManipulator()
 	d->overlay = new ImageOverlayFilter;
 	d->overlay->setManipulator(this);
 	d->conv = new ConvertToI420Filter;
+	d->eq = new VideoEqFilter;
+	d->eq->setManipulator(this);
 	d->renderer = 0;
 }
 
 VideoManipulator::~VideoManipulator() {
 	gst_object_unref(GST_OBJECT(d->man));
 	delete d->mixer;
+	delete d->conv;
+	delete d->eq;
+	delete d->overlay;
 	delete d;
 }
 
 GstElement *VideoManipulator::element() const {
 	return GST_ELEMENT(d->man);
+}
+
+VideoEqFilter *VideoManipulator::equalizer() const {
+	return d->eq;
 }
 
 QRect VideoManipulator::videoRect() const {
@@ -107,12 +118,13 @@ void VideoManipulator::setVideoInfo(const VideoInfo &in, const VideoInfo &out) {
 }
 
 GstFlowReturn VideoManipulator::transform(GstBuffer *in, GstBuffer *out) {
-	if (d->man->d->in_pix == PIX_FMT_NB)
+	if (d->man->d->in_pix == PIX_FMT_NB || d->info_in.width <= 0 || d->info_in.height <= 0)
 		return GST_FLOW_NOT_NEGOTIATED;
 	d->pic.free();
 	d->pic.alloc(d->info_in.width, d->info_in.height);
 	if (!d->conv->transform(&d->pic, in->data, d->info_in.width, d->info_in.height, d->man->d->in_pix))
 		return GST_FLOW_NOT_SUPPORTED;
+	d->eq->transform(&d->pic);
 	render(out);
 	return GST_FLOW_OK;
 }

@@ -109,11 +109,13 @@ SeekSlider::SeekSlider(PlayEngine *engine, QWidget *parent)
 
 void SeekSlider::seek(int time) {
 	if (!tick && engine)
-		engine->seek(time);//, false, false);
+		engine->seek(time);
 }
 
 void SeekSlider::setDuration(int duration) {
+	tick = true;
 	setRange(0, duration);
+	tick = false;
 }
 
 void SeekSlider::slotTick(int time) {

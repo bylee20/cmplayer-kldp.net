@@ -31,32 +31,32 @@ public:
 	static const int DefaultSpeedStep = 10;
 	static const int DefaultColorPropStep = 1;
 
+	AutoAddFilesEnum autoAddFiles;
+	bool rememberStopped, pauseMinimized, pauseVideoOnly;
+	bool askWhenRecordFound, hideCursor, disableScreensaver;
+	bool enableSystemTray, hideClosed, singleApplication;
+	bool useSubtitleEncodingAutoDetection;
+
 	SubtitleAutoLoadEnum subtitleAutoLoad;
 	SubtitleAutoSelectEnum subtitleAutoSelect;
-
-	bool rememberStopped, playRestored, pauseMinimized, pauseVideoOnly;
-	bool askWhenRecordFound;
-	bool hideCursor, hideInFullScreen, normalizeVolume, useSoftwareEqualizer;
-	bool enableSystemTray, hideClosed, singleApplication;
-	bool disableScreensaver, useSubtitleEncodingAutoDetection;
-	AutoAddFilesEnum autoAddFiles;
 	OsdStyle subtitleStyle;
-	QString subtitleEncoding, windowStyle, subtitleExtension;
+	QString subtitleEncoding, subtitleExtension;
 	QStringList subtitlePriority;
 	int msPerChar;
-	int daysToKeepRecords, maximumRecordCount;
 	int seekingStep1, seekingStep2, seekingStep3, speedStep;
 	int volumeStep, syncDelayStep, ampStep, subtitlePosStep;
 	int brightnessStep, saturationStep, contrastStep, hueStep;
 	int hideDelay, subtitleEncodingConfidence;
 	ClickActionMap doubleClickMap, middleClickMap;
 	WheelActionMap wheelScrollMap;
+
+	QString windowStyle;
 	QLocale locale;
 
 	void save() const;
 	void load();
-private:
 	class Dialog;
+private:
 	Pref() {load();}
 	static Pref &ref();
 	template<typename T>

@@ -5,12 +5,12 @@
 #include <QtCore/QObject>
 
 class NativeVideoRenderer;		class QRect;
-class ImageOverlayFilter;
+class ImageOverlayFilter;		class VideoEqFilter;
 
 struct VideoInfo {
-	VideoInfo() {width = height = 0; fps = 0.0;}
+	VideoInfo() {width = height = 0; fps = 0.0; pixelAspectRatio = 1.0;}
 	int width, height;
-	double fps;
+	double fps, pixelAspectRatio;
 };
 
 class VideoManipulator : public QObject {
@@ -20,6 +20,7 @@ public:
 	~VideoManipulator();
 	GstElement *element() const;
 	ImageOverlayFilter *overlay() const;
+	VideoEqFilter *equalizer() const;
 	void setRenderer(NativeVideoRenderer *renderer);
 	QRect videoRect() const;
 	void setBorder(int h, int v);

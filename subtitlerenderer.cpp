@@ -11,19 +11,17 @@ struct SubtitleRenderer::Data {
 	Subtitle::Component::const_iterator prev;
 	int delay, ms;
 	double pos;
+	bool visible;
 };
 
 SubtitleRenderer::SubtitleRenderer(): d(new Data) {
+	d->visible = true;
 	d->osd = new TextOsdRenderer(Qt::AlignBottom | Qt::AlignHCenter);
 	d->frameRate = 30;
 	d->delay = 0;
 	d->prev = d->comp.end();
 	d->ms = 0;
 	d->pos = 1.0;
-	OsdStyle style = d->osd->style();
-	style.font.setBold(true);
-	style.textSize = 0.05;
-	d->osd->setStyle(style);
 }
 
 SubtitleRenderer::~SubtitleRenderer() {
@@ -54,7 +52,7 @@ void SubtitleRenderer::setFrameRate(double frameRate) {
 
 void SubtitleRenderer::render(int ms) {
 	d->ms = ms;
-	if (d->comp.isEmpty())
+	if (!d->visible || d->comp.isEmpty())
 		return;
 	Subtitle::Component::const_iterator it = d->comp.start(ms - d->delay, d->frameRate);
 	if (it != d->prev) {
@@ -62,6 +60,16 @@ void SubtitleRenderer::render(int ms) {
 		if (it != d->comp.end())
 			d->osd->showText(it.value());
 	}
+}
+
+void SubtitleRenderer::setVisible(bool visible) {
+	if (visible == d->visible)
+		return;
+	d->visible = visible;
+	if (d->visible)
+		render(d->ms);
+	else
+		clear();
 }
 
 void SubtitleRenderer::clear() {

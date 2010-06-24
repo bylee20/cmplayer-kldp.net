@@ -13,7 +13,7 @@
 template<class T>
 inline static T clamp(T min, T value, T max) {return (value < min) ? min : ((value > max) ? max : value);}
 
-static GType gst_vol_norm_get_type();
+//static GType gst_vol_norm_get_type();
 
 GST_BOILERPLATE(GstVolNorm, gst_vol_norm, GstAudioFilter, GST_TYPE_AUDIO_FILTER);
 
@@ -94,7 +94,7 @@ static void gst_vol_norm_init(GstVolNorm *self, GstVolNormClass *klass) {
 	self->d = new GstVolNorm::Data;
 	self->d->mul = MUL_INIT;
 	self->d->lastAvg = NormalizeLevel<int16_t>::Ideal;
-	self->d->on = true;
+	self->d->on = false;
 	self->d->idx = 0;
 }
 

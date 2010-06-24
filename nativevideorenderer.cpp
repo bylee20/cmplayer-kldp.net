@@ -1,4 +1,6 @@
 #include "nativevideorenderer.hpp"
+#include "videoeqfilter.hpp"
+#include "colorproperty.hpp"
 #include "playengine.hpp"
 #include "osdrenderer.hpp"
 #include <QtGui/QMouseEvent>
@@ -29,18 +31,18 @@ public:
 		const int y = (w->height() - height())*0.5 + 0.5;
 		move(x, y);
 	}
-	void mouseMoveEvent(QMouseEvent *event) {
-		sendNavEvent(event, "mouse-move");
-		QWidget::mouseMoveEvent(event);
-	}
-	void mousePressEvent(QMouseEvent *event) {
-		sendNavEvent(event, "mouse-button-press");
-		QWidget::mousePressEvent(event);
-	}
-	void mouseReleaseEvent(QMouseEvent *event) {
-		sendNavEvent(event, "mouse-button-release");
-		QWidget::mouseReleaseEvent(event);
-	}
+//	void mouseMoveEvent(QMouseEvent *event) {
+//		sendNavEvent(event, "mouse-move");
+//		QWidget::mouseMoveEvent(event);
+//	}
+//	void mousePressEvent(QMouseEvent *event) {
+//		sendNavEvent(event, "mouse-button-press");
+//		QWidget::mousePressEvent(event);
+//	}
+//	void mouseReleaseEvent(QMouseEvent *event) {
+//		sendNavEvent(event, "mouse-button-release");
+//		QWidget::mouseReleaseEvent(event);
+//	}
 	void setNavigation(GstNavigation *nav) {
 		m_nav = nav;
 	}
@@ -53,7 +55,8 @@ private:
 		if (!m_nav || !m_engine->mrl().toString().startsWith("dvd:"))
 			return;
 		const int button = buttonNumber(event->button());
-		const QPoint pos = navMap(event->pos());
+		qDebug() << event->pos();
+		const QPoint pos = /*navMap*/(event->pos());
 		gst_navigation_send_mouse_event(m_nav, name, button, pos.x(), pos.y());
 	}
 
@@ -93,18 +96,19 @@ struct NativeVideoRenderer::Data {
 	QSize expandedSize;
 	double frameRate;
 	QList<OsdRenderer*> osd;
-	double aspectRatio, cropRatio;
+	double aspectRatio, cropRatio, pixelRatio;
 	GstNavigation *nav;
 };
 
 NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 : QWidget(parent), d(new Data) {
-	d->expandedSize = d->frameSize = QSize(400, 300);
+	d->expandedSize = d->frameSize = QSize(0, 0);
 	d->engine = engine;
 	d->xo = new XOverlay(engine, this, this);
 	d->nav = 0;
 	d->aspectRatio = -1.0;
 	d->cropRatio = -1;
+	d->pixelRatio = 1.0;
 
 	d->bin = gst_bin_new("native-video-renderer");
 	gst_object_ref(GST_OBJECT(d->bin));
@@ -120,6 +124,8 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	gst_object_unref(GST_OBJECT(pad));
 
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(mrlChanged()));
+	connect(d->engine, SIGNAL(stateChanged(MediaState,MediaState))
+		, this, SLOT(setXOverlay()));
 
 	if (GST_IS_NAVIGATION(d->sink))
 		d->nav = GST_NAVIGATION(d->sink);
@@ -133,6 +139,8 @@ NativeVideoRenderer::NativeVideoRenderer(PlayEngine *engine, QWidget *parent)
 	connect(&d->man, SIGNAL(videoInfoObtained(VideoInfo)), this, SLOT(setInfo(VideoInfo)));
 
 	d->man.setRenderer(this);
+
+	g_object_set(G_OBJECT(d->sink), "handle-events", false, NULL);
 }
 
 NativeVideoRenderer::~NativeVideoRenderer() {
@@ -142,7 +150,7 @@ NativeVideoRenderer::~NativeVideoRenderer() {
 
 void NativeVideoRenderer::mrlChanged() {
 	setXOverlay();
-	d->frameSize = QSize(400, 300);
+	d->frameSize = QSize(0, 0);
 }
 
 GstElement *NativeVideoRenderer::bin() const {
@@ -181,11 +189,12 @@ void NativeVideoRenderer::updateXOverlayGeometry() {
 	scaled.scale(d->expandedSize, Qt::KeepAspectRatio);
 	const double scale_h = scaled.width()/d->expandedSize.width();
 	const double scale_v = scaled.height()/d->expandedSize.height();
-	video.setWidth(video.width()*scale_h);
+	video.setWidth(video.width()*scale_h/**d->pixelRatio*/);
 	video.setHeight(video.height()*scale_v);
 	video.moveTop(video.top()*scale_v);
 	video.moveLeft(video.left()*scale_h);
 	QSizeF box = video.size();
+//	box.rwidth() *= d->pixelRatio;
 	box.scale(size(), Qt::KeepAspectRatio);
 	const int w = scaled.width()*(box.width()/video.width()) + 0.5;
 	const int h = scaled.height()*(box.height()/video.height()) + 0.5;
@@ -227,7 +236,7 @@ void NativeVideoRenderer::paintEvent(QPaintEvent */*event*/) {
 }
 
 void NativeVideoRenderer::updateBoxSize() {
-	const double aspectRatio = (d->aspectRatio > 0 ? d->aspectRatio : ratio(d->frameSize));
+	const double aspectRatio = (d->aspectRatio > 0 ? d->aspectRatio : ratio(d->frameSize))*d->pixelRatio;
 	const double desktopRatio = ::desktopRatio();
 	int hmargin = 0, vmargin = 0;
 	if (aspectRatio >= desktopRatio)
@@ -256,8 +265,10 @@ QSize NativeVideoRenderer::sizeHint() const {
 	QSizeF size(d->aspectRatio, 1.0);
 	if (d->aspectRatio > 0)
 		size.scale(d->expandedSize, Qt::KeepAspectRatio);
-	else
+	else {
 		size = d->frameSize;
+		size.rwidth() *= d->pixelRatio;
+	}
 	if (d->cropRatio > 0) {
 		QSizeF crop(d->cropRatio, 1.0);
 		crop.scale(size, Qt::KeepAspectRatio);
@@ -276,6 +287,7 @@ void NativeVideoRenderer::setInfo(const VideoInfo &info) {
 		emit frameRateChanged(d->frameRate = info.fps);
 	d->frameSize.setWidth(info.width);
 	d->frameSize.setHeight(info.height);
+	d->pixelRatio = info.pixelAspectRatio;
 	updateBoxSize();
 	updateXOverlayGeometry();
 }
@@ -328,3 +340,70 @@ GstBuffer *NativeVideoRenderer::allocBuffer(int size, GstCaps *caps) {
 	const GstFlowReturn ret = klass->buffer_alloc(sink, 0, size, caps, &buffer);
 	return ret == GST_FLOW_OK ? buffer : 0;
 }
+
+void NativeVideoRenderer::setColorProperty(const ColorProperty &prop) {
+	d->man.equalizer()->setProperty(prop);
+}
+
+void NativeVideoRenderer::setSoftwareEqualizerEnabled(bool enabled) {
+	d->man.equalizer()->setEnabled(enabled);
+}
+
+const ColorProperty &NativeVideoRenderer::colorProperty() const {
+	return d->man.equalizer()->property();
+}
+
+bool NativeVideoRenderer::isSoftwareEqualizerEnabled() const {
+	return d->man.equalizer()->isEnabled();
+}
+
+static int buttonNumber(Qt::MouseButton button) {
+	int b = 0;
+	switch (button) {
+	case Qt::RightButton:	++b;
+	case Qt::MidButton:	++b;
+	case Qt::LeftButton:	++b;
+		break;
+	default:		b = 0;
+	}
+	return b;
+}
+
+QPoint NativeVideoRenderer::mapToNav(const QPoint &from) const {
+	QRectF video = d->man.videoRect();
+	QSizeF scaled(desktopRatio(), 1.0);
+	scaled.scale(d->expandedSize, Qt::KeepAspectRatio);
+	const double scale_h = scaled.width()/d->expandedSize.width();
+	const double scale_v = scaled.height()/d->expandedSize.height();
+	video.setWidth(video.width()*scale_h);
+	video.setHeight(video.height()*scale_v);
+	video.moveTop(video.top()*scale_v);
+	video.moveLeft(video.left()*scale_h);
+	QSizeF box = video.size();
+	box.scale(size(), Qt::KeepAspectRatio);
+	const int dx = (width() - box.width())*0.5 + 0.5;
+	const int dy = (height() - box.height())*0.5 + 0.5;
+	return QPoint(from.x() - dx, from.y() - dy);
+}
+
+void NativeVideoRenderer::sendNavEvent(QMouseEvent *event, const char *name) {
+	if (!d->nav || !d->engine->mrl().isDVD())
+		return;
+	const int button = buttonNumber(event->button());
+	const QPoint pos = mapToNav(event->pos());
+	gst_navigation_send_mouse_event(d->nav, name, button, pos.x(), pos.y());
+}
+
+void NativeVideoRenderer::mouseMoveEvent(QMouseEvent *event) {
+	sendNavEvent(event, "mouse-move");
+	QWidget::mouseMoveEvent(event);
+}
+void NativeVideoRenderer::mousePressEvent(QMouseEvent *event) {
+	sendNavEvent(event, "mouse-button-press");
+	QWidget::mousePressEvent(event);
+}
+void NativeVideoRenderer::mouseReleaseEvent(QMouseEvent *event) {
+	sendNavEvent(event, "mouse-button-release");
+	QWidget::mouseReleaseEvent(event);
+}
+

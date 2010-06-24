@@ -2,11 +2,14 @@
 #include "i420picture.hpp"
 #include "videomanipulator.hpp"
 #include <string.h>
+#include <cmath>
 #include <liboil/liboil.h>
 #include <gst/controller/gstcontroller.h>
 #include <gst/video/video.h>
 #include <QtCore/QDebug>
 #include "gst_fcs/gst_fcs_gstffmpegcodecmap.h"
+
+
 
 bool ConvertToI420Filter::transform(I420Picture *out
 		, const uchar *data, int width, int height, PixelFormat pix) {
@@ -180,9 +183,11 @@ gboolean GstVideoManClass::setCaps(GstBaseTransform *trans, GstCaps *in, GstCaps
 		in.fps = d->in_fps;
 		in.height = d->in_height;
 		in.width = d->in_width;
+		in.pixelAspectRatio = d->in_par;
 		out.fps = d->out_fps;
 		out.width = d->out_width;
 		out.height = d->out_height;
+		out.pixelAspectRatio = d->out_par;
 		d->man->setVideoInfo(in, out);
 	}
 	return true;

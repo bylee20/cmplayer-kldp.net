@@ -32,6 +32,8 @@ struct GstVolNormClass {
 	GstAudioFilterClass parent;
 };
 
+GType gst_vol_norm_get_type();
+
 #define GST_TYPE_VOL_NORM (gst_vol_norm_get_type())
 
 #define GST_VOL_NORM(obj) \

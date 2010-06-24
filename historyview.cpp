@@ -86,7 +86,7 @@ void HistoryView::handleStopped(Mrl mrl, int time) {
 	if (item) {
 		item->update();
 		item->setStoppedTime(time);
-		RecentInfo::get().setStopped(mrl, time);
+		RecentInfo::get().setStopped(mrl, time, item->date());
 	}
 }
 
@@ -177,6 +177,6 @@ void HistoryView::load() {
 		item->setStoppedTime(stopped);
 		addTopLevelItem(item);
 		if (stopped > 0)
-			RecentInfo::get().setStopped(mrl, stopped);
+			RecentInfo::get().setStopped(mrl, stopped, date);
 	}
 }

@@ -24,7 +24,7 @@ public slots:
 signals:
 	void areaChanged(const QRect &area);
 	void styleChanged(const OsdStyle &style);
-//	void needToRerender();
+	void needToRerender();
 protected:
 	virtual void render(QPainter *painter) = 0;
 	virtual QPoint posHint() const = 0;

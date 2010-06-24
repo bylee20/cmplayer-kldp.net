@@ -1,0 +1,77 @@
+#ifndef DIALOGS_HPP
+#define DIALOGS_HPP
+
+#include <QtGui/QDialog>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QFileDialog>
+
+class CheckDialog : public QDialog {
+	Q_OBJECT
+public:
+	CheckDialog(QWidget *parent = 0
+		    , QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok);
+	~CheckDialog();
+	void setButtonBox(QDialogButtonBox::StandardButtons buttons);
+	void setLabelText(const QString &text);
+	void setCheckBoxText(const QString &text);
+	void setChecked(bool checked);
+	bool isChecked() const;
+public slots:
+	int exec();
+private slots:
+	void slotButtonClicked(QAbstractButton *button);
+private:
+	struct Data;
+	Data *d;
+};
+
+class GetShortcutDialog : public QDialog {
+	Q_OBJECT
+public:
+	GetShortcutDialog(const QKeySequence &shortcut, QWidget *parent = 0);
+	GetShortcutDialog(QWidget *parent = 0);
+	~GetShortcutDialog();
+	const QKeySequence &shortcut() const;
+	void setShortcut(const QKeySequence &shortcut);
+protected:
+	bool eventFilter(QObject *obj, QEvent *event);
+	void keyPressEvent(QKeyEvent *event);
+	void keyReleaseEvent(QKeyEvent *event);
+private slots:
+	void setGetting(bool on);
+	void erase();
+private:
+	void init();
+	static const int MaxKeyCount = 4;
+	void getShortcut(QKeyEvent *event);
+	struct Data;
+	Data *d;
+};
+
+class EncodingComboBox;
+
+class EncodingFileDialog : public QFileDialog {
+public:
+	static QString getOpenFileName(QWidget *parent = 0
+			, const QString &caption = QString()
+			, const QString &dir = QString()
+			, const QString &filter = QString()
+			, QString *enc = 0);
+	static QStringList getOpenFileNames(QWidget *parent = 0
+			, const QString &caption = QString()
+			, const QString &dir = QString()
+			, const QString &filter = QString()
+			, QString *enc = 0, FileMode = ExistingFiles);
+private:
+	EncodingFileDialog(QWidget *parent = 0
+			, const QString &caption = QString::null
+			, const QString &directory = QString::null
+			, const QString &filter = QString::null
+			, const QString &encoding = QString::null);
+	void setEncoding(const QString &encoding);
+	QString encoding() const;
+	EncodingComboBox *combo;
+};
+
+
+#endif // DIALOGS_HPP

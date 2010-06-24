@@ -1,4 +1,5 @@
 #include "playengine.hpp"
+#include <QtGui/QMessageBox>
 #include <QtCore/QUrl>
 #include <gst/gst.h>
 #include <QtCore/QDebug>
@@ -22,8 +23,7 @@ struct PlayEngine::Data {
 	QTimer busTimer, ticker;
 	bool seekable, hasAudio, hasVideo, finishing;
 	double speed;
-	QList<StreamType> streamType;
-	QList<QMap<MediaMetaData, QVariant> > streamData;
+	QList<QMap<MediaMetaData, QVariant> > audioStream;
 	NativeVideoRenderer *native;
 	AudioController *audio;
 	int prevTick, seek;
@@ -41,13 +41,13 @@ PlayEngine::PlayEngine(): d(new Data) {
 	d->audio = new AudioController(this);
 	d->lastPos = d->duration = 0;
 
-	d->playbin = gst_element_factory_make("playbin", 0);
+	d->playbin = gst_element_factory_make("playbin2", 0);
 	gst_object_ref(GST_OBJECT(d->playbin));
 	gst_object_sink(GST_OBJECT(d->playbin));
 
 	g_object_set(G_OBJECT(d->playbin), "audio-sink", d->audio->bin(), NULL);
 	g_object_set(G_OBJECT(d->playbin), "video-sink", d->native->bin(), NULL);
-
+	g_signal_connect(G_OBJECT(d->playbin), "about-to-finish", G_CALLBACK(getAboutToFinish), this);
 	d->bus = new BusHelper(gst_pipeline_get_bus(GST_PIPELINE(d->playbin)), this);
 	d->bus->start();
 	d->ticker.setInterval(50);
@@ -70,17 +70,19 @@ PlayEngine::~PlayEngine() {
 
 void PlayEngine::setMrl(const Mrl &mrl) {
 	if (mrl != d->mrl) {
+		if (isPlaying())
+			stop();
 		d->mrl = mrl;
 		emit mrlChanged(d->mrl);
 		if (!d->tags.isEmpty()) {
 			d->tags.clear();
 			emit tagsChanged();
 		}
-		if (!d->streamType.isEmpty()) {
-			d->streamType.clear();
-			d->streamData.clear();
+		if (!d->audioStream.isEmpty()) {
+			d->audioStream.clear();
 			emit streamsChanged();
 		}
+
 		if (d->playbin) {
 			const QByteArray uri = d->mrl.url().toEncoded();
 			g_object_set(G_OBJECT(d->playbin), "uri", uri.data(), NULL);
@@ -173,7 +175,10 @@ void PlayEngine::handleGstMessage(void *ptr) {
 			break;
 		case GST_STATE_READY:
 			setSeekable(false);
-			if (!d->finishing)
+			if (d->finishing) {
+				setState(FinishedState);
+				d->finishing = false;
+			} else
 				setState(StoppedState);
 			break;
 		case GST_STATE_PAUSED:
@@ -184,10 +189,6 @@ void PlayEngine::handleGstMessage(void *ptr) {
 					seek(d->seek);
 					d->seek = -1;
 				}
-//				if (!qFuzzyCompare(m_playbackRate, qreal(1.0)))
-//					setPlaybackRate(m_playbackRate);
-//				if (m_renderer)
-//					m_renderer->precessNewStream();
 			}
 			break;
 		case GST_STATE_PLAYING:
@@ -300,50 +301,27 @@ void PlayEngine::setSpeed(double speed) {
 void PlayEngine::getStreamInfo() {
 	queryDuration();
 
-	//check if video is available:
-	bool hasAudio = false;
-	bool hasVideo = false;
-	d->streamData.clear();
-	d->streamType.clear();
+	int audioCount = 0;
+	int videoCount = 0;
+	g_object_get(G_OBJECT(d->playbin), "n-audio", &audioCount, NULL);
+	g_object_get(G_OBJECT(d->playbin), "n-video", &videoCount, NULL);
+//	g_object_get(G_OBJECT(m_playbin), "n-text", &textStreamsCount, NULL);
 
-	enum {
-		GST_STREAM_TYPE_UNKNOWN,
-		GST_STREAM_TYPE_AUDIO,
-		GST_STREAM_TYPE_VIDEO,
-		GST_STREAM_TYPE_TEXT,
-		GST_STREAM_TYPE_SUBPICTURE,
-		GST_STREAM_TYPE_ELEMENT
-	};
+	const bool hasVideo = videoCount > 0;
+	const bool hasAudio = audioCount > 0;
 
-	GList *streamInfo = 0;
-	g_object_get(G_OBJECT(d->playbin), "stream-info", &streamInfo, NULL);
-	for (; streamInfo != 0; streamInfo = g_list_next(streamInfo)) {
-		GObject *obj = G_OBJECT(streamInfo->data);
-
-		gint type;
-		g_object_get(obj, "type", &type, NULL);
-		switch (type) {
-		case GST_STREAM_TYPE_VIDEO:
-			d->streamType.append(VideoStream);
-			hasVideo = true;
-			break;
-		case GST_STREAM_TYPE_AUDIO:
-			d->streamType.append(AudioStream);
-			hasAudio = true;
-			break;
-		case GST_STREAM_TYPE_SUBPICTURE:
-			d->streamType.append(SubPicStream);
-			break;
-		default:
-			d->streamType.append(UnknownStream);
-			break;
+	d->audioStream.clear();
+	for (int i=0; i<audioCount; ++i) {
+		StreamData data;
+		GstTagList *tags = 0;
+		g_signal_emit_by_name(G_OBJECT(d->playbin), "get-audio-tags", i, &tags);
+		if (tags && gst_is_tag_list(tags)) {
+			char *lang = 0;
+			if (gst_tag_list_get_string(tags, GST_TAG_LANGUAGE_CODE, &lang))
+				data[LanguageCode] = QString::fromUtf8(lang);
+			g_free(lang);
 		}
-
-		gchar *lang = 0;
-		g_object_get(obj, "language-code", &lang, NULL);
-		QMap<MediaMetaData, QVariant> streamData;
-		streamData[LanguageCode] = QString::fromUtf8(lang);
-		d->streamData.append(streamData);
+		d->audioStream << data;
 	}
 	if (d->hasAudio != hasAudio)
 		emit hasAudioChanged(d->hasAudio = hasAudio);
@@ -355,19 +333,12 @@ void PlayEngine::getStreamInfo() {
 void PlayEngine::finish() {
 	d->finishing = true;
 	gst_element_set_state(d->playbin, GST_STATE_NULL);
-	qDebug() << "finished:" << d->mrl.toString();
 	emit finished(d->mrl);
 }
 
 void PlayEngine::eos() {
+	qDebug() << "EOS!";
 	finish();
-//	qDebug() << "EOS!";
-//	d->status = EosStatus;
-//	const MediaState old = d->state;
-//	d->state = StoppedState;
-//	emit stateChanged(d->state, old);
-//	emit statusChanged(d->status);
-//	emit finished();
 }
 
 void PlayEngine::setStatus(MediaStatus status) {
@@ -387,36 +358,39 @@ void PlayEngine::queryDuration() {
 }
 
 bool PlayEngine::play() {
-	qDebug() << "PlayEngine::play() begin";
-	if (d->playbin && !d->mrl.url().isEmpty()) {
-		d->seek = -1;
-		if ((d->state == StoppedState || d->state == FinishedState) && Pref::get().rememberStopped)
-			d->seek = RecentInfo::get().stoppedTime(d->mrl);
-		if (!gst_element_set_state(d->playbin, GST_STATE_PLAYING)) {
-			qDebug() << "cannot set playing";
-			qDebug() << "PlayEngine::play() end" << false;
-			return false;
-		}
-//		qDebug() << time << d->mrl.toString();
-//		if (time) {
-//			qDebug() << "seek to" << time;
-//			const bool ret = seek(time);
-//			qDebug() << "PlayEngine::play() end" << ret;
-//		}
-//		qDebug() << "PlayEngine::play() end" << true;
-		return true;
+	d->seek = -1;
+	if (!d->playbin || d->mrl.url().isEmpty()) {
+		setState(StoppedState);
+		return false;
+	} else if ((d->state != StoppedState && d->state != FinishedState) || !Pref::get().rememberStopped)
+		return gst_element_set_state(d->playbin, GST_STATE_PLAYING);
+	const RecentInfo &recent = RecentInfo::get();
+	const int record = recent.stoppedTime(d->mrl);
+	if (record > 0) {
+		if (Pref::get().askWhenRecordFound) {
+			const QDateTime date = recent.stoppedDate(d->mrl);
+			const QString title = tr("Stopped Record Found");
+			const QString text = tr("This file was stopped during its playing before.\n"
+				"Played Date: %1\nStopped Time: %2\n"
+				"Do you want to start from where it's stopped?\n"
+				"(You can configure not to ask anymore in the preferecences.)")
+				.arg(date.toString(Qt::ISODate)).arg(msecsToString(record, "h:mm:ss"));
+			const QMessageBox::StandardButtons b = QMessageBox::Yes | QMessageBox::No;
+			if (QMessageBox::question(d->native, title, text, b) == QMessageBox::Yes)
+				d->seek = record;
+		} else
+			d->seek = record;
 	}
-	setState(StoppedState);
-	qDebug() << "PlayEngine::play() end" << false;
-	return false;
+	qDebug() << "let's play!" << d->mrl.toString();
+	int ret = gst_element_set_state(d->playbin, GST_STATE_PLAYING);
+	qDebug() << ret;
+	return ret;
 }
 
 bool PlayEngine::pause() {
 	if (d->playbin && (gst_element_set_state(d->playbin, GST_STATE_PAUSED) != GST_STATE_CHANGE_FAILURE))
 		return true;
-//	qWarning() << "GStreamer; Unable to play -" << m_url.toString();
 	setState(StoppedState);
-//	emit error(int(QMediaPlayer::ResourceError), tr("Unable to play %1").arg(m_url.path()));
 	return false;
 }
 
@@ -429,7 +403,6 @@ void PlayEngine::stop() {
 		if (pos != -1)
 			emit stopped(d->mrl, pos);
 	}
-	//we have to do it here, since gstreamer will not emit bus messages any more
 	setState(StoppedState);
 }
 
@@ -446,8 +419,12 @@ void PlayEngine::flush() {
 }
 
 bool PlayEngine::seek(int ms) {
-	if (!d->playbin || d->state == StoppedState)
+	if (!d->playbin || d->state == StoppedState || d->state == FinishedState || d->finishing)
 		return false;
+	if (d->duration > 500 && ms > d->duration - 500) {
+		finish();
+		return true;
+	}
 	const gint64 pos = static_cast<gint64>(ms)*GST_MSECOND;
 	const int flags = GST_SEEK_FLAG_ACCURATE | GST_SEEK_FLAG_SEGMENT | GST_SEEK_FLAG_FLUSH;
 	return gst_element_seek(d->playbin, d->speed
@@ -470,10 +447,12 @@ int PlayEngine::position() const {
 void PlayEngine::ticking() {
 	if (d->state == PlayingState) {
 		int tick = position();
-		if (tick != d->prevTick) {
-			emit this->tick(d->prevTick = tick);
+		if (tick != d->prevTick && !d->finishing) {
 			if (duration() - tick < 100 && !d->mrl.isDVD())
 				finish();
+			else {
+				emit this->tick(d->prevTick = tick);
+			}
 		}
 	}
 }
@@ -520,5 +499,33 @@ void PlayEngine::navigateDVDMenu(int cmd) {
 	}
 	GstNavigation *nav = d->native->nav();
 	gst_navigation_send_command(nav, GstNavigationCommand(cmd));
-//	qDebug() << cmd;
+}
+
+bool PlayEngine::hasAudio() const {
+	return d->hasAudio;
+}
+
+bool PlayEngine::hasVideo() const {
+	return d->hasVideo;
+}
+
+const QList<StreamData> &PlayEngine::audioStreams() const {
+	return d->audioStream;
+}
+
+void PlayEngine::setCurrentAudioStream(int idx) {
+	if (0 <= idx && idx < d->audioStream.size())
+		g_object_set(G_OBJECT(d->playbin), "current-audio", idx, NULL);
+}
+
+int PlayEngine::currentAudioStream() const {
+	int idx = 0;
+	g_object_get(G_OBJECT(d->playbin), "current-audio", &idx, NULL);
+	return idx < 0 ? 0 : idx;
+}
+
+void PlayEngine::getAboutToFinish(GstElement */*object*/, gpointer user_data) {
+	PlayEngine *engine = reinterpret_cast<PlayEngine*>(user_data);
+	PlayEngine::Data *d = engine->d;
+	qDebug() << "about to finish" << d->duration - engine->position();
 }

@@ -16,14 +16,14 @@ public:
 	HistoryView *history() const;
 	SubtitleView *subtitle() const;
 signals:
-	void hidingRequested();
-	void snapRequested();
+//	void hidingRequested();
+//	void snapRequested();
 private slots:
 	void changeWidget(int id);
 private:
 	QRect boxRect() const {return QRect(3, 3, width()-6, height() - 6);}
 	void addPage(QWidget *widget, const QString &name, const QString &iconHolder);
-	void closeEvent(QCloseEvent *event);
+//	void closeEvent(QCloseEvent *event);
 	void paintEvent(QPaintEvent *event);
 	void resizeEvent(QResizeEvent *event);
 	class Frame;

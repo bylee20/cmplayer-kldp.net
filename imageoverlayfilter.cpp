@@ -21,7 +21,6 @@ struct ImageOverlayFilter::Item {
 	double zIndex; int id;
 	int x, y;
 	mutable QReadWriteLock lock;
-	mutable QWaitCondition cond;
 };
 
 typedef QMultiMap<double, void*> ItemMap;
@@ -48,12 +47,7 @@ bool ImageOverlayFilter::transform(I420Picture *pic) {
 			continue;
 		blend(pic, item);
 		item.lock.unlock();
-//		item.lock.unlock();
-//		item.cond.wakeAll();
 	}
-//	const int t = time.elapsed();
-//	qDebug() << t;
-//	qDebug() << d->item.size();
 	return true;
 }
 
@@ -98,6 +92,7 @@ void ImageOverlayFilter::setOverlay(int id, uchar *data, const QSize &size, cons
 		item->y = pos.y();
 		item->lock.unlock();
 		delete[] old;
+		rerender();
 	} else
 		delete data;
 }

@@ -6,7 +6,7 @@
 #include <gst/interfaces/navigation.h>
 
 class PlayEngine;	class OsdRenderer;
-class VideoInfo;
+class VideoInfo;	class ColorProperty;
 
 class NativeVideoRenderer : public QWidget {
 	Q_OBJECT
@@ -20,6 +20,10 @@ public:
 	double aspectRatio() const;
 	double cropRatio() const;
 	GstNavigation *nav() const;
+	void setColorProperty(const ColorProperty &prop);
+	void setSoftwareEqualizerEnabled(bool enabeld);
+	const ColorProperty &colorProperty() const;
+	bool isSoftwareEqualizerEnabled() const;
 public slots:
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
@@ -33,10 +37,12 @@ protected:
 	void paintEvent(QPaintEvent *event);
 	void showEvent(QShowEvent *event);
 	void resizeEvent(QResizeEvent *event);
-//	void mouseMoveEvent(QMouseEvent *event);
-//	void mousePressEvent(QMouseEvent *event);
-//	void mouseReleaseEvent(QMouseEvent *event);
+	void mouseMoveEvent(QMouseEvent *event);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseReleaseEvent(QMouseEvent *event);
 private:
+	QPoint mapToNav(const QPoint &from) const;
+	void sendNavEvent(QMouseEvent *event, const char *name);
 	friend class VideoManipulator;
 	void showFrame(GstBuffer *buffer);
 	GstBuffer *allocBuffer(int size, GstCaps *caps);

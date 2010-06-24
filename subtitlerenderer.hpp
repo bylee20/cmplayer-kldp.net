@@ -26,6 +26,8 @@ public slots:
 	void clear();
 	void setFrameRate(double frameRate);
 	void render(int ms);
+	void setVisible(bool visible);
+	void setHidden(bool hidden) {setVisible(!hidden);}
 private:
 	struct Data;
 	Data *d;

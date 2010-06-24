@@ -13,8 +13,7 @@ class Translator : public QObject {
 public:
 	~Translator();
 	static bool load(const QLocale &locale = QLocale::system());
-	static const LocaleList &availableLocales();
-//	static const QLocale &currentLocale();
+	static LocaleList availableLocales();
 private:
 	Translator();
 	static Translator &get();

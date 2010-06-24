@@ -3,7 +3,7 @@
 
 #include "qtsingleapplication/qtsingleapplication.h"
 
-class QUrl;
+class QUrl;		class Mrl;
 
 class Application : public QtSingleApplication {
 	Q_OBJECT
@@ -12,11 +12,10 @@ public:
 	QString defaultStyleName();
 	void setStyle(const QString &name);
 	~Application();
-	static QUrl getUrlFromCommandLine();
+	static Mrl getMrlFromCommandLine();
 private slots:
 	void initialize();
 	void open(const QString &url);
-	void raise();
 	void parseMessage(const QString &message);
 private:
 	struct Data;

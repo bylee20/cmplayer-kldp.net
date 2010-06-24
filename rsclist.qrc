@@ -95,5 +95,7 @@
         <file>img/subtitle-view-icon-color.png</file>
         <file>img/preferences-plugin.png</file>
         <file>img/go-next-view-page.png</file>
+        <file>translations/cmplayer_ko</file>
+        <file>translations/cmplayer_en</file>
     </qresource>
 </RCC>

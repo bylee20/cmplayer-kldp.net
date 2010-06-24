@@ -106,7 +106,7 @@ struct ControlWidget::Data {
 	PlayEngine *engine;
 	Button *pref;
 	Button *open, *tool, *fullScreen;
-	Button *play, *stop, *prev, *next, *forward, *backward;
+	Button *play, *prev, *next, *forward, *backward;
 	QBrush bg, light;
 	QPainterPath path;
 };
@@ -137,7 +137,6 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->fullScreen = new Button(this);
 	d->tool = new Button(this);
 	d->play = new Button(this);
-	d->stop = new Button(this);
 	d->prev = new Button(this);
 	d->next = new Button(this);
 	d->forward = new Button(this);
@@ -146,13 +145,11 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->backward->setBlock(false);
 	d->play->setBlock(false);
 	d->prev->setBlock(false);
-	d->stop->setBlock(false);
 	d->next->setBlock(false);
 	d->fullScreen->setBlock(false);
 	d->open->setBlock(false);
 	d->pref->setBlock(false);
 	d->tool->setBlock(false);
-//	d->tool->setIcon(QIcon(":/img/format-list-unordered-gray.png"));
 	d->tool->setIcon(QIcon(":/img/preferences-plugin.png"));
 	d->open->setIcon(QIcon(":/img/go-next-view-page.png"));
 	d->fullScreen->setIcon(QIcon(":/img/view-fullscreen.png"));
@@ -169,16 +166,16 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 
 	setMinimumHeight(0);
 	setMaximumHeight(100000);
+	d->play->setIcon(QIcon(":/img/media-playback-start.png"));
 	d->backward->setIcon(QIcon(":/img/arrow-left-double-gray.png"));
 	d->prev->setIcon(QIcon(":/img/go-first-view-gray.png"));
 	d->next->setIcon(QIcon(":/img/go-last-view-gray.png"));
 	d->forward->setIcon(QIcon(":/img/arrow-right-double-gray.png"));
-	d->stop->hide();
+	d->slider->mute->setIcon(QIcon(":/img/irc-voice.png"));
 
 	const int big = d->lcd->sizeHint().height() + d->slider->height() - 2;
 	const int small = big/2-4;
 	d->play->setIconSize(big);
-	d->stop->setIconSize(small);
 	d->prev->setIconSize(small);
 	d->next->setIconSize(small);
 	d->forward->setIconSize(small);
@@ -241,16 +238,18 @@ void ControlWidget::paintEvent(QPaintEvent */*event*/) {
 	painter.drawPath(d->path);
 }
 
+void ControlWidget::updateMuted(bool muted) {
+	const QIcon icon(muted ? ":/img/irc-unvoice.png" : ":/img/irc-voice.png");
+	d->slider->mute->setIcon(icon);
+}
+
 void ControlWidget::connectMute(QAction *action) {
-	d->slider->mute->setDefaultAction(action);
+	d->slider->mute->setAction(action, false);
+	connect(action, SIGNAL(toggled(bool)), this, SLOT(updateMuted(bool)));
 }
 
 void ControlWidget::connectPlay(QAction *action) {
-	d->play->setDefaultAction(action);
-}
-
-void ControlWidget::connectStop(QAction *action) {
-	d->stop->setDefaultAction(action);
+	d->play->setAction(action, false);
 }
 
 void ControlWidget::connectPrevious(QAction *action) {
@@ -286,14 +285,18 @@ void ControlWidget::setMrl(const Mrl &mrl) {
 
 void ControlWidget::setState(MediaState state) {
 	QString text;
-	if (state == StoppedState)
-		text += tr("Stopped");
-//	else if (state == MediaFinished)
-//		text += tr("Finished");
-	else if (state == PlayingState)
+	if (state == PlayingState) {
 		text += tr("Playing");
-	else
-		text += tr("Paused");
+		d->play->setIcon(QIcon(":/img/media-playback-pause.png"));
+	} else {
+		if (state == StoppedState)
+			text += tr("Stopped");
+		else if (state == FinishedState)
+			text += tr("Finished");
+		else
+			text += tr("Paused");
+		d->play->setIcon(QIcon(":/img/media-playback-start.png"));
+	}
 	d->lcd->state->setText("(" + text + ") ");
 	hideMessage();
 }
@@ -337,12 +340,10 @@ void ControlWidget::connectFullScreen(QAction *action) {
 void ControlWidget::retranslateUi() {
 	d->backward->setToolTip(tr("Backward"));
 	d->forward->setToolTip(tr("Forward"));
-	d->stop->setToolTip(tr("Stop"));
 	d->next->setToolTip(tr("Next"));
 	d->prev->setToolTip(tr("Previous"));
 	d->open->setToolTip(tr("Open File"));
 	d->pref->setToolTip(tr("Preferences"));
-// 	d->openUrl->setToolTip(tr("Open URL"));
 	d->fullScreen->setToolTip(tr("Full Screen"));
 	d->tool->setToolTip(tr("Tool Box"));
 }

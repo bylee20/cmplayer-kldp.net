@@ -4,7 +4,8 @@
 
 struct AudioController::Data {
 	PlayEngine *engine;
-	GstElement *bin, *volume, *sink, *volnorm;
+	GstElement *bin, *volume, *sink;
+	GstVolNorm *volnorm;
 	double amp;
 	int vol;
 	bool muted;
@@ -19,10 +20,10 @@ AudioController::AudioController(PlayEngine *engine): d(new Data) {
 
 	d->volume = gst_element_factory_make("volume", 0);
 	d->sink = gst_element_factory_make("autoaudiosink", 0);
-	d->volnorm = GST_ELEMENT(g_object_new(GstVolNorm::gtype(), 0));
+	d->volnorm = GST_VOL_NORM(g_object_new(GstVolNorm::gtype(), 0));
 	GstElement *queue = gst_element_factory_make("queue", 0);
-	gst_bin_add_many(GST_BIN(d->bin), d->volnorm, queue, d->volume, d->sink, NULL);
-	gst_element_link_many(queue, d->volnorm, d->volume, d->sink, NULL);
+	gst_bin_add_many(GST_BIN(d->bin), GST_ELEMENT(d->volnorm), queue, d->volume, d->sink, NULL);
+	gst_element_link_many(queue, GST_ELEMENT(d->volnorm), d->volume, d->sink, NULL);
 
 	GstPad *pad = gst_element_get_pad(queue, "sink");
 	gst_element_add_pad(d->bin, gst_ghost_pad_new("sink", pad));
@@ -90,3 +91,11 @@ double AudioController::preAmp() const {
 	return d->amp;
 }
 
+void AudioController::setVolumeNormalized(bool norm) {
+	if (d->volnorm->d->on != norm)
+		emit volumeNormalizedChanged(d->volnorm->d->on = norm);
+}
+
+bool AudioController::isVolumeNormalized() const {
+	return d->volnorm->d->on;
+}

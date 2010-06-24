@@ -5,8 +5,7 @@
 
 class ColorProperty {
 public:
-	static bool isSame(double v1, double v2) {return qAbs(v1-v2) < 1.0e-5;}
-	enum Value {Brightness = 0, Saturation, Contrast, Hue};
+	enum Value {Brightness = 0, Saturation, Contrast, Hue, PropMax};
 	ColorProperty(double b, double s, double c, double h) {
 		m_value[Brightness] = b;
 		m_value[Saturation] = s;
@@ -34,10 +33,10 @@ public:
 		return *this;
 	}
 	bool operator == (const ColorProperty &rhs) const {
-		return isSame(m_value[Brightness], rhs.m_value[Brightness])
-				&& isSame(m_value[Saturation], rhs.m_value[Saturation])
-				&& isSame(m_value[Contrast], rhs.m_value[Contrast])
-				&& isSame(m_value[Hue], rhs.m_value[Hue]);
+		return qFuzzyCompare(m_value[Brightness], rhs.m_value[Brightness])
+			&& qFuzzyCompare(m_value[Saturation], rhs.m_value[Saturation])
+			&& qFuzzyCompare(m_value[Contrast], rhs.m_value[Contrast])
+			&& qFuzzyCompare(m_value[Hue], rhs.m_value[Hue]);
 	}
 	bool operator != (const ColorProperty &rhs) const {
 		return !operator==(rhs);
@@ -49,11 +48,23 @@ public:
 	double saturation() const {return m_value[Saturation];}
 	double contrast() const {return m_value[Contrast];}
 	double hue() const {return m_value[Hue];}
-	void setValue(Value p, double val) {m_value[p] = isSame(val, 0.0) ? 0.0 : val;}
+	void setValue(Value p, double val) {m_value[p] = qFuzzyCompare(val, 0.0) ? 0.0 : val;}
 	void setBrightness(double v) {m_value[Brightness] = v;}
 	void setSaturation(double v) {m_value[Saturation] = v;}
 	void setContrast(double v) {m_value[Contrast] = v;}
 	void setHue(double v) {m_value[Hue] = v;}
+	void clamp() {
+		m_value[Brightness] = qBound(-1.0, m_value[Brightness], 1.0);
+		m_value[Contrast] = qBound(-1.0, m_value[Contrast], 1.0);
+		m_value[Saturation] = qBound(-1.0, m_value[Saturation], 1.0);
+		m_value[Hue] = qBound(-1.0, m_value[Hue], 1.0);
+	}
+	bool isZero() const {
+		return qFuzzyCompare(m_value[Brightness], 0.0)
+			&& qFuzzyCompare(m_value[Saturation], 0.0)
+			&& qFuzzyCompare(m_value[Contrast], 0.0)
+			&& qFuzzyCompare(m_value[Hue], 0.0);
+	}
 private:
 	double m_value[4];
 };

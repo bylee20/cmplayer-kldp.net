@@ -4,28 +4,40 @@
 #include <QtCore/QDebug>
 #include <QtCore/QRegExp>
 #include <QtCore/QDir>
+#include <QtCore/QSet>
 
 struct Translator::Data {
 	QTranslator trans;
 	QString path;
-	QList<QLocale> locale;
+	QSet<QLocale> locale;
+	QString def;
 };
 
-Translator::Translator()
-: d(new Data) {
-	qApp->installTranslator(&d->trans);
-	d->path = QString::fromLocal8Bit(qgetenv("CMPLAYER_TRANSLATION_PATH"));
-	if (d->path.isEmpty())
-		d->path = QString(CMPLAYER_TRANSLATION_DIR_PATH);
-	QDir dir(d->path);
-	QStringList file = dir.entryList(QStringList() << "*.qm");
-	QRegExp rx("^cmplayer_(.*).qm$");
-	d->locale.push_back(QLocale::c());
+static inline uint qHash(const QLocale &key) {
+	return qHash(key.name());
+}
+
+QSet<QLocale> getLocales(const QString &path, const QString &filter, const QString &regExp) {
+	const QDir dir(path);
+	const QStringList file = dir.entryList(QStringList(filter));
+	QRegExp rx("^cmplayer_" + regExp + "$");
+	QSet<QLocale> set;
 	for (int i=0; i<file.size(); ++i) {
 		if (rx.indexIn(file[i]) == -1)
 			continue;
-		d->locale.push_back(QLocale(rx.cap(1)));
+		set.insert(QLocale(rx.cap(1)));
 	}
+	return set;
+}
+
+Translator::Translator()
+: d(new Data) {
+	d->def = ":/translations";
+	qApp->installTranslator(&d->trans);
+	d->locale += getLocales(d->def, "*", "(.*)");
+	d->path = QString::fromLocal8Bit(qgetenv("CMPLAYER_TRANSLATION_PATH"));
+	if (!d->path.isEmpty())
+		d->locale += getLocales(d->path, "*.qm", "(.*).qm");
 }
 
 Translator::~Translator() {
@@ -37,8 +49,10 @@ Translator &Translator::get() {
 	return self;
 }
 
-const LocaleList &Translator::availableLocales() {
-	return get().d->locale;
+LocaleList Translator::availableLocales() {
+	QList<QLocale> list = get().d->locale.toList();
+	list.prepend(QLocale::c());
+	return list;
 }
 
 bool Translator::load(const QLocale &locale) {
@@ -47,12 +61,8 @@ bool Translator::load(const QLocale &locale) {
 		l = QLocale::system();
 	const QString file = "cmplayer_" + l.name();
 	Translator::Data *d = get().d;
-	const bool ret = d->trans.load(file, d->path);
+	const bool ret = (d->trans.load(file, d->path) || d->trans.load(file, d->def));
 	if (ret)
 		QLocale::setDefault(l);
 	return ret;
 }
-
-//const QLocale &Translator::currentLocale() {
-//
-//}

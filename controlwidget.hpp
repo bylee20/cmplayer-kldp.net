@@ -18,7 +18,6 @@ public:
 	~ControlWidget();
 	void connectMute(QAction *action);
 	void connectPlay(QAction *action);
-	void connectStop(QAction *action);
 	void connectPrevious(QAction *action);
 	void connectNext(QAction *action);
 	void connectForward(QAction *action);
@@ -35,6 +34,7 @@ public slots:
 	void setTrackNumber(int nth, int total);
 private slots:
 	void hideMessage();
+	void updateMuted(bool muted);
 private:
 	static QVBoxLayout *vbox();
 	static QHBoxLayout *hbox();
