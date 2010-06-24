@@ -1,5 +1,6 @@
 #include "historyview.hpp"
 #include <QtCore/QDebug>
+#include <QtGui/QMenu>
 #include "playengine.hpp"
 #include "recentinfo.hpp"
 #include "record.hpp"
@@ -20,8 +21,8 @@ struct HistoryView::Item : public QTreeWidgetItem {
 	void update() {update(QDateTime::currentDateTime());}
 	void setMrl(const Mrl &mrl) {
 		m_mrl = mrl;
-		setText(Name, mrl.fileName());
-		setText(Location, mrl.toString());
+		setText(Name, mrl.displayName());
+		setText(Location, mrl.location());
 	}
 	const QDateTime &date() const {return m_date;}
 private:
@@ -39,13 +40,15 @@ HistoryView::Item::Item(const Mrl &mrl, const QDateTime &date)
 
 struct HistoryView::Data {
 	PlayEngine *engine;
+	QMenu *context;
 };
 
 HistoryView::HistoryView(PlayEngine *engine, QWidget *parent)
 : QTreeWidget(parent), d(new Data) {
+	setSelectionMode(ExtendedSelection);
 	setRootIsDecorated(false);
 	setHeaderLabels(QStringList() << tr("Name") << tr("Latest Play") << tr("Location"));
-	connect(engine,	SIGNAL(stopped(Mrl,int)), this, SLOT(handleStopped(Mrl,int)));
+	connect(engine,	SIGNAL(stopped(Mrl,int,int)), this, SLOT(handleStopped(Mrl,int,int)));
 	connect(engine, SIGNAL(finished(Mrl)), this, SLOT(handleFinished(Mrl)));
 	connect(engine, SIGNAL(stateChanged(MediaState,MediaState))
 		, this, SLOT(handleStateChanged(MediaState,MediaState)));
@@ -53,11 +56,28 @@ HistoryView::HistoryView(PlayEngine *engine, QWidget *parent)
 		, this, SLOT(play(QTreeWidgetItem*)));
 	d->engine = engine;
 	load();
+
+	d->context = new QMenu(this);
+	connect(d->context->addAction(tr("Erase")), SIGNAL(triggered()), this, SLOT(erase()));
+	connect(d->context->addAction(tr("Clear")), SIGNAL(triggered()), this, SLOT(clearAll()));
+	setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu()));
+
 }
 
 HistoryView::~HistoryView() {
 	save();
 	delete d;
+}
+
+void HistoryView::showContextMenu() {
+	d->context->exec(QCursor::pos());
+}
+
+void HistoryView::erase() {
+	QList<QTreeWidgetItem*> items = selectedItems();
+	for (int i=0; i<items.size(); ++i)
+		delete items[i];
 }
 
 int HistoryView::findIndex(const Mrl &mrl) const {
@@ -81,7 +101,9 @@ void HistoryView::handleFinished(Mrl mrl) {
 	}
 }
 
-void HistoryView::handleStopped(Mrl mrl, int time) {
+void HistoryView::handleStopped(Mrl mrl, int time, int duration) {
+	if (mrl.isDVD() || duration < 500 || duration - time < 500)
+		return;
 	Item *item = findItem(mrl);
 	if (item) {
 		item->update();
@@ -112,6 +134,8 @@ void HistoryView::handleStateChanged(MediaState state, MediaState old) {
 			item->setMrl(mrl);
 			item->update(date);
 			insertTopLevelItem(0, item);
+			while (topLevelItemCount() > 999)
+				delete takeTopLevelItem(topLevelItemCount()-1);
 			emit historyChanged();
 		}
 	}

@@ -4,17 +4,18 @@
 #include <QtGui/QWidget>
 
 class PlayEngine;		class Mrl;
-class Playlist;			class QTableWidgetItem;
+class Playlist;			class QModelIndex;
 
 class PlaylistView : public QWidget {
 	Q_OBJECT
 public:
 	PlaylistView(PlayEngine *engine, QWidget *parent);
 	~PlaylistView();
-	void load(const Mrl &mrl);
+	void load(const Mrl &mrl, const QString &enc = QString());
 	const Playlist &playlist() const;
 	void setPlaylist(const Playlist &list);
 	void play(const Mrl &mrl);
+	void append(const Playlist &list);
 public slots:
 	void playNext();
 	void playPrevious();
@@ -23,17 +24,17 @@ signals:
 private slots:
 	void updateCurrentMrl(const Mrl &mrl);
 	void handleFinished();
-	void handleDoubleClick(int row, int column);
 	void showContextMenu(const QPoint &pos);
-	void add();
+	void addFile();
+	void addUrl();
 	void erase();
 	void up();
 	void down();
 	void clear();
 	void open();
 	void save();
+	void handleDoubleClick(const QModelIndex &index);
 private:
-	bool isValidRow(int row);
 	void move(bool up);
 	void setCurrentIndex(int idx);
 	class Item;

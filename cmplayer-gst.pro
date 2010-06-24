@@ -77,7 +77,9 @@ HEADERS += playengine.hpp \
     simplelistwidget.hpp \
     appstate.hpp \
     dialogs.hpp \
-    videoeqfilter.hpp
+    videoeqfilter.hpp \
+    favoritesview.hpp \
+    downloader.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     bushelper.cpp \
@@ -139,7 +141,9 @@ SOURCES += main.cpp \
     simplelistwidget.cpp \
     appstate.cpp \
     dialogs.cpp \
-    videoeqfilter.cpp
+    videoeqfilter.cpp \
+    favoritesview.cpp \
+    downloader.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts

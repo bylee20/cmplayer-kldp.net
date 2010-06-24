@@ -909,7 +909,7 @@ e.g.: English, Korean</string>
                 <item row="0" column="1">
                  <widget class="QSpinBox" name="seek1">
                   <property name="suffix">
-                   <string>sec.</string>
+                   <string>sec</string>
                   </property>
                   <property name="minimum">
                    <number>1</number>
@@ -935,7 +935,7 @@ e.g.: English, Korean</string>
                 <item row="0" column="3">
                  <widget class="QSpinBox" name="seek2">
                   <property name="suffix">
-                   <string>sec.</string>
+                   <string>sec</string>
                   </property>
                   <property name="minimum">
                    <number>1</number>
@@ -971,7 +971,7 @@ e.g.: English, Korean</string>
                 <item row="1" column="1">
                  <widget class="QSpinBox" name="seek3">
                   <property name="suffix">
-                   <string>sec.</string>
+                   <string>sec</string>
                   </property>
                   <property name="minimum">
                    <number>1</number>
@@ -1258,7 +1258,7 @@ e.g.: English, Korean</string>
                 <item row="0" column="3">
                  <widget class="QDoubleSpinBox" name="sync">
                   <property name="suffix">
-                   <string>sec.</string>
+                   <string>sec</string>
                   </property>
                   <property name="minimum">
                    <double>0.010000000000000</double>

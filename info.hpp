@@ -19,7 +19,7 @@ public:
 	static const ExtensionList &audioExtension() {return self.m_audioExt;}
 	static const ExtensionList &subtitleExtension() {return self.m_subExt;}
 	static const ExtensionList &playlistExtension() {return self.m_plExt;}
-	static const char *version() {return "0.3.99";}
+	static const char *version() {return "0.4.0";}
 	static QString mediaExtensionFilter();
 private:
 	Info();

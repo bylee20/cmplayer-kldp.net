@@ -1,5 +1,9 @@
 #include "dialogs.hpp"
 #include "controls.hpp"
+#include "playlist.hpp"
+#include "info.hpp"
+#include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
 #include <QtGui/QGridLayout>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
@@ -10,6 +14,17 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QPushButton>
 #include <QtGui/QLineEdit>
+#include <QtGui/QDialogButtonBox>
+#include "appstate.hpp"
+#include <QtGui/QCompleter>
+
+static QDialogButtonBox *makeButtonBox(QDialog *dlg) {
+	QDialogButtonBox *dbb = new QDialogButtonBox(
+		QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, dlg);
+	dlg->connect(dbb, SIGNAL(accepted()), SLOT(accept()));
+	dlg->connect(dbb, SIGNAL(rejected()), SLOT(reject()));
+	return dbb;
+}
 
 struct CheckDialog::Data {
 	QCheckBox *check;
@@ -238,5 +253,71 @@ QStringList EncodingFileDialog::getOpenFileNames(QWidget *parent
 		return dlg.selectedFiles();
 	}
 	return QStringList();
+}
+
+/******************************************************************************/
+
+struct GetUrlDialog::Data {
+	QLineEdit *url;
+	EncodingComboBox *enc;
+	QCompleter *c;
+};
+
+GetUrlDialog::GetUrlDialog(QWidget *parent)
+: QDialog(parent), d(new Data) {
+	AppState as;
+	d->c = new QCompleter(as[AppState::OpenUrlList].toStringList(), this);
+	d->url = new QLineEdit(this);
+	d->url->setCompleter(d->c);
+	d->enc = new EncodingComboBox(this);
+	d->enc->setEncoding(as[AppState::UrlEncoding].toString());
+
+	QVBoxLayout *vbox = new QVBoxLayout(this);
+	QHBoxLayout *hbox = new QHBoxLayout;
+	hbox->addWidget(new QLabel(tr("URL"), this));
+	hbox->addWidget(d->url);
+	vbox->addLayout(hbox);
+	hbox = new QHBoxLayout;
+	hbox->addWidget(new QLabel(tr("Encoding for Playlist"), this));
+	hbox->addWidget(d->enc);
+	hbox->addWidget(makeButtonBox(this));
+	vbox->addLayout(hbox);
+}
+
+GetUrlDialog::~GetUrlDialog() {
+	delete d;
+}
+
+void GetUrlDialog::accept() {
+	AppState as;
+	QStringList list = as[AppState::OpenUrlList].toStringList();
+	const QString url = d->url->text().trimmed();
+	if (!list.contains(url)) {
+		list << url;
+		as[AppState::OpenUrlList] = list;
+	}
+	as[AppState::UrlEncoding] = d->enc->encoding();
+	QDialog::accept();
+}
+
+QUrl GetUrlDialog::url() const {
+	return QUrl(d->url->text().trimmed());
+}
+
+//bool GetUrlDialog::isPlaylist() const {
+//	const QString suffix = QFileInfo(url().path()).suffix();
+//	return suffix.compare("pls", Qt::CaseInsensitive) == 0;
+//}
+
+//Playlist GetUrlDialog::playlist() const {
+//	if (!isPlaylist())
+//		return Playlist();
+//	Playlist list;
+//	list.load(url(), d->enc->encoding());
+//	return list;
+//}
+
+QString GetUrlDialog::encoding() const {
+	return d->enc->encoding();
 }
 

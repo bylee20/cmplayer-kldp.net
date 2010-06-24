@@ -14,11 +14,12 @@ public:
 	~MainWindow();
 	PlayEngine *engine() const;
 public slots:
-	void openMrl(const Mrl &mrl);
+	void openMrl(const Mrl &mrl, const QString &enc = QString());
 private slots:
 	void setVolumeNormalized(bool norm);
 	void openFile();
 	void openDvd();
+	void openUrl();
 	void togglePlayPause();
 	void showContextMenu(const QPoint &pos);
 	void updateMrl(const Mrl &mrl);
@@ -44,7 +45,9 @@ private slots:
 	void handleTray(QSystemTrayIcon::ActivationReason reason);
 	void updateStreamInfo();
 	void setTrack(int i);
+	void openSubFile();
 private:
+	void appendSubFiles(const QStringList &files, bool checked, const QString &enc);
 	void loadState();
 	void saveState();
 	void closeEvent(QCloseEvent *event);
@@ -67,6 +70,7 @@ private:
 	void mouseReleaseEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event);
 	void wheelEvent(QWheelEvent *event);
+	void dropEvent(QDropEvent *event);
 	class VideoScreen;
 	void doSubtitleAutoLoad();
 	void doSubtitleAutoSelection();

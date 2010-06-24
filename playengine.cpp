@@ -401,7 +401,7 @@ void PlayEngine::stop() {
 			pos = position();
 		gst_element_set_state(d->playbin, GST_STATE_NULL);
 		if (pos != -1)
-			emit stopped(d->mrl, pos);
+			emit stopped(d->mrl, pos, duration());
 	}
 	setState(StoppedState);
 }
@@ -448,7 +448,7 @@ void PlayEngine::ticking() {
 	if (d->state == PlayingState) {
 		int tick = position();
 		if (tick != d->prevTick && !d->finishing) {
-			if (duration() - tick < 100 && !d->mrl.isDVD())
+			if (duration() > 500 && duration() - tick < 100 && !d->mrl.isDVD())
 				finish();
 			else {
 				emit this->tick(d->prevTick = tick);

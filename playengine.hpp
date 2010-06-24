@@ -44,7 +44,7 @@ public slots:
 	void navigateDVDMenu(int cmd);
 signals:
 	void aboutToFinished();
-	void stopped(Mrl mrl, int pos);
+	void stopped(Mrl mrl, int pos, int duration);
 	void finished(Mrl mrl);
 	void tick(int pos);
 	void mrlChanged(const Mrl &mrl);

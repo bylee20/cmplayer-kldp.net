@@ -51,6 +51,7 @@ private:
 class EncodingComboBox;
 
 class EncodingFileDialog : public QFileDialog {
+	Q_OBJECT
 public:
 	static QString getOpenFileName(QWidget *parent = 0
 			, const QString &caption = QString()
@@ -71,6 +72,24 @@ private:
 	void setEncoding(const QString &encoding);
 	QString encoding() const;
 	EncodingComboBox *combo;
+};
+
+class Playlist;
+
+class GetUrlDialog : public QDialog {
+	Q_OBJECT
+public:
+	GetUrlDialog(QWidget *parent = 0);
+	~GetUrlDialog();
+	void setUrl(const QUrl &url);
+	QUrl url() const;
+//	bool isPlaylist() const;
+//	Playlist playlist() const;
+	QString encoding() const;
+private:
+	void accept();
+	struct Data;
+	Data *d;
 };
 
 

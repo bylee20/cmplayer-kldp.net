@@ -115,7 +115,7 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	Menu &menu = d->menu;
 	Menu &open = d->menu("open");
 	connect(open["file"], SIGNAL(triggered()), this, SLOT(openFile()));
-//	connect(open["url"], SIGNAL(triggered()), this, SLOT(open()));
+	connect(open["url"], SIGNAL(triggered()), this, SLOT(openUrl()));
 	connect(open["dvd"], SIGNAL(triggered()), this, SLOT(openDvd()));
 	connect(open("recent").g(), SIGNAL(triggered(Mrl)), this, SLOT(openMrl(Mrl)));
 	connect(open("recent")["clear"], SIGNAL(triggered()), &recent, SLOT(clear()));
@@ -125,8 +125,7 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	Menu &play = menu("play");
 	connect(play["stop"], SIGNAL(triggered()), d->engine, SLOT(stop()));
 	connect(play("speed").g(), SIGNAL(triggered(int)), this, SLOT(setSpeed(int)));
-	connect(play["prev"], SIGNAL(triggered()), d->tool->playlist(), SLOT(playPrevious()));
-	connect(play["next"], SIGNAL(triggered()), d->tool->playlist(), SLOT(playNext()));
+
 	connect(play["pause"], SIGNAL(triggered()), this, SLOT(togglePlayPause()));
 	connect(play("repeat").g(), SIGNAL(triggered(int)), this, SLOT(doRepeat(int)));
 	connect(play("seek").g(), SIGNAL(triggered(int)), this, SLOT(seek(int)));
@@ -153,7 +152,7 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 
 	Menu &sub = menu("subtitle");
 	connect(sub("list")["hide"], SIGNAL(toggled(bool)), d->subtitle, SLOT(setHidden(bool)));
-//	connect(sub("list")["open"], SIGNAL(triggered()), this, SLOT(openSubFile()));
+	connect(sub("list")["open"], SIGNAL(triggered()), this, SLOT(openSubFile()));
 	connect(sub("list")["clear"], SIGNAL(triggered()), this, SLOT(clearSubtitles()));
 	connect(sub("list").g(), SIGNAL(triggered(QAction*)), this, SLOT(updateSubtitle(QAction*)));
 	connect(sub.g("pos"), SIGNAL(triggered(int)), this, SLOT(moveSubtitle(int)));
@@ -169,26 +168,17 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(updateMrl(Mrl)));
 	connect(d->engine, SIGNAL(stateChanged(MediaState,MediaState))
 		, this, SLOT(updateState(MediaState,MediaState)));
-	connect(d->tool->playlist(), SIGNAL(finished()), this, SLOT(handleFinished()));
-//
-//	connect(d->engine, SIGNAL(tracksChanged(const QStringList&))
-//			, this, SLOT(slotTracksChanged(const QStringList&)));
-//	connect(d->engine, SIGNAL(currentTrackChanged(const QString&))
-//			, this, SLOT(slotCurrentTrackChanged(const QString&)));
+
 	connect(d->engine->renderer(), SIGNAL(customContextMenuRequested(const QPoint&))
 		, this, SLOT(showContextMenu(const QPoint&)));
 	connect(d->logo, SIGNAL(customContextMenuRequested(QPoint))
 		, this, SLOT(showContextMenu(QPoint)));
-//	connect(d->toolBox, SIGNAL(hidingRequested())
-//			, this, SLOT(toggleToolBoxVisibility()));
 	connect(&recent, SIGNAL(openListChanged(QList<Mrl>))
 		, this, SLOT(updateRecentActions(QList<Mrl>)));
 	connect(&d->hider, SIGNAL(timeout()), this, SLOT(hideCursor()));
 	d->hider.setSingleShot(true);
 	connect(d->tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
 		, this, SLOT(handleTray(QSystemTrayIcon::ActivationReason)));
-//	connect(d->tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
-//			, this, SLOT(slotTrayActivated(QSystemTrayIcon::ActivationReason)));
 
 	d->engine->renderer()->addOsdRenderer(d->subtitle->osd());
 	d->engine->renderer()->addOsdRenderer(d->timeLine);
@@ -197,12 +187,16 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 		, d->subtitle, SLOT(setFrameRate(double)));
 	connect(d->engine, SIGNAL(tick(int)), d->subtitle, SLOT(render(int)));
 
+	loadState();
+	applyPref();
+	d->tool = new ToolBox(this);
+
+	connect(play["prev"], SIGNAL(triggered()), d->tool->playlist(), SLOT(playPrevious()));
+	connect(play["next"], SIGNAL(triggered()), d->tool->playlist(), SLOT(playNext()));
+	connect(d->tool->playlist(), SIGNAL(finished()), this, SLOT(handleFinished()));
 	d->tool->playlist()->setPlaylist(recent.lastPlaylist());
 	d->engine->setMrl(recent.lastMrl());
 	updateRecentActions(recent.openList());
-
-	loadState();
-	applyPref();
 }
 
 MainWindow::~MainWindow() {
@@ -279,7 +273,7 @@ void MainWindow::setupUi() {
 	d->control->connectOpen(d->menu("open")["file"]);
 	d->control->connectFullScreen(d->menu("video")("size")["full"]);
 	d->control->connectToolBox(d->menu["tool-box"]);
-
+	d->control->connectPreference(d->menu["pref"]);
 	QVBoxLayout *vbox = new QVBoxLayout(center);
 	vbox->addWidget(d->screen);
 	vbox->addWidget(d->control);
@@ -296,8 +290,6 @@ void MainWindow::setupUi() {
 	center->setMouseTracking(true);
 	d->logo->setContextMenuPolicy(Qt::CustomContextMenu);
 	d->engine->renderer()->setContextMenuPolicy(Qt::CustomContextMenu);
-
-	d->tool = new ToolBox(this);
 }
 
 void MainWindow::updateRecentActions(const QList<Mrl> &list) {
@@ -326,10 +318,10 @@ void MainWindow::updateRecentActions(const QList<Mrl> &list) {
 	}
 }
 
-void MainWindow::openMrl(const Mrl &mrl) {
+void MainWindow::openMrl(const Mrl &mrl, const QString &enc) {
 	if (mrl == d->engine->mrl())
 		return;
-	d->tool->playlist()->load(mrl);
+	d->tool->playlist()->load(mrl, enc);
 	if (!mrl.isPlaylist()) {
 		d->tool->playlist()->play(mrl);
 		if (!mrl.isDVD())
@@ -353,6 +345,12 @@ void MainWindow::openDvd() {
 	d->engine->stop();
 	d->engine->setMrl(mrl);
 	d->engine->play();
+}
+
+void MainWindow::openUrl() {
+	GetUrlDialog dlg(this);
+	if (dlg.exec())
+		openMrl(dlg.url(), dlg.encoding());
 }
 
 void MainWindow::togglePlayPause() {
@@ -396,7 +394,45 @@ void MainWindow::clearSubtitles() {
 		delete acts[i];
 	d->subtitle->setSubtitle(d->subLoaded);
 	d->tool->subtitle()->setSubtitle(d->subLoaded);
-//	d->subViewer->showCurrentSubtitle();
+}
+
+void MainWindow::openSubFile() {
+	const QString filter = tr("Subtitle Files") +' '+ Info::subtitleExtension().toFilter();
+	QString enc = d->pref.subtitleEncoding;
+	QString dir;
+	if (d->engine->mrl().isLocalFile())
+		dir = QFileInfo(d->engine->mrl().toLocalFile()).absolutePath();
+	const QStringList files = EncodingFileDialog::getOpenFileNames(this
+			, tr("Open Subtitle"), dir, filter, &enc);
+	if (!files.isEmpty())
+		appendSubFiles(files, true, enc);
+}
+
+void MainWindow::appendSubFiles(const QStringList &files, bool checked, const QString &enc) {
+	if (files.isEmpty())
+		return;
+	Menu &list = d->menu("subtitle")("list");
+	int idx = d->subLoaded.size();
+	for (int i=0; i<files.size(); ++i) {
+		Subtitle sub;
+		if (!sub.load(files[i], enc))
+			continue;
+		for (int j=0; j<sub.size(); ++j, ++idx) {
+			d->subSelected.append(idx);
+			d->subLoaded.append(sub[j]);
+			QAction *action = list.addActionToGroupWithoutKey(
+					d->subLoaded[idx].name(), true);
+			action->setData(idx);
+			if (checked) {
+				d->changingSub = true;
+				action->setChecked(true);
+			}
+		}
+	}
+	if (d->changingSub) {
+		d->changingSub = false;
+		updateSubtitle();
+	}
 }
 
 void MainWindow::updateSubtitle(QAction *action) {
@@ -433,23 +469,13 @@ void MainWindow::doSubtitleAutoLoad() {
 			} else if (!all[i].fileName().contains(base))
 				continue;
 		}
-		const QString filePath = all[i].absoluteFilePath();
-		QString encoding;
-		const double conf = d->pref.subtitleEncodingConfidence*0.01;
-		if (d->pref.useSubtitleEncodingAutoDetection)
-			encoding = CharsetDetector::detect(filePath, conf);
-		if (encoding.isEmpty())
-			encoding = d->pref.subtitleEncoding;
 		Subtitle sub;
-		if (sub.load(all[i].absoluteFilePath(), encoding))
+		if (sub.load(all[i].absoluteFilePath(), d->pref.subtitleEncoding))
 			d->subLoaded += sub;
 	}
-
 //	d->menu("subtitle")("list").g()->setExclusive(source.isDisc());
 //	if (!source.isLocalFile())
 //		return;
-
-
 }
 
 void MainWindow::doSubtitleAutoSelection() {
@@ -610,7 +636,9 @@ void MainWindow::updateState(MediaState state, MediaState old) {
 		ScreensaverManager::setDisabled(false);
 		d->menu("play")["pause"]->setText(tr("Play"));
 	}
-	if (old == StoppedState) {
+	if (!d->engine->hasVideo())
+		d->stack->setCurrentWidget(d->logo);
+	else if (old == StoppedState) {
 		d->stack->setCurrentWidget(d->engine->renderer());
 	} else if (state == StoppedState) {
 		d->stack->setCurrentWidget(d->logo);
@@ -628,7 +656,7 @@ void MainWindow::setSpeed(int diff) {
 void MainWindow::setAmp(int amp) {
 	const int newAmp = qBound(0, qRound(d->engine->audio()->preAmp()*100 + amp), 1000);
 	d->engine->audio()->setPreAmp(newAmp*0.01);
-	showMessage(tr("PreAmp"), newAmp, "%");
+	showMessage(tr("Amp"), newAmp, "%");
 }
 
 void MainWindow::doRepeat(int key) {
@@ -760,6 +788,35 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 	QMainWindow::wheelEvent(event);
 }
 
+void MainWindow::dropEvent(QDropEvent *event) {
+	if (!event->mimeData()->hasUrls())
+		return;
+	QList<QUrl> urls = event->mimeData()->urls();
+	if (urls.isEmpty())
+		return;
+	qSort(urls);
+	Playlist playlist;
+	QStringList subList;
+	for (int i=0; i<urls.size(); ++i) {
+		const QString suffix = QFileInfo(urls[i].path()).suffix().toLower();
+		if (Info::playlistExtension().contains(suffix)) {
+			Playlist list;
+			list.load(urls[i]);
+			playlist += list;
+		} else if (Info::subtitleExtension().contains(suffix)) {
+			subList << urls[i].toLocalFile();
+		} else if (Info::videoExtension().contains(suffix)
+				|| Info::audioExtension().contains(suffix)) {
+			playlist.append(urls[i]);
+		}
+	}
+	if (!playlist.isEmpty()) {
+		d->tool->playlist()->append(playlist);
+//		d->model->play(d->model->row(playlist.first()));
+	} else if (!subList.isEmpty())
+		appendSubFiles(subList, true, d->pref.subtitleEncoding);
+}
+
 void MainWindow::handleFinished() {
 	d->stack->setCurrentWidget(d->logo);
 }
@@ -814,6 +871,7 @@ void MainWindow::applyPref() {
 	d->subtitle->osd()->setStyle(d->pref.subtitleStyle);
 	d->menu.updatePref();
 	d->tray->setVisible(d->pref.enableSystemTray);
+	d->control->setState(d->engine->state());
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {

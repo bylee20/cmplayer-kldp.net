@@ -1,12 +1,13 @@
 #include "playlist.hpp"
 #include "record.hpp"
-//#include "downloader.h"
+#include "downloader.hpp"
 #include "info.hpp"
 #include <QtCore/QFileInfo>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QTextStream>
 #include <QtCore/QRegExp>
 #include <QtCore/QTextCodec>
+#include <QtCore/QDir>
 
 Playlist::Playlist()
 : QList<Mrl>() {}
@@ -55,10 +56,10 @@ bool Playlist::load(QFile *file, const QString &enc, Type type) {
 }
 
 bool Playlist::load(const Mrl &mrl, const QString &enc, Type type) {
-	if (mrl.scheme().toLower() == "file")
+	if (mrl.isLocalFile())
 		return load(mrl.toLocalFile(), enc, type);
-	QTemporaryFile file(Info::privatePath() + "/temp_XXXXXX_" + mrl.fileName());
-	if (!file.open()/* || !Downloader::get(mrl.url(), &file, 30000)*/)
+	QTemporaryFile file(QDir::tempPath() + "/cmplayer_temp_XXXXXX_" + mrl.fileName());
+	if (!file.open() || !Downloader::get(mrl.url(), &file, 30000))
 		return false;
 	return load(&file, enc, type);
 }

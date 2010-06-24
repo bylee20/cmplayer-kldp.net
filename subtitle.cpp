@@ -1,6 +1,8 @@
 #include "subtitle.hpp"
 #include "subtitle_parser.hpp"
 #include "global.hpp"
+#include "pref.hpp"
+#include "charsetdetector.hpp"
 #include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 
@@ -117,7 +119,14 @@ bool Subtitle::save(const QString &file, const QString &enc, double frameRate) c
 }
 
 bool Subtitle::load(const QString &file, const QString &enc) {
-	*this = parse(file, enc);
+	const Pref &p = Pref::get();
+	const double conf = p.subtitleEncodingConfidence*0.01;
+	QString encoding;
+	if (p.useSubtitleEncodingAutoDetection)
+		encoding = CharsetDetector::detect(file, conf);
+	if (encoding.isEmpty())
+		encoding = enc;
+	*this = parse(file, encoding);
 	return !isEmpty();
 }
 

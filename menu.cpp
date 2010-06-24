@@ -36,8 +36,8 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *file = open->addAction("file");
 	file->setShortcut(Qt::CTRL + Qt::Key_F);
 	file->setData(int('f'));
-//	QAction *url = open->addAction("url");
-//	url->setData(int('u'));
+	QAction *url = open->addAction("url");
+	url->setData(int('u'));
 	QAction *dvd = open->addAction("dvd");
 	dvd->setData(QUrl("dvd://"));
 
@@ -303,7 +303,7 @@ void Menu::updatePref() {
 	Menu &open = root("open");
 	open.setTitle(tr("Open"));
 	open["file"]->setText(tr("File"));
-//	open["url"]->setText(tr("URL"));
+	open["url"]->setText(tr("URL"));
 	open["dvd"]->setText(tr("DVD"));
 
 	Menu &recent = open("recent");
@@ -340,14 +340,14 @@ void Menu::updatePref() {
 
 	Menu &seek = play("seek");
 	seek.setTitle(tr("Seek"));
-	const QString forward = tr("Forward %1sec.");
+	const QString forward = tr("Forward %1sec");
 	setActionAttr(seek["forward1"], p.seekingStep1
 			, forward, p.seekingStep1*0.001, false);
 	setActionAttr(seek["forward2"], p.seekingStep2
 			, forward, p.seekingStep2*0.001, false);
 	setActionAttr(seek["forward3"], p.seekingStep3
 			, forward, p.seekingStep3*0.001, false);
-	const QString backward = tr("Backward %1sec.");
+	const QString backward = tr("Backward %1sec");
 	setActionAttr(seek["backward1"], -p.seekingStep1
 			, backward, p.seekingStep1*0.001, false);
 	setActionAttr(seek["backward2"], -p.seekingStep2
@@ -368,7 +368,7 @@ void Menu::updatePref() {
 			, tr("Down %1%"), p.subtitlePosStep, false);
 	sub["sync-reset"]->setText(tr("Reset Sync"));
 	setActionStep(sub["sync-add"], sub["sync-sub"]
-			, tr("Sync %1sec."), p.syncDelayStep, 0.001);
+			, tr("Sync %1sec"), p.syncDelayStep, 0.001);
 
 	Menu &video = root("video");
 	video.setTitle(tr("Video"));
@@ -413,7 +413,7 @@ void Menu::updatePref() {
 	setActionStep(audio["volume-up"], audio["volume-down"]
 			, tr("Volume %1%"), p.volumeStep);
 	setActionStep(audio["amp-up"], audio["amp-down"]
-			, tr("PreAmp %1%"), p.ampStep);
+			, tr("Amp %1%"), p.ampStep);
 
 	root["tool-box"]->setText(tr("Tool Box"));
 	root["pref"]->setText(tr("Preferences"));

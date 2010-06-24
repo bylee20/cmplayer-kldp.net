@@ -1,16 +1,6 @@
 #include "toolbox.hpp"
-#include "historyview.hpp"
 #include "mainwindow.hpp"
-#include "playlistview.hpp"
-#include "subtitleview.hpp"
-//#include "favoriteswidget.h"
-//#include "playlistwidget.h"
-//#include "historywidget.h"
-//#include "dragcharm.h"
-//#include "helper.h"
-//#include "videocolorwidget.h"
 #include "controls.hpp"
-//#include <core/info.h>
 #include <QtGui/QFrame>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QStackedWidget>
@@ -19,8 +9,6 @@
 #include <QtGui/QPainter>
 #include <QtCore/QDebug>
 #include <QtGui/QPushButton>
-#include <QtGui/QCloseEvent>
-
 
 class ToolBox::Frame : public QFrame {
 public:
@@ -129,7 +117,7 @@ struct ToolBox::Data {
 	PlaylistView *playlist;
 	HistoryView *history;
 	SubtitleView *subtitle;
-//	FavoritesWidget *favorite;
+	FavoritesView *favorite;
 	Frame *frame;
 	ButtonWidget *button;
 };
@@ -140,12 +128,12 @@ ToolBox::ToolBox(MainWindow *mw)
 	d->frame = new Frame(this);
 	d->button = new ButtonWidget(this);
 	d->playlist = new PlaylistView(mw->engine(), d->frame);
-//	d->favorite = new FavoritesWidget(player, d->frame);
+	d->favorite = new FavoritesView(mw->engine(), d->frame);
 	d->history = new HistoryView(mw->engine(), d->frame);
 	d->subtitle = new SubtitleView(mw->engine(), d->frame);
 
 	addPage(d->playlist, tr("Playlist"), ":/img/view-media-playlist-%1.png");
-//	addPage(d->favorite, tr("Favorites"), ":/img/favorites-%1.png");
+	addPage(d->favorite, tr("Favorites"), ":/img/favorites-%1.png");
 	addPage(d->history, tr("History"), ":/img/history-%1.png");
 	addPage(d->subtitle, tr("Subtitle"), ":/img/subtitle-view-icon-%1.png");
 
@@ -155,8 +143,6 @@ ToolBox::ToolBox(MainWindow *mw)
 	vbox->setContentsMargins(3, 3, 3, 3);
 	vbox->setSpacing(0);
 
-//	connect(d->history, SIGNAL(openRequested(Core::Mrl)), mainWindow, SLOT(openMrl(Core::Mrl)));
-//	connect(d->favorite, SIGNAL(openRequested(Core::Mrl)), mainWindow, SLOT(openMrl(Core::Mrl)));
 	connect(d->button->group, SIGNAL(buttonClicked(int)), this, SLOT(changeWidget(int)));
 
 	d->button->group->button(0)->setChecked(true);
@@ -175,11 +161,6 @@ void ToolBox::addPage(QWidget *widget, const QString &name, const QString &iconH
 	d->button->addButton(d->frame->stack->count(), icon, name);
 	d->frame->stack->addWidget(widget);
 }
-
-//void ToolBox::closeEvent(QCloseEvent *event) {
-//	event->ignore();
-//	emit hidingRequested();
-//}
 
 void ToolBox::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);

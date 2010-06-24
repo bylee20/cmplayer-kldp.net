@@ -8,78 +8,36 @@
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
-#include <QtGui/QTableWidget>
+#include <QtGui/QTreeView>
+#include "playlistmodel.hpp"
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMenu>
 
-class PlaylistView::Item {
-public:
-	Item(const Mrl &mrl) {
-		name = new QTableWidgetItem(mrl.displayName());
-		location = new QTableWidgetItem(mrl.toString());
-		const Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-		name->setFlags(flags);
-		location->setFlags(flags);
-	}
-	void setCurrent(bool current) {
-		QFont font = name->font();
-		font.setBold(current);
-		font.setItalic(current);
-		name->setFont(font);
-		location->setFont(font);
-	}
-	void setMrl(const Mrl &mrl) {
-		name->setText(mrl.displayName());
-		location->setText(mrl.toString());
-	}
-
-	Item() {name = location = 0;}
-	QTableWidgetItem *name, *location;
-};
-
-class PlaylistView::Table : public QTableWidget {
-public:
-	Table(QWidget *parent = 0): QTableWidget(parent) {
-		setSelectionBehavior(SelectRows);
-//		setSelectionMode(ExtendedSelection);
-		setAlternatingRowColors(true);
-		setVerticalScrollMode(ScrollPerPixel);
-		setHorizontalScrollMode(ScrollPerPixel);
-//		setDragEnabled(true);
-//		setAcceptDrops(true);
-//		setDropIndicatorShown(true);
-		setColumnCount(2);
-		setHorizontalHeaderLabels(QStringList() << tr("Name") << tr("Location"));
-	}
-	void adjustHeaderSize() {
-		resizeColumnsToContents();
-		resizeRowsToContents();
-	}
-
-private:
-//	QVariant
-};
-
 struct PlaylistView::Data {
 	PlayEngine *engine;
-	Table *table;
-	Playlist list;
-	QList<Item> item;
-	int idx;
+	QTreeView *view;
+	PlaylistModel *model;
 	QMenu *context;
 };
 
 PlaylistView::PlaylistView(PlayEngine *engine, QWidget *parent)
 : QWidget(parent), d(new Data) {
 	d->engine = engine;
-	d->idx = -1;
-	d->table = new Table(this);
-	d->table->setContextMenuPolicy(Qt::CustomContextMenu);
+	d->view = new QTreeView(this);
+	d->view->setContextMenuPolicy(Qt::CustomContextMenu);
+	d->model = new PlaylistModel(this);
+	d->view->setModel(d->model);
+	d->view->setRootIsDecorated(false);
+	d->view->setSelectionMode(QTreeView::ExtendedSelection);
+	d->view->setAlternatingRowColors(true);
+	d->view->setVerticalScrollMode(QTreeView::ScrollPerPixel);
+	d->view->setHorizontalScrollMode(QTreeView::ScrollPerPixel);
 
 	d->context = new QMenu(this);
 	QAction *open = d->context->addAction(tr("Open"));
 	QAction *save = d->context->addAction(tr("Save"));
-	QAction *add = d->context->addAction(tr("Add"));
+	QAction *addFile = d->context->addAction(tr("Add File"));
+	QAction *addUrl = d->context->addAction(tr("Add URL"));
 	QAction *erase = d->context->addAction(tr("Erase"));
 	QAction *up = d->context->addAction(tr("Up"));
 	QAction *down = d->context->addAction(tr("Down"));
@@ -87,51 +45,53 @@ PlaylistView::PlaylistView(PlayEngine *engine, QWidget *parent)
 
 	connect(open, SIGNAL(triggered()), this, SLOT(open()));
 	connect(save, SIGNAL(triggered()), this, SLOT(save()));
-	connect(add, SIGNAL(triggered()), this, SLOT(add()));
+	connect(addFile, SIGNAL(triggered()), this, SLOT(addFile()));
+	connect(addUrl, SIGNAL(triggered()), this, SLOT(addUrl()));
 	connect(erase, SIGNAL(triggered()), this, SLOT(erase()));
 	connect(up, SIGNAL(triggered()), this, SLOT(up()));
 	connect(down, SIGNAL(triggered()), this, SLOT(down()));
 	connect(clear, SIGNAL(triggered()), this, SLOT(clear()));
 
-	connect(d->table, SIGNAL(customContextMenuRequested(QPoint))
+	connect(d->view, SIGNAL(customContextMenuRequested(QPoint))
 		, this, SLOT(showContextMenu(QPoint)));
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
-	vbox->addWidget(d->table);
+	vbox->addWidget(d->view);
 
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(updateCurrentMrl(Mrl)));
 	connect(d->engine, SIGNAL(finished(Mrl)), this, SLOT(handleFinished()));
-	connect(d->table, SIGNAL(cellDoubleClicked(int,int))
-		, this, SLOT(handleDoubleClick(int,int)));
+	connect(d->view, SIGNAL(doubleClicked(QModelIndex))
+		, this, SLOT(handleDoubleClick(QModelIndex)));
 }
 
 PlaylistView::~PlaylistView() {
 	delete d;
 }
 
-void PlaylistView::add() {
+void PlaylistView::addFile() {
 	const QString filter = Info::mediaExtensionFilter();
 	QStringList files = QFileDialog::getOpenFileNames(this, tr("Open File"), QString(), filter);
-	const int from = d->table->rowCount();
-	d->table->setRowCount(from + files.size());
-	for (int i=0; i<files.size(); ++i) {
-		const Mrl mrl = Mrl::fromLocalFile(files[i]);
-		d->list << mrl;
-		Item item(mrl);
-		d->table->setItem(from + i, 0, item.name);
-		d->table->setItem(from + i, 1, item.location);
+	Playlist list;
+	for (int i=0; i<files.size(); ++i)
+		list << Mrl::fromLocalFile(files[i]);
+	d->model->append(list);
+}
+
+void PlaylistView::addUrl() {
+	GetUrlDialog dlg(this);
+	if (dlg.exec()) {
+		const Mrl mrl = dlg.url();
+		if (mrl.isPlaylist()) {
+			Playlist list;
+			list.load(mrl, dlg.encoding());
+			d->model->append(list);
+		} else
+			d->model->append(mrl);
 	}
 }
 
 void PlaylistView::erase() {
-	const int row = d->table->currentRow();
-	if (isValidRow(row)) {
-		d->table->removeRow(row);
-		d->item.removeAt(row);
-		d->list.removeAt(row);
-		if (row == d->idx)
-			setCurrentIndex(-1);
-	}
+	d->model->erase(d->view->selectionModel()->selectedIndexes());
 }
 
 void PlaylistView::up() {
@@ -142,29 +102,14 @@ void PlaylistView::down() {
 	move(false);
 }
 
-bool PlaylistView::isValidRow(int row) {
-	return 0 <= row && row < d->list.size();
-}
-
 void PlaylistView::move(bool up) {
-	const int row = d->table->currentRow();
+	const int row = d->view->currentIndex().row();
 	const int target = up ? row-1 : row + 1;
-	if (isValidRow(row) && isValidRow(target)) {
-		d->list.swap(row, target);
-		d->item[row].setMrl(d->list[row]);
-		d->item[target].setMrl(d->list[target]);
-		if (row == d->idx) {
-			setCurrentIndex(target);
-		} else if (target == d->idx)
-			setCurrentIndex(row);
-	}
+	d->model->swap(row, target);
 }
 
 void PlaylistView::clear() {
-	d->list.clear();
-	d->item.clear();
-	d->idx = -1;
-	d->table->clear();
+	d->model->clear();
 }
 
 void PlaylistView::open() {
@@ -180,14 +125,15 @@ void PlaylistView::open() {
 }
 
 void PlaylistView::save() {
-	if (d->list.isEmpty())
+	const Playlist &list = d->model->playlist();
+	if (list.isEmpty())
 		return;
 	QString file = QFileDialog::getSaveFileName(this, tr("Save File"), QString(),
 			tr("Playlist") + " (*.pls)");
 	if (!file.isEmpty()) {
 		if (QFileInfo(file).suffix().compare("pls", Qt::CaseInsensitive) != 0)
 			file += ".pls";
-		d->list.save(file);
+		list.save(file);
 	}
 }
 
@@ -195,10 +141,10 @@ void PlaylistView::showContextMenu(const QPoint &/*pos*/) {
 	d->context->exec(QCursor::pos());
 }
 
-void PlaylistView::load(const Mrl &mrl) {
+void PlaylistView::load(const Mrl &mrl, const QString &enc) {
 	Playlist list;
 	if (mrl.isPlaylist())
-		list.load(mrl);
+		list.load(mrl, enc);
 	else {
 		const AutoAddFiles mode = Pref::get().autoAddFiles;
 		if (mrl.isLocalFile() && mode != DoNotAddFiles) {
@@ -245,21 +191,13 @@ void PlaylistView::load(const Mrl &mrl) {
 }
 
 const Playlist &PlaylistView::playlist() const {
-	return d->list;
+	return d->model->playlist();
 }
 
 void PlaylistView::setPlaylist(const Playlist &list) {
-	d->list = list;
-	d->item.clear();
-	d->idx = -1;
-	d->table->setRowCount(list.size());
-	for (int i=0; i<d->list.size(); ++i) {
-		Item item(d->list[i]);
-		d->table->setItem(i, 0, item.name);
-		d->table->setItem(i, 1, item.location);
-		d->item.push_back(item);
-	}
-	d->table->adjustHeaderSize();
+	d->model->setPlaylist(list);
+	d->view->resizeColumnToContents(PlaylistModel::Name);
+	d->view->resizeColumnToContents(PlaylistModel::Location);
 }
 
 void PlaylistView::play(const Mrl &mrl) {
@@ -269,43 +207,36 @@ void PlaylistView::play(const Mrl &mrl) {
 }
 
 void PlaylistView::playNext() {
-	if (d->idx < 0)
-		return;
-	const int next = d->idx + 1;
-	if (next < d->list.size())
-		play(d->list[next]);
+	const Mrl mrl = d->model->next();
+	if (!mrl.isEmpty())
+		play(mrl);
 }
 
 void PlaylistView::playPrevious() {
-	if (d->idx < 0 || d->list.isEmpty())
-		return;
-	const int prev = d->idx - 1;
-	if (prev >= 0)
-		play(d->list[prev]);
-}
-
-void PlaylistView::setCurrentIndex(int idx) {
-	if (d->idx == idx || idx >= d->item.size())
-		return;
-	if (d->idx >= 0)
-		d->item[d->idx].setCurrent(false);
-	if ((d->idx = idx) >= 0)
-		d->item[d->idx].setCurrent(true);
+	const Mrl mrl = d->model->previous();
+	if (!mrl.isEmpty())
+		play(mrl);
 }
 
 void PlaylistView::updateCurrentMrl(const Mrl &mrl) {
-	setCurrentIndex(d->list.indexOf(mrl));
+	d->model->setCurrentRow(d->model->rowOf(mrl));
 }
 
 void PlaylistView::handleFinished() {
-	if (d->idx == d->list.size()-1)
+	const Mrl mrl = d->model->next();
+	if (mrl.isEmpty())
 		emit finished();
 	else
-		playNext();
+		play(mrl);
 }
 
-void PlaylistView::handleDoubleClick(int row, int /*column*/) {
-	if (row < 0 || row >= d->list.size())
-		return;
-	play(d->list[row]);
+void PlaylistView::handleDoubleClick(const QModelIndex &index) {
+	const Mrl mrl = d->model->mrl(index.row());
+	if (!mrl.isEmpty())
+		play(mrl);
 }
+
+void PlaylistView::append(const Playlist &list) {
+	d->model->append(list);
+}
+

@@ -2,6 +2,7 @@
 #include "record.hpp"
 #include <QtCore/QSize>
 #include <QtCore/QRect>
+#include <QtCore/QStringList>
 
 AppState::Data::Data()
 : keys(TypeMax), values(TypeMax) {
@@ -23,6 +24,8 @@ AppState::Data::Data()
 //	INIT(PanelLayout, QString("OneLine"));
 	INIT(VolNorm, true);
 	INIT(SoftEq, true);
+	INIT(OpenUrlList, QStringList());
+	INIT(UrlEncoding, QString());
 #undef INIT
 }
 

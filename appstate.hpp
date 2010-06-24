@@ -20,6 +20,8 @@ public:
 		SubPos,
 		SubSync,
 		LastOpenFile,
+		OpenUrlList,
+		UrlEncoding,
 //		ToolBoxRect,
 		TrayFirst,
 //		PanelLayout,

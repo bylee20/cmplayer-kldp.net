@@ -18,11 +18,13 @@ public:
 signals:
 	void historyChanged();
 private slots:
-	void handleStopped(Mrl mrl, int time);
+	void handleStopped(Mrl mrl, int time, int duration);
 	void handleFinished(Mrl mrl);
 	void handleStateChanged(MediaState state, MediaState old);
 	void play(QTreeWidgetItem *treeItem);
 	void clearAll();
+	void showContextMenu();
+	void erase();
 private:
 	void load();
 	int findIndex(const Mrl &mrl) const;

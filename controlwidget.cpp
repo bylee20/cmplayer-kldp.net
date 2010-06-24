@@ -278,8 +278,7 @@ void ControlWidget::showMessage(const QString &msg, int time) {
 }
 
 void ControlWidget::setMrl(const Mrl &mrl) {
-//	d->lcd->source->setText(source.displayName());
-	d->lcd->source->setText(mrl.url().toString());
+	d->lcd->source->setText(mrl.displayName());
 	hideMessage();
 }
 
@@ -331,6 +330,10 @@ void ControlWidget::connectOpen(QAction *action) {
 
 void ControlWidget::connectToolBox(QAction *action) {
 	d->tool->setAction(action, false);
+}
+
+void ControlWidget::connectPreference(QAction *action) {
+	d->pref->setAction(action, false);
 }
 
 void ControlWidget::connectFullScreen(QAction *action) {

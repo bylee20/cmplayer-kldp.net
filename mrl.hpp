@@ -23,6 +23,7 @@ public:
 	}
 	const QUrl &url() const {return m_url;}
 	QString toString() const {return m_url.toString();}
+	QString location() const {return isLocalFile() ? toLocalFile() : toString();}
 	static Mrl fromLocalFile(const QString &file) {return Mrl(QUrl::fromLocalFile(file));}
 	QString scheme() const {return m_url.scheme();}
 	QString toLocalFile() const {return m_url.toLocalFile();}
