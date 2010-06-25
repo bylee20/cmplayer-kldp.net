@@ -1,59 +1,24 @@
 # Maintainer: xylosper <darklin20@gmail.com>
-# You need to install makepkg-git which supports spliting package from:
-# http://dev.archlinux.org/~allan/makepkg-git.html
 
-pkgname=('cmplayer' 'cmplayer-xine' 'cmplayer-mplayer' 'cmplayer-opengl' 'cmplayer-xvideo')
-pkgver=0.3.2
+pkgname=('cmplayer')
+pkgver=0.4.0
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://kldp.net/projects/cmplayer/"
 license=('GPL')
-depends=('qt>=4.4')
+depends=('qt>=4.4' 'gstreamer0.10-base>=0.10.23')
 #source=(http://kldp.net/frs/download.php/5212/$pkgname-$pkgver-src.tar.gz)
 #source=(http://xylosper.net/$pkgname-$pkgver-src.tar.gz)
 #source=($pkgname-$pkgver.tar.gz)
 #md5sums=('29caaed75294d5ab3773a6fe6dbcc824')
 
 build() {
-  cd "$srcdir/$pkgname-$pkgver"
-  make PREFIX=/usr BUILD_LIST="cmplayer xine mplayer opengl xvideo" || return 1
+	cd "$srcdir/$pkgname-$pkgver"
+	make PREFIX=/usr || return 1
 }
 
-package_cmplayer() {
-  pkgdesc="CMPlayer is a multimedia player."
-
-  cd "$srcdir/$pkgname-$pkgver"
-  make DEST_DIR=$pkgdir BUILD_LIST="cmplayer" install || return 1
-}
-
-package_cmplayer-xine() {
-  pkgdesc="xine play engine for CMPlayer"
-  depends=('cmplayer' 'xine-lib')
-
-  cd "$srcdir/$pkgname-$pkgver"
-  make DEST_DIR=$pkgdir BUILD_LIST="xine" install || return 1
-}
-
-package_cmplayer-mplayer() {
-  pkgdesc="xine play engine for CMPlayer"
-  depends=('cmplayer' 'mplayer')
-
-  cd "$srcdir/$pkgname-$pkgver"
-  make DEST_DIR=$pkgdir BUILD_LIST="mplayer" install || return 1
-}
-
-package_cmplayer-opengl() {
-  pkgdesc="OpenGL plugin for CMPlayer"
-  depends=('cmplayer')
-
-  cd "$srcdir/$pkgname-$pkgver"
-  make DEST_DIR=$pkgdir BUILD_LIST="opengl" install || return 1
-}
-
-package_cmplayer-xvideo() {
-  pkgdesc="X Video plugin for CMPlayer"
-  depends=('cmplayer' 'libxv')
-
-  cd "$srcdir/$pkgname-$pkgver"
-  make DEST_DIR=$pkgdir BUILD_LIST="xvideo" install || return 1
+package() {
+	pkgdesc="CMPlayer is a multimedia player."
+	cd "$srcdir/$pkgname-$pkgver"
+	make DEST_DIR=$pkgdir install || return 1
 }

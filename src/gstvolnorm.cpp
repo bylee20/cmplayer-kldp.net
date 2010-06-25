@@ -74,7 +74,7 @@ template<typename T> struct NormalizeLevel {};
 
 template<> struct NormalizeLevel<int16_t> {
 	static const float Silence = (SHRT_MAX * 0.01);
-	static const float Ideal = (SHRT_MAX * 0.2);
+	static const float Ideal = (SHRT_MAX * 0.25);
 	static const int16_t Min = SHRT_MIN;
 	static const int16_t Max = SHRT_MAX;
 	inline static int16_t clamp(int16_t value) {return ::clamp<int16_t>(Min, value, Max);}
@@ -82,7 +82,7 @@ template<> struct NormalizeLevel<int16_t> {
 
 template<> struct NormalizeLevel<float> {
 	static const float Silence = (INT_MAX * 0.01);
-	static const float Ideal = (INT_MAX * 0.2);
+	static const float Ideal = (INT_MAX * 0.25);
 	inline static float clamp(float value) {return value;}
 //	static const float Min = std::numeric_limits<float>::min();
 //	static const float Max = std::numeric_limits<float>::max();

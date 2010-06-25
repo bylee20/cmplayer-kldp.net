@@ -631,17 +631,17 @@ void MainWindow::updateState(MediaState state, MediaState old) {
 	if (state == PlayingState) {
 		ScreensaverManager::setDisabled(d->pref.disableScreensaver);
 		d->menu("play")["pause"]->setText(tr("Pause"));
-
 	} else {
 		ScreensaverManager::setDisabled(false);
 		d->menu("play")["pause"]->setText(tr("Play"));
 	}
-	if (!d->engine->hasVideo())
+	if (state == StoppedState) {
 		d->stack->setCurrentWidget(d->logo);
-	else if (old == StoppedState) {
-		d->stack->setCurrentWidget(d->engine->renderer());
-	} else if (state == StoppedState) {
-		d->stack->setCurrentWidget(d->logo);
+	} else {
+		if (d->engine->hasVideo())
+			d->stack->setCurrentWidget(d->engine->renderer());
+		else
+			d->stack->setCurrentWidget(d->logo);
 	}
 }
 
