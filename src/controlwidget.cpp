@@ -1,19 +1,20 @@
 #include "controlwidget.hpp"
+#include "squeezedlabel.hpp"
 #include "playengine.hpp"
-#include "mrl.hpp"
 #include "controls.hpp"
-#include <QtCore/QEvent>
-#include <QtGui/QAction>
+#include "libvlc.hpp"
+#include "mrl.hpp"
+#include <QtGui/QLinearGradient>
+#include <QtGui/QStackedWidget>
+#include <QtGui/QPainterPath>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QPainter>
-#include <QtGui/QLinearGradient>
-#include <QtGui/QPainterPath>
+#include <QtGui/QAction>
 #include <QtGui/QLabel>
 #include <QtCore/QDebug>
-#include <QtGui/QStackedWidget>
+#include <QtCore/QEvent>
 #include <QtCore/QTimer>
-#include "squeezedlabel.hpp"
 
 class ControlWidget::Lcd : public QFrame {
 public:
@@ -73,7 +74,7 @@ public:
 
 class ControlWidget::Slider : public QWidget {
 public:
-	Slider(PlayEngine *engine, QWidget *parent = 0): QWidget(parent) {
+	Slider(QWidget *parent = 0): QWidget(parent) {
 		mute = new Button(this);
 		mute->setBlock(false);
 		mute->setIconSize(10);
@@ -81,9 +82,9 @@ public:
 		hbox->setSpacing(0);
 		hbox->setContentsMargins(0, 0, 0, 0);
 		setFixedHeight(15);
-		hbox->addWidget(new SeekSlider(engine, this));
+		hbox->addWidget(new SeekSlider(this));
 		hbox->addWidget(mute);
-		hbox->addWidget(new VolumeSlider(engine, this));
+		hbox->addWidget(new VolumeSlider(this));
 	}
 	Button *mute;
 };
@@ -131,7 +132,7 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->engine = engine;
 	d->boundary = new Boundary(this);
 	d->lcd = new Lcd(this);
-	d->slider = new Slider(d->engine, this);
+	d->slider = new Slider(this);
 	d->pref = new Button(this);
 	d->open = new Button(this);
 	d->fullScreen = new Button(this);

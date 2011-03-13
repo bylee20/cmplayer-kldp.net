@@ -1,14 +1,15 @@
 #include "application.hpp"
-#include "mainwindow.hpp"
-#include "pref.hpp"
 #include "translator.hpp"
+#include "mainwindow.hpp"
+#include "libvlc.hpp"
+#include "pref.hpp"
 #include "mrl.hpp"
-#include <QtCore/QTimer>
-#include <QtCore/QUrl>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDebug>
 #include <QtGui/QStyleFactory>
 #include <QtGui/QStyle>
+#include <QtCore/QFileInfo>
+#include <QtCore/QTimer>
+#include <QtCore/QDebug>
+#include <QtCore/QUrl>
 
 struct Application::Data {
 	MainWindow *main;
@@ -17,6 +18,7 @@ struct Application::Data {
 
 Application::Application(int &argc, char **argv)
 : QtSingleApplication("net.xylosper.CMPlayer", argc, argv), d(new Data) {
+	LibVlc::init();
 	d->defStyle = style()->objectName();
 //	Translator::load(Pref::get().locale);
 	setStyle(Pref::get().windowStyle);
@@ -28,6 +30,7 @@ Application::Application(int &argc, char **argv)
 Application::~Application() {
 	delete d->main;
 	delete d;
+	LibVlc::release();
 }
 
 void Application::initialize() {

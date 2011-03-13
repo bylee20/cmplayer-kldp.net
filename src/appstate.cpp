@@ -23,7 +23,6 @@ AppState::Data::Data()
 //	INIT(BackendName, QString());
 //	INIT(PanelLayout, QString("OneLine"));
 	INIT(VolNorm, true);
-	INIT(SoftEq, true);
 	INIT(OpenUrlList, QStringList());
 	INIT(UrlEncoding, QString());
 #undef INIT

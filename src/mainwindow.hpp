@@ -6,6 +6,7 @@
 #include "global.hpp"
 
 class Mrl;		class PlayEngine;
+class AudioTrack;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -28,7 +29,6 @@ private slots:
 	void setMuted(bool muted);
 	void setVideoSize(double times);
 	void updateState(MediaState state, MediaState old);
-	void setSoftEqEnabled(bool enabled);
 	void setColorProperty(QAction *action);
 	void setSpeed(int speed);
 	void setAmp(int amp);
@@ -43,9 +43,9 @@ private slots:
 	void setPref();
 	void hideCursor();
 	void handleTray(QSystemTrayIcon::ActivationReason reason);
-	void updateStreamInfo();
-	void setTrack(int i);
+	void setCurrentAudioTrack(int id);
 	void openSubFile();
+	void updateAudioTrackInfo(const QList<AudioTrack> &tracks);
 private:
 	void appendSubFiles(const QStringList &files, bool checked, const QString &enc);
 	void loadState();

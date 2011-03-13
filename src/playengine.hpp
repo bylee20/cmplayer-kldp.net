@@ -2,18 +2,24 @@
 #define PLAYENGINE_HPP
 
 #include <QtCore/QObject>
-#include <gst/gst.h>
 #include "global.hpp"
 #include "mrl.hpp"
+#include "videoframe.hpp"
+#include <vlc/vlc.h>
 
 class NativeVideoRenderer;	class AudioController;
+class GLRenderer;
 
-typedef QMap<MediaMetaData, QVariant> StreamData;
+struct AudioTrack {
+	int id;
+	QString name;
+};
+
+//typedef QMap<MediaMetaData, QVariant> StreamData;
 
 class PlayEngine : public QObject {
 	Q_OBJECT
 public:
-	PlayEngine();
 	~PlayEngine();
 	int position() const;
 	void setMrl(const Mrl &mrl);
@@ -22,21 +28,18 @@ public:
 	void setSpeed(double speed);
 	double speed() const;
 	bool hasVideo() const;
-	bool hasAudio() const;
 	MediaStatus status() const;
 	int duration() const;
 	bool atEnd() const;
-	NativeVideoRenderer *renderer() const;
-	AudioController *audio() const;
 	Mrl mrl() const;
-	void flush();
 	bool isPlaying() const {return state() == PlayingState;}
 	bool isPaused() const {return state() == PausedState;}
 	bool isStopped() const {return state() == StoppedState;}
-	const QList<StreamData> &audioStreams() const;
-	int currentAudioStream() const;
+	QList<AudioTrack> audioTracks() const;
+	int currentAudioTrackId() const;
+	QString audioTrackName(int id) const;
 public slots:
-	void setCurrentAudioStream(int idx);
+	void setCurrentAudioTrack(int id);
 	bool play();
 	void stop();
 	bool pause();
@@ -54,23 +57,27 @@ signals:
 	void positionChanged(int pos);
 	void hasVideoChanged(bool has);
 	void hasAudioChanged(bool has);
-	void streamsChanged();
+	void audioTracksChanged(const QList<AudioTrack> &tracks);
 	void durationChanged(int duration);
 	void tagsChanged();
 	void statusChanged(MediaStatus status);
+
+	void _updateDuration(int duration);
+	void _ticking();
+	void _updateSeekable(bool seekable);
+	void _updateState(MediaState state);
 private slots:
-	void handleGstMessage(void *ptr);
 	void ticking();
+	void updateSeekable(bool seekable);
+	void updateDuration(int duration);
+	void updateState(MediaState state);
+	void initialSeek();
 private:
-	void setSeekable(bool seekable);
-	void setState(MediaState state);
 	void setStatus(MediaStatus status);
-	void eos();
-	void getStreamInfo();
-	void queryDuration();
 private:
-	static void getAboutToFinish(GstElement *object, gpointer user_data);
-	void finish();
+	friend class LibVlc;
+	PlayEngine();
+	void parseEvent(const libvlc_event_t *event);
 	struct Data;
 	Data *d;
 };

@@ -12,8 +12,6 @@ public:
 		AspectRatio = 0,
 		Crop,
 		PlaySpeed,
-//		VideoRenderer,
-//		AudioRenderer,
 		Volume,
 		Muted,
 		Amp,
@@ -22,10 +20,7 @@ public:
 		LastOpenFile,
 		OpenUrlList,
 		UrlEncoding,
-//		ToolBoxRect,
 		TrayFirst,
-//		PanelLayout,
-		SoftEq,
 		VolNorm,
 		TypeMax
 	};

@@ -8,7 +8,8 @@
 struct TimeLineOsdRenderer::Data {
 	int time, duration;
 	QTimer clearer;
-	QPoint pos;
+	QSizeF size;
+	QSize bg;
 };
 
 TimeLineOsdRenderer::TimeLineOsdRenderer(): d(new Data) {
@@ -19,46 +20,37 @@ TimeLineOsdRenderer::TimeLineOsdRenderer(): d(new Data) {
 	style.fgColor.setAlphaF(0.5);
 	style.bgColor.setAlphaF(0.5);
 	setStyle(style);
-
-	connect(this, SIGNAL(areaChanged(QRect)), this, SLOT(slotAreaChanged(QRect)));
-	connect(this, SIGNAL(styleChanged(OsdStyle)), this, SLOT(slotStyleChanged(OsdStyle)));
 }
 
 TimeLineOsdRenderer::~TimeLineOsdRenderer() {
 	delete d;
 }
 
-void TimeLineOsdRenderer::show(int time, int duration, int last) {
-	if (time < 0 || duration <= 0)
+void TimeLineOsdRenderer::setBackgroundSize(const QSize &bg) {
+	if (d->bg == bg)
 		return;
-	d->clearer.stop();
-	d->time = time;
-	d->duration = duration;
-	update();
-	d->clearer.start(last);
+	d->bg = bg;
+	d->size.setWidth(d->bg.width()*0.8);
+	d->size.setHeight(d->bg.height()*0.05);
+	emit sizeChanged(size());
 }
 
-void TimeLineOsdRenderer::clear() {
-	d->time = d->duration = -1;
-	update();
-}
-
-void TimeLineOsdRenderer::render(QPainter *painter) {
-	if (d->time < 0 || d->duration <= 0)
+void TimeLineOsdRenderer::render(QPainter *painter, const QPointF &pos) {
+	if (d->time < 0 || d->duration <= 0 || d->size.isEmpty() || d->size.isNull())
 		return;
 	const OsdStyle &style = this->style();
-	const QSizeF size = sizeHint();
-	const int b = style.borderWidth * size.height() + 0.5;
+	const double b = style.borderWidth * d->size.height();
 
 	const double rate = (double)d->time/d->duration;
-	const double inner_w = (size.width()-2*b)*rate;
-	const QRectF left(0, b, b, size.height()-2*b-1);
-	const QRectF inner(left.topRight(), left.bottomRight() + QPointF(inner_w, 0));
-	const QRectF right(inner.topRight(), QSize(size.width() - inner.right(), inner.height()));
-	const QRectF top(0, 0, size.width(), b);
-	const QRectF bottom(0, size.height()-b-1, size.width(), b);
+	const double inner_w = (d->size.width()-2.0*b)*rate;
+	const QRectF left(0.0, b, b, d->size.height() - 2.0*b - 1.0);
+	const QRectF inner(left.topRight(), left.bottomRight() + QPointF(inner_w, 0.0));
+	const QRectF right(inner.topRight(), QSizeF(d->size.width() - inner.right(), inner.height()));
+	const QRectF top(0.0, 0.0, d->size.width(), b);
+	const QRectF bottom(0.0, d->size.height() - b - 1.0, d->size.width(), b);
 
 	painter->save();
+	painter->translate(pos);
 	painter->fillRect(top, style.bgColor);
 	painter->fillRect(bottom, style.bgColor);
 	painter->fillRect(left, style.bgColor);
@@ -67,24 +59,27 @@ void TimeLineOsdRenderer::render(QPainter *painter) {
 	painter->restore();
 }
 
-QPoint TimeLineOsdRenderer::posHint() const {
-	return d->pos;
+QPointF TimeLineOsdRenderer::posHint() const {
+	const double x = ((double)d->bg.width() - d->size.width())*0.5;
+	const double y = ((double)d->bg.height() - d->size.height())*0.5;
+	return QPointF(x, y);
 }
 
-QSize TimeLineOsdRenderer::sizeHint() const {
-	const int height = area().height()*0.05 + 0.5;
-	const int width = area().width()*0.8 + 0.5;
-	return QSize(width, height);
+QSizeF TimeLineOsdRenderer::size() const {
+	return d->size;
 }
 
-void TimeLineOsdRenderer::slotAreaChanged(const QRect &area) {
-	const QSize size = sizeHint();
-	d->pos = area.topLeft();
-	d->pos.rx() += (area.width() - size.width())*0.5 + 0.5;
-	d->pos.ry() += (area.height() - size.height())*0.5 + 0.5;
-	update();
+void TimeLineOsdRenderer::show(int time, int duration, int last) {
+	if (time < 0 || duration <= 0)
+		return;
+	d->clearer.stop();
+	d->time = time;
+	d->duration = duration;
+	emit needToRerender();
+	d->clearer.start(last);
 }
 
-void TimeLineOsdRenderer::slotStyleChanged(const OsdStyle &/*style*/) {
-	update();
+void TimeLineOsdRenderer::clear() {
+	d->time = d->duration = -1;
+	emit needToRerender();
 }

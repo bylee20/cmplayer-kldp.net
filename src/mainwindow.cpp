@@ -1,85 +1,49 @@
+#include "timelineosdrenderer.hpp"
+#include "screensavermanager.hpp"
+#include "subtitlerenderer.hpp"
+#include "charsetdetector.hpp"
+#include "subtitle_parser.hpp"
+#include "textosdrenderer.hpp"
+#include "audiocontroller.hpp"
+#include "controlwidget.hpp"
+#include "playlistview.hpp"
+#include "subtitleview.hpp"
+#include "pref_dialog.hpp"
+#include "application.hpp"
+#include "recentinfo.hpp"
+#include "abrepeater.hpp"
 #include "mainwindow.hpp"
-#include "colorproperty.hpp"
+#include "playengine.hpp"
 #include "translator.hpp"
+#include "glrenderer.hpp"
 #include "appstate.hpp"
 #include "playlist.hpp"
 #include "dialogs.hpp"
+#include "toolbox.hpp"
+#include "libvlc.hpp"
+#include "menu.hpp"
+#include "pref.hpp"
+#include "info.hpp"
 #include <QtGui/QMouseEvent>
-#include "playlistview.hpp"
-#include "screensavermanager.hpp"
-#include "charsetdetector.hpp"
-#include "subtitlerenderer.hpp"
-#include <QtGui/QStackedWidget>
 #include <QtGui/QFileDialog>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QApplication>
 #include <QtGui/QMenuBar>
-#include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
+#include <QtCore/QDebug>
+#include <QtCore/QTimer>
 #include <QtCore/QDir>
-#include "controlwidget.hpp"
-#include "menu.hpp"
-#include "playengine.hpp"
-#include "nativevideorenderer.hpp"
-#include "timelineosdrenderer.hpp"
-#include <QtGui/QPainter>
-#include "subtitleview.hpp"
-#include "subtitle_parser.hpp"
-#include "application.hpp"
-#include "recentinfo.hpp"
-#include "textosdrenderer.hpp"
-#include "audiocontroller.hpp"
-#include "pref.hpp"
-#include "global.hpp"
-#include "info.hpp"
 #include <qmath.h>
-#include "abrepeater.hpp"
-#include "logoview.hpp"
-#include "toolbox.hpp"
-#include "pref_dialog.hpp"
-
-class MainWindow::VideoScreen : public QWidget {
-public:
-	VideoScreen(QWidget *video, QWidget *parent)
-	: QWidget(parent) {
-		m_video = video;
-		m_video->setParent(this);
-		m_video->move(0, 0);
-		m_sync = true;
-		setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		sync();
-	}
-	void setSyncSize(bool sync) {
-		m_sync = sync;
-		this->sync();
-	}
-	void sync() {
-		if (m_sync)
-			m_video->resize(size());
-		else
-			m_video->resize(desktopSize());
-	}
-	QSize sizeHint() const {
-		return m_video->sizeHint();
-	}
-private:
-	void resizeEvent(QResizeEvent *event) {
-		sync();
-		QWidget::resizeEvent(event);
-	}
-	QWidget *m_video;
-	bool m_sync;
-};
 
 struct MainWindow::Data {
 	Data(Menu &menu): menu(menu), pref(Pref::get()) {}
 	Menu &menu;
-	LogoView *logo;
 	VideoScreen *screen;
 	const Pref &pref;
-	QStackedWidget *stack;
 	ControlWidget *control;
 	PlayEngine *engine;
+	GLRenderer *video;
+	AudioController *audio;
 	SubtitleRenderer *subtitle;
 	TimeLineOsdRenderer *timeLine;
 	TextOsdRenderer *message;
@@ -99,7 +63,9 @@ static QIcon defaultIcon() {
 
 MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	d->changingSub = d->moving = false;
-	d->engine = new PlayEngine;
+	d->engine = LibVlc::engine();
+	d->audio = LibVlc::audio();
+	d->video = LibVlc::video();
 	d->subtitle = new SubtitleRenderer;
 	d->timeLine = new TimeLineOsdRenderer;
 	d->message = new TextOsdRenderer(Qt::AlignTop | Qt::AlignLeft);
@@ -113,31 +79,30 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	RecentInfo &recent = RecentInfo::get();
 
 	Menu &menu = d->menu;
+
 	Menu &open = d->menu("open");
 	connect(open["file"], SIGNAL(triggered()), this, SLOT(openFile()));
 	connect(open["url"], SIGNAL(triggered()), this, SLOT(openUrl()));
 	connect(open["dvd"], SIGNAL(triggered()), this, SLOT(openDvd()));
 	connect(open("recent").g(), SIGNAL(triggered(Mrl)), this, SLOT(openMrl(Mrl)));
 	connect(open("recent")["clear"], SIGNAL(triggered()), &recent, SLOT(clear()));
+
 	Menu &dvdMenu = d->menu("dvd-menu");
 	connect(dvdMenu.g(), SIGNAL(triggered(int)), d->engine, SLOT(navigateDVDMenu(int)));
 
 	Menu &play = menu("play");
 	connect(play["stop"], SIGNAL(triggered()), d->engine, SLOT(stop()));
 	connect(play("speed").g(), SIGNAL(triggered(int)), this, SLOT(setSpeed(int)));
-
 	connect(play["pause"], SIGNAL(triggered()), this, SLOT(togglePlayPause()));
 	connect(play("repeat").g(), SIGNAL(triggered(int)), this, SLOT(doRepeat(int)));
 	connect(play("seek").g(), SIGNAL(triggered(int)), this, SLOT(seek(int)));
+
 	Menu &video = menu("video");
 	connect(video("size").g(), SIGNAL(triggered(double)), this, SLOT(setVideoSize(double)));
-	connect(video("aspect").g(), SIGNAL(triggered(double))
-		, d->engine->renderer(), SLOT(setAspectRatio(double)));
-	connect(video("crop").g(), SIGNAL(triggered(double))
-		, d->engine->renderer(), SLOT(setCropRatio(double)));
+	connect(video("aspect").g(), SIGNAL(triggered(double)), d->video, SLOT(setAspectRatio(double)));
+	connect(video("crop").g(), SIGNAL(triggered(double)), d->video, SLOT(setCropRatio(double)));
 //	connect(screen["snapshot"], SIGNAL(triggered()), this, SLOT(takeSnapshot()));
 	connect(video.g("color"), SIGNAL(triggered(QAction*)), this, SLOT(setColorProperty(QAction*)));
-	connect(video["soft-eq"], SIGNAL(toggled(bool)), this, SLOT(setSoftEqEnabled(bool)));
 
 	Menu &audio = menu("audio");
 	connect(audio.g("volume"), SIGNAL(triggered(int)), this, SLOT(setVolume(int)));
@@ -145,10 +110,10 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	connect(audio.g("amp"), SIGNAL(triggered(int)), this, SLOT(setAmp(int)));
 	connect(audio["normalize-volume"], SIGNAL(toggled(bool))
 		, this, SLOT(setVolumeNormalized(bool)));
-	connect(d->engine->audio(), SIGNAL(mutedChanged(bool)), audio["mute"], SLOT(setChecked(bool)));
-	connect(d->engine->audio(), SIGNAL(volumeNormalizedChanged(bool))
+	connect(d->audio, SIGNAL(mutedChanged(bool)), audio["mute"], SLOT(setChecked(bool)));
+	connect(d->audio, SIGNAL(volumeNormalizedChanged(bool))
 		, audio["normalize-volume"], SLOT(setChecked(bool)));
-	connect(audio("track").g(), SIGNAL(triggered(int)), this, SLOT(setTrack(int)));
+	connect(audio("track").g(), SIGNAL(triggered(int)), this, SLOT(setCurrentAudioTrack(int)));
 
 	Menu &sub = menu("subtitle");
 	connect(sub("list")["hide"], SIGNAL(toggled(bool)), d->subtitle, SLOT(setHidden(bool)));
@@ -164,15 +129,23 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 //// 	connect(menu["help"], SIGNAL(triggered()), this, SLOT(slotHelp()));
 	connect(menu["exit"], SIGNAL(triggered()), qApp, SLOT(quit()));
 
-	connect(d->engine, SIGNAL(streamsChanged()), this, SLOT(updateStreamInfo()));
+	QMenuBar *mb = menuBar();
+	mb->addMenu(&open);
+	mb->addMenu(&play);
+	mb->addMenu(&sub);
+	mb->addMenu(&video);
+	mb->addMenu(&audio);
+	QMenu *m = mb->addMenu(tr("Tools"));
+	m->addAction(tr("Preferences"), this, SLOT(setPref()));
+
+	connect(d->engine, SIGNAL(audioTracksChanged(QList<AudioTrack>))
+		, this, SLOT(updateAudioTrackInfo(QList<AudioTrack>)));
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(updateMrl(Mrl)));
 	connect(d->engine, SIGNAL(stateChanged(MediaState,MediaState))
 		, this, SLOT(updateState(MediaState,MediaState)));
 
-	connect(d->engine->renderer(), SIGNAL(customContextMenuRequested(const QPoint&))
+	connect(d->video, SIGNAL(customContextMenuRequested(const QPoint&))
 		, this, SLOT(showContextMenu(const QPoint&)));
-	connect(d->logo, SIGNAL(customContextMenuRequested(QPoint))
-		, this, SLOT(showContextMenu(QPoint)));
 	connect(&recent, SIGNAL(openListChanged(QList<Mrl>))
 		, this, SLOT(updateRecentActions(QList<Mrl>)));
 	connect(&d->hider, SIGNAL(timeout()), this, SLOT(hideCursor()));
@@ -180,10 +153,10 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	connect(d->tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
 		, this, SLOT(handleTray(QSystemTrayIcon::ActivationReason)));
 
-	d->engine->renderer()->addOsdRenderer(d->subtitle->osd());
-	d->engine->renderer()->addOsdRenderer(d->timeLine);
-	d->engine->renderer()->addOsdRenderer(d->message);
-	connect(d->engine->renderer(), SIGNAL(frameRateChanged(double))
+	d->video->addOsd(d->subtitle->osd());
+	d->video->addOsd(d->timeLine);
+	d->video->addOsd(d->message);
+	connect(d->video, SIGNAL(frameRateChanged(double))
 		, d->subtitle, SLOT(setFrameRate(double)));
 	connect(d->engine, SIGNAL(tick(int)), d->subtitle, SLOT(render(int)));
 
@@ -197,6 +170,7 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	d->tool->playlist()->setPlaylist(recent.lastPlaylist());
 	d->engine->setMrl(recent.lastMrl());
 	updateRecentActions(recent.openList());
+
 }
 
 MainWindow::~MainWindow() {
@@ -206,11 +180,10 @@ MainWindow::~MainWindow() {
 	recent.setLastMrl(d->engine->mrl());
 	recent.save();
 	saveState();
-//	RecentInfo::get()->save();
+
 	delete d->subtitle;
 	delete d->timeLine;
 	delete d->message;
-	delete d->engine;
 	delete d;
 }
 
@@ -218,15 +191,15 @@ void MainWindow::loadState() {
 	d->dontShowMsg = true;
 	AppState as;
 	as.load();
+
 	d->menu("video")("aspect").g()->trigger(as[AppState::AspectRatio]);
 	d->menu("video")("crop").g()->trigger(as[AppState::Crop]);
-	d->menu("video")["soft-eq"]->setChecked(as[AppState::SoftEq].toBool());
-	//	const NativeVideoRenderer *video = d->engine->renderer();
-	AudioController *audio = d->engine->audio();
-	audio->setVolume(as[AppState::Volume].toInt());
-	audio->setMuted(as[AppState::Muted].toBool());
-	audio->setPreAmp(as[AppState::Amp].toDouble());
-	audio->setVolumeNormalized(as[AppState::VolNorm].toBool());
+
+	d->audio->setVolume(as[AppState::Volume].toInt());
+	d->audio->setMuted(as[AppState::Muted].toBool());
+	d->audio->setPreAmp(as[AppState::Amp].toDouble());
+	d->audio->setVolumeNormalized(as[AppState::VolNorm].toBool());
+
 	d->engine->setSpeed(as[AppState::PlaySpeed].toDouble());
 	d->subtitle->setPos(as[AppState::SubPos].toDouble());
 	d->subtitle->setDelay(as[AppState::SubSync].toInt());
@@ -235,32 +208,22 @@ void MainWindow::loadState() {
 
 void MainWindow::saveState() {
 	AppState as;
-	const NativeVideoRenderer *video = d->engine->renderer();
-	const AudioController *audio = d->engine->audio();
-	as[AppState::AspectRatio] = video->aspectRatio();
-	as[AppState::Crop] = video->cropRatio();
-	as[AppState::Volume] = audio->volume();
-	as[AppState::VolNorm] = audio->isVolumeNormalized();
-	as[AppState::Muted] = audio->isMuted();
-	as[AppState::Amp] = audio->preAmp();
+	as[AppState::AspectRatio] = d->video->aspectRatio();
+	as[AppState::Crop] = d->video->cropRatio();
+	as[AppState::Volume] = d->audio->volume();
+	as[AppState::VolNorm] = d->audio->isVolumeNormalized();
+	as[AppState::Muted] = d->audio->isMuted();
+	as[AppState::Amp] = d->audio->preAmp();
 	as[AppState::PlaySpeed] = d->engine->speed();
 	as[AppState::SubPos] = d->subtitle->pos();
 	as[AppState::SubSync] = d->subtitle->delay();
-	as[AppState::SoftEq] = video->isSoftwareEqualizerEnabled();
 	as.save();
 }
 
 void MainWindow::setupUi() {
 	QWidget *center = new QWidget(this);
 
-	d->stack = new QStackedWidget;
-
-	d->logo = new LogoView(d->stack);
-	d->stack->addWidget(d->logo);
-	d->stack->addWidget(d->engine->renderer());
-	d->stack->setCurrentWidget(d->logo);
-
-	d->screen = new VideoScreen(d->stack, center);
+//	d->screen = new VideoScreen(d->engine->renderer(), center);
 
 	d->control = new ControlWidget(d->engine, center);
 	Menu &play = d->menu("play");
@@ -275,21 +238,16 @@ void MainWindow::setupUi() {
 	d->control->connectToolBox(d->menu["tool-box"]);
 	d->control->connectPreference(d->menu["pref"]);
 	QVBoxLayout *vbox = new QVBoxLayout(center);
-	vbox->addWidget(d->screen);
+	vbox->addWidget(d->video);
 	vbox->addWidget(d->control);
 	vbox->setContentsMargins(0, 0, 0, 0);
 	vbox->setSpacing(0);
 
-	menuBar()->hide();
 	setMouseTracking(true);
 	setCentralWidget(center);
-	d->stack->setMouseTracking(true);
-	d->screen->setMouseTracking(true);
-	d->logo->setMouseTracking(true);
-	d->engine->renderer()->setMouseTracking(true);
+	d->video->setMouseTracking(true);
 	center->setMouseTracking(true);
-	d->logo->setContextMenuPolicy(Qt::CustomContextMenu);
-	d->engine->renderer()->setContextMenuPolicy(Qt::CustomContextMenu);
+	d->video->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void MainWindow::updateRecentActions(const QList<Mrl> &list) {
@@ -546,10 +504,7 @@ void MainWindow::seek(int diff) {
 		return;
 	const int target = qBound(0, d->engine->position() + diff, d->engine->duration());
 	if (d->engine->seek(target)) {
-		if (d->stack->currentWidget() == d->logo)
-			d->logo->showTimeLine(target, d->engine->duration());
-		else
-			d->timeLine->show(target, d->engine->duration());
+		d->timeLine->show(target, d->engine->duration());
 		showMessage(tr("Seeking"), diff/1000, tr("sec"), true);
 	}
 }
@@ -577,22 +532,19 @@ void MainWindow::showMessage(const QString &cmd, const QString &description, int
 void MainWindow::showMessage(const QString &message, int last) {
 	if (d->dontShowMsg)
 		return;
-	if (d->stack->currentWidget() == d->logo)
-		d->logo->showText(message, last);
-	else
-		d->message->showText(message, last);
+	d->message->showText(message, last);
 }
 
 void MainWindow::setVolume(int diff) {
 	if (!diff)
 		return;
-	const int volume = qBound(0, d->engine->audio()->volume() + diff, 100);
-	d->engine->audio()->setVolume(volume);
+	const int volume = qBound(0, d->audio->volume() + diff, 100);
+	d->audio->setVolume(volume);
 	showMessage(tr("Volume"), volume, "%");
 }
 
 void MainWindow::setMuted(bool muted) {
-	d->engine->audio()->setMuted(muted);
+	d->audio->setMuted(muted);
 	showMessage(tr("Mute"), muted);
 }
 
@@ -600,16 +552,18 @@ void MainWindow::setFullScreen(bool full) {
 	if (full == isFullScreen())
 		return;
 	d->control->setHidden(full);
-	d->screen->setSyncSize(!full);
+//	d->screen->setSyncSize(!full);
 	if (full) {
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
 		if (d->pref.hideCursor)
 			d->hider.start(d->pref.hideDelay);
+		d->video->setFixedRenderSize(size());
 	} else {
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
 		d->hider.stop();
 		if (cursor().shape() == Qt::BlankCursor)
 			unsetCursor();
+		d->video->setFixedRenderSize(QSize());
 	}
 }
 
@@ -620,8 +574,8 @@ void MainWindow::setVideoSize(double rate) {
 	} else {
 		if (isFullScreen())
 			setFullScreen(false);
-		QWidget *w = d->stack->currentWidget();
-		resize(size() - d->screen->size() + w->sizeHint()*qSqrt(rate));
+//		QWidget *w = d->stack->currentWidget();
+		resize(size() - d->video->size() + d->video->sizeHint()*qSqrt(rate));
 	}
 }
 
@@ -629,19 +583,19 @@ void MainWindow::updateState(MediaState state, MediaState old) {
 	if (old == state)
 		return;
 	if (state == PlayingState) {
-		ScreensaverManager::setDisabled(d->pref.disableScreensaver);
+//		ScreensaverManager::setDisabled(d->pref.disableScreensaver);
 		d->menu("play")["pause"]->setText(tr("Pause"));
 	} else {
-		ScreensaverManager::setDisabled(false);
+//		ScreensaverManager::setDisabled(false);
 		d->menu("play")["pause"]->setText(tr("Play"));
 	}
 	if (state == StoppedState) {
-		d->stack->setCurrentWidget(d->logo);
+//		d->stack->setCurrentWidget(d->logo);
 	} else {
-		if (d->engine->hasVideo())
-			d->stack->setCurrentWidget(d->engine->renderer());
-		else
-			d->stack->setCurrentWidget(d->logo);
+//		if (d->engine->hasVideo())
+//			d->stack->setCurrentWidget(d->engine->renderer());
+//		else
+//			d->stack->setCurrentWidget(d->logo);
 	}
 }
 
@@ -654,8 +608,8 @@ void MainWindow::setSpeed(int diff) {
 }
 
 void MainWindow::setAmp(int amp) {
-	const int newAmp = qBound(0, qRound(d->engine->audio()->preAmp()*100 + amp), 1000);
-	d->engine->audio()->setPreAmp(newAmp*0.01);
+	const int newAmp = qBound(0, qRound(d->audio->preAmp()*100 + amp), 1000);
+	d->audio->setPreAmp(newAmp*0.01);
 	showMessage(tr("Amp"), newAmp, "%");
 }
 
@@ -715,14 +669,14 @@ PlayEngine *MainWindow::engine() const {
 	return d->engine;
 }
 
-#define IS_IN_CENTER (d->stack->geometry().contains(d->stack->mapFrom(this, event->pos())))
+#define IS_IN_CENTER (d->video->geometry().contains(d->video->mapFrom(this, event->pos())))
 #define IS_BUTTON(b) (event->buttons() & (b))
 
 void MainWindow::mousePressEvent(QMouseEvent *event) {
 	QMainWindow::mouseMoveEvent(event);
 	if (!IS_IN_CENTER)
 		return;
-	if (IS_BUTTON(Qt::LeftButton)) {
+	if (IS_BUTTON(Qt::LeftButton) && !isFullScreen()) {
 		d->moving = true;
 		d->prevPos = event->globalPos();
 	}
@@ -818,7 +772,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 }
 
 void MainWindow::handleFinished() {
-	d->stack->setCurrentWidget(d->logo);
+//	d->stack->setCurrentWidget(d->logo);
 }
 
 void MainWindow::setSyncDelay(int diff) {
@@ -901,47 +855,44 @@ void MainWindow::showMessage(const QString &cmd, bool value, int last) {
 }
 
 void MainWindow::setVolumeNormalized(bool norm) {
-	d->engine->audio()->setVolumeNormalized(norm);
+	d->audio->setVolumeNormalized(norm);
 	showMessage(tr("Normalize Volume"), norm);
 }
 
-static QString trackName(int nth, const StreamData &data) {
-	QString name = QApplication::translate("MainWindow", "Track") + " " + QString::number(nth);
-	const QString lang = data.value(LanguageCode).toString();
-	if (!lang.isEmpty())
-		name += "(" + lang + ")";
-	return name;
-}
+//static QString trackName(int nth, const StreamData &data) {
+//	QString name = QApplication::translate("MainWindow", "Track") + " " + QString::number(nth);
+//	const QString lang = data.value(LanguageCode).toString();
+//	if (!lang.isEmpty())
+//		name += "(" + lang + ")";
+//	return name;
+//}
 
-void MainWindow::updateStreamInfo() {
-	const QList<StreamData> audio = d->engine->audioStreams();
+void MainWindow::updateAudioTrackInfo(const QList<AudioTrack> &tracks) {
+//	const QList<StreamData> audio = d->engine->audioStreams();
 	Menu &track = d->menu("audio")("track");
 	track.g()->clear();
-	for (int i=0; i<audio.size(); ++i) {
-		const QString name = trackName(i+1, audio[i]);
-		track.addActionToGroupWithoutKey(name, true)->setData(i);
+	for (int i=0; i<tracks.size(); ++i) {
+		track.addActionToGroupWithoutKey(tracks[i].name, true)->setData(tracks[i].id);
 	}
-	track.g()->setChecked(d->engine->currentAudioStream(), true);
+//	for (int i=0; i<audio.size(); ++i) {
+//		const QString name = trackName(i+1, audio[i]);
+//		track.addActionToGroupWithoutKey(name, true)->setData(i);
+//	}
+	track.g()->setChecked(d->engine->currentAudioTrackId(), true);
+//	track.g()->setChecked(d->engine->currentAudioStream(), true);
 }
 
-void MainWindow::setTrack(int i) {
-	d->engine->setCurrentAudioStream(i);
-	const QString name = trackName(i+1, d->engine->audioStreams().value(i));
-	showMessage(tr("Current Track"), name);
-}
-
-void MainWindow::setSoftEqEnabled(bool enabled) {
-	d->engine->renderer()->setSoftwareEqualizerEnabled(enabled);
-	showMessage(tr("Software Video Process"), enabled);
+void MainWindow::setCurrentAudioTrack(int id) {
+	d->engine->setCurrentAudioTrack(id);
+	showMessage(tr("Current Track"), d->engine->audioTrackName(id));
 }
 
 void MainWindow::setColorProperty(QAction *action) {
 	const QList<QVariant> data = action->data().toList();
 	const ColorProperty::Value prop = ColorProperty::Value(data[0].toInt());
-	NativeVideoRenderer *video = d->engine->renderer();
-	ColorProperty color = video->colorProperty();
+	ColorProperty color = d->video->colorProperty();
 	color.setValue(prop, color.value(prop) + data[1].toInt()*0.01);
-	video->setColorProperty(color);
+	d->video->setColorProperty(color);
 	QString cmd;
 	switch(prop) {
 	case ColorProperty::Brightness:
@@ -959,7 +910,7 @@ void MainWindow::setColorProperty(QAction *action) {
 	default:
 		return;
 	}
-	const double v = video->colorProperty()[prop]*100.0;
+	const double v = d->video->colorProperty()[prop]*100.0;
 	const int value = v + (v < 0 ? -0.5 : 0.5);
 	showMessage(cmd, value, "%", true);
 }

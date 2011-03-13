@@ -2,38 +2,27 @@
 #define OSDRENDERER_HPP
 
 #include <QtCore/QObject>
+#include <QtCore/QRectF>
 
-class QSettings;		class RichString;
-class ImageOverlayFilter;	class OsdStyle;
-class QRect;			class QPoint;
-class QPainter;			class QSize;
+class RichString;	class OsdStyle;
+class QPainter;
 
 class OsdRenderer : public QObject {
 	Q_OBJECT
 public:
 	OsdRenderer();
 	~OsdRenderer();
-	void setArea(const QRect &rect, double dis_x, double dis_y);
-	QRect area() const;
-	QPoint pos() const;
+	virtual void render(QPainter *painter, const QPointF &pos) = 0;
+	virtual QPointF posHint() const = 0;
+	virtual QSizeF size() const = 0;
+	virtual void setBackgroundSize(const QSize &size) = 0;
 	void setStyle(const OsdStyle &style);
 	const OsdStyle &style() const;
-public slots:
-	void update();
-	virtual void clear() = 0;
 signals:
-	void areaChanged(const QRect &area);
+	void sizeChanged(const QSizeF &size);
 	void styleChanged(const OsdStyle &style);
 	void needToRerender();
-protected:
-	virtual void render(QPainter *painter) = 0;
-	virtual QPoint posHint() const = 0;
-	virtual QSize sizeHint() const = 0;
 private:
-	void customEvent(QEvent *event);
-	void rerender();
-	friend class NativeVideoRenderer;
-	void setImageOverlay(ImageOverlayFilter *overlay);
 	struct Data;
 	Data *d;
 };

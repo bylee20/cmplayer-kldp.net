@@ -1,7 +1,7 @@
 #ifndef AUDIOCONTROLLER_HPP
 #define AUDIOCONTROLLER_HPP
 
-#include <gst/gst.h>
+//#include <gst/gst.h>
 #include <QtCore/QObject>
 
 class PlayEngine;
@@ -9,9 +9,8 @@ class PlayEngine;
 class AudioController : public QObject {
 	Q_OBJECT
 public:
-	AudioController(PlayEngine *engine);
+	AudioController(/*PlayEngine *engine*/);
 	~AudioController();
-	GstElement *bin() const;
 	int volume() const;
 	bool isMuted() const;
 	void setPreAmp(double amp);
@@ -26,7 +25,11 @@ signals:
 	void mutedChanged(bool muted);
 	void volumeNormalizedChanged(bool norm);
 private:
-	double gstVolume();
+	void prepare(int channels);
+	void apply(int samples, float *buffer);
+	friend class LibVlc;
+
+	float volumeRate() const;
 	struct Data;
 	Data *d;
 };

@@ -44,11 +44,13 @@ struct TextOsdRenderer::Data {
 	QVector<QPointF> points;
 	double bw;
 	double top, bottom, left, right;
-	QPoint pos;
+	double scaler;
 	QTimer clearer;
+	QSize bg;
 };
 
 TextOsdRenderer::TextOsdRenderer(Qt::Alignment align): d(new Data) {
+	d->scaler = 1.0;
 	d->bw = 1.0;
 	d->top = d->bottom = d->left = d->right = 0.0;
 	d->points.resize(sc.count());
@@ -57,29 +59,43 @@ TextOsdRenderer::TextOsdRenderer(Qt::Alignment align): d(new Data) {
 	style.bgColor.setAlphaF(0.7);
 	style.scale = OsdStyle::FitToWidth;
 	setStyle(style);
-	d->pos = getPos();
+	updateStyle(style);
 	d->clearer.setSingleShot(true);
 	connect(&d->clearer, SIGNAL(timeout()), this, SLOT(clear()));
-	connect(this, SIGNAL(areaChanged(QRect)), this, SLOT(slotAreaChanged(QRect)));
-	connect(this, SIGNAL(styleChanged(OsdStyle)), this, SLOT(slotStyleChanged(OsdStyle)));
+	connect(this, SIGNAL(styleChanged(OsdStyle)), this, SLOT(updateStyle(OsdStyle)));
 }
 
 TextOsdRenderer::~TextOsdRenderer() {
-
+	delete d;
 }
 
-void TextOsdRenderer::render(QPainter *painter) {
-	const QRect area = this->area();
-	if (area.isEmpty() || d->text.isEmpty())
+double TextOsdRenderer::scaler() const {
+	return d->scaler;
+}
+
+void TextOsdRenderer::updateStyle(const OsdStyle &style) {
+	const Qt::Alignment align = style.alignment;
+	QTextOption option(align);
+	option.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+	option.setUseDesignMetrics(true);
+	d->doc.setDefaultTextOption(option);
+	updateFontSize();
+}
+
+void TextOsdRenderer::render(QPainter *painter, const QPointF &pos) {
+	if (d->bg.isEmpty() || d->bg.isNull() || d->text.isEmpty())
 		return;
+
 	painter->save();
-	double x = 0.0;
+	painter->translate(pos);
 	const Qt::Alignment align = style().alignment;
+	double x = 0.0;
 	if (align & Qt::AlignHCenter)
 		x = -(d->doc.textWidth() - d->doc.idealWidth())*0.5;
 	else if (align & Qt::AlignRight)
 		x = -(d->doc.textWidth() - d->doc.idealWidth());
 	painter->translate(x, 0);
+
 	static QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
 	QString bgText = text().string();
 	d->doc.setHtml(QString("<font color='%1'>").arg(style().bgColor.name())
@@ -98,38 +114,11 @@ void TextOsdRenderer::render(QPainter *painter) {
 	painter->restore();
 }
 
-QPoint TextOsdRenderer::posHint() const {
-	return d->pos;
-}
-
-QPoint TextOsdRenderer::getPos() const {
-	Qt::Alignment align = style().alignment;
-	const QRect area = this->area();
-	const QSize size = sizeHint();
-	int x = area.left();
-	int y = area.top();
-	if (align & Qt::AlignBottom)
-		y = area.bottom() - size.height() - area.height()*d->bottom;
-	else if (align & Qt::AlignVCenter)
-		y += (area.height() - size.height())*0.5;
-	else
-		y += area.height()*d->top;
-	if (align & Qt::AlignHCenter)
-		x += (area.width() - size.width())*0.5;
-	else if (align & Qt::AlignRight)
-		x = area.right() - size.width() - area.width()*d->right;
-	else
-		x += area.width()*d->left;
-	return QPoint(x, y);
-
-}
-
 void TextOsdRenderer::showText(const RichString &text, int last) {
 	d->clearer.stop();
 	d->text = text;
 	d->doc.setHtml(text.string());
-	d->pos = getPos();
-	update();
+	emit sizeChanged(size());
 	if (last >= 0)
 		d->clearer.start(last);
 }
@@ -138,20 +127,47 @@ RichString TextOsdRenderer::text() const {
 	return d->text;
 }
 
-QSize TextOsdRenderer::sizeHint() const {
-	return QSize(d->doc.idealWidth() + 0.5, d->doc.size().height() + 2.0*d->bw + 0.5);
+QPointF TextOsdRenderer::posHint() const {
+	const QSizeF s = size()*d->scaler;
+	Qt::Alignment align = style().alignment;
+	double x = 0.0;
+	double y = 0.0;
+	if (align & Qt::AlignBottom)
+		y = d->bg.height()*(1.0 - d->bottom) - s.height();
+	else if (align & Qt::AlignVCenter)
+		y += (d->bg.height() - s.height())*0.5;
+	else
+		y += d->bg.height()*d->top;
+	if (align & Qt::AlignHCenter)
+		x += (d->bg.width() - s.width())*0.5;
+	else if (align & Qt::AlignRight)
+		x = d->bg.width()*(1.0 - d->right) - s.width();
+	else
+		x += d->bg.width()*d->left;
+	return QPointF(x, y);
+}
+
+QSizeF TextOsdRenderer::size() const {
+	const double width = d->doc.idealWidth();
+	const double height = (d->doc.size().height() + 2.0*d->bw);
+	return QSizeF(width, height);
 }
 
 void TextOsdRenderer::updateFontSize() {
-	const QSize s = area().size();
 	int px = 0;
 	const OsdStyle::Scale scale = style().scale;
 	if (scale == OsdStyle::FitToDiagonal)
-		px = qRound(qSqrt(s.height()*s.height() + s.width()*s.width()) * style().textSize);
+		px = qRound(qSqrt(d->bg.height()*d->bg.height() + d->bg.width()*d->bg.width()) * style().textSize);
 	else if (scale == OsdStyle::FitToWidth)
-		px = qRound(s.width()*style().textSize);
+		px = qRound(d->bg.width()*style().textSize);
 	else
-		px = qRound(s.height()*style().textSize);
+		px = qRound(d->bg.height()*style().textSize);
+	static const int max = 60;
+	if (px > max) {
+		d->scaler = (double)px/(double)max;
+		px = max;
+	} else
+		d->scaler = 1.0;
 	d->bw = qMax(style().borderWidth*px, 1.0);
 	for (int i=0; i<sc.count(); ++i) {
 		d->points[i].setX(d->bw*(1 + sc.sine(i)));
@@ -160,23 +176,15 @@ void TextOsdRenderer::updateFontSize() {
 	QFont font = style().font;
 	font.setPixelSize(px);
 	d->doc.setDefaultFont(font);
+	d->doc.setTextWidth(d->bg.width()/d->scaler - 2.0*d->bw - d->left - d->right);
+	emit sizeChanged(size());
 }
 
-void TextOsdRenderer::slotAreaChanged(const QRect &area) {
+void TextOsdRenderer::setBackgroundSize(const QSize &bg) {
+	if (d->bg == bg)
+		return;
+	d->bg = bg;
 	updateFontSize();
-	d->doc.setTextWidth(area.width() - 2.0*d->bw - d->left - d->right);
-	d->pos = getPos();
-	update();
-}
-
-void TextOsdRenderer::slotStyleChanged(const OsdStyle &style) {
-	updateFontSize();
-	QTextOption option(style.alignment);
-	option.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-//	option.setUseDesignMetrics(true);
-	d->doc.setDefaultTextOption(option);
-	d->pos = getPos();
-	update();
 }
 
 void TextOsdRenderer::clear() {
@@ -188,6 +196,6 @@ void TextOsdRenderer::setMargin(double top, double bottom, double right, double 
 	d->bottom = bottom;
 	d->right = right;
 	d->left = left;
-	d->pos = getPos();
-	update();
+	d->doc.setTextWidth(d->bg.width()/d->scaler - 2.0*d->bw - d->left - d->right);
+	emit sizeChanged(size());
 }

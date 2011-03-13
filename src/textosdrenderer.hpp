@@ -10,17 +10,17 @@ public:
 	~TextOsdRenderer();
 	RichString text() const;
 	void showText(const RichString &text, int last = -1);
-	void clear();
 	void setMargin(double top, double bottom, double right, double left);
-	void render(QPainter *painter);
+	void render(QPainter *painter, const QPointF &pos);
+	QPointF posHint() const;
+	QSizeF size() const;
+	void setBackgroundSize(const QSize &size);
+	double scaler() const;
+public slots:
+	void clear();
 private slots:
-	void slotAreaChanged(const QRect &area);
-	void slotStyleChanged(const OsdStyle &style);
-protected:
-	QPoint posHint() const;
-	QSize sizeHint() const;
+	void updateStyle(const OsdStyle &style);
 private:
-	QPoint getPos() const;
 	void updateFontSize();
 	struct Data;
 	Data *d;

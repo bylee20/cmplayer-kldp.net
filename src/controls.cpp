@@ -1,12 +1,12 @@
-#include "controls.hpp"
-#include "playengine.hpp"
-#include <QtGui/QAction>
-#include <QtCore/QDebug>
-#include <QtCore/QRegExp>
 #include "audiocontroller.hpp"
+#include "playengine.hpp"
+#include "controls.hpp"
+#include "libvlc.hpp"
 #include <QtGui/QApplication>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QAction>
 #include <QtGui/QStyle>
+#include <QtCore/QRegExp>
 #include <QtCore/QDebug>
 
 struct Button::Data {
@@ -96,8 +96,8 @@ void JumpSlider::mousePressEvent(QMouseEvent *event) {
 		QSlider::mousePressEvent(event);
 }
 
-SeekSlider::SeekSlider(PlayEngine *engine, QWidget *parent)
-: JumpSlider(parent), engine(engine), tick(false) {
+SeekSlider::SeekSlider(QWidget *parent)
+: JumpSlider(parent), engine(LibVlc::engine()), tick(false) {
 	setRange(0, engine->duration());
 	setValue(engine->position());
 	connect(this, SIGNAL(valueChanged(int)), this, SLOT(seek(int)));
@@ -124,13 +124,13 @@ void SeekSlider::slotTick(int time) {
 	tick = false;
 }
 
-VolumeSlider::VolumeSlider(PlayEngine *engine, QWidget *parent)
+VolumeSlider::VolumeSlider(QWidget *parent)
 : JumpSlider(parent) {
 	setMaximumWidth(70);
 	setRange(0, 100);
-	setValue(engine->audio()->volume());
-	connect(this, SIGNAL(valueChanged(int)), engine->audio(), SLOT(setVolume(int)));
-	connect(engine->audio(), SIGNAL(volumeChanged(int)), this, SLOT(setValue(int)));
+	setValue(LibVlc::audio()->volume());
+	connect(this, SIGNAL(valueChanged(int)), LibVlc::audio(), SLOT(setVolume(int)));
+	connect(LibVlc::audio(), SIGNAL(volumeChanged(int)), this, SLOT(setValue(int)));
 }
 
 

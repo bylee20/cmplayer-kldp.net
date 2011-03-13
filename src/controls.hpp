@@ -5,7 +5,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QComboBox>
 
-class PlayEngine;
+class PlayEngine;		class AudioController;
 
 class JumpSlider : public QSlider {
 Q_OBJECT
@@ -18,7 +18,7 @@ protected:
 class SeekSlider : public JumpSlider {
 Q_OBJECT
 	public:
-	SeekSlider(PlayEngine *engine, QWidget *parent = 0);
+	SeekSlider(QWidget *parent = 0);
 private slots:
 	void setDuration(int duration);
 	void slotTick(int time);
@@ -31,9 +31,7 @@ private:
 class VolumeSlider : public JumpSlider {
 	Q_OBJECT
 public:
-	VolumeSlider(PlayEngine *engine, QWidget *parent = 0);
-private slots:
-//	void
+	VolumeSlider(QWidget *parent = 0);
 };
 
 class Button : public QToolButton {

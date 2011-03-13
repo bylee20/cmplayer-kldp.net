@@ -1,6 +1,7 @@
 TEMPLATE = app
-TARGET = ../bin/cmplayer
+TARGET = cmplayer
 CONFIG += link_pkgconfig debug_and_release
+#CONFIG -= app_bundle
 RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE) {
     CONFIG += release
@@ -8,23 +9,15 @@ RELEASE = $$(CMPLAYER_RELEASE)
 else {
     CONFIG += debug
  }
-QT += network
-PKGCONFIG += gstreamer-0.10 \
-    gstreamer-base-0.10 \
-    gstreamer-interfaces-0.10 \
-    gstreamer-audio-0.10 \
-    gstreamer-video-0.10 \
-    gstreamer-controller-0.10 \
-    liboil-0.3
-INCLUDEPATH += /usr/include/gstreamer-0.10 \
-    /usr/include/liboil-0.3
+QT += network opengl
+
 INCLUDEPATH += libchardet-1.0.1/src
-LIBS += -Llibchardet-1.0.1/src/.libs \
-    -lchardet \
-    -lX11
+
+INCLUDEPATH += /Applications/VLC.app/Contents/MacOS/include
+LIBS += -L/Applications/VLC.app/Contents/MacOS/lib -lvlc \
+	-L/Users/xylosper/cmplayer-vlc/src/libchardet-1.0.1/src/.libs -lchardet
 RESOURCES += rsclist.qrc
 HEADERS += playengine.hpp \
-    bushelper.hpp \
     mainwindow.hpp \
     mrl.hpp \
     controlwidget.hpp \
@@ -40,11 +33,8 @@ HEADERS += playengine.hpp \
     application.hpp \
     translator.hpp \
     pref.hpp \
-    qwidgetvideosink.hpp \
     events.hpp \
     videoframe.hpp \
-    glvideorenderer.hpp \
-    nativevideorenderer.hpp \
     osdrenderer.hpp \
     subtitle.hpp \
     richstring.hpp \
@@ -57,23 +47,12 @@ HEADERS += playengine.hpp \
     charsetdetector.hpp \
     screensavermanager.hpp \
     abrepeater.hpp \
-    logoview.hpp \
     toolbox.hpp \
     playlist.hpp \
     playlistmodel.hpp \
     playlistview.hpp \
-    gstvolnorm.hpp \
     recentinfo.hpp \
     historyview.hpp \
-    imageoverlayfilter.hpp \
-    i420picture.hpp \
-    videofilter.hpp \
-    videomanipulator.hpp \
-    videomanipulator_p.hpp \
-    gst_fcs/gst_fcs_avcodec.h \
-    gst_fcs/gst_fcs_dsputil.h \
-    gst_fcs/gst_fcs_gstffmpegcodecmap.h \
-    gst_fcs/gst_fcs_imgconvert_template.h \
     record.hpp \
     subtitleview.hpp \
     pref_dialog.hpp \
@@ -81,12 +60,15 @@ HEADERS += playengine.hpp \
     simplelistwidget.hpp \
     appstate.hpp \
     dialogs.hpp \
-    videoeqfilter.hpp \
     favoritesview.hpp \
-    downloader.hpp
+    downloader.hpp \
+    logodrawer.hpp \
+    glrenderer.hpp \
+    glrenderer_osd.hpp \
+    libvlc.hpp \
+    vlcmedia.hpp
 SOURCES += main.cpp \
     playengine.cpp \
-    bushelper.cpp \
     mainwindow.cpp \
     mrl.cpp \
     controlwidget.cpp \
@@ -103,11 +85,7 @@ SOURCES += main.cpp \
     application.cpp \
     translator.cpp \
     pref.cpp \
-    qwidgetvideosink.cpp \
-    events.cpp \
     videoframe.cpp \
-    glvideorenderer.cpp \
-    nativevideorenderer.cpp \
     osdrenderer.cpp \
     subtitle.cpp \
     richstring.cpp \
@@ -120,24 +98,12 @@ SOURCES += main.cpp \
     charsetdetector.cpp \
     screensavermanager.cpp \
     abrepeater.cpp \
-    logoview.cpp \
     toolbox.cpp \
     playlist.cpp \
     playlistmodel.cpp \
     playlistview.cpp \
-    gstvolnorm.cpp \
     recentinfo.cpp \
     historyview.cpp \
-    imageoverlayfilter.cpp \
-    i420picture.cpp \
-    videofilter.cpp \
-    videomanipulator.cpp \
-    videomanipulator_p.cpp \
-    gst_fcs/gst_fcs_imgconvert.c \
-    gst_fcs/gst_fcs_dsputil.c \
-    gst_fcs/gst_fcs_gstffmpegcodecmap.c \
-    gst_fcs/gst_fcs_utils.c \
-    gst_fcs/gst_fcs_mem.c \
     record.cpp \
     subtitleview.cpp \
     pref_dialog.cpp \
@@ -145,11 +111,18 @@ SOURCES += main.cpp \
     simplelistwidget.cpp \
     appstate.cpp \
     dialogs.cpp \
-    videoeqfilter.cpp \
     favoritesview.cpp \
-    downloader.cpp
+    downloader.cpp \
+    glrenderer.cpp \
+    glrenderer_osd.cpp \
+    libvlc.cpp \
+    vlcmedia.cpp \
+    logodrawer.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts
 FORMS += ui/pref_dialog.ui \
     ui/osdstyle_widget.ui
+
+OTHER_FILES += \
+    glrenderer.fs

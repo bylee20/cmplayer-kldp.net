@@ -401,8 +401,6 @@ void Menu::updatePref() {
 			, tr("Contrast %1%"), p.brightnessStep);
 	setVideoPropStep(video, "hue", ColorProperty::Hue
 			, tr("Hue %1%"), p.brightnessStep);
-	video["soft-eq"]->setText(tr("Use Software Process"));
-
 	//	screen["snapshot"]->setText(tr("Take Snapshot"));
 
 	Menu &audio = root("audio");

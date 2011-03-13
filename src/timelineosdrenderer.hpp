@@ -9,15 +9,13 @@ public:
 	TimeLineOsdRenderer();
 	~TimeLineOsdRenderer();
 	void show(int pos, int duration, int last = 2500);
-	void render(QPainter *painter);
+	void render(QPainter *painter, const QPointF &pos);
+	QPointF posHint() const;
+	QSizeF size() const;
+	void setBackgroundSize(const QSize &size);
 public slots:
 	void clear();
-private slots:
-	void slotAreaChanged(const QRect &area);
-	void slotStyleChanged(const OsdStyle &style);
 private:
-	QPoint posHint() const;
-	QSize sizeHint() const;
 	struct Data;
 	Data *d;
 
