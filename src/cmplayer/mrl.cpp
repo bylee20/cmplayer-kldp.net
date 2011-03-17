@@ -3,19 +3,20 @@
 #include <QtCore/QRegExp>
 
 Mrl::Mrl(const QString &location) {
-	static const QRegExp rx("^\\w+://");
-	if (location.contains(rx))
-		m_url = QUrl(location);
+	const int idx = location.indexOf("://");
+	if (idx < 0)
+		m_loc = "file://" + location;
 	else
-		m_url = QUrl::fromLocalFile(QFileInfo(location).absoluteFilePath());
+		m_loc = location;
 }
 
 bool Mrl::isPlaylist() const {
-	return m_url.path().right(4).toLower() == ".pls";
+	return fileName().endsWith(".pls", Qt::CaseInsensitive);
 }
 
 QString Mrl::fileName() const {
-	return QFileInfo(m_url.path()).fileName();
+	const int idx = m_loc.lastIndexOf('/');
+	return m_loc.mid(idx);
 }
 
 QString Mrl::displayName() const {

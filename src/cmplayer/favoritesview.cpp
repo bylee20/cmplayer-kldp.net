@@ -93,7 +93,7 @@ private:
 		if (item) {
 			setName(item->name());
 			if (!item->isFolder())
-				setLocation(static_cast<MrlItem*>(item)->mrl().location());
+				setLocation(static_cast<MrlItem*>(item)->mrl().toString());
 		}
 	}
 	QLineEdit *m_name, *m_loc;
@@ -181,7 +181,7 @@ void FavoritesView::addCurrent() {
 	ItemDialog dlg(false, this);
 	const Mrl mrl = d->engine->mrl();
 	dlg.setName(mrl.isLocalFile() ? mrl.fileName() : mrl.toString());
-	dlg.setLocation(mrl.location());
+	dlg.setLocation(mrl.toString());
 	if (dlg.exec())
 		addItem(new MrlItem(dlg.location(), dlg.name()), dlg.isTopLevel());
 }
@@ -233,7 +233,7 @@ void FavoritesView::save(QTreeWidgetItem *item, QSettings *set) const {
 		set->setValue("name", itm->name());
 		set->setValue("is-folder", itm->isFolder());
 		if (!itm->isFolder())
-			set->setValue("mrl", static_cast<MrlItem*>(itm)->mrl().url());
+			set->setValue("mrl", static_cast<MrlItem*>(itm)->mrl().toString());
 	}
 	const int count = item->childCount();
 	set->beginWriteArray("items", count);
@@ -261,7 +261,7 @@ void FavoritesView::load(QTreeWidgetItem *parent, QSettings *set) {
 		if (isFolder) {
 			item = new FolderItem(name);
 		} else {
-			const Mrl mrl = set->value("url", QUrl()).toUrl();
+			const Mrl mrl = set->value("url", QString()).toString();
 			item = new MrlItem(mrl, name);
 		}
 		parent->addChild(item);

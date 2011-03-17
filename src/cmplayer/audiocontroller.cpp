@@ -1,11 +1,8 @@
 #include "audiocontroller.hpp"
-//#include "playengine.hpp"
-//#include "gstvolnorm.hpp"
 #include <math.h>
 #include <QtCore/QDebug>
 
 struct AudioController::Data {
-//	PlayEngine *engine;
 	int i_nb;
 	float *p_last;
 	float f_max;

@@ -59,7 +59,7 @@ bool Playlist::load(const Mrl &mrl, const QString &enc, Type type) {
 	if (mrl.isLocalFile())
 		return load(mrl.toLocalFile(), enc, type);
 	QTemporaryFile file(QDir::tempPath() + "/cmplayer_temp_XXXXXX_" + mrl.fileName());
-	if (!file.open() || !Downloader::get(mrl.url(), &file, 30000))
+	if (!file.open() || !Downloader::get(mrl.toString(), &file, 30000))
 		return false;
 	return load(&file, enc, type);
 }
@@ -134,7 +134,7 @@ void Playlist::save(const QString &name, Record *r) const {
 	r->beginWriteArray(name, size());
 	for (int i=0; i<size(); ++i) {
 		r->setArrayIndex(i);
-		r->setValue("mrl", at(i).url());
+		r->setValue("mrl", at(i).toString());
 	}
 	r->endArray();
 }
@@ -144,7 +144,7 @@ void Playlist::load(const QString &name, Record *r) {
 	const int size = r->beginReadArray(name);
 	for (int i=0; i<size; ++i) {
 		r->setArrayIndex(i);
-		push_back(r->value("mrl", QUrl()).toUrl());
+		push_back(r->value("mrl", QString()).toString());
 	}
 	r->endArray();
 }

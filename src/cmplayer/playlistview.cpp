@@ -73,21 +73,21 @@ void PlaylistView::addFile() {
 	QStringList files = QFileDialog::getOpenFileNames(this, tr("Open File"), QString(), filter);
 	Playlist list;
 	for (int i=0; i<files.size(); ++i)
-		list << Mrl::fromLocalFile(files[i]);
+		list << Mrl(files[i]);
 	d->model->append(list);
 }
 
 void PlaylistView::addUrl() {
-	GetUrlDialog dlg(this);
-	if (dlg.exec()) {
-		const Mrl mrl = dlg.url();
-		if (mrl.isPlaylist()) {
-			Playlist list;
-			list.load(mrl, dlg.encoding());
-			d->model->append(list);
-		} else
-			d->model->append(mrl);
-	}
+//	GetUrlDialog dlg(this);
+//	if (dlg.exec()) {
+//		const Mrl mrl = dlg.url();
+//		if (mrl.isPlaylist()) {
+//			Playlist list;
+//			list.load(mrl, dlg.encoding());
+//			d->model->append(list);
+//		} else
+//			d->model->append(mrl);
+//	}
 }
 
 void PlaylistView::erase() {
@@ -181,7 +181,7 @@ void PlaylistView::load(const Mrl &mrl, const QString &enc) {
 							continue;
 					}
 				}
-				list.append(Mrl::fromLocalFile(it->absoluteFilePath()));
+				list.append(Mrl(it->absoluteFilePath()));
 			}
 		}
 		if (list.isEmpty())

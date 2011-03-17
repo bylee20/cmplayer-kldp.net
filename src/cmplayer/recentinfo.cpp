@@ -58,7 +58,7 @@ int RecentInfo::stoppedTime(const Mrl &mrl) const {
 }
 
 void RecentInfo::stack(const Mrl &mrl) {
-	if (mrl.url().isEmpty())
+	if (mrl.isEmpty())
 		return;
 	d->openList.removeAll(mrl);
 	d->openList.prepend(mrl);
@@ -77,7 +77,7 @@ void RecentInfo::save() const {
 	r.beginGroup("recent-info");
 	d->openList.save("recent-open-list", &r);
 	d->lastList.save("last-playlist", &r);
-	r.setValue("last-mrl", d->lastMrl.url());
+	r.setValue("last-mrl", d->lastMrl.toString());
 	r.endGroup();
 }
 
@@ -86,7 +86,7 @@ void RecentInfo::load() {
 	r.beginGroup("recent-info");
 	d->openList.load("recent-open-list", &r);
 	d->lastList.load("last-playlist", &r);
-	d->lastMrl = r.value("last-mrl", QUrl()).toUrl();
+	d->lastMrl = r.value("last-mrl", QString()).toString();
 	r.endGroup();
 }
 

@@ -22,7 +22,7 @@ struct HistoryView::Item : public QTreeWidgetItem {
 	void setMrl(const Mrl &mrl) {
 		m_mrl = mrl;
 		setText(Name, mrl.displayName());
-		setText(Location, mrl.location());
+		setText(Location, mrl.toString());
 	}
 	const QDateTime &date() const {return m_date;}
 private:
@@ -116,7 +116,7 @@ void HistoryView::handleStateChanged(MediaState state, MediaState old) {
 	if ((old == StoppedState || old == FinishedState)
 			&& (state == PausedState || state == PlayingState)) {
 		const Mrl mrl = d->engine->mrl();
-		if (mrl.url().isEmpty())
+		if (mrl.isEmpty())
 			return;
 		int idx = findIndex(mrl);
 		if (idx >= 0) {
@@ -176,7 +176,7 @@ void HistoryView::save() const {
 	for (int i=0; i<size; ++i) {
 		const Item *item = this->item(i);
 		r.setArrayIndex(i);
-		r.setValue("mrl", item->mrl().url());
+		r.setValue("mrl", item->mrl().toString());
 		r.setValue("date", item->date());
 		r.setValue("stopped-position", item->stoppedTime());
 	}
@@ -190,7 +190,7 @@ void HistoryView::load() {
 	const int size = r.beginReadArray("list");
 	for (int i=0; i<size; ++i) {
 		r.setArrayIndex(i);
-		const Mrl mrl = r.value("mrl", QUrl()).toUrl();
+		const Mrl mrl = r.value("mrl", QString()).toString();
 		if (mrl.isEmpty())
 			continue;
 		const QDateTime date = r.value("date", QDateTime()).toDateTime();

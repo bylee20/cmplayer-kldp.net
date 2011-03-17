@@ -23,7 +23,7 @@ QVariant PlaylistModel::data(const QModelIndex &index, int role) const {
 		if (index.column() == Name) {
 			return QString::number(row+1) + " - " + m_list[row].displayName();
 		} else if (index.column() == Location) {
-			return m_list[row].location();
+			return m_list[row].toString();
 		}
 	} else if (role == Qt::FontRole) {
 		return (row == m_current) ? m_curFont : m_defFont;

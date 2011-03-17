@@ -10,6 +10,7 @@ struct LibVlc::Data {
 	VideoRenderer *video;
 	libvlc_instance_t *inst;
 	libvlc_media_player_t *mp;
+	EventHandler eventHandler;
 };
 
 LibVlc *LibVlc::s = 0;
@@ -20,6 +21,8 @@ void LibVlc::init() {
 	d->engine = new PlayEngine;
 	d->audio = new AudioController;
 	d->video = new VideoRenderer;
+	d->eventHandler.self = 0;
+	d->video->setEventHandler(&d->eventHandler);
 }
 
 void LibVlc::release() {
@@ -41,10 +44,10 @@ void LibVlc::cbAudioDoWork(void *data, int samples, float *buffer) {
 		audio->apply(samples, buffer);
 }
 
-void *LibVlc::cbVideoLock(void *data, void **plane) {
+void *LibVlc::cbVideoLock(void *data, void *planes, int dataLength) {
 	VideoRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
 	if (video)
-		return video->lock(plane);
+		return video->lock(reinterpret_cast<VideoFrame::Plane*>(planes), dataLength);
 	return 0;
 }
 
@@ -60,10 +63,10 @@ void LibVlc::cbVideoDisplay(void *data, void *id) {
 		video->display(id);
 }
 
-void LibVlc::cbVideoPrepare(void *data, quint32 fourcc, int width, int height, double fps) {
+void LibVlc::cbVideoPrepare(void *data, quint32 fourcc, int width, int height, double sar, double fps) {
 	VideoRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
 	if (video)
-		video->prepare(fourcc, width, height, fps);
+		video->prepare(fourcc, width, height, sar, fps);
 }
 
 void LibVlc::cbManageEvent(const libvlc_event_t *event, void *data) {
@@ -95,7 +98,7 @@ LibVlc::LibVlc(): d(new Data) {
 
 	char pvLock[125], pvUnlock[125], pvDisplay[125], pvPrepare[125];
 	char paDoWork[125], paPrepare[125];
-	char pData[125];
+	char pData[125], pvEventHandler[125];
 	sprintf(pvLock, "%lld", (long long int)(intptr_t)(void*)cbVideoLock);
 	sprintf(pvUnlock, "%lld", (long long int)(intptr_t)(void*)cbVideoUnlock);
 	sprintf(pvDisplay, "%lld", (long long int)(intptr_t)(void*)cbVideoDisplay);
@@ -103,7 +106,7 @@ LibVlc::LibVlc(): d(new Data) {
 	sprintf(paDoWork, "%lld", (long long int)(intptr_t)(void*)cbAudioDoWork);
 	sprintf(paPrepare, "%lld", (long long int)(intptr_t)(void*)cbAudioPrepare);
 	sprintf(pData, "%lld", (long long int)(intptr_t)(void*)this);
-
+	sprintf(pvEventHandler, "%lld", (long long int)(intptr_t)(void*)&d->eventHandler);
 	const char *const args[] = {
 		"-I", "dummy",
 		"--ignore-config",
@@ -124,6 +127,7 @@ LibVlc::LibVlc(): d(new Data) {
 		"--cmplayer-vout-cb-display", pvDisplay,
 		"--cmplayer-vout-cb-prepare", pvPrepare,
 		"--cmplayer-vout-data", pData,
+		"--cmplayer-vout-event-handler", pvEventHandler,
 		"--vout", "cmplayer-vout",
 		"--cmplayer-afilter-cb-prepare", paPrepare,
 		"--cmplayer-afilter-cb-do-work", paDoWork,
@@ -132,7 +136,7 @@ LibVlc::LibVlc(): d(new Data) {
 	};
 	d->inst = libvlc_new(sizeof(args)/sizeof(*args), args);
 	d->mp = libvlc_media_player_new(d->inst);
-
+	libvlc_video_set_mouse_input(d->mp, 0);
 	libvlc_event_manager_t *man = libvlc_media_player_event_manager(d->mp);
 	libvlc_event_type_t events[] = {
 		libvlc_MediaPlayerTimeChanged,

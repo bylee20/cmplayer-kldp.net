@@ -4,6 +4,7 @@
 #include <QtOpenGL/QGLWidget>
 #include "overlay.hpp"
 #include "colorproperty.hpp"
+#include "videoframe.hpp"
 
 class OsdRenderer;
 
@@ -27,11 +28,18 @@ public slots:
 	void setCropRatio(double ratio);
 signals:
 	void frameRateChanged(double frameRate);
+protected:
+	void mouseMoveEvent(QMouseEvent *event);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseReleaseEvent(QMouseEvent *event);
 private:
-	void *lock(void **plane);
+	static int translateButton(Qt::MouseButton qbutton);
+
+	void setEventHandler(void *handler);
+	void *lock(VideoFrame::Plane *planes, int dataLength);
 	void unlock(void *id, void *const *plane);
 	void display(void *id);
-	void prepare(quint32 fourcc, int width, int height, double fps);
+	void prepare(quint32 fourcc, int width, int height, double sar, double fps);
 	friend class LibVlc;
 
 	void updateSize();

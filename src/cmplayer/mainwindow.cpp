@@ -86,7 +86,7 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	connect(open["file"], SIGNAL(triggered()), this, SLOT(openFile()));
 	connect(open["url"], SIGNAL(triggered()), this, SLOT(openUrl()));
 	connect(open["dvd"], SIGNAL(triggered()), this, SLOT(openDvd()));
-	connect(open("recent").g(), SIGNAL(triggered(Mrl)), this, SLOT(openMrl(Mrl)));
+	connect(open("recent").g(), SIGNAL(triggered(QString)), this, SLOT(openLocation(QString)));
 	connect(open("recent")["clear"], SIGNAL(triggered()), &recent, SLOT(clear()));
 
 	Menu &dvdMenu = d->menu("dvd-menu");
@@ -187,6 +187,10 @@ MainWindow::~MainWindow() {
 	delete d;
 }
 
+void MainWindow::openLocation(const QString &loc) {
+	openMrl(Mrl(loc));
+}
+
 void MainWindow::loadState() {
 	d->dontShowMsg = true;
 	AppState as;
@@ -270,7 +274,7 @@ void MainWindow::updateRecentActions(const QList<Mrl> &list) {
 	QList<QAction*> acts = group->actions();
 	for (int i=0; i<list.size(); ++i) {
 		QAction *act = acts[i];
-		act->setData(list[i].url());
+		act->setData(list[i].toString());
 		act->setText(list[i].displayName());
 		act->setVisible(!list[i].isEmpty());
 	}
@@ -293,22 +297,20 @@ void MainWindow::openFile() {
 	const QString dir = QFileInfo(as[AppState::LastOpenFile].toString()).absolutePath();
 	const QString file = QFileDialog::getOpenFileName(this, tr("Open File"), dir, filter);
 	if (!file.isEmpty()) {
-		openMrl(Mrl::fromLocalFile(file));
+		openMrl(Mrl(file));
 		as[AppState::LastOpenFile] = file;
 	}
 }
 
 void MainWindow::openDvd() {
-	const Mrl mrl(QUrl("dvd://"));
-	d->engine->stop();
-	d->engine->setMrl(mrl);
-	d->engine->play();
+	const Mrl mrl("dvd:///dev/rdisk4");
+	openMrl(mrl);
 }
 
 void MainWindow::openUrl() {
-	GetUrlDialog dlg(this);
-	if (dlg.exec())
-		openMrl(dlg.url(), dlg.encoding());
+//	GetUrlDialog dlg(this);
+//	if (dlg.exec())
+//		openMrl(dlg.url(), dlg.encoding());
 }
 
 void MainWindow::togglePlayPause() {
@@ -415,7 +417,7 @@ void MainWindow::doSubtitleAutoLoad() {
 	if (d->pref.subtitleAutoLoad == NoAutoLoad)
 		return;
 	const QStringList filter = Info::subtitleExtension().toNameFilter();
-	const QFileInfo fileInfo(mrl.url().toLocalFile());
+	const QFileInfo fileInfo(mrl.toLocalFile());
 	const QFileInfoList all = fileInfo.dir().entryInfoList(filter, QDir::Files, QDir::Name);
 	const QString base = fileInfo.completeBaseName();
 
@@ -443,7 +445,7 @@ void MainWindow::doSubtitleAutoSelection() {
 	if (d->subLoaded.isEmpty())
 		return;
 	QSet<QString> langSet;
-	const QString base = QFileInfo(mrl.url().toLocalFile()).completeBaseName();
+	const QString base = QFileInfo(mrl.toLocalFile()).completeBaseName();
 	for (int i=0; i<d->subLoaded.size(); ++i) {
 		bool select = false;
 		if (d->pref.subtitleAutoSelect == SameName) {
@@ -755,13 +757,13 @@ void MainWindow::dropEvent(QDropEvent *event) {
 		const QString suffix = QFileInfo(urls[i].path()).suffix().toLower();
 		if (Info::playlistExtension().contains(suffix)) {
 			Playlist list;
-			list.load(urls[i]);
+			list.load(urls[i].toString());
 			playlist += list;
 		} else if (Info::subtitleExtension().contains(suffix)) {
 			subList << urls[i].toLocalFile();
 		} else if (Info::videoExtension().contains(suffix)
 				|| Info::audioExtension().contains(suffix)) {
-			playlist.append(urls[i]);
+			playlist.append(urls[i].toString());
 		}
 	}
 	if (!playlist.isEmpty()) {

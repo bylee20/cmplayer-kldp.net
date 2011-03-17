@@ -1,6 +1,6 @@
 #ifndef VIDEOFRAME_HPP
 #define VIDEOFRAME_HPP
-
+#include <QtCore/QDebug>
 #include <QtCore/QEvent>
 #include <QtCore/QByteArray>
 #include <QtCore/QSize>
@@ -23,36 +23,53 @@
 
 class VideoFrame {
 public:
+	// do not change the order!!
+	struct Plane {
+		uchar *data;
+		int dataPitch, dataLines;
+		int framePitch, frameLines;
+	};
 	enum Type {Unknown = 0, YV12, RV16};
-	VideoFrame() {m_type = Unknown;}
+	VideoFrame();
 	VideoFrame(quint32 fourcc, int width, int height);
-	uchar *data() {return (uchar*)m_data.data();}
-	const uchar *constData() const {return (const uchar*)m_data.constData();}
+	~VideoFrame();
+	void alloc(Plane *hints, int dataLength);
+	void free();
+	uchar *data() {return m_data;}
+	const Plane &plane(int idx) const {return m_planes[idx];}
 	const QSize &size() const {return m_size;}
-	int length() const {return m_data.length();}
-	int offset(int idx) {return m_offset[idx];}
-	int planeCount() const {return m_offset.size();}
-	uchar *plane(int idx) {return data() + offset(idx);}
+	int length() const {return m_length;}
+	int planeCount() const {return m_planeCount;}
 	int width() const {return m_size.width();}
 	int height() const {return m_size.height();}
 	Type type() const {return m_type;}
-	bool isEmpty() const {return m_size.isEmpty() || m_size.isNull();}
+	bool isEmpty() const {return m_length <= 0;}
+	void copy(const VideoFrame &frame);
+	void attach(const VideoFrame &frame);
 private:
-	QByteArray m_data;
+	VideoFrame &operator= (const VideoFrame &rhs);
+	VideoFrame(const VideoFrame &rhs);
 	Type m_type;
 	QSize m_size;
-	QList<int> m_offset;
+
+	uchar *m_data;
+	int m_length;
+	Plane *m_planes;
+	int m_planeCount;
 };
 
 class VideoFrameEvent : public QEvent {
 public:
 	static const int Id = QEvent::User + 1;
 	VideoFrameEvent(const VideoFrame &frame)
-	: QEvent((Type)Id), m_frame(frame) {
+	: QEvent((Type)Id) {
+		m_frame = new VideoFrame(frame.type(), frame.width(), frame.height());
+		m_frame->copy(frame);
 	}
-	const VideoFrame &frame() const {return m_frame;}
+	const VideoFrame *frame() const {return m_frame;}
+	VideoFrame *frame() {return m_frame;}
 private:
-	VideoFrame m_frame;
+	VideoFrame *m_frame;
 };
 
 

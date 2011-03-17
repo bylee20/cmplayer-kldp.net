@@ -9,32 +9,22 @@ class Mrl {
 public:
 	Mrl() {}
 	Mrl(const QString &location);
-	Mrl(const QUrl &url): m_url(url) {}
-	Mrl(const Mrl &other): m_url(other.m_url) {}
-	bool operator == (const Mrl &rhs) const {return m_url == rhs.m_url;}
+	Mrl(const Mrl &other): m_loc(other.m_loc) {}
+	bool operator == (const Mrl &rhs) const {return m_loc == rhs.m_loc;}
 	bool operator != (const Mrl &rhs) const {return !(*this == rhs);}
-	Mrl &operator=(const Mrl &other) {
-		if (this != &other)
-			m_url = other.m_url;
-		return *this;
-	}
-	bool operator < (const Mrl &rhs) const {
-		return m_url < rhs.m_url;
-	}
-	const QUrl &url() const {return m_url;}
-	QString toString() const {return m_url.toString();}
-	QString location() const {return isLocalFile() ? toLocalFile() : toString();}
-	static Mrl fromLocalFile(const QString &file) {return Mrl(QUrl::fromLocalFile(file));}
-	QString scheme() const {return m_url.scheme();}
-	QString toLocalFile() const {return m_url.toLocalFile();}
+	Mrl &operator=(const Mrl &rhs) { if (this != &rhs) m_loc = rhs.m_loc; return *this;}
+	bool operator < (const Mrl &rhs) const {return m_loc < rhs.m_loc;}
+	QString toString() const {return m_loc;}
+	bool isLocalFile() const {return m_loc.startsWith("file://", Qt::CaseInsensitive);}
+	bool isDVD() const {return m_loc.startsWith("dvd://", Qt::CaseInsensitive);}
+	QString scheme() const {return m_loc.left(m_loc.indexOf("://"));}
+	QString toLocalFile() const {return isLocalFile() ? m_loc.right(m_loc.size() - 7) : QString();}
 	QString fileName() const;
 	bool isPlaylist() const;
-	bool isLocalFile() const {return m_url.scheme().toLower() == "file";}
-	bool isDVD() const {return m_url.scheme().toLower() == "dvd";}
 	QString displayName() const;
-	bool isEmpty() const {return m_url.isEmpty();}
+	bool isEmpty() const {return m_loc.isEmpty();}
 private:
-	QUrl m_url;
+	QString m_loc;
 };
 
 #endif // MRL_HPP

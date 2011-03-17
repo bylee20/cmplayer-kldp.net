@@ -20,6 +20,7 @@ private slots:
 	void setVolumeNormalized(bool norm);
 	void openFile();
 	void openDvd();
+	void openLocation(const QString &loc);
 	void openUrl();
 	void togglePlayPause();
 	void showContextMenu(const QPoint &pos);

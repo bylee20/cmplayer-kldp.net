@@ -18,7 +18,7 @@ void ActionGroup::emitData(QAction *action) {
 	else if (data.type() == QVariant::String)
 		emit triggered(data.toString());
 	else if (data.type() == QVariant::Url)
-		emit triggered(Mrl(data.toUrl()));
+		emit triggered(data.toUrl().toString());
 }
 
 Menu *Menu::obj = 0;
@@ -41,7 +41,7 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *dvd = open->addAction("dvd");
 	dvd->setData(QUrl("dvd://"));
 	url->setDisabled(true);
-	dvd->setDisabled(true);
+//	dvd->setDisabled(true);
 
 	open->addSeparator();
 
