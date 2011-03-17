@@ -8,7 +8,7 @@
 #include <vlc/vlc.h>
 
 class NativeVideoRenderer;	class AudioController;
-class GLRenderer;
+class VideoRenderer;
 
 struct AudioTrack {
 	int id;
@@ -61,7 +61,6 @@ signals:
 	void durationChanged(int duration);
 	void tagsChanged();
 	void statusChanged(MediaStatus status);
-
 	void _updateDuration(int duration);
 	void _ticking();
 	void _updateSeekable(bool seekable);

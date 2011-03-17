@@ -1,5 +1,5 @@
 #include "audiocontroller.hpp"
-#include "glrenderer.hpp"
+#include "videorenderer.hpp"
 #include "playengine.hpp"
 #include "libvlc.hpp"
 #include <QtCore/QDebug>
@@ -7,7 +7,7 @@
 struct LibVlc::Data {
 	PlayEngine *engine;
 	AudioController *audio;
-	GLRenderer *video;
+	VideoRenderer *video;
 	libvlc_instance_t *inst;
 	libvlc_media_player_t *mp;
 };
@@ -19,7 +19,7 @@ void LibVlc::init() {
 	Data *d = s->d;
 	d->engine = new PlayEngine;
 	d->audio = new AudioController;
-	d->video = new GLRenderer;
+	d->video = new VideoRenderer;
 }
 
 void LibVlc::release() {
@@ -42,28 +42,28 @@ void LibVlc::cbAudioDoWork(void *data, int samples, float *buffer) {
 }
 
 void *LibVlc::cbVideoLock(void *data, void **plane) {
-	GLRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
+	VideoRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
 	if (video)
 		return video->lock(plane);
 	return 0;
 }
 
 void LibVlc::cbVideoUnlock(void *data, void *id, void *const *plane) {
-	GLRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
+	VideoRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
 	if (video)
 		video->unlock(id, plane);
 }
 
 void LibVlc::cbVideoDisplay(void *data, void *id) {
-	GLRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
+	VideoRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
 	if (video)
 		video->display(id);
 }
 
-void LibVlc::cbVideoPrepare(void *data, quint32 fourcc, int width, int height) {
-	GLRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
+void LibVlc::cbVideoPrepare(void *data, quint32 fourcc, int width, int height, double fps) {
+	VideoRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
 	if (video)
-		video->prepare(fourcc, width, height);
+		video->prepare(fourcc, width, height, fps);
 }
 
 void LibVlc::cbManageEvent(const libvlc_event_t *event, void *data) {
@@ -167,7 +167,7 @@ AudioController *LibVlc::audio() {
 	return get().d->audio;
 }
 
-GLRenderer *LibVlc::video() {
+VideoRenderer *LibVlc::video() {
 	return get().d->video;
 }
 

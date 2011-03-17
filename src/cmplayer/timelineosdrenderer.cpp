@@ -6,6 +6,7 @@
 #include "osdstyle.hpp"
 
 struct TimeLineOsdRenderer::Data {
+	OsdStyle style;
 	int time, duration;
 	QTimer clearer;
 	QSizeF size;
@@ -24,6 +25,15 @@ TimeLineOsdRenderer::TimeLineOsdRenderer(): d(new Data) {
 
 TimeLineOsdRenderer::~TimeLineOsdRenderer() {
 	delete d;
+}
+
+void TimeLineOsdRenderer::setStyle(const OsdStyle &style) {
+	d->style = style;
+	emit styleChanged(style);
+}
+
+const OsdStyle &TimeLineOsdRenderer::style() const {
+	return d->style;
 }
 
 void TimeLineOsdRenderer::setBackgroundSize(const QSize &bg) {

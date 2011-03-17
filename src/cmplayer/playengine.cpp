@@ -1,7 +1,7 @@
 #include "audiocontroller.hpp"
 #include "playengine.hpp"
 #include "recentinfo.hpp"
-#include "glrenderer.hpp"
+#include "videorenderer.hpp"
 #include "vlcmedia.hpp"
 #include "libvlc.hpp"
 #include "pref.hpp"

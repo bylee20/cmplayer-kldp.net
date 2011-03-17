@@ -47,6 +47,7 @@ private slots:
 	void openSubFile();
 	void updateAudioTrackInfo(const QList<AudioTrack> &tracks);
 private:
+	static QIcon defaultIcon();
 	void appendSubFiles(const QStringList &files, bool checked, const QString &enc);
 	void loadState();
 	void saveState();

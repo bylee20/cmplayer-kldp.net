@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = cmplayer
 CONFIG += link_pkgconfig debug_and_release
-#CONFIG -= app_bundle
+CONFIG -= app_bundle
 RELEASE = $$(CMPLAYER_RELEASE)
 !isEmpty(RELEASE) {
     CONFIG += release
@@ -11,11 +11,11 @@ else {
  }
 QT += network opengl
 
-INCLUDEPATH += libchardet-1.0.1/src
+INCLUDEPATH += ../libchardet-1.0.1/src
 
 INCLUDEPATH += /Applications/VLC.app/Contents/MacOS/include
 LIBS += -L/Applications/VLC.app/Contents/MacOS/lib -lvlc \
-	-L/Users/xylosper/cmplayer-vlc/src/libchardet-1.0.1/src/.libs -lchardet
+	-L../libchardet-1.0.1/src/.libs -lchardet
 RESOURCES += rsclist.qrc
 HEADERS += playengine.hpp \
     mainwindow.hpp \
@@ -63,10 +63,13 @@ HEADERS += playengine.hpp \
     favoritesview.hpp \
     downloader.hpp \
     logodrawer.hpp \
-    glrenderer.hpp \
-    glrenderer_osd.hpp \
     libvlc.hpp \
-    vlcmedia.hpp
+    vlcmedia.hpp \
+    framebufferobjectoverlay.hpp \
+    pixelbufferoverlay.hpp \
+    pixmapoverlay.hpp \
+    overlay.hpp \
+    videorenderer.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -113,16 +116,18 @@ SOURCES += main.cpp \
     dialogs.cpp \
     favoritesview.cpp \
     downloader.cpp \
-    glrenderer.cpp \
-    glrenderer_osd.cpp \
     libvlc.cpp \
     vlcmedia.cpp \
-    logodrawer.cpp
+    logodrawer.cpp \
+    framebufferobjectoverlay.cpp \
+    pixelbufferoverlay.cpp \
+    pixmapoverlay.cpp \
+    overlay.cpp \
+    videorenderer.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts
 FORMS += ui/pref_dialog.ui \
     ui/osdstyle_widget.ui
 
-OTHER_FILES += \
-    glrenderer.fs
+OTHER_FILES +=

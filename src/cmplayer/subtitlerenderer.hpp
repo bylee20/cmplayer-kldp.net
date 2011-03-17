@@ -3,15 +3,15 @@
 
 #include "subtitle.hpp"
 #include <QtCore/QObject>
-
-class OsdRenderer;
+#include "textosdrenderer.hpp"
 
 class SubtitleRenderer : public QObject {
 	Q_OBJECT
 public:
 	SubtitleRenderer();
 	~SubtitleRenderer();
-	OsdRenderer *osd() const;
+	void setOsd(TextOsdRenderer *osd);
+	TextOsdRenderer *osd() const;
 	void setSubtitle(const Subtitle &subtitle);
 	const Subtitle &subtitle() const;
 	double frameRate() const;
