@@ -103,8 +103,8 @@ void Pref::load() {
 	LOAD_ENUM(subtitleAutoSelect, SameName);
 
 	subtitleStyle.alignment = Qt::AlignHCenter | Qt::AlignBottom;
-	subtitleStyle.borderWidth = 0.03;
-	subtitleStyle.textSize = 0.04;
+	subtitleStyle.borderWidth = 0.045;
+	subtitleStyle.textSize = 0.035;
 	subtitleStyle.font.setBold(true);
 	subtitleStyle.load(&r, "SubtitleStyle");
 	loadMouse(r, "DoubleClickAction", doubleClickMap

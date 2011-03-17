@@ -40,6 +40,8 @@ Menu &Menu::create(QWidget *parent) {
 	url->setData(int('u'));
 	QAction *dvd = open->addAction("dvd");
 	dvd->setData(QUrl("dvd://"));
+	url->setDisabled(true);
+	dvd->setDisabled(true);
 
 	open->addSeparator();
 
@@ -188,7 +190,6 @@ Menu &Menu::create(QWidget *parent) {
 	video->addActionToGroup("hue+", false, "color")->setShortcut(Qt::Key_I);
 	video->addActionToGroup("hue-", false, "color")->setShortcut(Qt::Key_K);
 
-	video->addAction("soft-eq", true)->setShortcut(Qt::Key_O);
 	//	video->addSeparator();
 	//	QAction *snapshot = video->addAction("snapshot");
 	//	snapshot->setIcon(QIcon(":/img/snapshot.png"));

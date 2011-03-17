@@ -1,8 +1,8 @@
 #include "videoframe.hpp"
 
-static inline void fourcc_to_char(quint32 fcc, char *psz_fourcc ) {
-	memcpy( psz_fourcc, &fcc, 4 );
-}
+//static inline void fourcc_to_char(quint32 fcc, char *psz_fourcc ) {
+//	memcpy( psz_fourcc, &fcc, 4 );
+//}
 
 VideoFrame::VideoFrame(quint32 fourcc, int width, int height)
 : m_size(width, height) {

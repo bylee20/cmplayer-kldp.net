@@ -1,25 +1,8 @@
 #include "osdrenderer.hpp"
 #include "osdstyle.hpp"
+#include <math.h>
 
-struct OsdRenderer::Data {
-	OsdStyle style;
-};
-
-OsdRenderer::OsdRenderer()
-: d(new Data) {
+int OsdRenderer::cachedSize(double size) {
+	return qMax(128, 1 << qRound(log2(size) + 0.5));
 }
 
-OsdRenderer::~OsdRenderer() {
-	delete d;
-}
-
-void OsdRenderer::setStyle(const OsdStyle &style) {
-	d->style = style;
-//	updateStyle(d->style);
-	emit styleChanged(d->style);
-	emit needToRerender();
-}
-
-const OsdStyle &OsdRenderer::style() const {
-	return d->style;
-}

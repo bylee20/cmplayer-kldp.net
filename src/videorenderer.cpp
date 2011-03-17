@@ -1,25 +1,28 @@
-#include "glrenderer_osd.hpp"
+#include "glrenderer_overlay.hpp"
 #include "osdrenderer.hpp"
-#include "glrenderer.hpp"
+#include "pixmapoverlay.hpp"
+#include "videorenderer.hpp"
 #include "videoframe.hpp"
 #include "logodrawer.hpp"
+#include "pixelbufferoverlay.hpp"
+#include <QtOpenGL/QGLFramebufferObject>
 #include <QtOpenGL/QGLShaderProgram>
 #include <QtGui/QPainter>
+#include <QtCore/QCoreApplication>
 #include <QtCore/QRegExp>
 #include <QtCore/QDebug>
-#include <QtCore/QSize>
-#include <QtCore/QCoreApplication>
 #include <QtCore/QMutex>
+#include <QtCore/QSize>
 #include <qmath.h>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288419717
 #endif
 
-#define USE_HIGH_SHADER 1
+#define USE_HIGH_SHADER 0
 
 #ifdef USE_HIGH_SHADER
-const char *GLRenderer::yv12ToRgb = 0;
+const char *VideoRenderer::yv12ToRgb = 0;
 #else
 const char *GLRenderer::yv12ToRgb =
 	"!!ARBfp1.0"
@@ -53,12 +56,12 @@ const char *GLRenderer::yv12ToRgb =
 	"END";
 #endif
 
-struct GLRenderer::Data {
+struct VideoRenderer::Data {
 	LogoDrawer logo;
 	bool logoOn, frameIsSet, hasPrograms;
-	QList<Osd*> osds;
+	Overlay *overlay;
 	GLuint texture[3];
-	double crop, aspect;
+	double crop, aspect, fps;
 	float brightness, contrast, saturation, sinhue, coshue;
 	ColorProperty color;
 	QSize renderSize;
@@ -71,19 +74,21 @@ struct GLRenderer::Data {
 #endif
 };
 
-QGLFormat GLRenderer::makeFormat() {
-	QGLFormat format = QGLFormat::defaultFormat();
-	format.setSwapInterval(1);
-	format.setAlpha(true);
+QGLFormat VideoRenderer::makeFormat() {
+//	return QGLFormat();
+	QGLFormat format;
 	return format;
 }
 
-GLRenderer::GLRenderer(QWidget *parent)
+VideoRenderer::VideoRenderer(QWidget *parent)
 : QGLWidget(makeFormat(), parent), d(new Data) {
-
+	setMinimumSize(QSize(200, 100));
 	setColorProperty(d->color);
 	d->frameIsSet = d->logoOn = false;
-	d->crop = d->aspect = -1.0;
+	d->fps = d->crop = d->aspect = -1.0;
+	d->overlay = new FramebufferObjectOverlay(this);
+//	d->overlay = new PixelBufferOverlay(this);
+//	d->overlay = new PixmapOverlay(this);
 
 	makeCurrent();
 	glGenTextures(3, d->texture);
@@ -130,9 +135,9 @@ GLRenderer::GLRenderer(QWidget *parent)
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 }
 
-GLRenderer::~GLRenderer() {
+VideoRenderer::~VideoRenderer() {
+	delete d->overlay;
 	glDeleteTextures(3, d->texture);
-	qDeleteAll(d->osds);
 	if (d->hasPrograms) {
 #ifdef USE_HIGH_SHADER
 		delete d->shader;
@@ -143,7 +148,7 @@ GLRenderer::~GLRenderer() {
 	delete d;
 }
 
-void *GLRenderer::lock(void **plane) {
+void *VideoRenderer::lock(void **plane) {
 	d->mutex.lock();
 	VideoFrame &frame = d->buffer;
 	plane[0] = frame.plane(0);
@@ -152,7 +157,7 @@ void *GLRenderer::lock(void **plane) {
 	return 0;
 }
 
-void GLRenderer::unlock(void *id, void *const *plane) {
+void VideoRenderer::unlock(void *id, void *const *plane) {
 	Q_UNUSED(id);
 	Q_ASSERT(d->buffer.data() == plane[0]);
 	VideoFrameEvent *event = new VideoFrameEvent(d->buffer);
@@ -160,11 +165,11 @@ void GLRenderer::unlock(void *id, void *const *plane) {
 	QCoreApplication::postEvent(this, event);
 }
 
-void GLRenderer::display(void *id) {
+void VideoRenderer::display(void *id) {
 	Q_UNUSED(id);
 }
 
-void GLRenderer::prepare(quint32 fourcc, int width, int height) {
+void VideoRenderer::prepare(quint32 fourcc, int width, int height, double fps) {
 //	QMutexLocker locker(&d->mutex);
 //	Q_UNUSED(locker);
 	d->buffer = VideoFrame(fourcc, width, height);
@@ -186,13 +191,19 @@ void GLRenderer::prepare(quint32 fourcc, int width, int height) {
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE_SGIS);
 	}
 	doneCurrent();
+	if (!qFuzzyCompare(d->fps, fps))
+		emit frameRateChanged(d->fps = fps);
 }
 
-void GLRenderer::addOsd(OsdRenderer *osd) {
-	d->osds.append(new Osd(osd, this));
+double VideoRenderer::frameRate() const {
+	return d->fps;
 }
 
-void GLRenderer::customEvent(QEvent *event) {
+void VideoRenderer::addOsd(OsdRenderer *osd) {
+	d->overlay->addOsd(osd);
+}
+
+void VideoRenderer::customEvent(QEvent *event) {
 	if (event->type() != VideoFrameEvent::Id)
 		return;
 	d->frame = static_cast<VideoFrameEvent*>(event)->frame();
@@ -212,7 +223,7 @@ void GLRenderer::customEvent(QEvent *event) {
 	update();
 }
 
-QSize GLRenderer::sizeHint() const {
+QSize VideoRenderer::sizeHint() const {
 	if (d->frame.isEmpty())
 		return QSize(400, 300);
 	const QSizeF frame = d->frame.size();
@@ -232,33 +243,33 @@ static bool isSameRatio(double r1, double r2) {
 	return (r1 <= 0.0 && r2 <= 0.0) || qFuzzyCompare(r1, r2);
 }
 
-void GLRenderer::setAspectRatio(double ratio) {
+void VideoRenderer::setAspectRatio(double ratio) {
 	if (!isSameRatio(d->aspect, ratio)) {
 		d->aspect = ratio;
 		update();
 	}
 }
 
-double GLRenderer::aspectRatio() const {
+double VideoRenderer::aspectRatio() const {
 	return d->aspect;
 }
 
-void GLRenderer::setCropRatio(double ratio) {
+void VideoRenderer::setCropRatio(double ratio) {
 	if (!isSameRatio(d->crop, ratio)) {
 		d->crop = ratio;
 		update();
 	}
 }
 
-double GLRenderer::cropRatio() const {
+double VideoRenderer::cropRatio() const {
 	return d->crop;
 }
 
-void GLRenderer::setLogoMode(bool on) {
+void VideoRenderer::setLogoMode(bool on) {
 	d->logoOn = on;
 }
 
-void GLRenderer::setColorProperty(const ColorProperty &prop) {
+void VideoRenderer::setColorProperty(const ColorProperty &prop) {
 	d->color = prop;
 	d->brightness = qBound(-1.0, d->color.brightness(), 1.0);
 	d->contrast = qBound(0., d->color.contrast() + 1., 2.);
@@ -268,35 +279,31 @@ void GLRenderer::setColorProperty(const ColorProperty &prop) {
 	d->coshue = qCos(hue);
 }
 
-const ColorProperty &GLRenderer::colorProperty() const {
+const ColorProperty &VideoRenderer::colorProperty() const {
 	return d->color;
 }
 
-void GLRenderer::setFixedRenderSize(const QSize &size) {
+void VideoRenderer::setFixedRenderSize(const QSize &size) {
 	d->renderSize = size;
 	updateSize();
 }
 
-QSize GLRenderer::renderableSize() const {
-//	return size();
+QSize VideoRenderer::renderableSize() const {
 	return d->renderSize.isEmpty() ? size() : d->renderSize;
 }
 
-void GLRenderer::updateSize() {
+void VideoRenderer::updateSize() {
 	const QSize size = renderableSize();
-	for (int i=0; i<d->osds.size(); ++i)
-		d->osds[i]->setBackgroundSize(size);
-	update();
+	d->overlay->setArea(QRect(QPoint(0, 0), size));
 }
 
-void GLRenderer::resizeEvent(QResizeEvent *event) {
+void VideoRenderer::resizeEvent(QResizeEvent *event) {
 	QGLWidget::resizeEvent(event);
 	updateSize();
 }
 
-void GLRenderer::paintEvent(QPaintEvent */*event*/) {
+void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);
-
 	if (!d->logoOn && d->hasPrograms && d->frameIsSet) {
 		QSizeF frame(d->aspect, 1.0);
 		if (d->aspect < 0.0)
@@ -312,52 +319,31 @@ void GLRenderer::paintEvent(QPaintEvent */*event*/) {
 		const double y = (widget.height() - frame.height())*0.5;
 		const double hMargin = (widget.width() - letter.width())*0.5;
 		const double vMargin = (widget.height() - letter.height())*0.5;
-		const QRectF r(x, y, frame.width(), frame.height());
-
-		float expandV = (widget.height() - frame.height())*0.5/frame.height();
-		float expandH = (widget.width() - frame.width())*0.5/frame.width();
-		qDebug() << expandV << expandH;
-//		expandV = expandH = 6e-5;//0.0;
-//		expandV = 0;
-//		expandH = 6.13949e-05;
-		static const float tx_array[12] = {
-			-expandH,	-expandV,
-			1.0f + expandH,	-expandV,
-			1.0f + expandH,	1.0f + expandV,
-			-expandH,	1.0f + expandV
+		const QRectF vx(x, y, frame.width(), frame.height());
+		const QRectF tx(0.0, 0.0, 1.0, 1.0);
+		const float tx_array[] = {
+			tx.left(),	tx.top(),
+			tx.right(),	tx.top(),
+			tx.right(),	tx.bottom(),
+			tx.left(),	tx.bottom()
 		};
-		const float v_array[] = {
-			0.0,		0.0,
-			width(),	0.0,
-			width(),	height(),
-			0.0,		height()
+		const float vx_array[] = {
+			vx.left(),	vx.top(),
+			vx.right(),	vx.top(),
+			vx.right(),	vx.bottom(),
+			vx.left(),	vx.bottom()
 		};
-
-//		static const float tx_array[12] = {
-//			0.0,	0.0,
-//			1.0,	0.0,
-//			1.0,	1.0,
-//			0.0,	1.0
-//		};
-
-//		const float v_array[] = {
-//			r.left(),	r.top(),
-//			r.right(),	r.top(),
-//			r.right(),	r.bottom(),
-//			r.left(),	r.bottom()
-//		};
 
 		painter.beginNativePainting();
 		makeCurrent();
 
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 #ifdef USE_HIGH_SHADER
 		d->shader->bind();
-		d->shader->setUniformValue("tex0", 0);
-		d->shader->setUniformValue("tex1", 1);
-		d->shader->setUniformValue("tex2", 2);
+		GLuint bgtex[] = {0, 1, 2};
+		d->shader->setUniformValueArray("bgtex", bgtex, 3);
 		d->shader->setUniformValue("brightness", d->brightness);
 		d->shader->setUniformValue("contrast", d->contrast);
 		d->shader->setUniformValue("coshue", d->coshue);
@@ -382,36 +368,44 @@ void GLRenderer::paintEvent(QPaintEvent */*event*/) {
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-		glVertexPointer(2, GL_FLOAT, 0, v_array);
 		glTexCoordPointer(2, GL_FLOAT, 0, tx_array);
+		glVertexPointer(2, GL_FLOAT, 0, vx_array);
 		glDrawArrays(GL_QUADS, 0, 4);
-
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
+
+//		glBegin(GL_QUADS);
+//		glMultiTexCoord2f(GL_TEXTURE0, tx.left(), tx.top());
+//		glVertex2f(vx.left(), vx.top());
+//		glMultiTexCoord2f(GL_TEXTURE0, tx.right(), tx.top());
+//		glVertex2f(vx.right(), vx.top());
+//		glMultiTexCoord2f(GL_TEXTURE0, tx.right(), tx.bottom());
+//		glVertex2f(vx.right(), vx.bottom());
+//		glMultiTexCoord2f(GL_TEXTURE0, tx.left(), tx.bottom());
+//		glVertex2f(vx.left(), vx.bottom());
+//		glEnd();
 
 #ifdef USE_HIGH_SHADER
 		d->shader->release();
 #else
 		glDisable(GL_FRAGMENT_PROGRAM_ARB);
 #endif
-		doneCurrent();
 		painter.endNativePainting();
-//		if (vMargin >= 0.0) {
-//			QRectF rect(0.0, 0.0, widget.width(), vMargin);
-//			painter.fillRect(rect, Qt::black);
-//			rect.moveTop(widget.height() - vMargin);
-//			painter.fillRect(rect, Qt::black);
-//		}
-//		if (hMargin >= 0.0) {
-//			QRectF rect(0.0, 0.0, hMargin, widget.height());
-//			painter.fillRect(rect, Qt::black);
-//			rect.moveLeft(widget.width() - hMargin);
-//			painter.fillRect(rect, Qt::black);
-//		}
+
+		if (vMargin >= 0.0) {
+			QRectF rect(0.0, 0.0, widget.width(), vMargin);
+			painter.fillRect(rect, Qt::black);
+			rect.moveTop(widget.height() - vMargin);
+			painter.fillRect(rect, Qt::black);
+		}
+		if (hMargin >= 0.0) {
+			QRectF rect(0.0, 0.0, hMargin, widget.height());
+			painter.fillRect(rect, Qt::black);
+			rect.moveLeft(widget.width() - hMargin);
+			painter.fillRect(rect, Qt::black);
+		}
 	} else
 		d->logo.draw(&painter, rect());
-	for (int i=0; i<d->osds.size(); ++i)
-		d->osds[i]->render();
+	d->overlay->render(&painter);
 }
 

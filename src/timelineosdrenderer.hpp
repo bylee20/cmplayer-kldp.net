@@ -13,6 +13,8 @@ public:
 	QPointF posHint() const;
 	QSizeF size() const;
 	void setBackgroundSize(const QSize &size);
+	void setStyle(const OsdStyle &style);
+	const OsdStyle &style() const;
 public slots:
 	void clear();
 private:

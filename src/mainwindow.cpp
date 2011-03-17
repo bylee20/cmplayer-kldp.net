@@ -1,4 +1,5 @@
 #include "timelineosdrenderer.hpp"
+#include "framebufferobjectoverlay.hpp"
 #include "screensavermanager.hpp"
 #include "subtitlerenderer.hpp"
 #include "charsetdetector.hpp"
@@ -15,7 +16,7 @@
 #include "mainwindow.hpp"
 #include "playengine.hpp"
 #include "translator.hpp"
-#include "glrenderer.hpp"
+#include "videorenderer.hpp"
 #include "appstate.hpp"
 #include "playlist.hpp"
 #include "dialogs.hpp"
@@ -42,7 +43,7 @@ struct MainWindow::Data {
 	const Pref &pref;
 	ControlWidget *control;
 	PlayEngine *engine;
-	GLRenderer *video;
+	VideoRenderer *video;
 	AudioController *audio;
 	SubtitleRenderer *subtitle;
 	TimeLineOsdRenderer *timeLine;
@@ -57,7 +58,7 @@ struct MainWindow::Data {
 	QSystemTrayIcon *tray;
 };
 
-static QIcon defaultIcon() {
+QIcon MainWindow::defaultIcon() {
 	return QIcon(":/img/cmplayer-icon.png");
 }
 
@@ -67,6 +68,7 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	d->audio = LibVlc::audio();
 	d->video = LibVlc::video();
 	d->subtitle = new SubtitleRenderer;
+	d->subtitle->setOsd(new TextOsdRenderer);
 	d->timeLine = new TimeLineOsdRenderer;
 	d->message = new TextOsdRenderer(Qt::AlignTop | Qt::AlignLeft);
 	QApplication::setWindowIcon(defaultIcon());
@@ -182,8 +184,6 @@ MainWindow::~MainWindow() {
 	saveState();
 
 	delete d->subtitle;
-	delete d->timeLine;
-	delete d->message;
 	delete d;
 }
 

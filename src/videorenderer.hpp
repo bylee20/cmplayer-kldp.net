@@ -2,41 +2,41 @@
 #define GLRENDERER_H
 
 #include <QtOpenGL/QGLWidget>
+#include "framebufferobjectoverlay.hpp"
 #include "colorproperty.hpp"
 
 class OsdRenderer;
 
-class GLRenderer : public QGLWidget {
+class VideoRenderer : public QGLWidget {
 	Q_OBJECT
 public:
-	GLRenderer(QWidget *parent = 0);
-	~GLRenderer();
+	VideoRenderer(QWidget *parent = 0);
+	~VideoRenderer();
+	// takes ownership
 	void addOsd(OsdRenderer *osd);
 	QSize sizeHint() const;
-//	double frameRate() const;
+	double frameRate() const;
 	double aspectRatio() const;
 	double cropRatio() const;
 	void setLogoMode(bool on);
 	void setColorProperty(const ColorProperty &prop);
 	const ColorProperty &colorProperty() const;
 	void setFixedRenderSize(const QSize &size);
-
 public slots:
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
 signals:
-//	void frameRateChanged(double frameRate);
+	void frameRateChanged(double frameRate);
 private:
 	void *lock(void **plane);
 	void unlock(void *id, void *const *plane);
 	void display(void *id);
-	void prepare(quint32 fourcc, int width, int height);
+	void prepare(quint32 fourcc, int width, int height, double fps);
 	friend class LibVlc;
 
 	void updateSize();
 	QSize renderableSize() const;
 	static const char *yv12ToRgb;
-	class Osd;
 	static QGLFormat makeFormat();
 	void paintEvent(QPaintEvent *event);
 	void resizeEvent(QResizeEvent *event);
