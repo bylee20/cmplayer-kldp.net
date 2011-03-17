@@ -1,0 +1,24 @@
+#ifndef TIMELINEOSDRENDERER_HPP
+#define TIMELINEOSDRENDERER_HPP
+
+#include "osdrenderer.hpp"
+
+class TimeLineOsdRenderer : public OsdRenderer {
+	Q_OBJECT
+public:
+	TimeLineOsdRenderer();
+	~TimeLineOsdRenderer();
+	void show(int pos, int duration, int last = 2500);
+	void render(QPainter *painter, const QPointF &pos);
+	QPointF posHint() const;
+	QSizeF size() const;
+	void setBackgroundSize(const QSize &size);
+public slots:
+	void clear();
+private:
+	struct Data;
+	Data *d;
+
+};
+
+#endif // TIMELINEOSDRENDERER_HPP
