@@ -90,9 +90,6 @@ QString secsToString(int secs, const QString &format = QString("hh:mm:ss"));
 qint64 timeToMSecs(const QTime &time);
 qint64 stringToMSecs(const QString &str, const QString &format = QString("hh:mm:ss"));
 const QTime &nullTime();
-double desktopRatio();
-QSize desktopSize();
-//static void msleep(int msec);
 
 }
 

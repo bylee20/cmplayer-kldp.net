@@ -155,13 +155,14 @@ int HistoryView::stoppedTime(const Mrl &mrl) const {
 
 void HistoryView::play(QTreeWidgetItem *treeItem) {
 	const Item *item = static_cast<Item*>(treeItem);
-	if (!item)
-		return;
-	if (d->engine->mrl() != item->mrl()) {
-		d->engine->stop();
-		d->engine->setMrl(item->mrl());
-	}
-	d->engine->play();
+	if (item)
+		emit playRequested(item->mrl());
+//		return;
+//	if (d->engine->mrl() != item->mrl()) {
+//		d->engine->stop();
+//		d->engine->setMrl(item->mrl());
+//	}
+//	d->engine->play();
 }
 
 void HistoryView::clearAll() {

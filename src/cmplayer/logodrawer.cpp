@@ -2,7 +2,7 @@
 #include <QtGui/QPainter>
 
 LogoDrawer::LogoDrawer() {
-	m_logo.load(":/img/cmplayer-logo-center.png");
+	m_logo.load(":/img/cmplayer.png");
 	QLinearGradient grad(0.5, 1.0, 0.75, 0.13);
 	grad.setColorAt(0.0, qRgb(51, 131, 230));
 	grad.setColorAt(1.0, qRgb(110, 202, 247));
@@ -20,8 +20,6 @@ LogoDrawer::LogoDrawer() {
 	m_lightPath.cubicTo(0.6, oh, 0.8, oh*0.9, 1.0, oh*0.6);
 	m_lightPath.lineTo(1.0, 0.0);
 	m_lightPath.closeSubpath();
-
-//	setMinimumSize(200, 150);
 }
 
 LogoDrawer::~LogoDrawer() {
@@ -54,13 +52,4 @@ void LogoDrawer::draw(QPainter *painter, const QRect &bg) {
 	painter->setBrush(m_lightBrush);
 	painter->drawPath(m_lightPath);
 	painter->restore();
-
-//	painter->save();
-//	painter->translate(m_message->pos());
-//	m_message->render(&painter);
-//	painter->restore();
-//	painter->save();
-//	painter->translate(m_timeLine->pos());
-//	m_timeLine->render(&painter);
-//	painter->restore();
 }

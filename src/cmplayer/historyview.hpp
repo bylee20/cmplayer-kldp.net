@@ -17,6 +17,7 @@ public:
 	void save() const;
 signals:
 	void historyChanged();
+	void playRequested(const Mrl &mrl);
 private slots:
 	void handleStopped(Mrl mrl, int time, int duration);
 	void handleFinished(Mrl mrl);

@@ -1,7 +1,7 @@
 #define __PLUGIN__
 #define MODULE_STRING "cmplayer-vout"
 
-// gcc -I/Applications/VLC.app/Contents/MacOS/include -I. -L/Applications/VLC.app/Contents/MacOS/lib -std=c99 -lvlc -lvlccore -dynamiclib  myvout_plugin.c -o libcmplayer-vout_plugin.dylib
+// gcc -I/Applications/VLC.app/Contents/MacOS/include -I. -L/Applications/VLC.app/Contents/MacOS/lib -std=c99 -lvlc -lvlccore -dynamiclib  cmplayer-vout.c -o libcmplayer-vout_plugin.dylib
 // from vmem.c of vlc
 
 #include <assert.h>

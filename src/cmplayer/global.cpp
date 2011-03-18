@@ -23,22 +23,6 @@ static Data *data() {
 	return &d;
 }
 
-
-
-double desktopRatio() {
-	const QSize size = desktopSize();
-	return double(size.width())/double(size.height());
-}
-
-QSize desktopSize() {
-	return QApplication::desktop()->size();
-}
-
-//QString toPlainText(const QString &str) {
-//	static const QRegExp rx("(</?\\s*[a-zA-Z]+[^>]*>|&[nN][bB][sS][pP];|[\\s\\n\\r]+)");
-//	return  QString(str).remove(rx);
-//}
-
 QTime secsToTime(int secs) {
 	return data()->zero.addSecs(secs);
 }

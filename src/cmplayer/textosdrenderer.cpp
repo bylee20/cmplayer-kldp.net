@@ -9,8 +9,6 @@
 #include <qmath.h>
 #include "osdstyle.hpp"
 #include <QtCore/QMutex>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <QtGui/QImage>
 
 class TextOsdRenderer::SineCosine {

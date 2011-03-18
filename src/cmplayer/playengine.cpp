@@ -17,7 +17,7 @@ struct PlayEngine::Data {
 	int stoppedTime, duration, prevTick, seek;
 	bool seekable, hasVideo;
 	double speed;
-	QList<AudioTrack> tracks;
+	TrackList audioTracks, titles, chapters;
 	libvlc_media_player_t *mp;
 	VlcMedia *media;
 	MediaState state;
@@ -41,7 +41,7 @@ PlayEngine::PlayEngine(): d(new Data) {
 	connect(this, SIGNAL(_updateDuration(int)), this, SLOT(updateDuration(int)));
 	connect(this, SIGNAL(_updateSeekable(bool)), this, SLOT(updateSeekable(bool)));
 	connect(this, SIGNAL(_updateState(MediaState)), this, SLOT(updateState(MediaState)));
-
+	connect(this, SIGNAL(_updateTitle(int)), this, SLOT(updateTitle(int)));
 }
 
 PlayEngine::~PlayEngine() {
@@ -60,6 +60,17 @@ void PlayEngine::initialSeek() {
 
 void PlayEngine::updateDuration(int duration) {
 	emit durationChanged(d->duration = duration);
+//	d->audioTracks = parseTrackDesc(libvlc_audio_get_track_description(d->mp));
+//	d->titles = parseTrackDesc(libvlc_video_get_title_description(d->mp));
+	if (d->titles != d->titles)
+	emit titlesChanged(d->titles);
+	emit audioTracksChanged(d->audioTracks);
+	qDebug() << "update duration" << duration;
+	qDebug() << "title" << libvlc_media_player_get_title(d->mp);
+	qDebug() << "audio" << libvlc_audio_get_track_count(d->mp);
+//	TrackList tracks = parseTrackDesc(libvlc_video_get_audio_get_track_description(d->mp));
+//	for (int i=0; i<tracks.size(); ++i)
+//		qDebug() << tracks[i].id << tracks[i].name;
 }
 
 void PlayEngine::updateSeekable(bool seekable) {
@@ -94,6 +105,9 @@ void PlayEngine::parseEvent(const libvlc_event_t *event) {
 	case libvlc_MediaPlayerLengthChanged:
 		emit _updateDuration(event->u.media_player_length_changed.new_length);
 		break;
+	case libvlc_MediaPlayerTitleChanged:
+		emit _updateTitle(event->u.media_player_title_changed.new_title);
+		break;
 	default:
 		break;
 	}
@@ -126,6 +140,23 @@ bool PlayEngine::isSeekable() const {
 	return d->seekable;
 }
 
+void PlayEngine::updateTitle(int id) {
+	qDebug() << "update title to" << id;
+}
+
+TrackList PlayEngine::parseTrackDesc(libvlc_track_description_t *desc) {
+	TrackList tracks;
+	while (desc) {
+		Track track;
+		track.id = desc->i_id;
+		track.name = QString::fromLocal8Bit(desc->psz_name);
+		tracks << track;
+		desc = desc->p_next;
+	}
+	libvlc_track_description_release(desc);
+	return tracks;
+}
+
 void PlayEngine::updateState(MediaState state) {
 	if (d->state != state) {
 		const MediaState old = d->state;
@@ -141,20 +172,17 @@ void PlayEngine::updateState(MediaState state) {
 				d->stoppedTime = -1;
 			}
 		} else if (d->state == PlayingState && old != PausedState) {
+			qDebug() << "play started";
 			const bool hasVideo = (libvlc_media_player_has_vout(d->mp) > 0);
 			if (d->hasVideo != hasVideo)
 				emit hasVideoChanged(d->hasVideo = hasVideo);
-			d->tracks.clear();
-			typedef libvlc_track_description_t TrackDesc;
-			TrackDesc *desc = libvlc_audio_get_track_description(d->mp);
-			while (desc) {
-				AudioTrack track;
-				track.id = desc->i_id;
-				track.name = QString::fromLocal8Bit(desc->psz_name);
-				d->tracks << track;
-				desc = desc->p_next;
-			}
-			emit audioTracksChanged(d->tracks);
+			d->audioTracks.clear();
+			d->titles.clear();
+			d->chapters.clear();
+			d->audioTracks = parseTrackDesc(libvlc_audio_get_track_description(d->mp));
+			d->titles = parseTrackDesc(libvlc_video_get_title_description(d->mp));
+			emit audioTracksChanged(d->audioTracks);
+			emit titlesChanged(d->titles);
 		}
 		if ((d->state == PlayingState) && d->seek >= 0)
 			QTimer::singleShot(100, this, SLOT(initialSeek()));
@@ -192,7 +220,7 @@ bool PlayEngine::play() {
 		return false;
 	libvlc_media_player_set_media(d->mp, d->media->media());
 
-	d->seek = -1;
+	d->seek = 1;
 	const RecentInfo &recent = RecentInfo::get();
 	const int record = recent.stoppedTime(d->media->mrl());
 	if (record > 0) {
@@ -263,44 +291,12 @@ Mrl PlayEngine::mrl() const {
 	return d->media ? d->media->mrl() : Mrl();
 }
 
-void PlayEngine::navigateDVDMenu(int cmd) {
-//	if (!d->mrl.isDVD())
-//		return;
-//	switch (cmd) {
-//	case NavAngleMenu:
-//		cmd = GST_NAVIGATION_COMMAND_DVD_ANGLE_MENU;
-//		break;
-//	case NavAudioMenu:
-//		cmd = GST_NAVIGATION_COMMAND_DVD_AUDIO_MENU;
-//		break;
-//	case NavChapterMenu:
-//		cmd = GST_NAVIGATION_COMMAND_DVD_CHAPTER_MENU;
-//		break;
-//	case NavToggleMenu:
-//		cmd = GST_NAVIGATION_COMMAND_DVD_MENU;
-//		break;
-//	case NavRootMenu:
-//		cmd = GST_NAVIGATION_COMMAND_DVD_ROOT_MENU;
-//		break;
-//	case NavSubPicMenu:
-//		cmd = GST_NAVIGATION_COMMAND_DVD_SUBPICTURE_MENU;
-//		break;
-//	case NavTitleMenu:
-//		cmd = GST_NAVIGATION_COMMAND_DVD_TITLE_MENU;
-//		break;
-//	default:
-//		return;
-//	}
-//	GstNavigation *nav = d->native->nav();
-//	gst_navigation_send_command(nav, GstNavigationCommand(cmd));
-}
-
 bool PlayEngine::hasVideo() const {
 	return d->hasVideo;
 }
 
-QList<AudioTrack> PlayEngine::audioTracks() const {
-	return d->tracks;
+QList<Track> PlayEngine::audioTracks() const {
+	return d->audioTracks;
 }
 
 int PlayEngine::currentAudioTrackId() const {
@@ -313,9 +309,13 @@ void PlayEngine::setCurrentAudioTrack(int id) {
 }
 
 QString PlayEngine::audioTrackName(int id) const {
-	for (int i=0; i<d->tracks.size(); ++i) {
-		if (id == d->tracks[i].id)
-			return d->tracks[i].name;
+	for (int i=0; i<d->audioTracks.size(); ++i) {
+		if (id == d->audioTracks[i].id)
+			return d->audioTracks[i].name;
 	}
 	return QString();
+}
+
+int PlayEngine::currentTitleId() const {
+	return libvlc_media_player_get_title(d->mp);
 }

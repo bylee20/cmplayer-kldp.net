@@ -6,7 +6,7 @@
 #include "global.hpp"
 
 class Mrl;		class PlayEngine;
-class AudioTrack;
+class Track;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -15,7 +15,8 @@ public:
 	~MainWindow();
 	PlayEngine *engine() const;
 public slots:
-	void openMrl(const Mrl &mrl, const QString &enc = QString());
+	void openMrl(const Mrl &mrl, const QString &enc);
+	void openMrl(const Mrl &mrl);
 private slots:
 	void setVolumeNormalized(bool norm);
 	void openFile();
@@ -46,7 +47,7 @@ private slots:
 	void handleTray(QSystemTrayIcon::ActivationReason reason);
 	void setCurrentAudioTrack(int id);
 	void openSubFile();
-	void updateAudioTrackInfo(const QList<AudioTrack> &tracks);
+	void updateAudioTrackInfo(const QList<Track> &tracks);
 private:
 	static QIcon defaultIcon();
 	void appendSubFiles(const QStringList &files, bool checked, const QString &enc);

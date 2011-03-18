@@ -196,3 +196,7 @@ PlaylistView *ToolBox::playlist() const {
 SubtitleView *ToolBox::subtitle() const {
 	return d->subtitle;
 }
+
+HistoryView *ToolBox::history() const {
+	return d->history;
+}

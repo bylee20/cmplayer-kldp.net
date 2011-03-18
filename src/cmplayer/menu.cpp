@@ -50,15 +50,15 @@ Menu &Menu::create(QWidget *parent) {
 	recent->addSeparator();
 	recent->addAction("clear");
 
-	Menu *dvdMenu = root->addMenu("dvd-menu");
-	dvdMenu->setIcon(QIcon(":/img/media-optical.png"));
-	dvdMenu->addActionToGroup("toggle", false)->setData(NavToggleMenu);
-	dvdMenu->addActionToGroup("root", false)->setData(NavRootMenu);
-	dvdMenu->addActionToGroup("title", false)->setData(NavTitleMenu);
-	dvdMenu->addActionToGroup("chapter", false)->setData(NavChapterMenu);
-	dvdMenu->addActionToGroup("angle", false)->setData(NavAngleMenu);
-	dvdMenu->addActionToGroup("audio", false)->setData(NavAudioMenu);
-	dvdMenu->addActionToGroup("subpic", false)->setData(NavSubPicMenu);
+//	Menu *dvdMenu = root->addMenu("dvd-menu");
+//	dvdMenu->setIcon(QIcon(":/img/media-optical.png"));
+//	dvdMenu->addActionToGroup("toggle", false)->setData(NavToggleMenu);
+//	dvdMenu->addActionToGroup("root", false)->setData(NavRootMenu);
+//	dvdMenu->addActionToGroup("title", false)->setData(NavTitleMenu);
+//	dvdMenu->addActionToGroup("chapter", false)->setData(NavChapterMenu);
+//	dvdMenu->addActionToGroup("angle", false)->setData(NavAngleMenu);
+//	dvdMenu->addActionToGroup("audio", false)->setData(NavAudioMenu);
+//	dvdMenu->addActionToGroup("subpic", false)->setData(NavSubPicMenu);
 
 	Menu *play = root->addMenu("play");
 	play->setIcon(QIcon(":/img/player-time.png"));
@@ -249,7 +249,7 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_context = new QMenu(parent);
 	root->m_context->addMenu(open);
 	root->m_context->addSeparator();
-	root->m_context->addMenu(dvdMenu);
+//	root->m_context->addMenu(dvdMenu);
 	root->m_context->addMenu(play);
 	root->m_context->addMenu(subtitle);
 	root->m_context->addMenu(video);
@@ -265,7 +265,7 @@ Menu &Menu::create(QWidget *parent) {
 
 	loadShortcut();
 
-	dvdMenu->menuAction()->setVisible(false);
+//	dvdMenu->menuAction()->setVisible(false);
 	return *(obj = root);
 }
 
@@ -311,15 +311,15 @@ void Menu::updatePref() {
 	recent.setTitle(tr("Recent Open"));
 	recent["clear"]->setText(tr("Clear"));
 
-	Menu &dvdMenu = root("dvd-menu");
-	dvdMenu.setTitle(tr("DVD Menu"));
-	dvdMenu["toggle"]->setText(tr("Toggle Menu"));
-	dvdMenu["root"]->setText(tr("Main"));
-	dvdMenu["title"]->setText(tr("Title"));
-	dvdMenu["chapter"]->setText(tr("Chapter"));
-	dvdMenu["angle"]->setText(tr("Angles"));
-	dvdMenu["audio"]->setText(tr("Audio"));
-	dvdMenu["subpic"]->setText(tr("Subtitle"));
+//	Menu &dvdMenu = root("dvd-menu");
+//	dvdMenu.setTitle(tr("DVD Menu"));
+//	dvdMenu["toggle"]->setText(tr("Toggle Menu"));
+//	dvdMenu["root"]->setText(tr("Main"));
+//	dvdMenu["title"]->setText(tr("Title"));
+//	dvdMenu["chapter"]->setText(tr("Chapter"));
+//	dvdMenu["angle"]->setText(tr("Angles"));
+//	dvdMenu["audio"]->setText(tr("Audio"));
+//	dvdMenu["subpic"]->setText(tr("Subtitle"));
 
 	Menu &play = root("play");
 	play.setTitle(tr("Play"));

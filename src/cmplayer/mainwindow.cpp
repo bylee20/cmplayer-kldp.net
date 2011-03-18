@@ -59,7 +59,7 @@ struct MainWindow::Data {
 };
 
 QIcon MainWindow::defaultIcon() {
-	return QIcon(":/img/cmplayer-icon.png");
+	return QIcon(":/img/cmplayer.png");
 }
 
 MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
@@ -89,8 +89,8 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	connect(open("recent").g(), SIGNAL(triggered(QString)), this, SLOT(openLocation(QString)));
 	connect(open("recent")["clear"], SIGNAL(triggered()), &recent, SLOT(clear()));
 
-	Menu &dvdMenu = d->menu("dvd-menu");
-	connect(dvdMenu.g(), SIGNAL(triggered(int)), d->engine, SLOT(navigateDVDMenu(int)));
+//	Menu &dvdMenu = d->menu("dvd-menu");
+//	connect(dvdMenu.g(), SIGNAL(triggered(int)), d->engine, SLOT(navigateDVDMenu(int)));
 
 	Menu &play = menu("play");
 	connect(play["stop"], SIGNAL(triggered()), d->engine, SLOT(stop()));
@@ -140,8 +140,8 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	QMenu *m = mb->addMenu(tr("Tools"));
 	m->addAction(tr("Preferences"), this, SLOT(setPref()));
 
-	connect(d->engine, SIGNAL(audioTracksChanged(QList<AudioTrack>))
-		, this, SLOT(updateAudioTrackInfo(QList<AudioTrack>)));
+	connect(d->engine, SIGNAL(audioTracksChanged(QList<Track>))
+		, this, SLOT(updateAudioTrackInfo(QList<Track>)));
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(updateMrl(Mrl)));
 	connect(d->engine, SIGNAL(stateChanged(MediaState,MediaState))
 		, this, SLOT(updateState(MediaState,MediaState)));
@@ -169,6 +169,8 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	connect(play["prev"], SIGNAL(triggered()), d->tool->playlist(), SLOT(playPrevious()));
 	connect(play["next"], SIGNAL(triggered()), d->tool->playlist(), SLOT(playNext()));
 	connect(d->tool->playlist(), SIGNAL(finished()), this, SLOT(handleFinished()));
+	connect(d->tool->history(), SIGNAL(playRequested(Mrl)), this, SLOT(openMrl(Mrl)));
+
 	d->tool->playlist()->setPlaylist(recent.lastPlaylist());
 	d->engine->setMrl(recent.lastMrl());
 	updateRecentActions(recent.openList());
@@ -280,6 +282,10 @@ void MainWindow::updateRecentActions(const QList<Mrl> &list) {
 	}
 }
 
+void MainWindow::openMrl(const Mrl &mrl) {
+	openMrl(mrl, QString());
+}
+
 void MainWindow::openMrl(const Mrl &mrl, const QString &enc) {
 	if (mrl == d->engine->mrl())
 		return;
@@ -341,9 +347,9 @@ void MainWindow::updateMrl(const Mrl &mrl) {
 	d->changingSub = false;
 	updateSubtitle();
 
-	const bool dvd = mrl.isDVD();
-	d->menu("dvd-menu").menuAction()->setVisible(dvd);
-	d->menu("subtitle").menuAction()->setVisible(!dvd);
+//	const bool dvd = mrl.isDVD();
+//	d->menu("dvd-menu").menuAction()->setVisible(dvd);
+//	d->menu("subtitle").menuAction()->setVisible(!dvd);
 }
 
 void MainWindow::clearSubtitles() {
@@ -869,7 +875,7 @@ void MainWindow::setVolumeNormalized(bool norm) {
 //	return name;
 //}
 
-void MainWindow::updateAudioTrackInfo(const QList<AudioTrack> &tracks) {
+void MainWindow::updateAudioTrackInfo(const QList<Track> &tracks) {
 //	const QList<StreamData> audio = d->engine->audioStreams();
 	Menu &track = d->menu("audio")("track");
 	track.g()->clear();

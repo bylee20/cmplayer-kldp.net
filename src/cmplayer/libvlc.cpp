@@ -83,6 +83,7 @@ void LibVlc::cbManageEvent(const libvlc_event_t *event, void *data) {
 	case libvlc_MediaPlayerStopped:
 	case libvlc_MediaPlayerEncounteredError:
 	case libvlc_MediaPlayerLengthChanged:
+	case libvlc_MediaPlayerTitleChanged:
 		if (d->engine)
 			d->engine->parseEvent(event);
 		break;
@@ -183,17 +184,8 @@ libvlc_media_player_t *LibVlc::mp() {
 	return get().d->mp;
 }
 
-#include <QFile>
-
 libvlc_media_t *LibVlc::newMedia(const Mrl &mrl) {
-//	QFile file(location);
-//	file.open(QFile::ReadWrite);
-//	file.
-//	QString file("file://");
-//	file += location;
-//	qDebug() << file;
-	return libvlc_media_new_path(get().inst(), mrl.toLocalFile().toLocal8Bit());
-//	return libvlc_media_new_location(get().inst(), location.toLocal8Bit());
+	return libvlc_media_new_location(get().inst(), mrl.toString().toLocal8Bit());
 }
 
 void LibVlc::outputError() {

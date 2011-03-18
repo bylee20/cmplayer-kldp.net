@@ -10,10 +10,12 @@
 class NativeVideoRenderer;	class AudioController;
 class VideoRenderer;
 
-struct AudioTrack {
+struct Track {
 	int id;
 	QString name;
 };
+
+typedef QList<Track> TrackList;
 
 //typedef QMap<MediaMetaData, QVariant> StreamData;
 
@@ -35,8 +37,9 @@ public:
 	bool isPlaying() const {return state() == PlayingState;}
 	bool isPaused() const {return state() == PausedState;}
 	bool isStopped() const {return state() == StoppedState;}
-	QList<AudioTrack> audioTracks() const;
+	TrackList audioTracks() const;
 	int currentAudioTrackId() const;
+	int currentTitleId() const;
 	QString audioTrackName(int id) const;
 public slots:
 	void setCurrentAudioTrack(int id);
@@ -44,7 +47,6 @@ public slots:
 	void stop();
 	bool pause();
 	bool seek(int pos);
-	void navigateDVDMenu(int cmd);
 signals:
 	void aboutToFinished();
 	void stopped(Mrl mrl, int pos, int duration);
@@ -57,23 +59,30 @@ signals:
 	void positionChanged(int pos);
 	void hasVideoChanged(bool has);
 	void hasAudioChanged(bool has);
-	void audioTracksChanged(const QList<AudioTrack> &tracks);
+	void audioTracksChanged(const QList<Track> &tracks);
+	void titlesChanged(const QList<Track> &titles);
+	void chaptersChanged(const QList<Track> &chapters);
 	void durationChanged(int duration);
 	void tagsChanged();
 	void statusChanged(MediaStatus status);
+// internal signals
 	void _updateDuration(int duration);
 	void _ticking();
 	void _updateSeekable(bool seekable);
 	void _updateState(MediaState state);
+	void _updateTitle(int id);
 private slots:
 	void ticking();
 	void updateSeekable(bool seekable);
 	void updateDuration(int duration);
 	void updateState(MediaState state);
+	void updateTitle(int id);
 	void initialSeek();
 private:
 	void setStatus(MediaStatus status);
 private:
+	typedef libvlc_track_description_t TrackDesc;
+	TrackList parseTrackDesc(TrackDesc *desc);
 	friend class LibVlc;
 	PlayEngine();
 	void parseEvent(const libvlc_event_t *event);
