@@ -90,8 +90,8 @@ void OsdStyle::Widget::slotFont() {
 
 void OsdStyle::Widget::updateFont(const QFont &font) {
 	d->style.font = font;
-	d->style.font.setPointSize(this->font().pointSize());
-	d->style.font.setPixelSize(this->font().pixelSize());
+	d->style.font.setPointSize(qMax(1, this->font().pointSize()));
+	d->style.font.setPixelSize(qMax(1, this->font().pixelSize()));
 	d->ui.fontLabel->setFont(d->style.font);
 	d->ui.fontLabel->setText(d->style.font.family());
 }

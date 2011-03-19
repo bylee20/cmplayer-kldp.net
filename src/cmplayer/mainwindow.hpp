@@ -45,9 +45,25 @@ private slots:
 	void setPref();
 	void hideCursor();
 	void handleTray(QSystemTrayIcon::ActivationReason reason);
-	void setCurrentAudioTrack(int id);
 	void openSubFile();
-	void updateAudioTrackInfo(const QList<Track> &tracks);
+
+	void checkSubtitleMenu();
+	void checkSPUMenu();
+	void setSPU(QAction *act);
+
+	void checkPlayMenu();
+	void checkChapterMenu();
+	void checkTitleMenu();
+	void setTitle(QAction *act);
+	void setChapter(QAction *act);
+
+	void checkAudioMenu();
+	void checkAudioTrackMenu();
+	void setAudioTrack(QAction *act);
+
+	void checkVideoMenu();
+	void checkVideoTrackMenu();
+	void setVideoTrack(QAction *act);
 private:
 	static QIcon defaultIcon();
 	void appendSubFiles(const QStringList &files, bool checked, const QString &enc);

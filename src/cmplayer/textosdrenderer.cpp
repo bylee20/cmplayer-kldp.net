@@ -232,6 +232,7 @@ void TextOsdRenderer::updateFont() {
 		px = qRound(d->bg.width()*style().textSize);
 	else
 		px = qRound(d->bg.height()*style().textSize);
+	px = qMax(1, px);
 	d->bw = qMax(style().borderWidth*px, 1.0);
 	for (int i=0; i<d->sc.count(); ++i) {
 		d->points[i].setX(d->bw*(1 + d->sc.sine(i)));

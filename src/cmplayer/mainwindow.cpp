@@ -56,6 +56,7 @@ struct MainWindow::Data {
 	QPoint prevPos;
 	QTimer hider;
 	QSystemTrayIcon *tray;
+	TrackList spus, titles, chapters, aTracks, vTracks;
 };
 
 QIcon MainWindow::defaultIcon() {
@@ -89,17 +90,17 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	connect(open("recent").g(), SIGNAL(triggered(QString)), this, SLOT(openLocation(QString)));
 	connect(open("recent")["clear"], SIGNAL(triggered()), &recent, SLOT(clear()));
 
-//	Menu &dvdMenu = d->menu("dvd-menu");
-//	connect(dvdMenu.g(), SIGNAL(triggered(int)), d->engine, SLOT(navigateDVDMenu(int)));
-
 	Menu &play = menu("play");
 	connect(play["stop"], SIGNAL(triggered()), d->engine, SLOT(stop()));
 	connect(play("speed").g(), SIGNAL(triggered(int)), this, SLOT(setSpeed(int)));
 	connect(play["pause"], SIGNAL(triggered()), this, SLOT(togglePlayPause()));
 	connect(play("repeat").g(), SIGNAL(triggered(int)), this, SLOT(doRepeat(int)));
 	connect(play("seek").g(), SIGNAL(triggered(int)), this, SLOT(seek(int)));
+	connect(play("title").g(), SIGNAL(triggered(QAction*)), this, SLOT(setTitle(QAction*)));
+	connect(play("chapter").g(), SIGNAL(triggered(QAction*)), this, SLOT(setChapter(QAction*)));
 
 	Menu &video = menu("video");
+	connect(video("track").g(), SIGNAL(triggered(QAction*)), this, SLOT(setVideoTrack(QAction*)));
 	connect(video("size").g(), SIGNAL(triggered(double)), this, SLOT(setVideoSize(double)));
 	connect(video("aspect").g(), SIGNAL(triggered(double)), d->video, SLOT(setAspectRatio(double)));
 	connect(video("crop").g(), SIGNAL(triggered(double)), d->video, SLOT(setCropRatio(double)));
@@ -107,21 +108,22 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	connect(video.g("color"), SIGNAL(triggered(QAction*)), this, SLOT(setColorProperty(QAction*)));
 
 	Menu &audio = menu("audio");
+	connect(audio("track").g(), SIGNAL(triggered(QAction*)), this, SLOT(setAudioTrack(QAction*)));
 	connect(audio.g("volume"), SIGNAL(triggered(int)), this, SLOT(setVolume(int)));
 	connect(audio["mute"], SIGNAL(toggled(bool)), this, SLOT(setMuted(bool)));
 	connect(audio.g("amp"), SIGNAL(triggered(int)), this, SLOT(setAmp(int)));
-	connect(audio["normalize-volume"], SIGNAL(toggled(bool))
-		, this, SLOT(setVolumeNormalized(bool)));
+	connect(audio["normalize-volume"], SIGNAL(toggled(bool)), this, SLOT(setVolumeNormalized(bool)));
 	connect(d->audio, SIGNAL(mutedChanged(bool)), audio["mute"], SLOT(setChecked(bool)));
 	connect(d->audio, SIGNAL(volumeNormalizedChanged(bool))
 		, audio["normalize-volume"], SLOT(setChecked(bool)));
-	connect(audio("track").g(), SIGNAL(triggered(int)), this, SLOT(setCurrentAudioTrack(int)));
 
 	Menu &sub = menu("subtitle");
+
 	connect(sub("list")["hide"], SIGNAL(toggled(bool)), d->subtitle, SLOT(setHidden(bool)));
 	connect(sub("list")["open"], SIGNAL(triggered()), this, SLOT(openSubFile()));
 	connect(sub("list")["clear"], SIGNAL(triggered()), this, SLOT(clearSubtitles()));
 	connect(sub("list").g(), SIGNAL(triggered(QAction*)), this, SLOT(updateSubtitle(QAction*)));
+	connect(sub("spu").g(), SIGNAL(triggered(QAction*)), this, SLOT(setSPU(QAction*)));
 	connect(sub.g("pos"), SIGNAL(triggered(int)), this, SLOT(moveSubtitle(int)));
 	connect(sub.g("sync"), SIGNAL(triggered(int)), this, SLOT(setSyncDelay(int)));
 
@@ -130,6 +132,19 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 //	connect(menu["about"], SIGNAL(triggered()), this, SLOT(showAbout()));
 //// 	connect(menu["help"], SIGNAL(triggered()), this, SLOT(slotHelp()));
 	connect(menu["exit"], SIGNAL(triggered()), qApp, SLOT(quit()));
+
+
+
+	connect(&play, SIGNAL(aboutToShow()), this, SLOT(checkPlayMenu()));
+	connect(&play("title"), SIGNAL(aboutToShow()), this, SLOT(checkTitleMenu()));
+	connect(&play("chapter"), SIGNAL(aboutToShow()), this, SLOT(checkChapterMenu()));
+	connect(&video, SIGNAL(aboutToShow()), this, SLOT(checkVideoMenu()));
+	connect(&video("track"), SIGNAL(aboutToShow()), this, SLOT(checkVideoTrackMenu()));
+	connect(&audio, SIGNAL(aboutToShow()), this, SLOT(checkAudioMenu()));
+	connect(&audio("track"), SIGNAL(aboutToShow()), this, SLOT(checkAudioTrackMenu()));
+	connect(&sub, SIGNAL(aboutToShow()), this, SLOT(checkSubtitleMenu()));
+	connect(&sub("spu"), SIGNAL(aboutToShow()), this, SLOT(checkSPUMenu()));
+
 
 	QMenuBar *mb = menuBar();
 	mb->addMenu(&open);
@@ -140,8 +155,6 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	QMenu *m = mb->addMenu(tr("Tools"));
 	m->addAction(tr("Preferences"), this, SLOT(setPref()));
 
-	connect(d->engine, SIGNAL(audioTracksChanged(QList<Track>))
-		, this, SLOT(updateAudioTrackInfo(QList<Track>)));
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(updateMrl(Mrl)));
 	connect(d->engine, SIGNAL(stateChanged(MediaState,MediaState))
 		, this, SLOT(updateState(MediaState,MediaState)));
@@ -188,6 +201,49 @@ MainWindow::~MainWindow() {
 	delete d->subtitle;
 	delete d;
 }
+
+void MainWindow::checkPlayMenu() {
+	Menu &menu = d->menu("play");
+	menu("title").setEnabled(d->engine->titleCount() > 0);
+	menu("chapter").setEnabled(d->engine->chapterCount() > 0);
+}
+
+void MainWindow::checkSubtitleMenu() {
+	d->menu("subtitle")("spu").setEnabled(d->engine->spuCount() > 0);
+}
+
+void MainWindow::checkVideoMenu() {
+	d->menu("video")("track").setEnabled(d->engine->videoTrackCount() > 0);
+}
+
+void MainWindow::checkAudioMenu() {
+	d->menu("audio")("track").setEnabled(d->engine->audioTrackCount() > 0);
+}
+
+#define DEF_TRACK_MENU_FUNC(prop, cap, mm, msg) \
+void MainWindow::check##cap##Menu() {\
+	const TrackList tracks = d->engine->prop##s();\
+	Menu &menu = d->menu mm;\
+	menu.g()->clear();\
+	if (tracks.isEmpty())\
+		return;\
+	for (int i=0; i<tracks.size(); ++i)\
+		menu.addActionToGroupWithoutKey(tracks[i].name, true)->setData(i);\
+	QAction *act = menu.g()->actions().value(d->engine->current##cap##Id());\
+	if (act)\
+		act->setChecked(true);\
+}\
+\
+void MainWindow::set##cap(QAction *act) {\
+	d->engine->setCurrent##cap(act->data().toInt());\
+	showMessage(tr(msg), act->text());\
+}
+
+DEF_TRACK_MENU_FUNC(videoTrack, VideoTrack, ("video")("track"), "Current Video Track")
+DEF_TRACK_MENU_FUNC(audioTrack, AudioTrack, ("audio")("track"), "Current Audio Track")
+DEF_TRACK_MENU_FUNC(spu, SPU, ("subtitle")("spu"), "Current Subtitle Track")
+DEF_TRACK_MENU_FUNC(title, Title, ("play")("title"), "Current Title")
+DEF_TRACK_MENU_FUNC(chapter, Chapter, ("play")("chapter"), "Current Chapter")
 
 void MainWindow::openLocation(const QString &loc) {
 	openMrl(Mrl(loc));
@@ -255,6 +311,7 @@ void MainWindow::setupUi() {
 	center->setMouseTracking(true);
 	d->video->setContextMenuPolicy(Qt::CustomContextMenu);
 }
+
 
 void MainWindow::updateRecentActions(const QList<Mrl> &list) {
 	Menu &recent = d->menu("open")("recent");
@@ -865,34 +922,6 @@ void MainWindow::showMessage(const QString &cmd, bool value, int last) {
 void MainWindow::setVolumeNormalized(bool norm) {
 	d->audio->setVolumeNormalized(norm);
 	showMessage(tr("Normalize Volume"), norm);
-}
-
-//static QString trackName(int nth, const StreamData &data) {
-//	QString name = QApplication::translate("MainWindow", "Track") + " " + QString::number(nth);
-//	const QString lang = data.value(LanguageCode).toString();
-//	if (!lang.isEmpty())
-//		name += "(" + lang + ")";
-//	return name;
-//}
-
-void MainWindow::updateAudioTrackInfo(const QList<Track> &tracks) {
-//	const QList<StreamData> audio = d->engine->audioStreams();
-	Menu &track = d->menu("audio")("track");
-	track.g()->clear();
-	for (int i=0; i<tracks.size(); ++i) {
-		track.addActionToGroupWithoutKey(tracks[i].name, true)->setData(tracks[i].id);
-	}
-//	for (int i=0; i<audio.size(); ++i) {
-//		const QString name = trackName(i+1, audio[i]);
-//		track.addActionToGroupWithoutKey(name, true)->setData(i);
-//	}
-	track.g()->setChecked(d->engine->currentAudioTrackId(), true);
-//	track.g()->setChecked(d->engine->currentAudioStream(), true);
-}
-
-void MainWindow::setCurrentAudioTrack(int id) {
-	d->engine->setCurrentAudioTrack(id);
-	showMessage(tr("Current Track"), d->engine->audioTrackName(id));
 }
 
 void MainWindow::setColorProperty(QAction *action) {

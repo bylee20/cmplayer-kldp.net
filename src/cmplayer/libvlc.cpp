@@ -110,6 +110,7 @@ LibVlc::LibVlc(): d(new Data) {
 	sprintf(pvEventHandler, "%lld", (long long int)(intptr_t)(void*)&d->eventHandler);
 	const char *const args[] = {
 		"-I", "dummy",
+		"--reset-plugins-cache",
 		"--ignore-config",
 		"--extraintf=logger",
 //		"--verbose=2",

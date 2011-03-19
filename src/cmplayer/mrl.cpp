@@ -16,7 +16,7 @@ bool Mrl::isPlaylist() const {
 
 QString Mrl::fileName() const {
 	const int idx = m_loc.lastIndexOf('/');
-	return m_loc.mid(idx);
+	return m_loc.mid(idx + 1);
 }
 
 QString Mrl::displayName() const {

@@ -11,8 +11,9 @@ class NativeVideoRenderer;	class AudioController;
 class VideoRenderer;
 
 struct Track {
-	int id;
 	QString name;
+private:
+	int id;
 };
 
 typedef QList<Track> TrackList;
@@ -37,12 +38,27 @@ public:
 	bool isPlaying() const {return state() == PlayingState;}
 	bool isPaused() const {return state() == PausedState;}
 	bool isStopped() const {return state() == StoppedState;}
-	TrackList audioTracks() const;
+	int currentVideoTrackId() const;
 	int currentAudioTrackId() const;
 	int currentTitleId() const;
-	QString audioTrackName(int id) const;
-public slots:
+	int currentChapterId() const;
+	int currentSPUId() const;
+	TrackList audioTracks() const;
+	TrackList videoTracks() const;
+	TrackList chapters() const;
+	TrackList titles() const;
+	TrackList spus() const;
 	void setCurrentAudioTrack(int id);
+	void setCurrentTitle(int id);
+	void setCurrentChapter(int id);
+	void setCurrentSPU(int id);
+	void setCurrentVideoTrack(int id);
+	int videoTrackCount() const;
+	int audioTrackCount() const;
+	int spuCount() const;
+	int titleCount() const;
+	int chapterCount() const;
+public slots:
 	bool play();
 	void stop();
 	bool pause();
@@ -59,9 +75,6 @@ signals:
 	void positionChanged(int pos);
 	void hasVideoChanged(bool has);
 	void hasAudioChanged(bool has);
-	void audioTracksChanged(const QList<Track> &tracks);
-	void titlesChanged(const QList<Track> &titles);
-	void chaptersChanged(const QList<Track> &chapters);
 	void durationChanged(int duration);
 	void tagsChanged();
 	void statusChanged(MediaStatus status);
@@ -81,8 +94,9 @@ private slots:
 private:
 	void setStatus(MediaStatus status);
 private:
+	void updateChapterInfo();
 	typedef libvlc_track_description_t TrackDesc;
-	TrackList parseTrackDesc(TrackDesc *desc);
+	static TrackList parseTrackDesc(TrackDesc *desc);
 	friend class LibVlc;
 	PlayEngine();
 	void parseEvent(const libvlc_event_t *event);

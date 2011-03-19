@@ -17,7 +17,6 @@ struct PlayEngine::Data {
 	int stoppedTime, duration, prevTick, seek;
 	bool seekable, hasVideo;
 	double speed;
-	TrackList audioTracks, titles, chapters;
 	libvlc_media_player_t *mp;
 	VlcMedia *media;
 	MediaState state;
@@ -59,18 +58,8 @@ void PlayEngine::initialSeek() {
 }
 
 void PlayEngine::updateDuration(int duration) {
-	emit durationChanged(d->duration = duration);
-//	d->audioTracks = parseTrackDesc(libvlc_audio_get_track_description(d->mp));
-//	d->titles = parseTrackDesc(libvlc_video_get_title_description(d->mp));
-	if (d->titles != d->titles)
-	emit titlesChanged(d->titles);
-	emit audioTracksChanged(d->audioTracks);
-	qDebug() << "update duration" << duration;
-	qDebug() << "title" << libvlc_media_player_get_title(d->mp);
-	qDebug() << "audio" << libvlc_audio_get_track_count(d->mp);
-//	TrackList tracks = parseTrackDesc(libvlc_video_get_audio_get_track_description(d->mp));
-//	for (int i=0; i<tracks.size(); ++i)
-//		qDebug() << tracks[i].id << tracks[i].name;
+	if (duration > 0)
+		emit durationChanged(d->duration = duration);
 }
 
 void PlayEngine::updateSeekable(bool seekable) {
@@ -116,6 +105,8 @@ void PlayEngine::parseEvent(const libvlc_event_t *event) {
 void PlayEngine::setMrl(const Mrl &mrl) {
 	if (isPlaying())
 		stop();
+	d->duration = 0;
+	emit durationChanged(d->duration);
 	if (d->media) {
 		if (d->media->mrl() != mrl) {
 			delete d->media;
@@ -145,10 +136,12 @@ void PlayEngine::updateTitle(int id) {
 }
 
 TrackList PlayEngine::parseTrackDesc(libvlc_track_description_t *desc) {
+	if (!desc)
+		return TrackList();
 	TrackList tracks;
 	while (desc) {
 		Track track;
-		track.id = desc->i_id;
+//		track.id = desc->i_id;
 		track.name = QString::fromLocal8Bit(desc->psz_name);
 		tracks << track;
 		desc = desc->p_next;
@@ -172,17 +165,9 @@ void PlayEngine::updateState(MediaState state) {
 				d->stoppedTime = -1;
 			}
 		} else if (d->state == PlayingState && old != PausedState) {
-			qDebug() << "play started";
 			const bool hasVideo = (libvlc_media_player_has_vout(d->mp) > 0);
 			if (d->hasVideo != hasVideo)
 				emit hasVideoChanged(d->hasVideo = hasVideo);
-			d->audioTracks.clear();
-			d->titles.clear();
-			d->chapters.clear();
-			d->audioTracks = parseTrackDesc(libvlc_audio_get_track_description(d->mp));
-			d->titles = parseTrackDesc(libvlc_video_get_title_description(d->mp));
-			emit audioTracksChanged(d->audioTracks);
-			emit titlesChanged(d->titles);
 		}
 		if ((d->state == PlayingState) && d->seek >= 0)
 			QTimer::singleShot(100, this, SLOT(initialSeek()));
@@ -295,27 +280,95 @@ bool PlayEngine::hasVideo() const {
 	return d->hasVideo;
 }
 
-QList<Track> PlayEngine::audioTracks() const {
-	return d->audioTracks;
+int PlayEngine::videoTrackCount() const {
+	return libvlc_video_get_track_count(d->mp);
+}
+
+int PlayEngine::audioTrackCount() const {
+	return libvlc_audio_get_track_count(d->mp);
+}
+
+int PlayEngine::spuCount() const {
+	return libvlc_video_get_spu_count(d->mp);
+}
+
+int PlayEngine::titleCount() const {
+	return libvlc_media_player_get_title_count(d->mp);
+}
+
+int PlayEngine::chapterCount() const {
+	return libvlc_media_player_get_chapter_count(d->mp);
+}
+
+int PlayEngine::currentVideoTrackId() const {
+	return libvlc_video_get_track(d->mp);
 }
 
 int PlayEngine::currentAudioTrackId() const {
 	return libvlc_audio_get_track(d->mp);
 }
 
-void PlayEngine::setCurrentAudioTrack(int id) {
-	if (libvlc_audio_set_track(d->mp, qMax(0, id)) != 0)
-		 qDebug() << "libvlc exception:" << libvlc_errmsg();
-}
-
-QString PlayEngine::audioTrackName(int id) const {
-	for (int i=0; i<d->audioTracks.size(); ++i) {
-		if (id == d->audioTracks[i].id)
-			return d->audioTracks[i].name;
-	}
-	return QString();
-}
-
 int PlayEngine::currentTitleId() const {
 	return libvlc_media_player_get_title(d->mp);
 }
+
+int PlayEngine::currentChapterId() const {
+	return libvlc_media_player_get_chapter(d->mp);
+}
+
+int PlayEngine::currentSPUId() const {
+	return libvlc_video_get_spu(d->mp);
+}
+
+TrackList PlayEngine::audioTracks() const {
+	if (audioTrackCount() > 0)
+		return parseTrackDesc(libvlc_audio_get_track_description(d->mp));
+	return TrackList();
+}
+
+TrackList PlayEngine::videoTracks() const {
+	if (videoTrackCount() > 0)
+		return parseTrackDesc(libvlc_video_get_track_description(d->mp));
+	return TrackList();
+}
+
+TrackList PlayEngine::chapters() const {
+	if (chapterCount() > 0)
+		return parseTrackDesc(libvlc_video_get_chapter_description(d->mp, currentTitleId()));
+	return TrackList();
+}
+
+TrackList PlayEngine::titles() const {
+	if (titleCount() > 0)
+		return parseTrackDesc(libvlc_video_get_title_description(d->mp));
+	return TrackList();
+}
+
+TrackList PlayEngine::spus() const {
+	if (spuCount() > 0)
+		return parseTrackDesc(libvlc_video_get_spu_description(d->mp));
+	return TrackList();
+}
+
+void PlayEngine::setCurrentAudioTrack(int id) {
+	libvlc_audio_set_track(d->mp, id);
+}
+
+void PlayEngine::setCurrentSPU(int id) {
+	libvlc_video_set_spu(d->mp, id);
+}
+
+void PlayEngine::setCurrentTitle(int id) {
+	libvlc_media_player_set_title(d->mp, id);
+}
+
+void PlayEngine::setCurrentChapter(int id) {
+	libvlc_media_player_set_chapter(d->mp, id);
+}
+
+void PlayEngine::setCurrentVideoTrack(int id) {
+	libvlc_video_set_track(d->mp, id);
+}
+
+
+

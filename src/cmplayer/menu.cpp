@@ -1,9 +1,8 @@
 #include "menu.hpp"
 #include "pref.hpp"
-//#include <core/info.h>
 #include "colorproperty.hpp"
 #include "mrl.hpp"
-//#include <core/mrl.h>
+#include "record.hpp"
 #include <QtCore/QUrl>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
@@ -41,7 +40,7 @@ Menu &Menu::create(QWidget *parent) {
 	QAction *dvd = open->addAction("dvd");
 	dvd->setData(QUrl("dvd://"));
 	url->setDisabled(true);
-//	dvd->setDisabled(true);
+	url->setVisible(false);
 
 	open->addSeparator();
 
@@ -49,16 +48,6 @@ Menu &Menu::create(QWidget *parent) {
 
 	recent->addSeparator();
 	recent->addAction("clear");
-
-//	Menu *dvdMenu = root->addMenu("dvd-menu");
-//	dvdMenu->setIcon(QIcon(":/img/media-optical.png"));
-//	dvdMenu->addActionToGroup("toggle", false)->setData(NavToggleMenu);
-//	dvdMenu->addActionToGroup("root", false)->setData(NavRootMenu);
-//	dvdMenu->addActionToGroup("title", false)->setData(NavTitleMenu);
-//	dvdMenu->addActionToGroup("chapter", false)->setData(NavChapterMenu);
-//	dvdMenu->addActionToGroup("angle", false)->setData(NavAngleMenu);
-//	dvdMenu->addActionToGroup("audio", false)->setData(NavAudioMenu);
-//	dvdMenu->addActionToGroup("subpic", false)->setData(NavSubPicMenu);
 
 	Menu *play = root->addMenu("play");
 	play->setIcon(QIcon(":/img/player-time.png"));
@@ -115,8 +104,13 @@ Menu &Menu::create(QWidget *parent) {
 	backward2->setShortcut(Qt::Key_PageUp);
 	backward3->setShortcut(Qt::Key_Home);
 
+	play->addMenu("title")->setEnabled(false);
+	play->addMenu("chapter")->setEnabled(false);
+
 	Menu *subtitle = root->addMenu("subtitle");
 	subtitle->setIcon(QIcon(":/img/format-text-bold.png"));
+
+	subtitle->addMenu("spu")->setEnabled(false);
 
 	Menu *sList = subtitle->addMenu("list");
 	sList->g()->setExclusive(false);
@@ -139,6 +133,10 @@ Menu &Menu::create(QWidget *parent) {
 
 	Menu *video = root->addMenu("video");
 	video->setIcon(QIcon(":/img/games-config-background.png"));
+
+	video->addMenu("track")->setEnabled(false);
+
+	video->addSeparator();
 
 	Menu *size = video->addMenu("size");
 	QAction *to25 = size->addActionToGroup("25%", false);
@@ -198,7 +196,7 @@ Menu &Menu::create(QWidget *parent) {
 	Menu *audio = root->addMenu("audio");
 	audio->setIcon(QIcon(":/img/speaker.png"));
 
-	audio->addMenu("track");
+	audio->addMenu("track")->setEnabled(false);
 
 	audio->addSeparator();
 
@@ -249,11 +247,10 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_context = new QMenu(parent);
 	root->m_context->addMenu(open);
 	root->m_context->addSeparator();
-//	root->m_context->addMenu(dvdMenu);
 	root->m_context->addMenu(play);
-	root->m_context->addMenu(subtitle);
 	root->m_context->addMenu(video);
 	root->m_context->addMenu(audio);
+	root->m_context->addMenu(subtitle);
 	root->m_context->addSeparator();
 	root->m_context->addAction(tool);
 	root->m_context->addAction(pref);
@@ -303,33 +300,23 @@ void Menu::updatePref() {
 
 	Menu &open = root("open");
 	open.setTitle(tr("Open"));
-	open["file"]->setText(tr("File"));
-	open["url"]->setText(tr("URL"));
-	open["dvd"]->setText(tr("DVD"));
+	open["file"]->setText(tr("Open File"));
+	open["url"]->setText(tr("Load URL"));
+	open["dvd"]->setText(tr("Open DVD"));
 
 	Menu &recent = open("recent");
 	recent.setTitle(tr("Recent Open"));
 	recent["clear"]->setText(tr("Clear"));
 
-//	Menu &dvdMenu = root("dvd-menu");
-//	dvdMenu.setTitle(tr("DVD Menu"));
-//	dvdMenu["toggle"]->setText(tr("Toggle Menu"));
-//	dvdMenu["root"]->setText(tr("Main"));
-//	dvdMenu["title"]->setText(tr("Title"));
-//	dvdMenu["chapter"]->setText(tr("Chapter"));
-//	dvdMenu["angle"]->setText(tr("Angles"));
-//	dvdMenu["audio"]->setText(tr("Audio"));
-//	dvdMenu["subpic"]->setText(tr("Subtitle"));
-
 	Menu &play = root("play");
 	play.setTitle(tr("Play"));
 	play["pause"]->setText(tr("Play"));
 	play["stop"]->setText(tr("Stop"));
-	play["prev"]->setText(tr("Previous"));
-	play["next"]->setText(tr("Next"));
+	play["prev"]->setText(tr("Play Previous"));
+	play["next"]->setText(tr("Play Next"));
 
 	Menu &speed = play("speed");
-	speed.setTitle(tr("Speed"));
+	speed.setTitle(tr("Playback Speed"));
 	speed["reset"]->setText(tr("Reset"));
 	setActionStep(speed["faster"], speed["slower"], "%1%", p.speedStep);
 
@@ -356,13 +343,17 @@ void Menu::updatePref() {
 	setActionAttr(seek["backward3"], -p.seekingStep3
 			, backward, p.seekingStep3*0.001, false);
 
+	play("title").setTitle(tr("Title"));
+	play("chapter").setTitle(tr("Chapter"));
+
 	Menu &sub = root("subtitle");
 	sub.setTitle(tr("Subtitle"));
 	Menu &list = sub("list");
-	list.setTitle(tr("List"));
+	list.setTitle(tr("Subtitle File"));
 	list["open"]->setText(tr("Open"));
 	list["clear"]->setText(tr("Clear"));
 	list["hide"]->setText(tr("Hide"));
+	sub("spu").setTitle(tr("Subtitle Track"));
 	setActionAttr(sub["pos-up"], -p.subtitlePosStep
 			, tr("Up %1%"), p.subtitlePosStep, false);
 	setActionAttr(sub["pos-down"], p.subtitlePosStep
@@ -373,7 +364,7 @@ void Menu::updatePref() {
 
 	Menu &video = root("video");
 	video.setTitle(tr("Video"));
-
+	video("track").setTitle(tr("Video Track"));
 	Menu &size = video("size");
 	size.setTitle(tr("Size"));
 	size["full"]->setText(tr("Full Screen"));
@@ -406,7 +397,7 @@ void Menu::updatePref() {
 
 	Menu &audio = root("audio");
 	audio.setTitle(tr("Audio"));
-	audio("track").setTitle(tr("Track"));
+	audio("track").setTitle(tr("Audio Track"));
 	audio["mute"]->setText(tr("Toggle Mute"));
 	audio["normalize-volume"]->setText(tr("Normalize Volume"));
 	setActionStep(audio["volume-up"], audio["volume-down"]
@@ -423,42 +414,39 @@ void Menu::updatePref() {
 	saveShortcut();
 }
 
-QString Menu::configFile() {
-	return QString();
-//	return Core::Info::privatePath() + "/menu.ini";
-}
-
 void Menu::saveShortcut() {
-	QSettings set(configFile(), QSettings::IniFormat);
-	set.beginGroup("Menu");
+	Record record;
+	record.beginGroup("menu");
 	QHash<QAction*, QString>::iterator it = keys.begin();
 	for (; it != keys.end(); ++it) {
 		const QList<QKeySequence> shortcut = it.key()->shortcuts();
-		set.beginWriteArray(it.value(), shortcut.size());
+		record.beginWriteArray(it.value(), shortcut.size());
 		for (int i=0; i<shortcut.size(); ++i) {
-			set.setArrayIndex(i);
-			set.setValue("Shortcut", shortcut[i]);
+			record.setArrayIndex(i);
+			record.setValue("shortcut", shortcut[i].toString());
 		}
-		set.endArray();
+		record.endArray();
 	}
-	set.endGroup();
+	record.endGroup();
 }
 
 void Menu::loadShortcut() {
-	QSettings set(configFile(), QSettings::IniFormat);
-	set.beginGroup("Menu");
+	Record record;
+	record.beginGroup("menu");
 	QHash<QAction*, QString>::iterator it = keys.begin();
 	for (; it != keys.end(); ++it) {
-		const int count = set.beginReadArray(it.value());
+		const int count = record.beginReadArray(it.value());
 		QList<QKeySequence> shortcut = it.key()->shortcuts();
 		while (shortcut.size() < count)
 			shortcut.push_back(QKeySequence());
 		for (int i=0; i<count; ++i) {
-			set.setArrayIndex(i);
-			shortcut[i] = set.value("Shortcut", shortcut[i]).value<QKeySequence>();
+			record.setArrayIndex(i);
+			const QString key = record.value("shortcut", shortcut[i].toString()).toString();
+			shortcut[i] = QKeySequence::fromString(key);
 		}
-		set.endArray();
+		record.endArray();
 		it.key()->setShortcuts(shortcut);
 	}
-	set.endGroup();
+	record.endGroup();
 }
+

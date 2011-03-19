@@ -121,7 +121,6 @@ public:
 	const ClickActionMap &clickAction() const {return m_click;}
 	const WheelActionMap &wheelAction() const {return m_wheel;}
 private:
-	static QString configFile();
 	Menu(const QString &key, QWidget *parent)
 	: QMenu(parent), m_key(key), m_upper(0) {
 		addGroup("");

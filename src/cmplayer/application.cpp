@@ -18,6 +18,11 @@ struct Application::Data {
 
 Application::Application(int &argc, char **argv)
 : QtSingleApplication("net.xylosper.CMPlayer", argc, argv), d(new Data) {
+	setOrganizationName("xylosper");
+	setOrganizationDomain("xylosper.net");
+	setApplicationName("CMPlayer");
+//	QSettings::setDefaultFormat(QSettings::IniFormat);
+
 	LibVlc::init();
 	d->defStyle = style()->objectName();
 //	Translator::load(Pref::get().locale);
