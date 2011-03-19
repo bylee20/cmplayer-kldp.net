@@ -155,50 +155,6 @@ private:
 	QList<QKeySequence> m_shortcuts;
 };
 
-//	Data::trMedia[Core::LocalFile] = tr("File");
-//	Data::trMedia[Core::Url] = tr("URL");
-//	Data::trMedia[Core::Dvd] = tr("DVD");
-//class Pref::Dialog::MediaTreeItem : public QTreeWidgetItem {
-//public:
-//	MediaTreeItem(Core::MediaType media, const QStringList &backend, const QString &check)
-//	: m_init(false), m_media(media) {
-//		setText(0, Data::trMedia.value(media, QString()));
-//		for (int i=0; i<backend.size(); ++i) {
-//			setText(i+1, backend[i]);
-//			setCheckState(i+1, check == backend[i] ? Qt::Checked: Qt::Unchecked);
-//		}
-//		m_init = true;
-//	}
-//	Core::MediaType mediaType() const {return m_media;}
-//	void setData(int column, int role, const QVariant &value) {
-//		if (m_init && role == Qt::CheckStateRole) {
-//			if (value.toInt() != Qt::Unchecked) {
-//				const int old = checkedColumn();
-//				if (old && old != column) {
-//					QTreeWidgetItem::setData(old, role, Qt::Unchecked);
-//					QTreeWidgetItem::setData(column, role, Qt::Checked);
-//				}
-//			}
-//		} else
-//			QTreeWidgetItem::setData(column, role, value);
-//	}
-//	int checkedColumn() const {
-//		for (int i=1; i<columnCount(); ++i)
-//			if (checkState(i) == Qt::Checked)
-//				return i;
-//		return 0;
-//	}
-//	QString checkedBackend() const {
-//		const int column = checkedColumn();
-//		return column ? text(column) : QString();
-//	}
-//private:
-//	bool m_init;
-//	Core::MediaType m_media;
-//};
-//const QList<Core::MediaType> Pref::Dialog::Data::media = QList<Core::MediaType>()
-//		<< Core::LocalFile << Core::Url << Core::Dvd;
-
 Pref::Dialog::Dialog(QWidget *parent)
 : QDialog(parent), d(new Data) {
 	d->ui.setupUi(this);
@@ -315,18 +271,6 @@ Pref::Dialog::Dialog(QWidget *parent)
 			, this, SLOT(checkSubtitleSelect(int)));
 
 	checkSubtitleSelect(d->ui.autoSelect->currentIndex());
-// 	const BackendMap map = VideoPlayer::backend();
-// 	const QStringList backends = map.keys;
-// 	QTreeWidgetItem *header = d->ui.media->headerItem();
-// 	for (int i=0; i<backends.size(); ++i)
-// 		header->setText(i+1, backends[i]);
-// 	for (int i=0; i<d->media.size(); ++i) {
-// 		MediaTreeItem *item = new MediaTreeItem(d->media[i]
-// 				, backends, p.backendName(d->media[i]));
-// 		d->ui.media->addTopLevelItem(item);
-// 	}
-// 	connect(d->ui.media, SIGNAL(itemClicked(QTreeWidgetItem*, int))
-// 			, this, SLOT(slotMediaItemClicked(QTreeWidgetItem*, int)));
 }
 
 Pref::Dialog::~Dialog() {

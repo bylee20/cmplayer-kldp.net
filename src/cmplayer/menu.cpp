@@ -2,7 +2,6 @@
 #include "pref.hpp"
 #include "colorproperty.hpp"
 #include "mrl.hpp"
-#include "record.hpp"
 #include <QtCore/QUrl>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
@@ -415,38 +414,38 @@ void Menu::updatePref() {
 }
 
 void Menu::saveShortcut() {
-	Record record;
-	record.beginGroup("menu");
+	QSettings set;
+	set.beginGroup("menu");
 	QHash<QAction*, QString>::iterator it = keys.begin();
 	for (; it != keys.end(); ++it) {
 		const QList<QKeySequence> shortcut = it.key()->shortcuts();
-		record.beginWriteArray(it.value(), shortcut.size());
+		set.beginWriteArray(it.value(), shortcut.size());
 		for (int i=0; i<shortcut.size(); ++i) {
-			record.setArrayIndex(i);
-			record.setValue("shortcut", shortcut[i].toString());
+			set.setArrayIndex(i);
+			set.setValue("shortcut", shortcut[i].toString());
 		}
-		record.endArray();
+		set.endArray();
 	}
-	record.endGroup();
+	set.endGroup();
 }
 
 void Menu::loadShortcut() {
-	Record record;
-	record.beginGroup("menu");
+	QSettings set;
+	set.beginGroup("menu");
 	QHash<QAction*, QString>::iterator it = keys.begin();
 	for (; it != keys.end(); ++it) {
-		const int count = record.beginReadArray(it.value());
+		const int count = set.beginReadArray(it.value());
 		QList<QKeySequence> shortcut = it.key()->shortcuts();
 		while (shortcut.size() < count)
 			shortcut.push_back(QKeySequence());
 		for (int i=0; i<count; ++i) {
-			record.setArrayIndex(i);
-			const QString key = record.value("shortcut", shortcut[i].toString()).toString();
+			set.setArrayIndex(i);
+			const QString key = set.value("shortcut", shortcut[i].toString()).toString();
 			shortcut[i] = QKeySequence::fromString(key);
 		}
-		record.endArray();
+		set.endArray();
 		it.key()->setShortcuts(shortcut);
 	}
-	record.endGroup();
+	set.endGroup();
 }
 

@@ -2,8 +2,9 @@
 #define PLAYLIST_HPP
 
 #include "mrl.hpp"
+#include <QtCore/QSettings>
 
-class QFile;		class Record;
+class QFile;
 
 class Playlist : public QList<Mrl> {
 public:
@@ -11,8 +12,8 @@ public:
 	Playlist();
 	Playlist(const Playlist &rhs);
 	Playlist(const QList<Mrl> &rhs);
-	void save(const QString &prefix, Record *r) const;
-	void load(const QString &prefix, Record *r);
+	void save(const QString &prefix, QSettings *set) const;
+	void load(const QString &prefix, QSettings *set);
 	bool save(const QString &filePath, Type type = Unknown) const;
 	bool load(const QString &filePath, const QString &enc = QString(), Type type = Unknown);
 	bool load(const Mrl &url, const QString &enc = QString(), Type type = Unknown);

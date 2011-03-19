@@ -1,7 +1,6 @@
 #include "recentinfo.hpp"
 #include <QtCore/QList>
 #include <QtCore/QMap>
-#include "record.hpp"
 #include "playlist.hpp"
 #include <QtCore/QDateTime>
 
@@ -73,21 +72,21 @@ void RecentInfo::clear() {
 }
 
 void RecentInfo::save() const {
-	Record r;
-	r.beginGroup("recent-info");
-	d->openList.save("recent-open-list", &r);
-	d->lastList.save("last-playlist", &r);
-	r.setValue("last-mrl", d->lastMrl.toString());
-	r.endGroup();
+	QSettings set;
+	set.beginGroup("recent-info");
+	d->openList.save("recent-open-list", &set);
+	d->lastList.save("last-playlist", &set);
+	set.setValue("last-mrl", d->lastMrl.toString());
+	set.endGroup();
 }
 
 void RecentInfo::load() {
-	Record r;
-	r.beginGroup("recent-info");
-	d->openList.load("recent-open-list", &r);
-	d->lastList.load("last-playlist", &r);
-	d->lastMrl = r.value("last-mrl", QString()).toString();
-	r.endGroup();
+	QSettings set;
+	set.beginGroup("recent-info");
+	d->openList.load("recent-open-list", &set);
+	d->lastList.load("last-playlist", &set);
+	d->lastMrl = set.value("last-mrl", QString()).toString();
+	set.endGroup();
 }
 
 void RecentInfo::setLastPlaylist(const Playlist &list) {

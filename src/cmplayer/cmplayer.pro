@@ -53,7 +53,6 @@ HEADERS += playengine.hpp \
     playlistview.hpp \
     recentinfo.hpp \
     historyview.hpp \
-    record.hpp \
     subtitleview.hpp \
     pref_dialog.hpp \
     osdstyle.hpp \
@@ -107,7 +106,6 @@ SOURCES += main.cpp \
     playlistview.cpp \
     recentinfo.cpp \
     historyview.cpp \
-    record.cpp \
     subtitleview.cpp \
     pref_dialog.cpp \
     osdstyle.cpp \

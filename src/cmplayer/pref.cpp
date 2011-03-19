@@ -1,5 +1,4 @@
 #include "pref.hpp"
-#include "record.hpp"
 #include <QtCore/QMap>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
@@ -10,14 +9,14 @@ Pref &Pref::ref() {
 	return self;
 }
 
-#define SAVE(value) (r.setValue((#value), (value)))
-#define LOAD(val, def, converter) (val = r.value(#val, def).converter())
-#define SAVE_ENUM(val) (r.setValue(#val, val.name()))
-#define LOAD_ENUM(val, def) (val = val.value(r.value(#val, #def).toString(), def))
+#define SAVE(value) (set.setValue((#value), (value)))
+#define LOAD(val, def, converter) (val = set.value(#val, def).converter())
+#define SAVE_ENUM(val) (set.setValue(#val, val.name()))
+#define LOAD_ENUM(val, def) (val = val.value(set.value(#val, #def).toString(), def))
 
 void Pref::save() const {
-	Record r;
-	r.beginGroup("preference");
+	QSettings set;
+	set.beginGroup("preference");
 
 	SAVE(rememberStopped);
 	SAVE(askWhenRecordFound);
@@ -55,17 +54,17 @@ void Pref::save() const {
 	SAVE_ENUM(subtitleAutoLoad);
 	SAVE_ENUM(subtitleAutoSelect);
 
-	subtitleStyle.save(&r, "SubtitleStyle");
-	saveMouse(r, "DoubleClickAction", doubleClickMap);
-	saveMouse(r, "MiddleClickAction", middleClickMap);
-	saveMouse(r, "WheelScrollAction", wheelScrollMap);
+	subtitleStyle.save(&set, "SubtitleStyle");
+	saveMouse(set, "DoubleClickAction", doubleClickMap);
+	saveMouse(set, "MiddleClickAction", middleClickMap);
+	saveMouse(set, "WheelScrollAction", wheelScrollMap);
 
-	r.endGroup();
+	set.endGroup();
 }
 
 void Pref::load() {
-	Record r;
-	r.beginGroup("preference");
+	QSettings set;
+	set.beginGroup("preference");
 
 	LOAD(rememberStopped, true, toBool);
 	LOAD(askWhenRecordFound, true, toBool);
@@ -106,30 +105,30 @@ void Pref::load() {
 	subtitleStyle.borderWidth = 0.045;
 	subtitleStyle.textSize = 0.035;
 	subtitleStyle.font.setBold(true);
-	subtitleStyle.load(&r, "SubtitleStyle");
-	loadMouse(r, "DoubleClickAction", doubleClickMap
+	subtitleStyle.load(&set, "SubtitleStyle");
+	loadMouse(set, "DoubleClickAction", doubleClickMap
 			, Qt::NoModifier, ClickActionPair(true, ToggleFullScreen));
-	loadMouse(r, "DoubleClickAction", doubleClickMap
+	loadMouse(set, "DoubleClickAction", doubleClickMap
 			, Qt::AltModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(r, "DoubleClickAction", doubleClickMap
+	loadMouse(set, "DoubleClickAction", doubleClickMap
 			, Qt::ControlModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(r, "DoubleClickAction", doubleClickMap
+	loadMouse(set, "DoubleClickAction", doubleClickMap
 			, Qt::ShiftModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(r, "MiddleClickAction", middleClickMap
+	loadMouse(set, "MiddleClickAction", middleClickMap
 			, Qt::NoModifier, ClickActionPair(true, TogglePlayPause));
-	loadMouse(r, "MiddleClickAction", middleClickMap
+	loadMouse(set, "MiddleClickAction", middleClickMap
 			, Qt::AltModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(r, "MiddleClickAction", middleClickMap
+	loadMouse(set, "MiddleClickAction", middleClickMap
 			, Qt::ControlModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(r, "MiddleClickAction", middleClickMap
+	loadMouse(set, "MiddleClickAction", middleClickMap
 			, Qt::ShiftModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(r, "WheelScrollAction", wheelScrollMap
+	loadMouse(set, "WheelScrollAction", wheelScrollMap
 			, Qt::NoModifier, WheelActionPair(true, VolumeUpDown));
-	loadMouse(r, "WheelScrollAction", wheelScrollMap
+	loadMouse(set, "WheelScrollAction", wheelScrollMap
 			, Qt::AltModifier, WheelActionPair(false, VolumeUpDown));
-	loadMouse(r, "WheelScrollAction", wheelScrollMap
+	loadMouse(set, "WheelScrollAction", wheelScrollMap
 			, Qt::ControlModifier, WheelActionPair(true, AmpUpDown));
-	loadMouse(r, "WheelScrollAction", wheelScrollMap
+	loadMouse(set, "WheelScrollAction", wheelScrollMap
 			, Qt::ShiftModifier, WheelActionPair(false, VolumeUpDown));
-	r.endGroup();
+	set.endGroup();
 }

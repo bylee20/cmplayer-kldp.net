@@ -1,9 +1,9 @@
 #include "historyview.hpp"
 #include <QtCore/QDebug>
 #include <QtGui/QMenu>
+#include <QtCore/QSettings>
 #include "playengine.hpp"
 #include "recentinfo.hpp"
-#include "record.hpp"
 
 struct HistoryView::Item : public QTreeWidgetItem {
 	enum Column {Name = 0, Latest = 1, Location = 2, ColumnCount = 3};
@@ -170,32 +170,32 @@ void HistoryView::clearAll() {
 }
 
 void HistoryView::save() const {
-	Record r;
-	r.beginGroup("history");
+	QSettings set;
+	set.beginGroup("history");
 	const int size = topLevelItemCount();
-	r.beginWriteArray("list", size);
+	set.beginWriteArray("list", size);
 	for (int i=0; i<size; ++i) {
 		const Item *item = this->item(i);
-		r.setArrayIndex(i);
-		r.setValue("mrl", item->mrl().toString());
-		r.setValue("date", item->date());
-		r.setValue("stopped-position", item->stoppedTime());
+		set.setArrayIndex(i);
+		set.setValue("mrl", item->mrl().toString());
+		set.setValue("date", item->date());
+		set.setValue("stopped-position", item->stoppedTime());
 	}
-	r.endArray();
-	r.endGroup();
+	set.endArray();
+	set.endGroup();
 }
 
 void HistoryView::load() {
-	Record r;
-	r.beginGroup("history");
-	const int size = r.beginReadArray("list");
+	QSettings set;
+	set.beginGroup("history");
+	const int size = set.beginReadArray("list");
 	for (int i=0; i<size; ++i) {
-		r.setArrayIndex(i);
-		const Mrl mrl = r.value("mrl", QString()).toString();
+		set.setArrayIndex(i);
+		const Mrl mrl = set.value("mrl", QString()).toString();
 		if (mrl.isEmpty())
 			continue;
-		const QDateTime date = r.value("date", QDateTime()).toDateTime();
-		int stopped = r.value("stopped-position", -1).toInt();
+		const QDateTime date = set.value("date", QDateTime()).toDateTime();
+		int stopped = set.value("stopped-position", -1).toInt();
 		Item *item = new Item;
 		item->setMrl(mrl);
 		item->update(date);
