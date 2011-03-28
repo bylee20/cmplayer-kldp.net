@@ -34,7 +34,10 @@ void LogoDrawer::draw(QPainter *painter, const QRect &bg) {
 	painter->scale(w, h);
 	painter->setPen(Qt::NoPen);
 	painter->fillRect(bg, m_bgBrush);
-	painter->scale(1.0/w, 1.0/h);
+	painter->setOpacity(0.2);
+	painter->setBrush(m_lightBrush);
+	painter->drawPath(m_lightPath);
+	painter->restore();
 
 	const int len = qMin(qRound(qMin(w, h)*0.7), m_logo.width());
 	QRect rect;
@@ -47,9 +50,4 @@ void LogoDrawer::draw(QPainter *painter, const QRect &bg) {
 				, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	else
 		painter->drawPixmap(rect, m_logo);
-	painter->scale(w, h);
-	painter->setOpacity(0.2);
-	painter->setBrush(m_lightBrush);
-	painter->drawPath(m_lightPath);
-	painter->restore();
 }
