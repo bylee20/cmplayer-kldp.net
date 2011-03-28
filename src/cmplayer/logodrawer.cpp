@@ -2,7 +2,7 @@
 #include <QtGui/QPainter>
 
 LogoDrawer::LogoDrawer() {
-	m_logo.load(":/img/cmplayer.png");
+	m_logo.load(":/img/cmplayer512.png");
 	QLinearGradient grad(0.5, 1.0, 0.75, 0.13);
 	grad.setColorAt(0.0, qRgb(51, 131, 230));
 	grad.setColorAt(1.0, qRgb(110, 202, 247));

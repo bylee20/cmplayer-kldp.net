@@ -50,7 +50,7 @@ struct MainWindow::Data {
 };
 
 QIcon MainWindow::defaultIcon() {
-	return QIcon(":/img/cmplayer.png");
+	return QIcon(":/img/cmplayer512.png");
 }
 
 MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
