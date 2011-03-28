@@ -13,13 +13,9 @@
 #include <QtCore/QDebug>
 #include <QtCore/QMutex>
 #include <QtCore/QSize>
-#include <qmath.h>
+#include <math.h>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846264338327950288419717
-#endif
-
-const char *VideoRenderer::yv12ToRgb =
+const char *VideoRenderer::i420ToRgb =
 "!!ARBfp1.0"
 "PARAM param0 = program.local[0];"
 "PARAM param1 = program.local[1];"
@@ -47,9 +43,37 @@ const char *VideoRenderer::yv12ToRgb =
 "MOV result.color.a, 1.0;"
 "END";
 
+const char *VideoRenderer::yuy2ToRgb =
+"!!ARBfp1.0"
+"PARAM param0 = program.local[0];"
+"PARAM param1 = program.local[1];"
+"PARAM coef_r = {1.164,  0.0,       1.1596,     0.0625};"
+"PARAM coef_g = {1.164, -0.391,    -0.81300002, 0.5};"
+"PARAM coef_b = {1.164,  2.0179999, 0.0,        0.5};"
+"TEMP yuv;"
+"TEX yuv, fragment.texcoord[0], texture[1], 2D;"
+"SUB yuv.z, yuv.y, coef_g.a;"
+"SUB yuv.w, yuv.w, coef_b.a;"
+"MUL yuv.x, yuv.z, param1.x;"
+"MUL yuv.y, yuv.w, param1.y;"
+"ADD yuv.y, yuv.x, yuv.y;"
+"MUL yuv.x, yuv.z, param1.y;"
+"MUL yuv.w, yuv.w, param1.x;"
+"SUB yuv.z, yuv.w, yuv.x;"
+"TEX yuv.x, fragment.texcoord[0], texture[0], 2D;"
+"SUB yuv.x, yuv, coef_r.a;"
+"MUL yuv, yuv, param0;"
+"ADD yuv.x, yuv, param0.w;"
+"DP3 result.color.r, yuv, coef_r;"
+"DP3 result.color.g, yuv, coef_g;"
+"DP3 result.color.b, yuv, coef_b;"
+"MOV result.color.a, 1.0;"
+"END";
+
 struct VideoRenderer::Data {
 	LogoDrawer logo;
 	bool logoOn, frameIsSet, hasPrograms;
+	bool locked;
 	Overlay *overlay;
 	GLuint texture[3];
 	double crop, aspect, fps, sar;
@@ -57,22 +81,20 @@ struct VideoRenderer::Data {
 	ColorProperty color;
 	QSize renderSize;
 	QMutex mutex;
-	VideoFrame *buffer, *frame;
-	GLuint shader;
-	LibVlc::EventHandler *handler;
+	VideoFrame buffer, frame;
+	GLuint shader[2];
+	VideoUtil *util;
 	QRectF vtx;
 };
 
 QGLFormat VideoRenderer::makeFormat() {
-//	return QGLFormat();
 	QGLFormat format;
 	return format;
 }
 
 VideoRenderer::VideoRenderer(QWidget *parent)
 : QGLWidget(makeFormat(), parent), d(new Data) {
-	d->frame = d->buffer = 0;
-	d->sar = 1.0;
+	d->locked = false;
 	setMinimumSize(QSize(200, 100));
 	setColorProperty(d->color);
 	d->frameIsSet = d->logoOn = false;
@@ -95,15 +117,21 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	d->hasPrograms = d->hasPrograms && glGenProgramsARB;
 	d->hasPrograms = d->hasPrograms && glProgramLocalParameter4fARB;
 	if (d->hasPrograms) {
-		glGenProgramsARB(1, &d->shader);
-		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->shader);
-		const GLbyte *glSrc = reinterpret_cast<const GLbyte *>(yv12ToRgb);
-		glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB
-			, GL_PROGRAM_FORMAT_ASCII_ARB, strlen(yv12ToRgb), glSrc);
-		if (glGetError() != GL_NO_ERROR) {
-			qDebug() << "Cannot compile the shader!";
-			glDeleteProgramsARB(1, &d->shader);
+		glGenProgramsARB(2, d->shader);
+		const char *codes[] = {i420ToRgb, yuy2ToRgb};
+		bool error = false;
+		for(int i = 0; i < 2 && !error;  ++i) {
+			glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->shader[i]);
+			const GLbyte *src = reinterpret_cast<const GLbyte *>(codes[i]);
+			glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB
+					, strlen(codes[i]), src);
+			if (glGetError() != GL_NO_ERROR)
+				error = true;
+		}
+		if (error) {
+			glDeleteProgramsARB(2, d->shader);
 			d->hasPrograms = false;
+			qDebug() << "Shader compilation error!";
 		}
 	}
 	if (!d->hasPrograms)
@@ -114,56 +142,82 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 }
 
 VideoRenderer::~VideoRenderer() {
+	qDebug() << "locked?" << d->locked;
 	delete d->overlay;
 	glDeleteTextures(3, d->texture);
 	if (d->hasPrograms)
-		glDeleteProgramsARB(1, &d->shader);
-	if (d->frame) {
-		d->frame->free();
-		delete d->frame;
-	}
-	if (d->buffer) {
-		d->buffer->free();
-		delete d->buffer;
-	}
+		glDeleteProgramsARB(2, d->shader);
 	delete d;
 }
 
-void VideoRenderer::setEventHandler(void *handler) {
-	d->handler = reinterpret_cast<LibVlc::EventHandler*>(handler);
+void VideoRenderer::setUtil(VideoUtil *util) {
+	d->util = util;
 }
 
-void *VideoRenderer::lock(VideoFrame::Plane *planes, int dataLength) {
+void *VideoRenderer::lock(void **planes) {
 	d->mutex.lock();
-	Q_ASSERT(d->buffer != 0);
-	d->buffer->alloc(planes, dataLength);
-//	plane[0] = frame.plane(0);
-//	plane[1] = frame.plane(1);
-//	plane[2] = frame.plane(2);
+	d->locked = true;
+	for (int i=0; i<d->buffer.planeCount(); ++i)
+		planes[i] = d->buffer.data(i);
 	return 0;
 }
 
 void VideoRenderer::unlock(void *id, void *const *plane) {
 	Q_UNUSED(id);
-	Q_ASSERT(d->buffer != 0 && d->buffer->data() == plane[0]);
-	VideoFrameEvent *event = new VideoFrameEvent(*d->buffer);
+	Q_ASSERT(d->buffer.data() == plane[0]);
 	d->mutex.unlock();
-	QCoreApplication::postEvent(this, event);
+	d->locked = false;
 }
 
 void VideoRenderer::display(void *id) {
 	Q_UNUSED(id);
+	VideoFrameEvent *event = new VideoFrameEvent(d->buffer);
+	QCoreApplication::postEvent(this, event);
 }
 
-void VideoRenderer::prepare(quint32 fourcc, int width, int height, double sar, double fps) {
-	if (d->buffer) {
-		d->buffer->free();
-		delete d->buffer;
+void VideoRenderer::prepare(const VideoFormat *format) {
+	d->buffer = VideoFrame(*format);
+	d->frame = d->buffer;
+	d->sar = format->sar;
+	if (!qFuzzyCompare(d->fps, format->fps))
+		emit frameRateChanged(d->fps = format->fps);
+	const VideoFrame &f = d->buffer;
+	makeCurrent();
+	switch (f.type()) {
+	case VideoFrame::I420:
+	case VideoFrame::YV12:
+		for (int i=0; i<3; ++i) {
+			glBindTexture(GL_TEXTURE_2D, d->texture[i]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE
+				, f.dataPitch(i), f.dataLines(i), 0
+				, GL_LUMINANCE, GL_UNSIGNED_BYTE, f.data(i));
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
+		break;
+	case VideoFrame::YUY2: {
+		glBindTexture(GL_TEXTURE_2D, d->texture[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA
+			, f.dataPitch()/2, f.dataLines(), 0
+			, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, f.data());
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glBindTexture(GL_TEXTURE_2D, d->texture[1]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA
+			, f.dataPitch()/4, f.dataLines(), 0
+			, GL_RGBA, GL_UNSIGNED_BYTE, f.data());
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		break;
+	} default:
+		break;
 	}
-	d->buffer = new VideoFrame(fourcc, width, height);
-	d->sar = sar;
-	if (!qFuzzyCompare(d->fps, fps))
-		emit frameRateChanged(d->fps = fps);
 }
 
 double VideoRenderer::frameRate() const {
@@ -178,44 +232,49 @@ void VideoRenderer::customEvent(QEvent *event) {
 	if (event->type() != VideoFrameEvent::Id)
 		return;
 	VideoFrameEvent *e = static_cast<VideoFrameEvent*>(event);
-	const bool sizeChanged = !d->frame || d->frame->size() != e->frame()->size();
-	if (d->frame) {
-		d->frame->free();
-		delete d->frame;
-	}
-	d->frame = e->frame();
-	d->frameIsSet = d->frame->type() == VideoFrame::YV12 && !d->frame->isEmpty();
-	if (!d->frameIsSet)
+	Q_ASSERT(d->frame.length() == e->length());
+	d->frame.setData(e->data());
+	d->frameIsSet = !d->frame.isEmpty();
+	if (d->frame.isEmpty())
 		return;
 	makeCurrent();
-	const int idx[] = {0, 2, 1};
-	if (sizeChanged) {
-		for (int i=0; i<3; ++i) {
-			const VideoFrame::Plane &p = d->frame->plane(idx[i]);
-			glBindTexture(GL_TEXTURE_2D, d->texture[i]);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, p.dataPitch, p.dataLines, 0
-				, GL_LUMINANCE, GL_UNSIGNED_BYTE, p.data);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE_SGIS);
-		}
-	} else {
-		for (int i=0; i<3; ++i) {
-			const VideoFrame::Plane &p = d->frame->plane(idx[i]);
-			glBindTexture(GL_TEXTURE_2D, d->texture[i]);
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, p.dataPitch, p.dataLines
-				, GL_LUMINANCE, GL_UNSIGNED_BYTE, p.data);
-		}
-
+	uchar *data[3] = {d->frame.data(0), d->frame.data(1), d->frame.data(2)};
+	const VideoFrame &f = d->frame;
+	switch (d->frame.type()) {
+	case VideoFrame::YV12:
+		qSwap(data[1], data[2]);
+	case VideoFrame::I420:
+#define BIND_TEXTURE_I420(idx)\
+		glBindTexture(GL_TEXTURE_2D, d->texture[idx]);\
+		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0\
+			, f.dataPitch(idx), f.dataLines(idx)\
+			, GL_LUMINANCE, GL_UNSIGNED_BYTE, data[idx]);
+		BIND_TEXTURE_I420(0);
+		BIND_TEXTURE_I420(1);
+		BIND_TEXTURE_I420(2);
+#undef BIND_TEXTURE_I420
+		break;
+	case VideoFrame::YUY2:
+		glBindTexture(GL_TEXTURE_2D, d->texture[0]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE_ALPHA
+			, f.dataPitch()/2, f.dataLines(), 0
+			, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, f.data());
+		glBindTexture(GL_TEXTURE_2D, d->texture[1]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA
+			, f.dataPitch()/4, f.dataLines(), 0
+			, GL_RGBA, GL_UNSIGNED_BYTE, f.data());
+		break;
+	default:
+		d->frameIsSet = false;
+		break;
 	}
 	update();
 }
 
 QSize VideoRenderer::sizeHint() const {
-	if (!d->frame || d->frame->isEmpty())
+	if (d->frame.isEmpty())
 		return QSize(400, 300);
-	const QSizeF frame = d->frame->size();
+	const QSizeF frame = d->frame.size();
 	QSizeF size(d->aspect, 1.0);
 	if (d->aspect < 0) {
 		size = frame;
@@ -266,8 +325,8 @@ void VideoRenderer::setColorProperty(const ColorProperty &prop) {
 	const double sat = qBound(0., d->color.saturation() + 1., 2.);
 	d->sat_con = sat*d->contrast;
 	const double hue = qBound(-M_PI, d->color.hue()*M_PI, M_PI);
-	d->sinhue = qSin(hue);
-	d->coshue = qCos(hue);
+	d->sinhue = sin(hue);
+	d->coshue = cos(hue);
 }
 
 const ColorProperty &VideoRenderer::colorProperty() const {
@@ -295,10 +354,10 @@ void VideoRenderer::resizeEvent(QResizeEvent *event) {
 
 void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);
-	if (d->frame && !d->logoOn && d->hasPrograms && d->frameIsSet) {
+	if (!d->logoOn && d->hasPrograms && d->frameIsSet) {
 		QSizeF frame(d->aspect, 1.0);
 		if (d->aspect < 0.0) {
-			frame = d->frame->size();
+			frame = d->frame.size();
 			frame.rwidth() *= d->sar;
 		}
 		const QSizeF widget = renderableSize();
@@ -314,9 +373,8 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		const double vMargin = (widget.height() - letter.height())*0.5;
 		const QRectF vtx(x, y, frame.width(), frame.height());
 		d->vtx = vtx;
-		const VideoFrame::Plane &plane = d->frame->plane(0);
-		const double txtRight = (double)(plane.framePitch-1)/(double)plane.dataPitch;
-		const double txtBottom = (double)(plane.frameLines-1)/(double)plane.dataLines;
+		const double txtRight = (double)(d->frame.framePitch(0)-1)/(double)d->frame.dataPitch(0);
+		const double txtBottom = (double)(d->frame.frameLines(0)-1)/(double)d->frame.dataLines(0);
 		const QRectF txt(0.0, 0.0, txtRight, txtBottom);
 		const float textureCoords[] = {
 			txt.left(),	txt.top(),
@@ -330,26 +388,29 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 			vtx.right(),	vtx.bottom(),
 			vtx.left(),	vtx.bottom()
 		};
-
 		painter.beginNativePainting();
 		makeCurrent();
 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->shader);
+		const bool planar = d->frame.type() == VideoFrame::YV12
+			|| d->frame.type() == VideoFrame::I420;
+		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->shader[!planar]);
 		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0.0f
 			, d->contrast, d->sat_con, d->sat_con, d->brightness);
-		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB
-			, 1.0f, d->coshue, d->sinhue, 1.0, 0.0);
+		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 1.0f
+			, d->coshue, d->sinhue, 1.0, 0.0);
 		glEnable(GL_FRAGMENT_PROGRAM_ARB);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, d->texture[0]);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, d->texture[1]);
-		glActiveTexture(GL_TEXTURE2);
-		glBindTexture(GL_TEXTURE_2D, d->texture[2]);
+		if (planar) {
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, d->texture[2]);
+		}
 		glActiveTexture(GL_TEXTURE0);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -396,29 +457,29 @@ int VideoRenderer::translateButton(Qt::MouseButton qbutton) {
 
 void VideoRenderer::mouseMoveEvent(QMouseEvent *event) {
 	QGLWidget::mouseMoveEvent(event);
-	if (d->handler->self && d->vtx.isValid() && d->frame && !d->frame->isEmpty()) {
+	if (d->util->vd && d->vtx.isValid() && !d->frame.isEmpty()) {
 		QPointF pos = event->posF();
 		pos -= d->vtx.topLeft();
-		pos.rx() *= (double)d->frame->width()/d->vtx.width();
-		pos.ry() *= (double)d->frame->height()/d->vtx.height();
-		d->handler->mouseMoved(d->handler->self, pos.x() + 0.5, pos.y() + 0.5);
+		pos.rx() *= (double)d->frame.width()/d->vtx.width();
+		pos.ry() *= (double)d->frame.height()/d->vtx.height();
+		d->util->mouseMoveEvent(d->util->vd, pos.x() + 0.5, pos.y() + 0.5);
 	}
 }
 
 void VideoRenderer::mousePressEvent(QMouseEvent *event) {
 	QGLWidget::mousePressEvent(event);
-	if (d->handler->self) {
+	if (d->util->vd) {
 		const int b = translateButton(event->button());
 		if (b >= 0)
-			d->handler->mousePressed(d->handler, b);
+			d->util->mousePresseEvent(d->util->vd, b);
 	}
 }
 
 void VideoRenderer::mouseReleaseEvent(QMouseEvent *event) {
 	QGLWidget::mouseReleaseEvent(event);
-	if (d->handler->self) {
+	if (d->util->vd) {
 		const int b = translateButton(event->button());
 		if (b >= 0)
-			d->handler->mouseReleased(d->handler, b);
+			d->util->mouseReleaseEvent(d->util->vd, b);
 	}
 }

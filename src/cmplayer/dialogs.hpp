@@ -31,7 +31,7 @@ public:
 	GetShortcutDialog(const QKeySequence &shortcut, QWidget *parent = 0);
 	GetShortcutDialog(QWidget *parent = 0);
 	~GetShortcutDialog();
-	const QKeySequence &shortcut() const;
+	QKeySequence shortcut() const;
 	void setShortcut(const QKeySequence &shortcut);
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);

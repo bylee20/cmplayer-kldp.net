@@ -11,7 +11,6 @@
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
-#include "record.hpp"
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QCheckBox>
 
@@ -221,10 +220,10 @@ void FavoritesView::modify(Item *item) {
 }
 
 void FavoritesView::save() const {
-	Record r;
-	r.beginGroup("favorites");
-	save(d->tree->invisibleRootItem(), &r);
-	r.endGroup();
+	QSettings set;
+	set.beginGroup("favorites");
+	save(d->tree->invisibleRootItem(), &set);
+	set.endGroup();
 }
 
 void FavoritesView::save(QTreeWidgetItem *item, QSettings *set) const {
@@ -245,10 +244,10 @@ void FavoritesView::save(QTreeWidgetItem *item, QSettings *set) const {
 }
 
 void FavoritesView::load() {
-	Record r;
-	r.beginGroup("favorites");
-	load(d->tree->invisibleRootItem(), &r);
-	r.endGroup();
+	QSettings set;
+	set.beginGroup("favorites");
+	load(d->tree->invisibleRootItem(), &set);
+	set.endGroup();
 }
 
 void FavoritesView::load(QTreeWidgetItem *parent, QSettings *set) {

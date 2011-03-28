@@ -29,9 +29,12 @@ public:
 		combo[Qt::ShiftModifier] = new QComboBox(this);
 
 		check[Qt::NoModifier] = new QCheckBox(tr("Plain"), this);
-		check[Qt::ControlModifier] = new QCheckBox("+Ctrl", this);
-		check[Qt::AltModifier] = new QCheckBox("+Alt", this);
-		check[Qt::ShiftModifier] = new QCheckBox("+Shift", this);
+#define MAKE_MOD_CHECK(mod)\
+	check[mod] = new QCheckBox(QKeySequence(mod).toString(QKeySequence::NativeText), this);
+		MAKE_MOD_CHECK(Qt::ControlModifier);
+		MAKE_MOD_CHECK(Qt::AltModifier);
+		MAKE_MOD_CHECK(Qt::ShiftModifier);
+#undef MAKE_MOD_CHECK
 
 		QGridLayout *grid = new QGridLayout(this);
 		grid->addWidget(check[Qt::NoModifier], 0, 0, 1, 1);
@@ -117,7 +120,7 @@ public:
 	const QList<QKeySequence> &shortcuts() const {return m_shortcuts;}
 	void setShortcut(Column column, const QKeySequence &shortcut) {
 		m_shortcuts[column - 1] = shortcut;
-		setText(column, shortcut.toString());
+		setText(column, shortcut.toString(QKeySequence::NativeText));
 	}
 	void applyShortcut() {
 		for (int i=0; i<childCount(); ++i)
@@ -148,7 +151,7 @@ private:
 				m_shortcuts.append(QKeySequence());
 			setText(Discription, action->text());
 			for (int i=0; i<4; ++i)
-				setText(i + 1, m_shortcuts[i].toString());
+				setText(i + 1, m_shortcuts[i].toString(QKeySequence::NativeText));
 		}
 	}
 	QAction *m_action;

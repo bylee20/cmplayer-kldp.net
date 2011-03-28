@@ -19,6 +19,7 @@ public slots:
 	void openMrl(const Mrl &mrl);
 private slots:
 	void setVolumeNormalized(bool norm);
+	void setTempoScaled(bool scaled);
 	void openFile();
 	void openDvd();
 	void openLocation(const QString &loc);
@@ -39,7 +40,6 @@ private slots:
 	void toggleToolBox();
 	void clearSubtitles();
 	void updateSubtitle(QAction *action);
-	void handleFinished();
 	void setSyncDelay(int diff);
 	void updateRecentActions(const QList<Mrl> &list);
 	void setPref();

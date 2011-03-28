@@ -205,8 +205,10 @@ Menu &Menu::create(QWidget *parent) {
 	volDown->setShortcut(Qt::Key_Down);
 	QAction *mute = audio->addAction("mute", true);
 	mute->setShortcut(Qt::Key_M);
-	QAction *volnorm = audio->addAction("normalize-volume", true);
+	QAction *volnorm = audio->addAction("volnorm", true);
 	volnorm->setShortcut(Qt::Key_N);
+//	QAction *scaletempo = audio->addAction("scaletempo", true);
+//	scaletempo->setShortcut(Qt::Key_Semicolon);
 
 	audio->addSeparator();
 
@@ -398,7 +400,8 @@ void Menu::updatePref() {
 	audio.setTitle(tr("Audio"));
 	audio("track").setTitle(tr("Audio Track"));
 	audio["mute"]->setText(tr("Toggle Mute"));
-	audio["normalize-volume"]->setText(tr("Normalize Volume"));
+	audio["volnorm"]->setText(tr("Normalize Volume"));
+//	audio["scaletempo"]->setText(tr("Autoscale Pitch"));
 	setActionStep(audio["volume-up"], audio["volume-down"]
 			, tr("Volume %1%"), p.volumeStep);
 	setActionStep(audio["amp-up"], audio["amp-down"]

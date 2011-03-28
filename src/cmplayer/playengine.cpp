@@ -1,7 +1,7 @@
 #include "audiocontroller.hpp"
+#include "videorenderer.hpp"
 #include "playengine.hpp"
 #include "recentinfo.hpp"
-#include "videorenderer.hpp"
 #include "vlcmedia.hpp"
 #include "libvlc.hpp"
 #include "pref.hpp"
@@ -14,11 +14,11 @@
 #include <QtCore/QUrl>
 
 struct PlayEngine::Data {
-	int stoppedTime, duration, prevTick, seek;
+	int stoppedTime, duration, prevTick;
 	bool seekable, hasVideo;
 	double speed;
 	libvlc_media_player_t *mp;
-	VlcMedia *media;
+	VLCMedia *media;
 	MediaState state;
 	MediaStatus status;
 	QTimer ticker;
@@ -26,10 +26,10 @@ struct PlayEngine::Data {
 
 PlayEngine::PlayEngine(): d(new Data) {
 	qRegisterMetaType<MediaState>("MediaState");
-	d->mp = LibVlc::mp();
+	d->mp = LibVLC::mp();
 	d->media = 0;
 	d->prevTick = 0;
-	d->stoppedTime = d->seek = -1;
+	d->stoppedTime = -1;
 	d->state = StoppedState;
 	d->status = NoMediaStatus;
 	d->hasVideo = d->seekable = false;
@@ -40,7 +40,6 @@ PlayEngine::PlayEngine(): d(new Data) {
 	connect(this, SIGNAL(_updateDuration(int)), this, SLOT(updateDuration(int)));
 	connect(this, SIGNAL(_updateSeekable(bool)), this, SLOT(updateSeekable(bool)));
 	connect(this, SIGNAL(_updateState(MediaState)), this, SLOT(updateState(MediaState)));
-	connect(this, SIGNAL(_updateTitle(int)), this, SLOT(updateTitle(int)));
 }
 
 PlayEngine::~PlayEngine() {
@@ -48,13 +47,6 @@ PlayEngine::~PlayEngine() {
 	d->ticker.stop();
 	delete d->media;
 	delete d;
-}
-
-void PlayEngine::initialSeek() {
-	if (d->seek < 0)
-		return;
-	seek(d->seek);
-	d->seek = -1;
 }
 
 void PlayEngine::updateDuration(int duration) {
@@ -70,13 +62,13 @@ void PlayEngine::updateSeekable(bool seekable) {
 void PlayEngine::parseEvent(const libvlc_event_t *event) {
 	switch (event->type) {
 	case libvlc_MediaPlayerSeekableChanged: {
-		const bool seekable = libvlc_media_player_is_seekable(LibVlc::mp());
+		const bool seekable = libvlc_media_player_is_seekable(LibVLC::mp());
 		emit _updateSeekable(seekable);
 		break;
-	} case libvlc_MediaPlayerTimeChanged: {
+	} case libvlc_MediaPlayerTimeChanged:
 		emit _ticking();
 		break;
-	} case libvlc_MediaPlayerPlaying:
+	case libvlc_MediaPlayerPlaying:
 		emit _updateState(PlayingState);
 		break;
 	case libvlc_MediaPlayerPaused:
@@ -95,7 +87,6 @@ void PlayEngine::parseEvent(const libvlc_event_t *event) {
 		emit _updateDuration(event->u.media_player_length_changed.new_length);
 		break;
 	case libvlc_MediaPlayerTitleChanged:
-		emit _updateTitle(event->u.media_player_title_changed.new_title);
 		break;
 	default:
 		break;
@@ -114,7 +105,7 @@ void PlayEngine::setMrl(const Mrl &mrl) {
 		}
 	}
 	if (!d->media) {
-		d->media = new VlcMedia(mrl);
+		d->media = new VLCMedia(mrl);
 		emit mrlChanged(d->media->mrl());
 	}
 }
@@ -129,10 +120,6 @@ MediaState PlayEngine::state() const {
 
 bool PlayEngine::isSeekable() const {
 	return d->seekable;
-}
-
-void PlayEngine::updateTitle(int id) {
-	qDebug() << "update title to" << id;
 }
 
 TrackList PlayEngine::parseTrackDesc(libvlc_track_description_t *desc) {
@@ -169,8 +156,6 @@ void PlayEngine::updateState(MediaState state) {
 			if (d->hasVideo != hasVideo)
 				emit hasVideoChanged(d->hasVideo = hasVideo);
 		}
-		if ((d->state == PlayingState) && d->seek >= 0)
-			QTimer::singleShot(100, this, SLOT(initialSeek()));
 	}
 }
 
@@ -203,9 +188,8 @@ bool PlayEngine::play() {
 	}
 	if (!d->media)
 		return false;
-	libvlc_media_player_set_media(d->mp, d->media->media());
 
-	d->seek = 1;
+	int seek = -1;
 	const RecentInfo &recent = RecentInfo::get();
 	const int record = recent.stoppedTime(d->media->mrl());
 	if (record > 0) {
@@ -219,10 +203,13 @@ bool PlayEngine::play() {
 				.arg(date.toString(Qt::ISODate)).arg(msecsToString(record, "h:mm:ss"));
 			const QMessageBox::StandardButtons b = QMessageBox::Yes | QMessageBox::No;
 			if (QMessageBox::question(QApplication::activeWindow(), title, text, b) == QMessageBox::Yes)
-				d->seek = record;
+				seek = record;
 		} else
-			d->seek = record;
+			seek = record;
 	}
+	if (seek > 0)
+		d->media->addOption("start-time", (double)seek/1000.0);
+	libvlc_media_player_set_media(d->mp, d->media->media());
 	if (libvlc_media_player_play(d->mp) != 0) {
 	    qDebug() << "libvlc exception:" << libvlc_errmsg();
 	    return false;
@@ -333,9 +320,9 @@ TrackList PlayEngine::videoTracks() const {
 }
 
 TrackList PlayEngine::chapters() const {
-	if (chapterCount() > 0)
-		return parseTrackDesc(libvlc_video_get_chapter_description(d->mp, currentTitleId()));
-	return TrackList();
+	if (chapterCount() <= 0)
+		return TrackList();
+	return parseTrackDesc(libvlc_video_get_chapter_description(d->mp, currentTitleId()));
 }
 
 TrackList PlayEngine::titles() const {
@@ -369,6 +356,3 @@ void PlayEngine::setCurrentChapter(int id) {
 void PlayEngine::setCurrentVideoTrack(int id) {
 	libvlc_video_set_track(d->mp, id);
 }
-
-
-

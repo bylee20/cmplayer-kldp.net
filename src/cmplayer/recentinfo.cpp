@@ -1,7 +1,7 @@
 #include "recentinfo.hpp"
+#include "playlist.hpp"
 #include <QtCore/QList>
 #include <QtCore/QMap>
-#include "playlist.hpp"
 #include <QtCore/QDateTime>
 
 typedef QMap<Mrl, QPair<int, QDateTime> > StoppedMap;

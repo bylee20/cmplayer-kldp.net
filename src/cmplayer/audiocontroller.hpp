@@ -1,10 +1,10 @@
 #ifndef AUDIOCONTROLLER_HPP
 #define AUDIOCONTROLLER_HPP
 
-//#include <gst/gst.h>
 #include <QtCore/QObject>
 
-class PlayEngine;
+class PlayEngine;		class AudioFormat;
+class AudioBuffer;		class AudioUtil;
 
 class AudioController : public QObject {
 	Q_OBJECT
@@ -16,20 +16,22 @@ public:
 	void setPreAmp(double amp);
 	double preAmp() const;
 	bool isVolumeNormalized() const;
+	bool isTempoScaled() const;
 public slots:
 	void setVolumeNormalized(bool norm);
 	void setVolume(int volume);
+	void setTempoScaled(bool scaled);
 	void setMuted(bool muted);
 signals:
 	void volumeChanged(int volume);
 	void mutedChanged(bool muted);
 	void volumeNormalizedChanged(bool norm);
+	void tempoScaledChanged(bool scaled);
 private:
-	void prepare(int channels);
-	void apply(int samples, float *buffer);
-	friend class LibVlc;
-
-	float volumeRate() const;
+	void setUtil(AudioUtil *util);
+	void prepare(const AudioFormat *format);
+	AudioBuffer *process(AudioBuffer *in);
+	friend class LibVLC;
 	struct Data;
 	Data *d;
 };

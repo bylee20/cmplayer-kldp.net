@@ -3,6 +3,7 @@
 #include <QtGui/QColorDialog>
 #include <QtGui/QFontDialog>
 #include <QtCore/QSettings>
+#include <QtCore/QDebug>
 
 void OsdStyle::save(QSettings *set, const QString &group) const {
 	set->beginGroup(group);
@@ -83,15 +84,14 @@ void OsdStyle::Widget::slotColor() {
 
 void OsdStyle::Widget::slotFont() {
 	bool ok = false;
-	const QFont font = QFontDialog::getFont(&ok, d->style.font, this);
+	const QFont font = QFontDialog::getFont(&ok, d->style.font, this, tr("Select Font"), QFontDialog::DontUseNativeDialog);
 	if (ok)
 		updateFont(font);
 }
 
 void OsdStyle::Widget::updateFont(const QFont &font) {
 	d->style.font = font;
-	d->style.font.setPointSize(qMax(1, this->font().pointSize()));
-	d->style.font.setPixelSize(qMax(1, this->font().pixelSize()));
+	d->style.font.setPointSize(this->font().pointSize());
 	d->ui.fontLabel->setFont(d->style.font);
 	d->ui.fontLabel->setText(d->style.font.family());
 }

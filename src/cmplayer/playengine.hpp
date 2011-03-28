@@ -4,7 +4,6 @@
 #include <QtCore/QObject>
 #include "global.hpp"
 #include "mrl.hpp"
-#include "videoframe.hpp"
 #include <vlc/vlc.h>
 
 class NativeVideoRenderer;	class AudioController;
@@ -83,21 +82,18 @@ signals:
 	void _ticking();
 	void _updateSeekable(bool seekable);
 	void _updateState(MediaState state);
-	void _updateTitle(int id);
 private slots:
 	void ticking();
 	void updateSeekable(bool seekable);
 	void updateDuration(int duration);
 	void updateState(MediaState state);
-	void updateTitle(int id);
-	void initialSeek();
 private:
 	void setStatus(MediaStatus status);
 private:
 	void updateChapterInfo();
 	typedef libvlc_track_description_t TrackDesc;
 	static TrackList parseTrackDesc(TrackDesc *desc);
-	friend class LibVlc;
+	friend class LibVLC;
 	PlayEngine();
 	void parseEvent(const libvlc_event_t *event);
 	struct Data;

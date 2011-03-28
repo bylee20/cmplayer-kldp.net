@@ -6,6 +6,8 @@
 #include <QtCore/QTime>
 #include <QtCore/QSize>
 
+#define CONNECT(a, b, c, d) (QObject::connect(a, SIGNAL(b), c, SLOT(d)))
+
 namespace Global {
 
 enum MediaState {StoppedState = 0, PlayingState, PausedState, FinishedState};

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>301</width>
-    <height>199</height>
+    <width>338</width>
+    <height>233</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -39,7 +39,7 @@
       <enum>QFrame::Sunken</enum>
      </property>
      <property name="text">
-      <string/>
+      <string>font</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

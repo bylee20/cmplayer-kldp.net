@@ -4,9 +4,9 @@
 #include <QtOpenGL/QGLWidget>
 #include "overlay.hpp"
 #include "colorproperty.hpp"
-#include "videoframe.hpp"
 
-class OsdRenderer;
+class OsdRenderer;	class VideoFormat;
+class VideoUtil;
 
 class VideoRenderer : public QGLWidget {
 	Q_OBJECT
@@ -35,16 +35,17 @@ protected:
 private:
 	static int translateButton(Qt::MouseButton qbutton);
 
-	void setEventHandler(void *handler);
-	void *lock(VideoFrame::Plane *planes, int dataLength);
+	void setUtil(VideoUtil *util);
+	void *lock(void **planes);
 	void unlock(void *id, void *const *plane);
 	void display(void *id);
-	void prepare(quint32 fourcc, int width, int height, double sar, double fps);
-	friend class LibVlc;
+	void prepare(const VideoFormat *format);
+	friend class LibVLC;
 
 	void updateSize();
 	QSize renderableSize() const;
-	static const char *yv12ToRgb;
+	static const char *i420ToRgb;
+	static const char *yuy2ToRgb;
 	static QGLFormat makeFormat();
 	void paintEvent(QPaintEvent *event);
 	void resizeEvent(QResizeEvent *event);

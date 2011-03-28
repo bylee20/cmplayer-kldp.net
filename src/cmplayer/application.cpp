@@ -23,7 +23,7 @@ Application::Application(int &argc, char **argv)
 	setApplicationName("CMPlayer");
 //	QSettings::setDefaultFormat(QSettings::IniFormat);
 
-	LibVlc::init();
+	LibVLC::init();
 	d->defStyle = style()->objectName();
 //	Translator::load(Pref::get().locale);
 	setStyle(Pref::get().windowStyle);
@@ -35,7 +35,7 @@ Application::Application(int &argc, char **argv)
 Application::~Application() {
 	delete d->main;
 	delete d;
-	LibVlc::release();
+	LibVLC::release();
 }
 
 void Application::initialize() {

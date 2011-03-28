@@ -2,8 +2,8 @@
 #define SUBTITLERENDERER_HPP
 
 #include "subtitle.hpp"
-#include <QtCore/QObject>
 #include "textosdrenderer.hpp"
+#include <QtCore/QObject>
 
 class SubtitleRenderer : public QObject {
 	Q_OBJECT

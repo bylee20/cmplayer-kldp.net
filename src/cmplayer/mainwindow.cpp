@@ -1,14 +1,10 @@
 #include "timelineosdrenderer.hpp"
-#include "framebufferobjectoverlay.hpp"
 #include "screensavermanager.hpp"
 #include "subtitlerenderer.hpp"
 #include "charsetdetector.hpp"
 #include "subtitle_parser.hpp"
-#include "textosdrenderer.hpp"
 #include "audiocontroller.hpp"
 #include "controlwidget.hpp"
-#include "playlistview.hpp"
-#include "subtitleview.hpp"
 #include "pref_dialog.hpp"
 #include "application.hpp"
 #include "recentinfo.hpp"
@@ -23,23 +19,18 @@
 #include "toolbox.hpp"
 #include "libvlc.hpp"
 #include "menu.hpp"
-#include "pref.hpp"
 #include "info.hpp"
 #include <QtGui/QMouseEvent>
-#include <QtGui/QFileDialog>
 #include <QtGui/QVBoxLayout>
-#include <QtGui/QApplication>
 #include <QtGui/QMenuBar>
-#include <QtCore/QFileInfo>
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
-#include <QtCore/QDir>
 #include <qmath.h>
 
 struct MainWindow::Data {
 	Data(Menu &menu): menu(menu), pref(Pref::get()) {}
+	bool moving, changingSub, pausedByHiding, dontShowMsg;
 	Menu &menu;
-	VideoScreen *screen;
 	const Pref &pref;
 	ControlWidget *control;
 	PlayEngine *engine;
@@ -52,7 +43,6 @@ struct MainWindow::Data {
 	QList<int> subSelected;
 	ABRepeater *ab;
 	ToolBox *tool;
-	bool moving, changingSub, pausedByHiding, dontShowMsg;
 	QPoint prevPos;
 	QTimer hider;
 	QSystemTrayIcon *tray;
@@ -65,9 +55,9 @@ QIcon MainWindow::defaultIcon() {
 
 MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	d->changingSub = d->moving = false;
-	d->engine = LibVlc::engine();
-	d->audio = LibVlc::audio();
-	d->video = LibVlc::video();
+	d->engine = LibVLC::engine();
+	d->audio = LibVLC::audio();
+	d->video = LibVLC::video();
 	d->subtitle = new SubtitleRenderer;
 	d->subtitle->setOsd(new TextOsdRenderer);
 	d->timeLine = new TimeLineOsdRenderer;
@@ -84,67 +74,66 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	Menu &menu = d->menu;
 
 	Menu &open = d->menu("open");
-	connect(open["file"], SIGNAL(triggered()), this, SLOT(openFile()));
-	connect(open["url"], SIGNAL(triggered()), this, SLOT(openUrl()));
-	connect(open["dvd"], SIGNAL(triggered()), this, SLOT(openDvd()));
-	connect(open("recent").g(), SIGNAL(triggered(QString)), this, SLOT(openLocation(QString)));
-	connect(open("recent")["clear"], SIGNAL(triggered()), &recent, SLOT(clear()));
+	CONNECT(open["file"], triggered(), this, openFile());
+	CONNECT(open["url"], triggered(), this, openUrl());
+	CONNECT(open["dvd"], triggered(), this, openDvd());
+	CONNECT(open("recent").g(), triggered(QString), this, openLocation(QString));
+	CONNECT(open("recent")["clear"], triggered(), &recent, clear());
 
 	Menu &play = menu("play");
-	connect(play["stop"], SIGNAL(triggered()), d->engine, SLOT(stop()));
-	connect(play("speed").g(), SIGNAL(triggered(int)), this, SLOT(setSpeed(int)));
-	connect(play["pause"], SIGNAL(triggered()), this, SLOT(togglePlayPause()));
-	connect(play("repeat").g(), SIGNAL(triggered(int)), this, SLOT(doRepeat(int)));
-	connect(play("seek").g(), SIGNAL(triggered(int)), this, SLOT(seek(int)));
-	connect(play("title").g(), SIGNAL(triggered(QAction*)), this, SLOT(setTitle(QAction*)));
-	connect(play("chapter").g(), SIGNAL(triggered(QAction*)), this, SLOT(setChapter(QAction*)));
+	CONNECT(play["stop"], triggered(), d->engine, stop());
+	CONNECT(play("speed").g(), triggered(int), this, setSpeed(int));
+	CONNECT(play["pause"], triggered(), this, togglePlayPause());
+	CONNECT(play("repeat").g(), triggered(int), this, doRepeat(int));
+	CONNECT(play("seek").g(), triggered(int), this, seek(int));
+	CONNECT(play("title").g(), triggered(QAction*), this, setTitle(QAction*));
+	CONNECT(play("chapter").g(), triggered(QAction*), this, setChapter(QAction*));
 
 	Menu &video = menu("video");
-	connect(video("track").g(), SIGNAL(triggered(QAction*)), this, SLOT(setVideoTrack(QAction*)));
-	connect(video("size").g(), SIGNAL(triggered(double)), this, SLOT(setVideoSize(double)));
-	connect(video("aspect").g(), SIGNAL(triggered(double)), d->video, SLOT(setAspectRatio(double)));
-	connect(video("crop").g(), SIGNAL(triggered(double)), d->video, SLOT(setCropRatio(double)));
-//	connect(screen["snapshot"], SIGNAL(triggered()), this, SLOT(takeSnapshot()));
-	connect(video.g("color"), SIGNAL(triggered(QAction*)), this, SLOT(setColorProperty(QAction*)));
+	CONNECT(video("track").g(), triggered(QAction*), this, setVideoTrack(QAction*));
+	CONNECT(video("size").g(), triggered(double), this, setVideoSize(double));
+	CONNECT(video("aspect").g(), triggered(double), d->video, setAspectRatio(double));
+	CONNECT(video("crop").g(), triggered(double), d->video, setCropRatio(double));
+//	CONNECT(screen["snapshot"], triggered(), this, takeSnapshot());
+	CONNECT(video.g("color"), triggered(QAction*), this, setColorProperty(QAction*));
 
 	Menu &audio = menu("audio");
-	connect(audio("track").g(), SIGNAL(triggered(QAction*)), this, SLOT(setAudioTrack(QAction*)));
-	connect(audio.g("volume"), SIGNAL(triggered(int)), this, SLOT(setVolume(int)));
-	connect(audio["mute"], SIGNAL(toggled(bool)), this, SLOT(setMuted(bool)));
-	connect(audio.g("amp"), SIGNAL(triggered(int)), this, SLOT(setAmp(int)));
-	connect(audio["normalize-volume"], SIGNAL(toggled(bool)), this, SLOT(setVolumeNormalized(bool)));
-	connect(d->audio, SIGNAL(mutedChanged(bool)), audio["mute"], SLOT(setChecked(bool)));
-	connect(d->audio, SIGNAL(volumeNormalizedChanged(bool))
-		, audio["normalize-volume"], SLOT(setChecked(bool)));
+	CONNECT(audio("track").g(), triggered(QAction*), this, setAudioTrack(QAction*));
+	CONNECT(audio.g("volume"), triggered(int), this, setVolume(int));
+	CONNECT(audio["mute"], toggled(bool), this, setMuted(bool));
+	CONNECT(audio.g("amp"), triggered(int), this, setAmp(int));
+	CONNECT(audio["volnorm"], toggled(bool), this, setVolumeNormalized(bool));
+//	CONNECT(audio["scaletempo"], toggled(bool), this, setTempoScaled(bool));
+	CONNECT(d->audio, mutedChanged(bool), audio["mute"], setChecked(bool));
+	CONNECT(d->audio, volumeNormalizedChanged(bool), audio["volnorm"], setChecked(bool));
+	CONNECT(d->audio, tempoScaledChanged(bool), audio["scaletempo"], setChecked(bool));
+
 
 	Menu &sub = menu("subtitle");
 
-	connect(sub("list")["hide"], SIGNAL(toggled(bool)), d->subtitle, SLOT(setHidden(bool)));
-	connect(sub("list")["open"], SIGNAL(triggered()), this, SLOT(openSubFile()));
-	connect(sub("list")["clear"], SIGNAL(triggered()), this, SLOT(clearSubtitles()));
-	connect(sub("list").g(), SIGNAL(triggered(QAction*)), this, SLOT(updateSubtitle(QAction*)));
-	connect(sub("spu").g(), SIGNAL(triggered(QAction*)), this, SLOT(setSPU(QAction*)));
-	connect(sub.g("pos"), SIGNAL(triggered(int)), this, SLOT(moveSubtitle(int)));
-	connect(sub.g("sync"), SIGNAL(triggered(int)), this, SLOT(setSyncDelay(int)));
+	CONNECT(sub("list")["hide"], toggled(bool), d->subtitle, setHidden(bool));
+	CONNECT(sub("list")["open"], triggered(), this, openSubFile());
+	CONNECT(sub("list")["clear"], triggered(), this, clearSubtitles());
+	CONNECT(sub("list").g(), triggered(QAction*), this, updateSubtitle(QAction*));
+	CONNECT(sub("spu").g(), triggered(QAction*), this, setSPU(QAction*));
+	CONNECT(sub.g("pos"), triggered(int), this, moveSubtitle(int));
+	CONNECT(sub.g("sync"), triggered(int), this, setSyncDelay(int));
 
-	connect(menu["tool-box"], SIGNAL(triggered()), this, SLOT(toggleToolBox()));
-	connect(menu["pref"], SIGNAL(triggered()), this, SLOT(setPref()));
-//	connect(menu["about"], SIGNAL(triggered()), this, SLOT(showAbout()));
-//// 	connect(menu["help"], SIGNAL(triggered()), this, SLOT(slotHelp()));
-	connect(menu["exit"], SIGNAL(triggered()), qApp, SLOT(quit()));
+	CONNECT(menu["tool-box"], triggered(), this, toggleToolBox());
+	CONNECT(menu["pref"], triggered(), this, setPref());
+//	CONNECT(menu["about"], triggered(), this, showAbout());
+//// 	CONNECT(menu["help"], triggered(), this, slotHelp());
+	CONNECT(menu["exit"], triggered(), qApp, quit());
 
-
-
-	connect(&play, SIGNAL(aboutToShow()), this, SLOT(checkPlayMenu()));
-	connect(&play("title"), SIGNAL(aboutToShow()), this, SLOT(checkTitleMenu()));
-	connect(&play("chapter"), SIGNAL(aboutToShow()), this, SLOT(checkChapterMenu()));
-	connect(&video, SIGNAL(aboutToShow()), this, SLOT(checkVideoMenu()));
-	connect(&video("track"), SIGNAL(aboutToShow()), this, SLOT(checkVideoTrackMenu()));
-	connect(&audio, SIGNAL(aboutToShow()), this, SLOT(checkAudioMenu()));
-	connect(&audio("track"), SIGNAL(aboutToShow()), this, SLOT(checkAudioTrackMenu()));
-	connect(&sub, SIGNAL(aboutToShow()), this, SLOT(checkSubtitleMenu()));
-	connect(&sub("spu"), SIGNAL(aboutToShow()), this, SLOT(checkSPUMenu()));
-
+	CONNECT(&play, aboutToShow(), this, checkPlayMenu());
+	CONNECT(&play("title"), aboutToShow(), this, checkTitleMenu());
+	CONNECT(&play("chapter"), aboutToShow(), this, checkChapterMenu());
+	CONNECT(&video, aboutToShow(), this, checkVideoMenu());
+	CONNECT(&video("track"), aboutToShow(), this, checkVideoTrackMenu());
+	CONNECT(&audio, aboutToShow(), this, checkAudioMenu());
+	CONNECT(&audio("track"), aboutToShow(), this, checkAudioTrackMenu());
+	CONNECT(&sub, aboutToShow(), this, checkSubtitleMenu());
+	CONNECT(&sub("spu"), aboutToShow(), this, checkSPUMenu());
 
 	QMenuBar *mb = menuBar();
 	mb->addMenu(&open);
@@ -155,7 +144,7 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	QMenu *m = mb->addMenu(tr("Tools"));
 	m->addAction(tr("Preferences"), this, SLOT(setPref()));
 
-	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(updateMrl(Mrl)));
+	CONNECT(d->engine, mrlChanged(Mrl), this, updateMrl(Mrl));
 	connect(d->engine, SIGNAL(stateChanged(MediaState,MediaState))
 		, this, SLOT(updateState(MediaState,MediaState)));
 
@@ -163,7 +152,7 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 		, this, SLOT(showContextMenu(const QPoint&)));
 	connect(&recent, SIGNAL(openListChanged(QList<Mrl>))
 		, this, SLOT(updateRecentActions(QList<Mrl>)));
-	connect(&d->hider, SIGNAL(timeout()), this, SLOT(hideCursor()));
+	CONNECT(&d->hider, timeout(), this, hideCursor());
 	d->hider.setSingleShot(true);
 	connect(d->tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
 		, this, SLOT(handleTray(QSystemTrayIcon::ActivationReason)));
@@ -173,16 +162,14 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	d->video->addOsd(d->message);
 	connect(d->video, SIGNAL(frameRateChanged(double))
 		, d->subtitle, SLOT(setFrameRate(double)));
-	connect(d->engine, SIGNAL(tick(int)), d->subtitle, SLOT(render(int)));
-
+	CONNECT(d->engine, tick(int), d->subtitle, render(int));
 	loadState();
 	applyPref();
 	d->tool = new ToolBox(this);
 
-	connect(play["prev"], SIGNAL(triggered()), d->tool->playlist(), SLOT(playPrevious()));
-	connect(play["next"], SIGNAL(triggered()), d->tool->playlist(), SLOT(playNext()));
-	connect(d->tool->playlist(), SIGNAL(finished()), this, SLOT(handleFinished()));
-	connect(d->tool->history(), SIGNAL(playRequested(Mrl)), this, SLOT(openMrl(Mrl)));
+	CONNECT(play["prev"], triggered(), d->tool->playlist(), playPrevious());
+	CONNECT(play["next"], triggered(), d->tool->playlist(), playNext());
+	CONNECT(d->tool->history(), playRequested(Mrl), this, openMrl(Mrl));
 
 	d->tool->playlist()->setPlaylist(recent.lastPlaylist());
 	d->engine->setMrl(recent.lastMrl());
@@ -284,8 +271,6 @@ void MainWindow::saveState() {
 
 void MainWindow::setupUi() {
 	QWidget *center = new QWidget(this);
-
-//	d->screen = new VideoScreen(d->engine->renderer(), center);
 
 	d->control = new ControlWidget(d->engine, center);
 	Menu &play = d->menu("play");
@@ -403,10 +388,6 @@ void MainWindow::updateMrl(const Mrl &mrl) {
 	}
 	d->changingSub = false;
 	updateSubtitle();
-
-//	const bool dvd = mrl.isDVD();
-//	d->menu("dvd-menu").menuAction()->setVisible(dvd);
-//	d->menu("subtitle").menuAction()->setVisible(!dvd);
 }
 
 void MainWindow::clearSubtitles() {
@@ -461,16 +442,11 @@ void MainWindow::appendSubFiles(const QStringList &files, bool checked, const QS
 void MainWindow::updateSubtitle(QAction *action) {
 	if (d->changingSub)
 		return;
-//	if (d->player->currentSource().isDisc())
-//		d->player->setCurrentSpu(action->isChecked()
-//				? action->data().toString() : QString());
-//	else {
-		const int idx = action->data().toInt();
-		d->subSelected.removeAll(idx);
-		if (action->isChecked())
-			d->subSelected.append(idx);
-		updateSubtitle();
-//	}
+	const int idx = action->data().toInt();
+	d->subSelected.removeAll(idx);
+	if (action->isChecked())
+		d->subSelected.append(idx);
+	updateSubtitle();
 }
 
 void MainWindow::doSubtitleAutoLoad() {
@@ -496,16 +472,12 @@ void MainWindow::doSubtitleAutoLoad() {
 		if (sub.load(all[i].absoluteFilePath(), d->pref.subtitleEncoding))
 			d->subLoaded += sub;
 	}
-//	d->menu("subtitle")("list").g()->setExclusive(source.isDisc());
-//	if (!source.isLocalFile())
-//		return;
 }
 
 void MainWindow::doSubtitleAutoSelection() {
 	const Mrl mrl = d->engine->mrl();
 	d->subSelected.clear();
-	// local file check need
-	if (d->subLoaded.isEmpty())
+	if (d->subLoaded.isEmpty() || !mrl.isLocalFile())
 		return;
 	QSet<QString> langSet;
 	const QString base = QFileInfo(mrl.toLocalFile()).completeBaseName();
@@ -836,10 +808,6 @@ void MainWindow::dropEvent(QDropEvent *event) {
 		appendSubFiles(subList, true, d->pref.subtitleEncoding);
 }
 
-void MainWindow::handleFinished() {
-//	d->stack->setCurrentWidget(d->logo);
-}
-
 void MainWindow::setSyncDelay(int diff) {
 	int delay = diff ? d->subtitle->delay() + diff : 0;
 	d->subtitle->setDelay(delay);
@@ -922,6 +890,11 @@ void MainWindow::showMessage(const QString &cmd, bool value, int last) {
 void MainWindow::setVolumeNormalized(bool norm) {
 	d->audio->setVolumeNormalized(norm);
 	showMessage(tr("Normalize Volume"), norm);
+}
+
+void MainWindow::setTempoScaled(bool scaled) {
+	d->audio->setTempoScaled(scaled);
+	showMessage(tr("Autoscale Pitch"), scaled);
 }
 
 void MainWindow::setColorProperty(QAction *action) {

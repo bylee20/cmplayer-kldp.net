@@ -36,7 +36,7 @@ void LogoDrawer::draw(QPainter *painter, const QRect &bg) {
 	painter->fillRect(bg, m_bgBrush);
 	painter->scale(1.0/w, 1.0/h);
 
-	const int len = qMin(qRound(qMin(w, h)*0.5), m_logo.width());
+	const int len = qMin(qRound(qMin(w, h)*0.7), m_logo.width());
 	QRect rect;
 	rect.setX((w-len)*0.5 + 0.5);
 	rect.setY((h-len)*0.5 + 0.5);

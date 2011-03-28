@@ -97,7 +97,7 @@ void JumpSlider::mousePressEvent(QMouseEvent *event) {
 }
 
 SeekSlider::SeekSlider(QWidget *parent)
-: JumpSlider(parent), engine(LibVlc::engine()), tick(false) {
+: JumpSlider(parent), engine(LibVLC::engine()), tick(false) {
 	setRange(0, engine->duration());
 	setValue(engine->position());
 	connect(this, SIGNAL(valueChanged(int)), this, SLOT(seek(int)));
@@ -128,9 +128,9 @@ VolumeSlider::VolumeSlider(QWidget *parent)
 : JumpSlider(parent) {
 	setMaximumWidth(70);
 	setRange(0, 100);
-	setValue(LibVlc::audio()->volume());
-	connect(this, SIGNAL(valueChanged(int)), LibVlc::audio(), SLOT(setVolume(int)));
-	connect(LibVlc::audio(), SIGNAL(volumeChanged(int)), this, SLOT(setValue(int)));
+	setValue(LibVLC::audio()->volume());
+	connect(this, SIGNAL(valueChanged(int)), LibVLC::audio(), SLOT(setVolume(int)));
+	connect(LibVLC::audio(), SIGNAL(volumeChanged(int)), this, SLOT(setValue(int)));
 }
 
 

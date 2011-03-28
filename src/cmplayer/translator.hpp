@@ -4,7 +4,6 @@
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QLocale>
-//#include "e
 
 typedef QList<QLocale> LocaleList;
 

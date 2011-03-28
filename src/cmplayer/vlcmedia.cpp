@@ -1,21 +1,22 @@
 #include "vlcmedia.hpp"
 #include "libvlc.hpp"
+#include <QtCore/QStringList>
 
-struct VlcMedia::Data {
+struct VLCMedia::Data {
 	Mrl mrl;
 	libvlc_media_t *m;
 	libvlc_event_manager_t *evMan;
 };
 
-VlcMedia::VlcMedia(const Mrl &mrl): d(new Data) {
+VLCMedia::VLCMedia(const Mrl &mrl): d(new Data) {
 	d->evMan = 0;
 	d->mrl = mrl;
 	if (mrl.isLocalFile())
-		d->m = libvlc_media_new_path(LibVlc::inst(), mrl.toLocalFile().toLocal8Bit());
+		d->m = libvlc_media_new_path(LibVLC::inst(), mrl.toLocalFile().toLocal8Bit());
 	else
-		d->m = libvlc_media_new_location(LibVlc::inst(), mrl.toString().toLocal8Bit());
+		d->m = libvlc_media_new_location(LibVLC::inst(), mrl.toString().toLocal8Bit());
 	if (!d->m) {
-		LibVlc::outputError();
+		LibVLC::outputError();
 		return;
 	}
 	d->evMan = libvlc_media_event_manager(d->m);
@@ -27,27 +28,43 @@ VlcMedia::VlcMedia(const Mrl &mrl): d(new Data) {
 		libvlc_event_attach(d->evMan, events[i], cbEventManage, this);
 }
 
-VlcMedia::~VlcMedia() {
+VLCMedia::~VLCMedia() {
 	if (d->m)
 		libvlc_media_release(d->m);
 	delete d;
 }
 
-Mrl VlcMedia::mrl() const {
+Mrl VLCMedia::mrl() const {
 	return d->mrl;
 }
 
-libvlc_media_t *VlcMedia::media() {
+libvlc_media_t *VLCMedia::media() {
 	return d->m;
 }
 
-void VlcMedia::cbEventManage(const libvlc_event_t *event, void *data) {
-	reinterpret_cast<VlcMedia*>(data)->parseEvent(event);
+void VLCMedia::cbEventManage(const libvlc_event_t *event, void *data) {
+	reinterpret_cast<VLCMedia*>(data)->parseEvent(event);
 }
 
-void VlcMedia::parseEvent(const libvlc_event_t *event) {
+void VLCMedia::parseEvent(const libvlc_event_t *event) {
 	switch (event->type) {
 	default:
 		break;
 	}
 }
+
+void VLCMedia::addOption(const QStringList &opt) {
+	QByteArray buffer;
+	for (int i=0; i<opt.size(); ++i) {
+		buffer = opt[i].toLocal8Bit();
+		libvlc_media_add_option(d->m, buffer.constData());
+	}
+}
+
+void VLCMedia::addOption(const QString &opt) {
+	Q_ASSERT(d->m != 0);
+	const QByteArray buffer = opt.toLocal8Bit();
+	libvlc_media_add_option(d->m, buffer.data());
+}
+
+

@@ -94,11 +94,8 @@ void CheckDialog::slotButtonClicked(QAbstractButton *button) {
 struct GetShortcutDialog::Data {
 	QLineEdit *edit;
 	QPushButton *begin, *erase, *ok, *cancel;
-	bool getting;
-	bool pressing;
 	int curIdx;
 	int codes[MaxKeyCount];
-	QKeySequence shortcut;
 };
 
 GetShortcutDialog::GetShortcutDialog(const QKeySequence &shortcut, QWidget *parent)
@@ -110,6 +107,7 @@ GetShortcutDialog::GetShortcutDialog(const QKeySequence &shortcut, QWidget *pare
 GetShortcutDialog::GetShortcutDialog(QWidget *parent)
 : QDialog(parent) {
 	init();
+	erase();
 }
 
 GetShortcutDialog::~GetShortcutDialog() {
@@ -118,7 +116,7 @@ GetShortcutDialog::~GetShortcutDialog() {
 
 void GetShortcutDialog::init() {
 	d = new Data;
-	d->getting = d->pressing = (d->curIdx = 0);
+	d->curIdx = 0;
 	d->edit = new QLineEdit(this);
 	d->edit->setReadOnly(true);
 	d->begin = new QPushButton(tr("Get Shortcut"), this);
@@ -150,34 +148,33 @@ void GetShortcutDialog::init() {
 	connect(d->ok, SIGNAL(clicked()), this, SLOT(accept()));
 	connect(d->cancel, SIGNAL(clicked()), this, SLOT(reject()));
 	d->edit->installEventFilter(this);
-	for (int i=0; i<MaxKeyCount; ++i)
-		d->codes[i] = 0;
 	d->begin->toggle();
 }
 
 void GetShortcutDialog::erase() {
-	setShortcut(QKeySequence());
+	d->curIdx = 0;
+	for (int i=0; i<MaxKeyCount; ++i)
+		d->codes[i] = 0;
+	d->edit->clear();
 }
 
-const QKeySequence &GetShortcutDialog::shortcut() const {
-	return d->shortcut;
+QKeySequence GetShortcutDialog::shortcut() const {
+	return QKeySequence(d->codes[0], d->codes[1], d->codes[2], d->codes[3]);
 }
 
 void GetShortcutDialog::setShortcut(const QKeySequence &shortcut) {
-	d->shortcut = shortcut;
-	d->edit->setText(shortcut.toString());
+	for (int i=0; i<MaxKeyCount; ++i)
+		d->codes[i] = shortcut[i];
+	d->edit->setText(shortcut.toString(QKeySequence::NativeText));
 }
 
 void GetShortcutDialog::setGetting(bool on) {
-	if ((d->getting = on)) {
-		d->curIdx = 0;
-		d->edit->clear();
-		d->shortcut = QKeySequence();
-	}
+	if (on)
+		erase();
 }
 
 bool GetShortcutDialog::eventFilter(QObject *obj, QEvent *event) {
-	if (d->getting && obj == d->edit && event->type() == QEvent::KeyPress) {
+	if (obj == d->edit && d->begin->isChecked() && event->type() == QEvent::KeyPress) {
 		getShortcut(static_cast<QKeyEvent *>(event));
 		return true;
 	} else
@@ -186,7 +183,7 @@ bool GetShortcutDialog::eventFilter(QObject *obj, QEvent *event) {
 
 void GetShortcutDialog::keyPressEvent(QKeyEvent *event) {
 	QDialog::keyPressEvent(event);
-	if (d->getting)
+	if (d->begin->isChecked())
 		getShortcut(event);
 }
 
@@ -200,9 +197,8 @@ void GetShortcutDialog::getShortcut(QKeyEvent *event) {
 
 void GetShortcutDialog::keyReleaseEvent(QKeyEvent *event) {
 	QDialog::keyReleaseEvent(event);
-	if (d->getting && d->codes[d->curIdx]) {
-		d->shortcut = QKeySequence(d->codes[0], d->codes[1], d->codes[2], d->codes[3]);
-		d->edit->setText(d->shortcut.toString());
+	if (d->begin->isChecked() && d->codes[d->curIdx]) {
+		d->edit->setText(shortcut().toString(QKeySequence::NativeText));
 		++d->curIdx;
 	}
 }

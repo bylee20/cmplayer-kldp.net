@@ -1,76 +1,84 @@
 #include "audiocontroller.hpp"
 #include "videorenderer.hpp"
+#include "videoframe.hpp"
 #include "playengine.hpp"
 #include "libvlc.hpp"
 #include <QtCore/QDebug>
 
-struct LibVlc::Data {
+struct LibVLC::Data {
 	PlayEngine *engine;
 	AudioController *audio;
 	VideoRenderer *video;
 	libvlc_instance_t *inst;
 	libvlc_media_player_t *mp;
-	EventHandler eventHandler;
+	VideoUtil vUtil;
+	AudioUtil aUtil;
 };
 
-LibVlc *LibVlc::s = 0;
+LibVLC *LibVLC::s = 0;
 
-void LibVlc::init() {
-	s = new LibVlc;
+void LibVLC::init() {
+	s = new LibVLC;
 	Data *d = s->d;
 	d->engine = new PlayEngine;
 	d->audio = new AudioController;
 	d->video = new VideoRenderer;
-	d->eventHandler.self = 0;
-	d->video->setEventHandler(&d->eventHandler);
+
+	d->vUtil.vd = 0;
+	d->aUtil.af = 0;
+	d->aUtil.scaletempoEnabled = 0;
+
+	d->video->setUtil(&d->vUtil);
+	d->audio->setUtil(&d->aUtil);
 }
 
-void LibVlc::release() {
+void LibVLC::release() {
 	Data *d = s->d;
 	delete d->engine;
 	delete d->audio;
 	delete s;
 }
 
-void LibVlc::cbAudioPrepare(void *data, int channels) {
-	AudioController *audio = reinterpret_cast<LibVlc*>(data)->d->audio;
+void LibVLC::cbAudioPrepare(void *data, const AudioFormat *format) {
+	AudioController *audio = reinterpret_cast<LibVLC*>(data)->d->audio;
 	if (audio)
-		audio->prepare(channels);
+		audio->prepare(format);
 }
 
-void LibVlc::cbAudioDoWork(void *data, int samples, float *buffer) {
-	AudioController *audio = reinterpret_cast<LibVlc*>(data)->d->audio;
+AudioBuffer *LibVLC::cbAudioProcess(void *data, AudioBuffer *in) {
+	AudioController *audio = reinterpret_cast<LibVLC*>(data)->d->audio;
 	if (audio)
-		audio->apply(samples, buffer);
-}
-
-void *LibVlc::cbVideoLock(void *data, void *planes, int dataLength) {
-	VideoRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
-	if (video)
-		return video->lock(reinterpret_cast<VideoFrame::Plane*>(planes), dataLength);
+		return audio->process(in);
 	return 0;
 }
 
-void LibVlc::cbVideoUnlock(void *data, void *id, void *const *plane) {
-	VideoRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
+void *LibVLC::cbVideoLock(void *data, void **planes) {
+	VideoRenderer *video = reinterpret_cast<LibVLC*>(data)->d->video;
+	if (video)
+		return video->lock(planes);
+	return 0;
+}
+
+void LibVLC::cbVideoUnlock(void *data, void *id, void *const *plane) {
+	VideoRenderer *video = reinterpret_cast<LibVLC*>(data)->d->video;
 	if (video)
 		video->unlock(id, plane);
 }
 
-void LibVlc::cbVideoDisplay(void *data, void *id) {
-	VideoRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
+void LibVLC::cbVideoDisplay(void *data, void *id) {
+	VideoRenderer *video = reinterpret_cast<LibVLC*>(data)->d->video;
 	if (video)
 		video->display(id);
 }
 
-void LibVlc::cbVideoPrepare(void *data, quint32 fourcc, int width, int height, double sar, double fps) {
-	VideoRenderer *video = reinterpret_cast<LibVlc*>(data)->d->video;
+void LibVLC::cbVideoPrepare(void *data, const VideoFormat *format) {
+	VideoRenderer *video = reinterpret_cast<LibVLC*>(data)->d->video;
 	if (video)
-		video->prepare(fourcc, width, height, sar, fps);
+		video->prepare(format);
 }
 
-void LibVlc::cbManageEvent(const libvlc_event_t *event, void *data) {
-	LibVlc *self = reinterpret_cast<LibVlc*>(data);
+void LibVLC::cbManageEvent(const libvlc_event_t *event, void *data) {
+	LibVLC *self = reinterpret_cast<LibVLC*>(data);
 	Data *d = self->d;
 	switch (event->type) {
 	case libvlc_MediaPlayerSeekableChanged:
@@ -92,49 +100,56 @@ void LibVlc::cbManageEvent(const libvlc_event_t *event, void *data) {
 	}
 }
 
-LibVlc::LibVlc(): d(new Data) {
+LibVLC::LibVLC(): d(new Data) {
 	d->audio = 0;
 	d->video = 0;
 	d->engine = 0;
 
 	char pvLock[125], pvUnlock[125], pvDisplay[125], pvPrepare[125];
-	char paDoWork[125], paPrepare[125];
-	char pData[125], pvEventHandler[125];
+	char paProcess[125], paPrepare[125], paUtil[125];
+	char pData[125], pvUtil[125], paScaletempo[125];
 	sprintf(pvLock, "%lld", (long long int)(intptr_t)(void*)cbVideoLock);
 	sprintf(pvUnlock, "%lld", (long long int)(intptr_t)(void*)cbVideoUnlock);
 	sprintf(pvDisplay, "%lld", (long long int)(intptr_t)(void*)cbVideoDisplay);
 	sprintf(pvPrepare, "%lld", (long long int)(intptr_t)(void*)cbVideoPrepare);
-	sprintf(paDoWork, "%lld", (long long int)(intptr_t)(void*)cbAudioDoWork);
+	sprintf(paProcess, "%lld", (long long int)(intptr_t)(void*)cbAudioProcess);
 	sprintf(paPrepare, "%lld", (long long int)(intptr_t)(void*)cbAudioPrepare);
 	sprintf(pData, "%lld", (long long int)(intptr_t)(void*)this);
-	sprintf(pvEventHandler, "%lld", (long long int)(intptr_t)(void*)&d->eventHandler);
+	sprintf(pvUtil, "%lld", (long long int)(intptr_t)(void*)&d->vUtil);
+	sprintf(paUtil, "%lld", (long long int)(intptr_t)(void*)&d->aUtil);
+	sprintf(paScaletempo, "%lld", (long long int)(intptr_t)&d->aUtil.scaletempoEnabled);
+
 	const char *const args[] = {
 		"-I", "dummy",
 		"--reset-plugins-cache",
 		"--ignore-config",
 		"--extraintf=logger",
-//		"--verbose=2",
-		"--quiet",
+//		"--quiet",
+		"--verbose=2",
 		"--no-xlib",
 		"--reset-plugins-cache",
+//		"--plugin-path", "/Users/xylosper/cmplayer-vlc/src/cmplayer-vlc-plugins",
 		"--no-media-library",
 		"--no-osd",
 		"--no-sub-autodetect-file",
 		"--no-stats",
 		"--no-video-title-show",
 		"--album-art=0",
-		"--cmplayer-vout-chroma", "YV12",
+		"--cmplayer-vout-chroma", "AUTO",
 		"--cmplayer-vout-cb-lock", pvLock,
 		"--cmplayer-vout-cb-unlock", pvUnlock,
 		"--cmplayer-vout-cb-display", pvDisplay,
 		"--cmplayer-vout-cb-prepare", pvPrepare,
 		"--cmplayer-vout-data", pData,
-		"--cmplayer-vout-event-handler", pvEventHandler,
+		"--cmplayer-vout-util", pvUtil,
 		"--vout", "cmplayer-vout",
 		"--cmplayer-afilter-cb-prepare", paPrepare,
-		"--cmplayer-afilter-cb-do-work", paDoWork,
+		"--cmplayer-afilter-cb-process", paProcess,
 		"--cmplayer-afilter-data", pData,
+		"--cmplayer-afilter-util", paUtil,
 		"--audio-filter", "cmplayer-afilter",
+//		"--cmplayer-scaletempo-enabled", paScaletempo,
+//		"--audio-filter", "scaletempo"
 	};
 	d->inst = libvlc_new(sizeof(args)/sizeof(*args), args);
 	d->mp = libvlc_media_player_new(d->inst);
@@ -158,37 +173,37 @@ LibVlc::LibVlc(): d(new Data) {
 		libvlc_event_attach(man, events[i], cbManageEvent, this);
 }
 
-LibVlc::~LibVlc() {
+LibVLC::~LibVLC() {
 	libvlc_media_player_stop(d->mp);
 	libvlc_media_player_release(d->mp);
 	libvlc_release(d->inst);
 	delete d;
 }
 
-PlayEngine *LibVlc::engine() {
+PlayEngine *LibVLC::engine() {
 	return get().d->engine;
 }
 
-AudioController *LibVlc::audio() {
+AudioController *LibVLC::audio() {
 	return get().d->audio;
 }
 
-VideoRenderer *LibVlc::video() {
+VideoRenderer *LibVLC::video() {
 	return get().d->video;
 }
 
-libvlc_instance_t *LibVlc::inst() {
+libvlc_instance_t *LibVLC::inst() {
 	return get().d->inst;
 }
 
-libvlc_media_player_t *LibVlc::mp() {
+libvlc_media_player_t *LibVLC::mp() {
 	return get().d->mp;
 }
 
-libvlc_media_t *LibVlc::newMedia(const Mrl &mrl) {
+libvlc_media_t *LibVLC::newMedia(const Mrl &mrl) {
 	return libvlc_media_new_location(get().inst(), mrl.toString().toLocal8Bit());
 }
 
-void LibVlc::outputError() {
+void LibVLC::outputError() {
 	qDebug() << "libvlc error:" << libvlc_errmsg();
 }

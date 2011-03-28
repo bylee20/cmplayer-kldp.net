@@ -46,6 +46,5 @@
         <file>translations/cmplayer_ja</file>
         <file>img/speaker.png</file>
         <file>img/cmplayer.png</file>
-        <file>img/cmplayer.svg</file>
     </qresource>
 </RCC>
