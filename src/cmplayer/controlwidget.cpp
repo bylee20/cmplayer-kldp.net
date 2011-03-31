@@ -105,8 +105,6 @@ struct ControlWidget::Data {
 	Lcd *lcd;
 	Slider *slider;
 	PlayEngine *engine;
-	Button *pref;
-	Button *open, *tool, *fullScreen;
 	Button *play, *prev, *next, *forward, *backward;
 	QBrush bg, light;
 	QPainterPath path;
@@ -133,10 +131,6 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->boundary = new Boundary(this);
 	d->lcd = new Lcd(this);
 	d->slider = new Slider(this);
-	d->pref = new Button(this);
-	d->open = new Button(this);
-	d->fullScreen = new Button(this);
-	d->tool = new Button(this);
 	d->play = new Button(this);
 	d->prev = new Button(this);
 	d->next = new Button(this);
@@ -147,14 +141,6 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->play->setBlock(false);
 	d->prev->setBlock(false);
 	d->next->setBlock(false);
-	d->fullScreen->setBlock(false);
-	d->open->setBlock(false);
-	d->pref->setBlock(false);
-	d->tool->setBlock(false);
-	d->tool->setIcon(QIcon(":/img/preferences-plugin.png"));
-	d->open->setIcon(QIcon(":/img/go-next-view-page.png"));
-	d->fullScreen->setIcon(QIcon(":/img/view-fullscreen.png"));
-	d->pref->setIcon(QIcon(":/img/preferences-system.png"));
 	setState(StoppedState);
 	connect(&d->lcd->hider, SIGNAL(timeout()), this, SLOT(hideMessage()));
 	connect(d->engine, SIGNAL(stateChanged(MediaState, MediaState))
@@ -181,10 +167,6 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->next->setIconSize(small);
 	d->forward->setIconSize(small);
 	d->backward->setIconSize(small);
-	d->tool->setIconSize(small);
-	d->open->setIconSize(small);
-	d->pref->setIconSize(small);
-	d->fullScreen->setIconSize(small);
 
 	QGridLayout *left = new QGridLayout;
 	left->setContentsMargins(0, 0, 0, 0);
@@ -198,18 +180,18 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	middle->addWidget(d->lcd);
 	middle->addWidget(d->slider);
 
-	QGridLayout *right = new QGridLayout;
-	right->setContentsMargins(2, 0, 0, 0);
-	right->addWidget(d->open, 0, 0, 1, 1);
-	right->addWidget(d->pref, 1, 0, 1, 1);
-	right->addWidget(d->tool, 0, 1, 1, 1);
-	right->addWidget(d->fullScreen, 1, 1, 1, 1);
+//	QGridLayout *right = new QGridLayout;
+//	right->setContentsMargins(2, 0, 0, 0);
+//	right->addWidget(d->open, 0, 0, 1, 1);
+//	right->addWidget(d->pref, 1, 0, 1, 1);
+//	right->addWidget(d->tool, 0, 1, 1, 1);
+//	right->addWidget(d->fullScreen, 1, 1, 1, 1);
 
 	QHBoxLayout *hbox = new QHBoxLayout;
 	hbox->setContentsMargins(2, 0, 2, 0);
 	hbox->addLayout(left);
 	hbox->addLayout(middle);
-	hbox->addLayout(right);
+//	hbox->addLayout(right);
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
@@ -325,31 +307,11 @@ void ControlWidget::hideMessage() {
 	d->lcd->stack->setCurrentIndex(Lcd::Info);
 }
 
-void ControlWidget::connectOpen(QAction *action) {
-	d->open->setAction(action, false);
-}
-
-void ControlWidget::connectToolBox(QAction *action) {
-	d->tool->setAction(action, false);
-}
-
-void ControlWidget::connectPreference(QAction *action) {
-	d->pref->setAction(action, false);
-}
-
-void ControlWidget::connectFullScreen(QAction *action) {
-	d->fullScreen->setAction(action, false);
-}
-
 void ControlWidget::retranslateUi() {
 	d->backward->setToolTip(tr("Backward"));
 	d->forward->setToolTip(tr("Forward"));
 	d->next->setToolTip(tr("Next"));
 	d->prev->setToolTip(tr("Previous"));
-	d->open->setToolTip(tr("Open File"));
-	d->pref->setToolTip(tr("Preferences"));
-	d->fullScreen->setToolTip(tr("Full Screen"));
-	d->tool->setToolTip(tr("Tool Box"));
 }
 
 void ControlWidget::changeEvent(QEvent *event) {

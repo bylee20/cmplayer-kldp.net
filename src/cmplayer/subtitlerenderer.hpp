@@ -5,6 +5,8 @@
 #include "textosdrenderer.hpp"
 #include <QtCore/QObject>
 
+class QDialog;
+
 class SubtitleRenderer : public QObject {
 	Q_OBJECT
 public:
@@ -22,6 +24,7 @@ public:
 	bool hasSubtitle() const;
 	double pos() const;
 	void setPos(double pos);
+	QWidget *view(QWidget *parent = 0) const;
 public slots:
 	void clear();
 	void setFrameRate(double frameRate);

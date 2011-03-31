@@ -54,22 +54,25 @@ Subtitle::Component &Subtitle::Component::unite(const Component &other, double f
 		int k1 = it1.next().key();
 		int k2 = it1.hasNext() ? it1.peekNext().key() : -1;
 		if (k3 != -1 && it2.hasPrevious())
-			(*this)[k1] = it1.value().merged(it2.peekPrevious().value());
+			(*this)[k1].text = it1.value().text.merged(it2.peekPrevious().value().text);
 		while(it2.hasNext()) {
 			k3 = convertKeyBase(it2.next().key(), other.base(), m_base, frameRate);
 			if (k2 == -1)
-				(*this)[k3] = it1.value().merged(it2.value());
+				(*this)[k3].text = it1.value().text.merged(it2.value().text);
 			else if (k3 >= k2) {
 				it2.previous();
 				break;
 			} else if (k3 == k1)
-				(*this)[k1] = it1.value().merged(it2.value());
+				(*this)[k1].text = it1.value().text.merged(it2.value().text);
 			else if (k3 > k1)
-				(*this)[k3] = it1.value().merged(it2.value());
+				(*this)[k3].text = it1.value().text.merged(it2.value().text);
 			else if (k3 < k1)
-				(*this)[k3] = it2.value();
+				(*this)[k3].text = it2.value().text;
 		}
 	}
+	Component::iterator it = begin();
+	for (int idx = 0; it != end(); ++idx, ++it)
+		it->index = idx;
 	return *this;
 }
 
@@ -102,20 +105,9 @@ RichString Subtitle::text(int time, double frameRate) const {
 	for (int i=0; i<m_comp.size(); ++i) {
 		const Component::const_iterator it = m_comp[i].start(time, frameRate);
 		if (it != m_comp[i].end())
-			text.merge(it.value());
+			text.merge(it.value().text);
 	}
 	return text;
-}
-
-bool Subtitle::save(const QString &file, const QString &enc, double frameRate) const {
-	Parser *parser = Parser::create(file);
-	bool result = false;
-	if (parser) {
-		parser->setEncoding(enc);
-		result = parser->save(file, *this, frameRate);
-	}
-	delete parser;
-	return result;
 }
 
 bool Subtitle::load(const QString &file, const QString &enc) {

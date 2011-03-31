@@ -226,8 +226,7 @@ Pref::Dialog::Dialog(QWidget *parent)
 	items << ItemPair(tr("Open File"), OpenFile)
 			<< ItemPair(tr("Toggle Full Screen"), ToggleFullScreen)
 			<< ItemPair(tr("Toggle Play/Pause"), TogglePlayPause)
-			<< ItemPair(tr("Toggle Mute"), ToggleMute)
-			<< ItemPair(tr("Toggle Tool Box"), ToggleToolBox);
+			<< ItemPair(tr("Toggle Mute"), ToggleMute);
 	d->dbl->addItems(items);
 	d->mdl->addItems(items);
 	items.clear();

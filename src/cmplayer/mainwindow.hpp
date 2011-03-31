@@ -6,7 +6,7 @@
 #include "global.hpp"
 
 class Mrl;		class PlayEngine;
-class Track;
+class Track;		class ControlWidget;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -14,10 +14,12 @@ public:
 	MainWindow();
 	~MainWindow();
 	PlayEngine *engine() const;
+	static QIcon defaultIcon();
 public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
 private slots:
+	void setStaysOnTopMode(int mode);
 	void setVolumeNormalized(bool norm);
 	void setTempoScaled(bool scaled);
 	void openFile();
@@ -37,7 +39,6 @@ private slots:
 	void setAmp(int amp);
 	void doRepeat(int key);
 	void moveSubtitle(int dy);
-	void toggleToolBox();
 	void clearSubtitles();
 	void updateSubtitle(QAction *action);
 	void setSyncDelay(int diff);
@@ -64,9 +65,16 @@ private slots:
 	void checkVideoMenu();
 	void checkVideoTrackMenu();
 	void setVideoTrack(QAction *act);
+
+	void updateStaysOnTop();
+	void togglePlaylist();
+	void toggleSubtitle();
+	void toggleHistory();
 private:
-	static QIcon defaultIcon();
+	ControlWidget *createControlWidget();
+	QWidget *createCentralWidget(QWidget *video, QWidget *control);
 	void appendSubFiles(const QStringList &files, bool checked, const QString &enc);
+	StaysOnTop staysOnTopMode() const;
 	void loadState();
 	void saveState();
 	void closeEvent(QCloseEvent *event);
@@ -74,6 +82,7 @@ private:
 	void showEvent(QShowEvent *event);
 	void hideEvent(QHideEvent *event);
 	void setFullScreen(bool full);
+	void resizeEvent(QResizeEvent *event);
 	template<typename M, typename A>
 	static typename A::mapped_type getTriggerAction(uint mod, const M &map
 			, const A &act, const typename A::mapped_type &def) {

@@ -1,33 +1,35 @@
 !isEmpty(RELEASE) {
 	CONFIG += release
+	macx {
+		CONFIG += app_bundle
+	}
 } else {
 	CONFIG += debug
+	macx {
+		CONFIG -= app_bundle
+	}
 }
 
 macx {
-#	VLC_INCLUDE_PATH = $$(CMPLAYER_VLC_INCLUDE_PATH)
-#	isEmpty(VLC_INCLUDE_PATH) {
-#		VLC_INCLUDE_PATH = /Applications/VLC.app/Contents/MacOS/include
-#	}
-
-#	VLC_LIB_PATH = $$(CMPLAYER_VLC_LIB_PATH)
-#	isEmpty(VLC_LIB_PATH) {
-#		VLC_LIB_PATH = /Applications/VLC.app/Contents/MacOS/lib
-#	}
+	isEmpty(VLC_INCLUDE_PATH) {
+		VLC_INCLUDE_PATH = /Applications/VLC.app/Contents/MacOS/include
+	}
+	isEmpty(VLC_LIB_PATH) {
+		VLC_LIB_PATH = /Applications/VLC.app/Contents/MacOS/lib
+	}
 	INCLUDEPATH += $${VLC_INCLUDE_PATH}
 	LIBS += -L$${VLC_LIB_PATH}
 	ICON = ../../icons/cmplayer.icns
+	LIBS += -framework Cocoa
 }
 
 TEMPLATE = app
 TARGET = cmplayer
 CONFIG += link_pkgconfig debug_and_release
-#CONFIG -= app_bundle
 
 QT = core gui opengl network
 
 INCLUDEPATH += ../libchardet-1.0.1/src
-
 
 LIBS += -lvlc -L../libchardet-1.0.1/src/.libs -lchardet
 RESOURCES += rsclist.qrc
@@ -82,7 +84,11 @@ HEADERS += playengine.hpp \
     pixmapoverlay.hpp \
     overlay.hpp \
     videorenderer.hpp \
-    avmisc.hpp
+    avmisc.hpp \
+    application_mac.hpp \
+    subtitlemodel.hpp \
+    tagiterator.hpp \
+    subtitle_parser_p.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -135,10 +141,13 @@ SOURCES += main.cpp \
     pixelbufferoverlay.cpp \
     pixmapoverlay.cpp \
     overlay.cpp \
-    videorenderer.cpp
+    videorenderer.cpp \     
+    application_mac.mm \
+    subtitlemodel.cpp \
+    tagiterator.cpp \
+    subtitle_parser_p.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts
 FORMS += ui/pref_dialog.ui \
     ui/osdstyle_widget.ui
-

@@ -22,6 +22,7 @@ public:
 		UrlEncoding,
 		TrayFirst,
 		VolNorm,
+		StaysOnTop,
 		TypeMax
 	};
 	const QString &key(Type type) const {return d.keys[type];}

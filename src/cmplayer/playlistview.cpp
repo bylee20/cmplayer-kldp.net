@@ -57,6 +57,8 @@ PlaylistView::PlaylistView(PlayEngine *engine, QWidget *parent)
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	vbox->addWidget(d->view);
+	vbox->setSpacing(0);
+	vbox->setMargin(0);
 
 	connect(d->engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(updateCurrentMrl(Mrl)));
 	connect(d->engine, SIGNAL(finished(Mrl)), this, SLOT(handleFinished()));

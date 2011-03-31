@@ -39,6 +39,10 @@ QString secsToString(int secs, const QString &format) {
 	return secsToTime(secs).toString(format);
 }
 
+qint64 timeToMSecs(int h, int m, int s, int ms) {
+	return h*3600000 + m*60000 + s*1000 + ms;
+}
+
 qint64 timeToMSecs(const QTime &time) {
 	return data()->zero.msecsTo(time);
 }

@@ -22,10 +22,6 @@ public:
 	void connectNext(QAction *action);
 	void connectForward(QAction *action);
 	void connectBackward(QAction *action);
-	void connectOpen(QAction *action);
-	void connectFullScreen(QAction *action);
-	void connectToolBox(QAction *action);
-	void connectPreference(QAction *action);
 public slots:
 	void showMessage(const QString &msg, int time = 3000);
 	void setMrl(const Mrl &mrl);

@@ -1,4 +1,5 @@
 #include "appstate.hpp"
+#include "global.hpp"
 #include <QtCore/QSize>
 #include <QtCore/QRect>
 #include <QtCore/QStringList>
@@ -20,6 +21,9 @@ AppState::Data::Data()
 	INIT(VolNorm, true);
 	INIT(OpenUrlList, QStringList());
 	INIT(UrlEncoding, QString());
+	keys[AppState::StaysOnTop] = "StaysOnTop";
+	values[AppState::StaysOnTop] = StaysOnTopEnum::name(OnTopPlaying);
+//	INIT(StayOnTop, OnTopPlaying)
 #undef INIT
 }
 

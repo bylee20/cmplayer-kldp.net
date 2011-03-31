@@ -29,7 +29,7 @@ Menu &Menu::create(QWidget *parent) {
 	Menu *root = new Menu("root", parent);
 
 	Menu *open = root->addMenu("open");
-	open->setIcon(QIcon(":/img/document-open.png"));
+//	open->setIcon(QIcon(":/img/document-open.png"));
 
 	QAction *file = open->addAction("file");
 	file->setShortcut(Qt::CTRL + Qt::Key_F);
@@ -49,9 +49,7 @@ Menu &Menu::create(QWidget *parent) {
 	recent->addAction("clear");
 
 	Menu *play = root->addMenu("play");
-	play->setIcon(QIcon(":/img/player-time.png"));
-
-	play->addSeparator();
+//	play->setIcon(QIcon(":/img/player-time.png"));
 
 	QAction *pause = play->addAction("pause");
 	pause->setShortcut(Qt::Key_Space);
@@ -107,7 +105,7 @@ Menu &Menu::create(QWidget *parent) {
 	play->addMenu("chapter")->setEnabled(false);
 
 	Menu *subtitle = root->addMenu("subtitle");
-	subtitle->setIcon(QIcon(":/img/format-text-bold.png"));
+//	subtitle->setIcon(QIcon(":/img/format-text-bold.png"));
 
 	subtitle->addMenu("spu")->setEnabled(false);
 
@@ -131,39 +129,15 @@ Menu &Menu::create(QWidget *parent) {
 	subtitle->addActionToGroup("sync-sub", false, "sync")->setShortcut(Qt::Key_A);
 
 	Menu *video = root->addMenu("video");
-	video->setIcon(QIcon(":/img/games-config-background.png"));
+//	video->setIcon(QIcon(":/img/games-config-background.png"));
 
 	video->addMenu("track")->setEnabled(false);
 
 	video->addSeparator();
 
-	Menu *size = video->addMenu("size");
-	QAction *to25 = size->addActionToGroup("25%", false);
-	QAction *to50 = size->addActionToGroup("50%", false);
-	QAction *to100 = size->addActionToGroup("100%", false);
-	QAction *to200 = size->addActionToGroup("200%", false);
-	QAction *to300 = size->addActionToGroup("300%", false);
-	QAction *to400 = size->addActionToGroup("400%", false);
-	QAction *toFull = size->addActionToGroup("full", false);
-	size->g()->setExclusive(false);
-	to25->setData(0.25);
-	to50->setData(0.5);
-	to100->setData(1.0);
-	to200->setData(2.0);
-	to300->setData(3.0);
-	to400->setData(4.0);
-	toFull->setData(-1.0);
-	to25->setShortcut(QKeySequence("Shift+`"));
-	to50->setShortcut(QKeySequence("`"));
-	to100->setShortcut(Qt::Key_1);
-	to200->setShortcut(Qt::Key_2);
-	to300->setShortcut(Qt::Key_3);
-	to400->setShortcut(Qt::Key_4);
-	toFull->setShortcuts(QList<QKeySequence>()
-			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
-
 	Menu *aspect = video->addMenu("aspect");
 	aspect->addActionToGroup("auto", true)->setData(-1.0);
+	aspect->addActionToGroup("window", true)->setData(0.0);
 	aspect->addActionToGroup("4:3", true)->setData(4.0/3.0);
 	aspect->addActionToGroup("16:9", true)->setData(16.0/9.0);
 	aspect->addActionToGroup("1.85:1", true)->setData(1.85);
@@ -171,6 +145,7 @@ Menu &Menu::create(QWidget *parent) {
 
 	Menu *crop = video->addMenu("crop");
 	crop->addActionToGroup("off", true)->setData(-1.0);
+	crop->addActionToGroup("window", true)->setData(0.0);
 	crop->addActionToGroup("4:3", true)->setData(4.0/3.0);
 	crop->addActionToGroup("16:9", true)->setData(16.0/9.0);
 	crop->addActionToGroup("1.85:1", true)->setData(1.85);
@@ -193,7 +168,7 @@ Menu &Menu::create(QWidget *parent) {
 	//	snapshot->setShortcut(Qt::CTRL + Qt::Key_S);
 
 	Menu *audio = root->addMenu("audio");
-	audio->setIcon(QIcon(":/img/speaker.png"));
+//	audio->setIcon(QIcon(":/img/speaker.png"));
 
 	audio->addMenu("track")->setEnabled(false);
 
@@ -217,27 +192,62 @@ Menu &Menu::create(QWidget *parent) {
 	ampUp->setShortcut(Qt::CTRL + Qt::Key_Up);
 	ampDown->setShortcut(Qt::CTRL + Qt::Key_Down);
 
-	QAction *tool = root->addAction("tool-box");
-	tool->setIcon(QIcon(":/img/preferences-plugin.png"));
-	tool->setShortcut(Qt::Key_B);
-
-	QAction *pref = root->addAction("pref");
-	pref->setIcon(QIcon(":/img/preferences-system.png"));
+	Menu *tool = root->addMenu("tool");
+//	tool->setIcon(QIcon(":/img/preferences-plugin.png"));
+	tool->addAction("playlist");
+	tool->addAction("favorites")->setVisible(false);
+	tool->addAction("history");
+	tool->addAction("subtitle");
+	QAction *pref = tool->addAction("pref");
 	pref->setShortcut(Qt::Key_P);
+	pref->setMenuRole(QAction::PreferencesRole);
+
+	Menu *window = root->addMenu("window");
+	// sot == Stay On Top
+	window->addActionToGroup("sot-always", true, "sot")->setData(AlwaysOnTop);
+	window->addActionToGroup("sot-playing", true, "sot")->setData(OnTopPlaying);
+	window->addActionToGroup("sot-disabled", true, "sot")->setData(DontStayOnTop);
+	window->addSeparator();
+	QAction *to25 = window->addActionToGroup("25%", false, "size");
+	QAction *to50 = window->addActionToGroup("50%", false, "size");
+	QAction *to100 = window->addActionToGroup("100%", false, "size");
+	QAction *to200 = window->addActionToGroup("200%", false, "size");
+	QAction *to300 = window->addActionToGroup("300%", false, "size");
+	QAction *to400 = window->addActionToGroup("400%", false, "size");
+	QAction *toFull = window->addActionToGroup("full", false, "size");
+	to25->setData(0.25);
+	to50->setData(0.5);
+	to100->setData(1.0);
+	to200->setData(2.0);
+	to300->setData(3.0);
+	to400->setData(4.0);
+	toFull->setData(-1.0);
+	to25->setShortcut(QKeySequence("Shift+`"));
+	to50->setShortcut(QKeySequence("`"));
+	to100->setShortcut(Qt::Key_1);
+	to200->setShortcut(Qt::Key_2);
+	to300->setShortcut(Qt::Key_3);
+	to400->setShortcut(Qt::Key_4);
+	toFull->setShortcuts(QList<QKeySequence>()
+			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
+
 // 	root->addAction("help")->setIcon(QIcon(":/img/help-contents.png"));
 //	QAction *about = root->addAction("about");
 //	about->setIcon(QIcon(":/img/help-about.png"));
 
 	QAction *exit = root->addAction("exit");
+#ifdef Q_WS_MAC
+	exit->setShortcut(Qt::ALT + Qt::Key_F4);
+#else
 	exit->setShortcut(Qt::CTRL + Qt::Key_Q);
-	exit->setIcon(QIcon(":/img/application-exit.png"));
+#endif
+//	exit->setIcon(QIcon(":/img/application-exit.png"));
 
 
 	root->m_click[OpenFile] = file;
 	root->m_click[ToggleFullScreen] = toFull;
 	root->m_click[TogglePlayPause] = pause;
 	root->m_click[ToggleMute] = mute;
-	root->m_click[ToggleToolBox] = tool;
 	root->m_wheel[Seek1] = WheelActionPair(forward1, backward2);
 	root->m_wheel[Seek2] = WheelActionPair(forward2, backward2);
 	root->m_wheel[Seek3] = WheelActionPair(forward3, backward2);
@@ -253,17 +263,18 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_context->addMenu(audio);
 	root->m_context->addMenu(subtitle);
 	root->m_context->addSeparator();
-	root->m_context->addAction(tool);
-	root->m_context->addAction(pref);
+	root->m_context->addMenu(tool);
+	root->m_context->addMenu(window);
+	root->m_context->addSeparator();
 // 	root->m_context->addAction(help);
 //	root->m_context->addAction(about);
 	root->m_context->addSeparator();
 	root->m_context->addAction(exit);
+
 	parent->addActions(root->m_context->actions());
 
 	loadShortcut();
 
-//	dvdMenu->menuAction()->setVisible(false);
 	return *(obj = root);
 }
 
@@ -366,13 +377,11 @@ void Menu::updatePref() {
 	Menu &video = root("video");
 	video.setTitle(tr("Video"));
 	video("track").setTitle(tr("Video Track"));
-	Menu &size = video("size");
-	size.setTitle(tr("Size"));
-	size["full"]->setText(tr("Full Screen"));
 
 	Menu &aspect = video("aspect");
 	aspect.setTitle(tr("Aspect Ratio"));
 	aspect["auto"]->setText(tr("Auto"));
+	aspect["window"]->setText(tr("Same as Window"));
 	aspect["4:3"]->setText(tr("4:3 (TV)"));
 	aspect["16:9"]->setText(tr("16:9 (HDTV)"));
 	aspect["1.85:1"]->setText(tr("1.85:1 (Wide Vision)"));
@@ -381,6 +390,7 @@ void Menu::updatePref() {
 	Menu &crop = video("crop");
 	crop.setTitle(tr("Crop"));
 	crop["off"]->setText(tr("Off"));
+	crop["window"]->setText(tr("Same as Window"));
 	crop["4:3"]->setText(tr("4:3 (TV)"));
 	crop["16:9"]->setText(tr("16:9 (HDTV)"));
 	crop["1.85:1"]->setText(tr("1.85:1 (Wide Vision)"));
@@ -407,8 +417,22 @@ void Menu::updatePref() {
 	setActionStep(audio["amp-up"], audio["amp-down"]
 			, tr("Amp %1%"), p.ampStep);
 
-	root["tool-box"]->setText(tr("Tool Box"));
-	root["pref"]->setText(tr("Preferences"));
+	Menu &tool = root("tool");
+	tool.setTitle(tr("Tools"));
+	tool["playlist"]->setText(tr("Playlist"));
+	tool["favorites"]->setText(tr("Favorites"));
+	tool["history"]->setText("Past History");
+	tool["subtitle"]->setText("View Subtitles");
+	tool["pref"]->setText(tr("Preferences"));
+
+	Menu &window = root("window");
+	window.setTitle(tr("Window"));
+	window["sot-always"]->setText("Always Stay on Top");
+	window["sot-playing"]->setText("Stay on Top Playing");
+	window["sot-disabled"]->setText("Don't Stay on Top");
+
+	window["full"]->setText(tr("Fullscreen"));
+
 // 	root["help"]->setText(tr("Help"));
 //	root["about"]->setText(tr("About..."));
 	root["exit"]->setText(tr("Exit"));

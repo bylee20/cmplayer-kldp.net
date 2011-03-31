@@ -11,6 +11,7 @@ public:
 	~LogoDrawer();
 	void draw(QPainter *painter, const QRect &rect);
 private:
+	void drawLogo(QPainter *painter, const QRect &rect);
 	QPixmap m_logo;
 	QBrush m_bgBrush, m_lightBrush;
 	QPainterPath m_lightPath;

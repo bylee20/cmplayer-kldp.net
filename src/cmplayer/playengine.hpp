@@ -72,8 +72,6 @@ signals:
 	void seekableChanged(bool seekable);
 	void speedChanged(double speed);
 	void positionChanged(int pos);
-	void hasVideoChanged(bool has);
-	void hasAudioChanged(bool has);
 	void durationChanged(int duration);
 	void tagsChanged();
 	void statusChanged(MediaStatus status);

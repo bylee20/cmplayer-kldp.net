@@ -1,32 +1,40 @@
 #include "subtitlerenderer.hpp"
-#include "textosdrenderer.hpp"
-#include <QtCore/QDebug>
+#include "subtitlemodel.hpp"
 #include "osdstyle.hpp"
+#include "subtitleview.hpp"
+#include <QtCore/QDebug>
 
 struct SubtitleRenderer::Data {
+	SubtitleView *view;
 	TextOsdRenderer *osd;
 	Subtitle sub;
+	QVector<Subtitle::Component::const_iterator> prev;
+	QVector<SubtitleComponentModel*> model;
 	double fps;
-	Subtitle::Component comp;
-	Subtitle::Component::const_iterator prev;
 	int delay, ms;
 	double pos;
-	bool visible;
+	bool visible, empty;
 };
 
 SubtitleRenderer::SubtitleRenderer(): d(new Data) {
-	d->visible = true;
+	d->empty = d->visible = true;
 	d->osd = 0;
-//	d->osd = new TextOsdRenderer(Qt::AlignBottom | Qt::AlignHCenter);
 	d->fps = 30;
-	d->delay = 0;
-	d->prev = d->comp.end();
-	d->ms = 0;
+	d->ms = d->delay = 0;
 	d->pos = 1.0;
+	d->view = 0;
 }
 
 SubtitleRenderer::~SubtitleRenderer() {
 	delete d;
+}
+
+QWidget *SubtitleRenderer::view(QWidget *parent) const {
+	if (!d->view) {
+		d->view = new SubtitleView(parent);
+		d->view->setModel(d->model);
+	}
+	return d->view;
 }
 
 TextOsdRenderer *SubtitleRenderer::osd() const {
@@ -39,30 +47,51 @@ void SubtitleRenderer::setOsd(TextOsdRenderer *osd) {
 
 void SubtitleRenderer::setSubtitle(const Subtitle &subtitle) {
 	d->sub = subtitle;
-	d->comp = d->sub.component(d->fps);
-	d->prev = d->comp.end();
-	if (d->comp.isEmpty())
+	d->prev.resize(d->sub.size());
+	qDeleteAll(d->model);
+	d->model.resize(d->sub.size());
+	d->empty = true;
+	for (int i=0; i<d->sub.size(); ++i) {
+		d->prev[i] = d->sub[i].end();
+		d->model[i] = new SubtitleComponentModel(&d->sub[i], this);
+		if (!d->sub[i].isEmpty())
+			d->empty = false;
+	}
+	if (d->empty)
 		clear();
 	else
 		render(d->ms);
+	if (d->view)
+		d->view->setModel(d->model);
 }
 
 void SubtitleRenderer::setFrameRate(double fps) {
 	if (d->fps != fps) {
-		d->comp = d->sub.component(d->fps = fps);
-		d->prev = d->comp.end();
+		for (int i=0; i<d->prev.size(); ++i)
+			d->prev[i] = d->sub[i].end();
 	}
 }
 
 void SubtitleRenderer::render(int ms) {
 	d->ms = ms;
-	if (!d->visible || d->comp.isEmpty() || ms == 0 || !d->osd)
+	if (!d->visible || d->empty || ms == 0 || !d->osd)
 		return;
-	Subtitle::Component::const_iterator it = d->comp.start(ms - d->delay, d->fps);
-	if (it != d->prev) {
-		d->prev = it;
-		if (it != d->comp.end())
-			d->osd->showText(it.value());
+	bool changed = false;
+	for (int i=0; i<d->sub.size(); ++i) {
+		Subtitle::Component::const_iterator it = d->sub[i].start(ms - d->delay, d->fps);
+		if (it != d->prev[i]) {
+			d->prev[i] = it;
+			d->model[i]->setCurrentNode(&(*it));
+			changed = true;
+		}
+	}
+	if (changed) {
+		RichString text;
+		for (int i=0; i<d->prev.size(); ++i) {
+			if (d->prev[i] != d->sub[i].end())
+				text.merge(d->prev[i]->text);
+		}
+		d->osd->showText(text);
 	}
 }
 
@@ -77,7 +106,8 @@ void SubtitleRenderer::setVisible(bool visible) {
 }
 
 void SubtitleRenderer::clear() {
-	d->prev = d->comp.end();
+	for (int i=0; i<d->prev.size(); ++i)
+		d->prev[i] = d->sub[i].end();
 	if (d->osd)
 		d->osd->clear();
 }
@@ -110,7 +140,7 @@ void SubtitleRenderer::setDelay(int delay) {
 }
 
 bool SubtitleRenderer::hasSubtitle() const {
-	return !d->comp.isEmpty();
+	return !d->empty;
 }
 
 void SubtitleRenderer::setPos(double pos) {

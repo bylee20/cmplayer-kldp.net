@@ -90,14 +90,14 @@ void TextOsdRenderer::setStyle(const OsdStyle &style) {
 QString TextOsdRenderer::bgHtml() const {
 	static const QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
 	QString html = QString("<font color='%1'>").arg(style().bgColor.name());
-	html += QString(text().string()).remove(rxColor);
+	html += QString(text().toString()).remove(rxColor);
 	html += "</font>";
 	return html;
 }
 
 QString TextOsdRenderer::fgHtml() const {
 	QString html = QString("<font color='%1'>").arg(style().fgColor.name());
-	html += text().string();
+	html += text().toString();
 	html += "</font>";
 	return html;
 }
@@ -213,7 +213,7 @@ QPointF TextOsdRenderer::posHint() const {
 }
 
 void TextOsdRenderer::updateSize() {
-	d->doc.setHtml(d->text.string());
+	d->doc.setHtml(d->text.toString());
 	d->doc.setTextWidth(d->bg.width() - 2.0*d->bw - d->left - d->right);
 	d->size.setWidth(d->doc.idealWidth() + 2.0*d->bw);
 	d->size.setHeight(d->doc.size().height() + 2.0*d->bw);

@@ -99,7 +99,7 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	setColorProperty(d->color);
 	d->frameIsSet = d->logoOn = false;
 	d->fps = d->crop = d->aspect = -1.0;
-	d->overlay = Overlay::create(this, Overlay::FramebufferObject);
+	d->overlay = Overlay::create(this);
 	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
 
 	makeCurrent();
@@ -136,9 +136,12 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	}
 	if (!d->hasPrograms)
 		qDebug() << "Shader program is not available!";
+
 	setAutoFillBackground(false);
 	setAttribute(Qt::WA_OpaquePaintEvent, true);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	setMouseTracking(true);
+	setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 VideoRenderer::~VideoRenderer() {
@@ -276,12 +279,13 @@ QSize VideoRenderer::sizeHint() const {
 		return QSize(400, 300);
 	const QSizeF frame = d->frame.size();
 	QSizeF size(d->aspect, 1.0);
-	if (d->aspect < 0) {
+	if (d->aspect > 0.0)
+		size.scale(frame, Qt::KeepAspectRatio);
+	else {
 		size = frame;
 		size.rwidth() *= d->sar;
-	}else
-		size.scale(frame, Qt::KeepAspectRatio);
-	if (d->crop < 0.0)
+	}
+	if (d->crop <= 0.0)
 		return size.toSize();
 	QSizeF crop(d->crop, 1.0);
 	crop.scale(size, Qt::KeepAspectRatio);
@@ -289,7 +293,7 @@ QSize VideoRenderer::sizeHint() const {
 }
 
 static bool isSameRatio(double r1, double r2) {
-	return (r1 <= 0.0 && r2 <= 0.0) || qFuzzyCompare(r1, r2);
+	return (r1 < 0.0 && r2 < 0.0) || qFuzzyCompare(r1, r2);
 }
 
 void VideoRenderer::setAspectRatio(double ratio) {
@@ -359,11 +363,14 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		if (d->aspect < 0.0) {
 			frame = d->frame.size();
 			frame.rwidth() *= d->sar;
-		}
+		} else if (d->aspect == 0.0)
+			frame = size();
 		const QSizeF widget = renderableSize();
 		QSizeF letter(d->crop, 1.0);
 		if (d->crop < 0.0)
 			letter = frame;
+		else if (d->crop == 0.0)
+			letter = size();
 		letter.scale(widget, Qt::KeepAspectRatio);
 		frame.scale(letter, Qt::KeepAspectRatioByExpanding);
 

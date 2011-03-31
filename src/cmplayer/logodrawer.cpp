@@ -25,20 +25,9 @@ LogoDrawer::LogoDrawer() {
 LogoDrawer::~LogoDrawer() {
 }
 
-void LogoDrawer::draw(QPainter *painter, const QRect &bg) {
+void LogoDrawer::drawLogo(QPainter *painter, const QRect &bg) {
 	const double w = bg.width();
 	const double h = bg.height();
-
-	painter->save();
-	painter->setRenderHint(QPainter::Antialiasing);
-	painter->scale(w, h);
-	painter->setPen(Qt::NoPen);
-	painter->fillRect(bg, m_bgBrush);
-	painter->setOpacity(0.2);
-	painter->setBrush(m_lightBrush);
-	painter->drawPath(m_lightPath);
-	painter->restore();
-
 	const int len = qMin(qRound(qMin(w, h)*0.7), m_logo.width());
 	QRect rect;
 	rect.setX((w-len)*0.5 + 0.5);
@@ -50,4 +39,29 @@ void LogoDrawer::draw(QPainter *painter, const QRect &bg) {
 				, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	else
 		painter->drawPixmap(rect, m_logo);
+}
+
+void LogoDrawer::draw(QPainter *painter, const QRect &bg) {
+	const double w = bg.width();
+	const double h = bg.height();
+
+	painter->save();
+	painter->setPen(Qt::NoPen);
+	painter->setRenderHint(QPainter::Antialiasing);
+
+	painter->save();
+	painter->scale(w, h);
+	painter->fillRect(bg, m_bgBrush);
+	painter->restore();
+
+	painter->save();
+	painter->scale(w, h);
+	painter->setOpacity(0.2);
+	painter->setBrush(m_lightBrush);
+	painter->drawPath(m_lightPath);
+	painter->restore();
+
+	drawLogo(painter, bg);
+
+	painter->restore();
 }

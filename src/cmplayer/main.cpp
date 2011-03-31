@@ -2,6 +2,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QMetaType>
 
+#include "richstring.hpp"
+
 int main(int argc, char **argv) {
 	Application app(argc, argv);
 	const int ret = app.exec();

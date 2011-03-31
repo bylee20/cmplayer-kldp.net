@@ -130,7 +130,7 @@ ToolBox::ToolBox(MainWindow *mw)
 	d->playlist = new PlaylistView(mw->engine(), d->frame);
 	d->favorite = new FavoritesView(mw->engine(), d->frame);
 	d->history = new HistoryView(mw->engine(), d->frame);
-	d->subtitle = new SubtitleView(mw->engine(), d->frame);
+	d->subtitle = new SubtitleView(d->frame);
 
 	addPage(d->playlist, tr("Playlist"), ":/img/view-media-playlist-%1.png");
 	addPage(d->favorite, tr("Favorites"), ":/img/favorites-%1.png");

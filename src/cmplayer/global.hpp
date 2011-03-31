@@ -14,8 +14,6 @@ enum MediaState {StoppedState = 0, PlayingState, PausedState, FinishedState};
 enum MediaStatus {NoMediaStatus = 0, EosStatus, BufferedStatus};
 enum StreamType {UnknownStream = 0, VideoStream, AudioStream, SubPicStream};
 enum MediaMetaData {LanguageCode};
-enum NavDVDCmd {NavAngleMenu, NavAudioMenu, NavChapterMenu
-		, NavToggleMenu, NavRootMenu, NavSubPicMenu, NavTitleMenu};
 
 namespace EnumSpace {template<typename E> class Enum;}
 
@@ -75,11 +73,12 @@ DEC_ENUM_CLASS(_type, count, __VA_ARGS__)\
 typedef EnumSpace::Enum<_type> _type##Enum;
 
 // DEC_ENUM(UiLanguage, 4, SystemDefault, English, Japanese, Korean)
+DEC_ENUM(StaysOnTop, 3, OnTopPlaying, AlwaysOnTop, DontStayOnTop)
 DEC_ENUM(AutoAddFiles, 3, AllFiles, SimilarFiles, DoNotAddFiles)
 DEC_ENUM(SeekingStep, 3, SeekingStep1, SeekingStep2, SeekingStep3)
 DEC_ENUM(SubtitleAutoLoad, 4, NoAutoLoad, Matched, Contain, SamePath)
 DEC_ENUM(SubtitleAutoSelect, 4, FirstFile, SameName, AllLoaded, EachLanguage)
-DEC_ENUM(ClickAction, 5, OpenFile, ToggleFullScreen, TogglePlayPause, ToggleMute, ToggleToolBox)
+DEC_ENUM(ClickAction, 4, OpenFile, ToggleFullScreen, TogglePlayPause, ToggleMute)
 DEC_ENUM(WheelAction, 6, Seek1, Seek2, Seek3, NextPrevious, VolumeUpDown, AmpUpDown)
 DEC_ENUM_CLASS(Qt::KeyboardModifier, 4, Qt::NoModifier, Qt::ShiftModifier
 		, Qt::ControlModifier, Qt::AltModifier)
@@ -90,6 +89,7 @@ QTime msecsToTime(qint64 msecs);
 QString msecsToString(qint64 msecs, const QString &format = QString("hh:mm:ss"));
 QString secsToString(int secs, const QString &format = QString("hh:mm:ss"));
 qint64 timeToMSecs(const QTime &time);
+qint64 timeToMSecs(int h, int m, int s, int ms = 0);
 qint64 stringToMSecs(const QString &str, const QString &format = QString("hh:mm:ss"));
 const QTime &nullTime();
 

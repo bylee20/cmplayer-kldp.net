@@ -4,20 +4,18 @@
 #include <QtGui/QWidget>
 
 class PlayEngine;		class Subtitle;
+class SubtitleComponentModel;
 
 class SubtitleView : public QWidget {
 	Q_OBJECT
 public:
-	SubtitleView(const PlayEngine *engine, QWidget *parent = 0);
+	SubtitleView(QWidget *parent = 0);
 	~SubtitleView();
-	void setSubtitle(const Subtitle &sub);
-	void setFrameRate(double fps);
+	void setModel(const QVector<SubtitleComponentModel*> &model);
 private slots:
-	void updateCurrent(int time);
 	void setTimeVisible(bool visible);
 	void setAutoScrollEnabled(bool enabled);
 private:
-	void showEvent(QShowEvent *evene);
 	class CompView;
 	struct Data;
 	Data *d;

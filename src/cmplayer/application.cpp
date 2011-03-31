@@ -10,10 +10,19 @@
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
+#include <QtGui/QMenuBar>
+
+#ifdef Q_WS_MAC
+#include "application_mac.hpp"
+#endif
 
 struct Application::Data {
 	MainWindow *main;
 	QString defStyle;
+	QMenuBar *mb;
+#ifdef Q_WS_MAC
+	ApplicationObj mac;
+#endif
 };
 
 Application::Application(int &argc, char **argv)
@@ -21,21 +30,43 @@ Application::Application(int &argc, char **argv)
 	setOrganizationName("xylosper");
 	setOrganizationDomain("xylosper.net");
 	setApplicationName("CMPlayer");
-//	QSettings::setDefaultFormat(QSettings::IniFormat);
+	setWindowIcon(MainWindow::defaultIcon());
 
 	LibVLC::init();
 	d->defStyle = style()->objectName();
-//	Translator::load(Pref::get().locale);
 	setStyle(Pref::get().windowStyle);
 	d->main = 0;
+	d->mb = 0;
+#ifdef Q_WS_MAC
+	d->mb = new QMenuBar;
+#endif
 	setQuitOnLastWindowClosed(false);
 	QTimer::singleShot(1, this, SLOT(initialize()));
 }
 
 Application::~Application() {
+	delete d->mb;
 	delete d->main;
 	delete d;
 	LibVLC::release();
+}
+
+void Application::setAlwaysOnTop(QWidget *widget, bool onTop) {
+#ifdef Q_WS_MAC
+	d->mac.setAlwaysOnTop(widget->winId(), onTop);
+#endif
+}
+
+void Application::customEvent(QEvent *event) {
+	Q_UNUSED(event);
+#ifdef Q_WS_MAC
+	if (event->type() == (QEvent::Type)ReopenEvent::Type)
+		d->main->show();
+#endif
+}
+
+MainWindow *Application::mainWindow() const {
+	return d->main;
 }
 
 void Application::initialize() {
@@ -96,6 +127,12 @@ void Application::initialize() {
 				, this, SLOT(parseMessage(const QString&)));
 	}
 }
+
+#ifdef Q_WS_MAC
+QMenuBar *Application::globalMenuBar() const {
+	return d->mb;
+}
+#endif
 
 Mrl Application::getMrlFromCommandLine() {
 	const QStringList args = arguments();

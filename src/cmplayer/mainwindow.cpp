@@ -27,6 +27,10 @@
 #include <QtCore/QTimer>
 #include <qmath.h>
 
+#ifdef Q_WS_MAC
+void qt_mac_set_dock_menu(QMenu *menu);
+#endif
+
 struct MainWindow::Data {
 	Data(Menu &menu): menu(menu), pref(Pref::get()) {}
 	bool moving, changingSub, pausedByHiding, dontShowMsg;
@@ -42,18 +46,28 @@ struct MainWindow::Data {
 	Subtitle subLoaded;
 	QList<int> subSelected;
 	ABRepeater *ab;
-	ToolBox *tool;
+//	ToolBox *tool;
 	QPoint prevPos;
-	QTimer hider;
+	QTimer *hider;
+	QWidget *center;
+	RecentInfo *recent;
+
+	PlaylistView *playlist;
+	HistoryView *history;
+//	FavoritesView *favorite;
+
+#ifndef Q_WS_MAC
 	QSystemTrayIcon *tray;
-	TrackList spus, titles, chapters, aTracks, vTracks;
+#endif
 };
 
 QIcon MainWindow::defaultIcon() {
 	return QIcon(":/img/cmplayer512.png");
 }
 
-MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
+MainWindow::MainWindow() {
+	d = new Data(Menu::create(this));
+	d->pausedByHiding = d->dontShowMsg = false;
 	d->changingSub = d->moving = false;
 	d->engine = LibVLC::engine();
 	d->audio = LibVLC::audio();
@@ -62,54 +76,62 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	d->subtitle->setOsd(new TextOsdRenderer);
 	d->timeLine = new TimeLineOsdRenderer;
 	d->message = new TextOsdRenderer(Qt::AlignTop | Qt::AlignLeft);
-	QApplication::setWindowIcon(defaultIcon());
-	d->tray = new QSystemTrayIcon(defaultIcon(), this);
-	d->dontShowMsg = false;
-	setupUi();
-
 	d->ab = new ABRepeater(d->engine, d->subtitle);
-	d->pausedByHiding = false;
-	RecentInfo &recent = RecentInfo::get();
+//	d->tool = new ToolBox(this);
+	d->control = createControlWidget();
+	d->center = createCentralWidget(d->video, d->control);
+	d->recent = &RecentInfo::get();
+	d->hider = new QTimer(this);
+	d->playlist = new PlaylistView(d->engine, this);
+	d->history = new HistoryView(d->engine, this);
+#ifndef Q_WS_MAC
+	d->tray = new QSystemTrayIcon(defaultIcon(), this);
+#endif
+
+	d->hider->setSingleShot(true);
+	d->video->addOsd(d->subtitle->osd());
+	d->video->addOsd(d->timeLine);
+	d->video->addOsd(d->message);
+
+	setMouseTracking(true);
+	setCentralWidget(d->center);
 
 	Menu &menu = d->menu;
+	Menu &open = menu("open");
+	Menu &play = menu("play");
+	Menu &video = menu("video");
+	Menu &audio = menu("audio");
+	Menu &sub = menu("subtitle");
+	Menu &tool = menu("tool");
+	Menu &win = menu("window");
 
-	Menu &open = d->menu("open");
 	CONNECT(open["file"], triggered(), this, openFile());
 	CONNECT(open["url"], triggered(), this, openUrl());
 	CONNECT(open["dvd"], triggered(), this, openDvd());
 	CONNECT(open("recent").g(), triggered(QString), this, openLocation(QString));
-	CONNECT(open("recent")["clear"], triggered(), &recent, clear());
+	CONNECT(open("recent")["clear"], triggered(), d->recent, clear());
 
-	Menu &play = menu("play");
 	CONNECT(play["stop"], triggered(), d->engine, stop());
 	CONNECT(play("speed").g(), triggered(int), this, setSpeed(int));
 	CONNECT(play["pause"], triggered(), this, togglePlayPause());
 	CONNECT(play("repeat").g(), triggered(int), this, doRepeat(int));
+	CONNECT(play["prev"], triggered(), d->playlist, playPrevious());
+	CONNECT(play["next"], triggered(), d->playlist, playNext());
 	CONNECT(play("seek").g(), triggered(int), this, seek(int));
 	CONNECT(play("title").g(), triggered(QAction*), this, setTitle(QAction*));
 	CONNECT(play("chapter").g(), triggered(QAction*), this, setChapter(QAction*));
 
-	Menu &video = menu("video");
 	CONNECT(video("track").g(), triggered(QAction*), this, setVideoTrack(QAction*));
-	CONNECT(video("size").g(), triggered(double), this, setVideoSize(double));
 	CONNECT(video("aspect").g(), triggered(double), d->video, setAspectRatio(double));
 	CONNECT(video("crop").g(), triggered(double), d->video, setCropRatio(double));
 //	CONNECT(screen["snapshot"], triggered(), this, takeSnapshot());
 	CONNECT(video.g("color"), triggered(QAction*), this, setColorProperty(QAction*));
 
-	Menu &audio = menu("audio");
 	CONNECT(audio("track").g(), triggered(QAction*), this, setAudioTrack(QAction*));
 	CONNECT(audio.g("volume"), triggered(int), this, setVolume(int));
 	CONNECT(audio["mute"], toggled(bool), this, setMuted(bool));
 	CONNECT(audio.g("amp"), triggered(int), this, setAmp(int));
 	CONNECT(audio["volnorm"], toggled(bool), this, setVolumeNormalized(bool));
-//	CONNECT(audio["scaletempo"], toggled(bool), this, setTempoScaled(bool));
-	CONNECT(d->audio, mutedChanged(bool), audio["mute"], setChecked(bool));
-	CONNECT(d->audio, volumeNormalizedChanged(bool), audio["volnorm"], setChecked(bool));
-	CONNECT(d->audio, tempoScaledChanged(bool), audio["scaletempo"], setChecked(bool));
-
-
-	Menu &sub = menu("subtitle");
 
 	CONNECT(sub("list")["hide"], toggled(bool), d->subtitle, setHidden(bool));
 	CONNECT(sub("list")["open"], triggered(), this, openSubFile());
@@ -119,8 +141,15 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	CONNECT(sub.g("pos"), triggered(int), this, moveSubtitle(int));
 	CONNECT(sub.g("sync"), triggered(int), this, setSyncDelay(int));
 
-	CONNECT(menu["tool-box"], triggered(), this, toggleToolBox());
-	CONNECT(menu["pref"], triggered(), this, setPref());
+	CONNECT(tool["playlist"], triggered(), this, togglePlaylist());
+	CONNECT(tool["history"], triggered(), this, toggleHistory());
+	CONNECT(tool["subtitle"], triggered(), this, toggleSubtitle());
+	CONNECT(tool["pref"], triggered(), this, setPref());
+
+	CONNECT(win.g("sot"), triggered(int), this, updateStaysOnTop());
+	CONNECT(win.g("size"), triggered(double), this, setVideoSize(double));
+
+
 //	CONNECT(menu["about"], triggered(), this, showAbout());
 //// 	CONNECT(menu["help"], triggered(), this, slotHelp());
 	CONNECT(menu["exit"], triggered(), qApp, quit());
@@ -135,54 +164,50 @@ MainWindow::MainWindow(): d(new Data(Menu::create(this))) {
 	CONNECT(&sub, aboutToShow(), this, checkSubtitleMenu());
 	CONNECT(&sub("spu"), aboutToShow(), this, checkSPUMenu());
 
-	QMenuBar *mb = menuBar();
-	mb->addMenu(&open);
-	mb->addMenu(&play);
-	mb->addMenu(&sub);
-	mb->addMenu(&video);
-	mb->addMenu(&audio);
-	QMenu *m = mb->addMenu(tr("Tools"));
-	m->addAction(tr("Preferences"), this, SLOT(setPref()));
-
 	CONNECT(d->engine, mrlChanged(Mrl), this, updateMrl(Mrl));
-	connect(d->engine, SIGNAL(stateChanged(MediaState,MediaState))
-		, this, SLOT(updateState(MediaState,MediaState)));
-
-	connect(d->video, SIGNAL(customContextMenuRequested(const QPoint&))
-		, this, SLOT(showContextMenu(const QPoint&)));
-	connect(&recent, SIGNAL(openListChanged(QList<Mrl>))
-		, this, SLOT(updateRecentActions(QList<Mrl>)));
-	CONNECT(&d->hider, timeout(), this, hideCursor());
-	d->hider.setSingleShot(true);
-	connect(d->tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason))
-		, this, SLOT(handleTray(QSystemTrayIcon::ActivationReason)));
-
-	d->video->addOsd(d->subtitle->osd());
-	d->video->addOsd(d->timeLine);
-	d->video->addOsd(d->message);
-	connect(d->video, SIGNAL(frameRateChanged(double))
-		, d->subtitle, SLOT(setFrameRate(double)));
+	CONNECT(d->engine, stateChanged(MediaState,MediaState)
+		, this, updateState(MediaState,MediaState));
 	CONNECT(d->engine, tick(int), d->subtitle, render(int));
+	CONNECT(d->video, customContextMenuRequested(const QPoint&)
+		, this, showContextMenu(const QPoint&));
+	CONNECT(d->video, frameRateChanged(double), d->subtitle, setFrameRate(double));
+	CONNECT(d->audio, mutedChanged(bool), audio["mute"], setChecked(bool));
+	CONNECT(d->audio, volumeNormalizedChanged(bool), audio["volnorm"], setChecked(bool));
+//	CONNECT(d->audio, tempoScaledChanged(bool), audio["scaletempo"], setChecked(bool));
+
+	CONNECT(d->recent, openListChanged(QList<Mrl>), this, updateRecentActions(QList<Mrl>));
+	CONNECT(d->hider, timeout(), this, hideCursor());
+	CONNECT(d->history, playRequested(Mrl), this, openMrl(Mrl));
+#ifndef Q_WS_MAC
+	CONNECT(d->tray, activated(QSystemTrayIcon::ActivationReason)
+		, this, handleTray(QSystemTrayIcon::ActivationReason));
+#endif
+
 	loadState();
 	applyPref();
-	d->tool = new ToolBox(this);
 
-	CONNECT(play["prev"], triggered(), d->tool->playlist(), playPrevious());
-	CONNECT(play["next"], triggered(), d->tool->playlist(), playNext());
-	CONNECT(d->tool->history(), playRequested(Mrl), this, openMrl(Mrl));
+	d->playlist->setPlaylist(d->recent->lastPlaylist());
+	d->engine->setMrl(d->recent->lastMrl());
+	updateRecentActions(d->recent->openList());
 
-	d->tool->playlist()->setPlaylist(recent.lastPlaylist());
-	d->engine->setMrl(recent.lastMrl());
-	updateRecentActions(recent.openList());
-
+#ifdef Q_WS_MAC
+//	qt_mac_set_dock_menu(&d->menu);
+	QMenuBar *mb = app()->globalMenuBar();
+	mb->addMenu(&open);
+	mb->addMenu(&play);
+	mb->addMenu(&video);
+	mb->addMenu(&audio);
+	mb->addMenu(&sub);
+	mb->addMenu(&tool);
+	mb->addMenu(&win);
+#endif
 }
 
 MainWindow::~MainWindow() {
 	d->engine->stop();
-	RecentInfo &recent = RecentInfo::get();
-	recent.setLastPlaylist(d->tool->playlist()->playlist());
-	recent.setLastMrl(d->engine->mrl());
-	recent.save();
+	d->recent->setLastPlaylist(d->playlist->playlist());
+	d->recent->setLastMrl(d->engine->mrl());
+	d->recent->save();
 	saveState();
 
 	delete d->subtitle;
@@ -243,6 +268,7 @@ void MainWindow::loadState() {
 
 	d->menu("video")("aspect").g()->trigger(as[AppState::AspectRatio]);
 	d->menu("video")("crop").g()->trigger(as[AppState::Crop]);
+	d->menu("window").g("sot")->trigger(StaysOnTopEnum::value(as[AppState::StaysOnTop].toString()));
 
 	d->audio->setVolume(as[AppState::Volume].toInt());
 	d->audio->setMuted(as[AppState::Muted].toBool());
@@ -252,7 +278,22 @@ void MainWindow::loadState() {
 	d->engine->setSpeed(as[AppState::PlaySpeed].toDouble());
 	d->subtitle->setPos(as[AppState::SubPos].toDouble());
 	d->subtitle->setDelay(as[AppState::SubSync].toInt());
+
 	d->dontShowMsg = false;
+}
+
+StaysOnTop MainWindow::staysOnTopMode() const {
+	const int data = d->menu("window").g("sot")->checkedAction()->data().toInt();
+	switch (data) {
+	case OnTopPlaying:
+		return OnTopPlaying;
+	case AlwaysOnTop:
+		return AlwaysOnTop;
+	case DontStayOnTop:
+		return DontStayOnTop;
+	default:
+		return OnTopPlaying;
+	}
 }
 
 void MainWindow::saveState() {
@@ -266,37 +307,33 @@ void MainWindow::saveState() {
 	as[AppState::PlaySpeed] = d->engine->speed();
 	as[AppState::SubPos] = d->subtitle->pos();
 	as[AppState::SubSync] = d->subtitle->delay();
+	as[AppState::StaysOnTop] = StaysOnTopEnum::name(staysOnTopMode());
 	as.save();
 }
 
-void MainWindow::setupUi() {
-	QWidget *center = new QWidget(this);
-
-	d->control = new ControlWidget(d->engine, center);
+ControlWidget *MainWindow::createControlWidget() {
+	ControlWidget *w = new ControlWidget(d->engine, 0);
 	Menu &play = d->menu("play");
-	d->control->connectMute(d->menu("audio")["mute"]);
-	d->control->connectPlay(play["pause"]);
-	d->control->connectPrevious(play["prev"]);
-	d->control->connectNext(play["next"]);
-	d->control->connectForward(play("seek")["forward1"]);
-	d->control->connectBackward(play("seek")["backward1"]);
-	d->control->connectOpen(d->menu("open")["file"]);
-	d->control->connectFullScreen(d->menu("video")("size")["full"]);
-	d->control->connectToolBox(d->menu["tool-box"]);
-	d->control->connectPreference(d->menu["pref"]);
-	QVBoxLayout *vbox = new QVBoxLayout(center);
-	vbox->addWidget(d->video);
-	vbox->addWidget(d->control);
-	vbox->setContentsMargins(0, 0, 0, 0);
-	vbox->setSpacing(0);
-
-	setMouseTracking(true);
-	setCentralWidget(center);
-	d->video->setMouseTracking(true);
-	center->setMouseTracking(true);
-	d->video->setContextMenuPolicy(Qt::CustomContextMenu);
+	w->connectMute(d->menu("audio")["mute"]);
+	w->connectPlay(play["pause"]);
+	w->connectPrevious(play["prev"]);
+	w->connectNext(play["next"]);
+	w->connectForward(play("seek")["forward1"]);
+	w->connectBackward(play("seek")["backward1"]);
+	return w;
 }
 
+QWidget *MainWindow::createCentralWidget(QWidget *video, QWidget *control) {
+	QWidget *w = new QWidget(this);
+	w->setMouseTracking(true);
+
+	QVBoxLayout *vbox = new QVBoxLayout(w);
+	vbox->addWidget(video);
+	vbox->addWidget(control);
+	vbox->setContentsMargins(0, 0, 0, 0);
+	vbox->setSpacing(0);
+	return w;
+}
 
 void MainWindow::updateRecentActions(const QList<Mrl> &list) {
 	Menu &recent = d->menu("open")("recent");
@@ -331,9 +368,9 @@ void MainWindow::openMrl(const Mrl &mrl) {
 void MainWindow::openMrl(const Mrl &mrl, const QString &enc) {
 	if (mrl == d->engine->mrl())
 		return;
-	d->tool->playlist()->load(mrl, enc);
+	d->playlist->load(mrl, enc);
 	if (!mrl.isPlaylist()) {
-		d->tool->playlist()->play(mrl);
+		d->playlist->play(mrl);
 		if (!mrl.isDVD())
 			RecentInfo::get().stack(mrl);
 	}
@@ -361,6 +398,15 @@ void MainWindow::openUrl() {
 //		openMrl(dlg.url(), dlg.encoding());
 }
 
+void MainWindow::resizeEvent(QResizeEvent *event) {
+	QMainWindow::resizeEvent(event);
+	int width = d->center->width();
+	int height = d->center->height();
+	if (!isFullScreen())
+		height -= d->control->height();
+	showMessage(QString("%1x%2").arg(width).arg(height), 1000);
+}
+
 void MainWindow::togglePlayPause() {
 	if (d->engine->state() == PlayingState)
 		d->engine->pause();
@@ -378,7 +424,6 @@ void MainWindow::updateMrl(const Mrl &mrl) {
 		doSubtitleAutoSelection();
 	} else
 		clearSubtitles();
-
 	Menu &list = d->menu("subtitle")("list");
 	d->changingSub = true;
 	for (int i=0; i<d->subLoaded.size(); ++i) {
@@ -397,7 +442,6 @@ void MainWindow::clearSubtitles() {
 	for (int i=0; i<acts.size(); ++i)
 		delete acts[i];
 	d->subtitle->setSubtitle(d->subLoaded);
-	d->tool->subtitle()->setSubtitle(d->subLoaded);
 }
 
 void MainWindow::openSubFile() {
@@ -459,7 +503,6 @@ void MainWindow::doSubtitleAutoLoad() {
 	const QFileInfo fileInfo(mrl.toLocalFile());
 	const QFileInfoList all = fileInfo.dir().entryInfoList(filter, QDir::Files, QDir::Name);
 	const QString base = fileInfo.completeBaseName();
-
 	for (int i=0; i<all.size(); ++i) {
 		if (d->pref.subtitleAutoLoad != SamePath) {
 			if (d->pref.subtitleAutoLoad == Matched) {
@@ -469,8 +512,9 @@ void MainWindow::doSubtitleAutoLoad() {
 				continue;
 		}
 		Subtitle sub;
-		if (sub.load(all[i].absoluteFilePath(), d->pref.subtitleEncoding))
+		if (sub.load(all[i].absoluteFilePath(), d->pref.subtitleEncoding)) {
 			d->subLoaded += sub;
+		}
 	}
 }
 
@@ -533,7 +577,6 @@ void MainWindow::updateSubtitle() {
 	for (int i=0; i<order.size(); ++i)
 		subtitle.append(d->subLoaded[order[i]]);
 	d->subtitle->setSubtitle(subtitle);
-	d->tool->subtitle()->setSubtitle(subtitle);
 }
 
 void MainWindow::seek(int diff) {
@@ -589,18 +632,19 @@ void MainWindow::setFullScreen(bool full) {
 	if (full == isFullScreen())
 		return;
 	d->control->setHidden(full);
-//	d->screen->setSyncSize(!full);
 	if (full) {
+		app()->setAlwaysOnTop(this, false);
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
 		if (d->pref.hideCursor)
-			d->hider.start(d->pref.hideDelay);
+			d->hider->start(d->pref.hideDelay);
 		d->video->setFixedRenderSize(size());
 	} else {
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
-		d->hider.stop();
+		d->hider->stop();
 		if (cursor().shape() == Qt::BlankCursor)
 			unsetCursor();
 		d->video->setFixedRenderSize(QSize());
+		updateStaysOnTop();
 	}
 }
 
@@ -611,7 +655,6 @@ void MainWindow::setVideoSize(double rate) {
 	} else {
 		if (isFullScreen())
 			setFullScreen(false);
-//		QWidget *w = d->stack->currentWidget();
 		resize(size() - d->video->size() + d->video->sizeHint()*qSqrt(rate));
 	}
 }
@@ -620,20 +663,18 @@ void MainWindow::updateState(MediaState state, MediaState old) {
 	if (old == state)
 		return;
 	if (state == PlayingState) {
-//		ScreensaverManager::setDisabled(d->pref.disableScreensaver);
+#ifdef Q_WS_X11
+		ScreensaverManager::setDisabled(d->pref.disableScreensaver);
+#endif
 		d->menu("play")["pause"]->setText(tr("Pause"));
 	} else {
-//		ScreensaverManager::setDisabled(false);
+#ifdef Q_WS_X11
+		ScreensaverManager::setDisabled(false);
+#endif
 		d->menu("play")["pause"]->setText(tr("Play"));
 	}
-	if (state == StoppedState) {
-//		d->stack->setCurrentWidget(d->logo);
-	} else {
-//		if (d->engine->hasVideo())
-//			d->stack->setCurrentWidget(d->engine->renderer());
-//		else
-//			d->stack->setCurrentWidget(d->logo);
-	}
+	d->video->setLogoMode(state == StoppedState);
+	updateStaysOnTop();
 }
 
 void MainWindow::setSpeed(int diff) {
@@ -698,10 +739,6 @@ void MainWindow::moveSubtitle(int dy) {
 	showMessage(tr("Subtitle Position"), newPos, "%");
 }
 
-void MainWindow::toggleToolBox() {
-	d->tool->setVisible(!d->tool->isVisible());
-}
-
 PlayEngine *MainWindow::engine() const {
 	return d->engine;
 }
@@ -726,18 +763,22 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event) {
-	d->hider.stop();
+	d->hider->stop();
 	if (cursor().shape() == Qt::BlankCursor)
 		unsetCursor();
 	QMainWindow::mouseMoveEvent(event);
 	const bool full = isFullScreen();
 	if (full) {
+		if (d->moving) {
+			d->moving = false;
+			d->prevPos = QPoint();
+		}
 		static const int h = d->control->height();
 		QRect rect = this->rect();
 		rect.setTop(rect.height() - h);
 		d->control->setVisible(rect.contains(event->pos()));
 		if (d->pref.hideCursor)
-			d->hider.start(d->pref.hideDelay);
+			d->hider->start(d->pref.hideDelay);
 	} else {
 		if (d->moving) {
 			const QPoint pos = event->globalPos();
@@ -802,8 +843,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 		}
 	}
 	if (!playlist.isEmpty()) {
-		d->tool->playlist()->append(playlist);
-//		d->model->play(d->model->row(playlist.first()));
+		d->playlist->append(playlist);
 	} else if (!subList.isEmpty())
 		appendSubFiles(subList, true, d->pref.subtitleEncoding);
 }
@@ -857,7 +897,9 @@ void MainWindow::applyPref() {
 	app()->setStyle(d->pref.windowStyle);
 	d->subtitle->osd()->setStyle(d->pref.subtitleStyle);
 	d->menu.updatePref();
+#ifndef Q_WS_MAC
 	d->tray->setVisible(d->pref.enableSystemTray);
+#endif
 	d->control->setState(d->engine->state());
 }
 
@@ -923,4 +965,43 @@ void MainWindow::setColorProperty(QAction *action) {
 	const double v = d->video->colorProperty()[prop]*100.0;
 	const int value = v + (v < 0 ? -0.5 : 0.5);
 	showMessage(cmd, value, "%", true);
+}
+
+void MainWindow::updateStaysOnTop() {
+	const int data = d->menu("window").g("sot")->checkedAction()->data().toInt();
+	bool onTop = false;
+	if (!isFullScreen()) {
+		switch (data) {
+		case AlwaysOnTop:
+			onTop = true;
+			break;
+		case DontStayOnTop:
+			onTop = false;
+			break;
+		default: // OnTopPlaying:
+			onTop = d->engine->isPlaying();
+			break;
+		}
+	}
+	app()->setAlwaysOnTop(this, onTop);
+}
+
+void MainWindow::setStaysOnTopMode(int mode) {
+
+	qDebug() << StaysOnTopEnum::name((StaysOnTop)mode);
+}
+
+void MainWindow::togglePlaylist() {
+	static ToggleDialog *dlg = new ToggleDialog(d->playlist, this);
+	dlg->toggle();
+}
+
+void MainWindow::toggleSubtitle() {
+	static ToggleDialog *dlg = new ToggleDialog(d->subtitle->view(this), this);
+	dlg->toggle();
+}
+
+void MainWindow::toggleHistory() {
+	static ToggleDialog *dlg = new ToggleDialog(d->history, this);
+	dlg->toggle();
 }

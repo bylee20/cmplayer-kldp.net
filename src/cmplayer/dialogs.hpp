@@ -93,4 +93,14 @@ private:
 };
 
 
+class ToggleDialog : public QDialog {
+	Q_OBJECT
+public:
+	ToggleDialog(QWidget *widget, QWidget *parent);
+public slots:
+	void toggle() {setVisible(!isVisible());}
+private:
+	QWidget *w;
+};
+
 #endif // DIALOGS_HPP

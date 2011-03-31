@@ -17,6 +17,7 @@ public:
 	void play(const Mrl &mrl);
 	void append(const Playlist &list);
 public slots:
+	void toggleVisibility() {setVisible(!isVisible());}
 	void playNext();
 	void playPrevious();
 signals:

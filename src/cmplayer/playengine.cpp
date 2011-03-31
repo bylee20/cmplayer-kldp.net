@@ -141,6 +141,9 @@ void PlayEngine::updateState(MediaState state) {
 	if (d->state != state) {
 		const MediaState old = d->state;
 		d->state = state;
+		if (d->state == PlayingState && old != PausedState) {
+			//
+		}
 		emit stateChanged(d->state, old);
 		if (d->state == FinishedState) {
 			emit aboutToFinished();
@@ -151,10 +154,6 @@ void PlayEngine::updateState(MediaState state) {
 				emit stopped(d->media->mrl(), d->stoppedTime, duration());
 				d->stoppedTime = -1;
 			}
-		} else if (d->state == PlayingState && old != PausedState) {
-			const bool hasVideo = (libvlc_media_player_has_vout(d->mp) > 0);
-			if (d->hasVideo != hasVideo)
-				emit hasVideoChanged(d->hasVideo = hasVideo);
 		}
 	}
 }
@@ -264,7 +263,7 @@ Mrl PlayEngine::mrl() const {
 }
 
 bool PlayEngine::hasVideo() const {
-	return d->hasVideo;
+	return libvlc_media_player_has_vout(d->mp) > 0;
 }
 
 int PlayEngine::videoTrackCount() const {
