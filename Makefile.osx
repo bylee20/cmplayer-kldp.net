@@ -1,0 +1,46 @@
+QMAKE ?= qmake -spec macx-g++
+LRELEASE ?= lrelease
+
+VLC_INCLUDE_PATH ?= /Applications/VLC.app/Contents/MacOS/include
+VLC_LIB_PATH ?= /Applications/VLC.app/Contents/MacOS/lib
+VLC_PLUGINS_PATH ?= /Applications/VLC.app/Contents/MacOS/plugins
+
+cmplayer_major := 0
+cmplayer_minor := 5
+cmplayer_patch := 0
+cmplayer_version := $(cmplayer_major).$(cmplayer_minor).$(cmplayer_patch)
+cmplayer_exec_path := bin/cmplayer.app/Contents/MacOS
+install_file := install -m 644
+install_exe := install -m 755
+qmake_vars := DESTDIR=\\\"../../bin\\\" RELEASE=\\\"yes\\\" VLC_INCLUDE_PATH=\\\"$(VLC_INCLUDE_PATH)\\\" VLC_LIB_PATH=$(VLC_LIB_PATH)
+
+cmplayer: cmplayer-vlc-plugins translations libchardet
+	cd src/cmplayer && $(QMAKE) $(qmake_vars) cmplayer.pro 
+	cd src/cmplayer && make
+	install -d $(cmplayer_exec_path)/lib
+	install -d $(cmplayer_exec_path)/plugins
+	cp -r $(VLC_LIB_PATH)/*.dylib* $(cmplayer_exec_path)/lib
+	cp -r $(VLC_PLUGINS_PATH)/*.dylib $(cmplayer_exec_path)/plugins
+	$(install_file) bin/libcmplayer-*_plugin.dylib $(cmplayer_exec_path)/plugins
+	macdeployqt bin/cmplayer.app
+
+bin_dir:
+	install -d bin
+
+libchardet:
+	cd src/libchardet* && ./configure --enable-shared=no --enable-static=yes && make
+
+cmplayer-vlc-plugins: bin_dir
+	cd src/cmplayer-vlc-plugins && make -f Makefile.osx
+	mv src/cmplayer-vlc-plugins/libcmplayer-*_plugin.dylib bin
+
+translations:
+	cd src/cmplayer/translations && $(LRELEASE) cmplayer_ko.ts -qm cmplayer_ko
+	cd src/cmplayer/translations && $(LRELEASE) cmplayer_en.ts -qm cmplayer_en
+	cd src/cmplayer/translations && $(LRELEASE) cmplayer_ja.ts -qm cmplayer_ja
+
+clean:
+	-cd src/cmplayer-vlc-plugins && make -f Makefile.osx clean
+	-cd src/cmplayer && $(QMAKE) $(qmake_vars) cmplayer.pro && make clean
+	-cd src/libchardet* && make distclean
+	-rm -rf bin/*
