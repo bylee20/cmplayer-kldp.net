@@ -51,6 +51,8 @@
 
 #include "qtlockedfile.h"
 
+namespace QtSolution {
+
 bool QtLockedFile::lock(LockMode mode, bool block)
 {
     if (!isOpen()) {
@@ -119,3 +121,4 @@ QtLockedFile::~QtLockedFile()
         unlock();
 }
 
+}

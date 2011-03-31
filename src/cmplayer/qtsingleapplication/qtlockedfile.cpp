@@ -46,6 +46,8 @@
 
 #include "qtlockedfile.h"
 
+namespace QtSolution {
+
 /*!
     \class QtLockedFile
 
@@ -197,3 +199,5 @@ QtLockedFile::LockMode QtLockedFile::lockMode() const
     Destroys the \e QtLockedFile object. If any locks were held, they
     are released.
 */
+
+}

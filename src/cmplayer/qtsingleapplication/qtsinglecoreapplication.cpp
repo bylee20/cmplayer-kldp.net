@@ -48,6 +48,8 @@
 #include "qtsinglecoreapplication.h"
 #include "qtlocalpeer.h"
 
+namespace QtSolution {
+
 /*!
     \class QtSingleCoreApplication qtsinglecoreapplication.h
     \brief A variant of the QtSingleApplication class for non-GUI applications.
@@ -153,3 +155,5 @@ QString QtSingleCoreApplication::id() const
 
     \sa sendMessage()
 */
+
+}

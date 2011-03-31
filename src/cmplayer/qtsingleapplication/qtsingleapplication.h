@@ -47,6 +47,8 @@
 
 #include <QtGui/QApplication>
 
+namespace QtSolution {
+
 class QtLocalPeer;
 
 #if defined(Q_WS_WIN)
@@ -103,3 +105,5 @@ private:
     QtLocalPeer *peer;
     QWidget *actWin;
 };
+
+}

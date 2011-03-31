@@ -49,6 +49,7 @@
 #include "qtlocalpeer.h"
 #include <QtGui/QWidget>
 
+namespace QtSolution {
 
 /*!
     \class QtSingleApplication qtsingleapplication.h
@@ -349,3 +350,5 @@ void QtSingleApplication::activateWindow()
 
     \obsolete
 */
+
+}

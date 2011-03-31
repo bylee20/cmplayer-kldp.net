@@ -59,6 +59,8 @@ static PProcessIdToSessionId pProcessIdToSessionId = 0;
 #include <time.h>
 #endif
 
+namespace QtSolution {
+
 namespace QtLP_Private {
 #include "qtlockedfile.cpp"
 #if defined(Q_OS_WIN)
@@ -118,7 +120,7 @@ bool QtLocalPeer::isClient()
     if (lockFile.isLocked())
         return false;
 
-    if (!lockFile.lock(QtLP_Private::QtLockedFile::WriteLock, false))
+    if (!lockFile.lock(QtLP_Private::QtSolution::QtLockedFile::WriteLock, false))
         return true;
 
     bool res = server->listen(socketName);
@@ -200,4 +202,6 @@ void QtLocalPeer::receiveConnection()
     socket->waitForBytesWritten(1000);
     delete socket;
     emit messageReceived(message); //### (might take a long time to return)
+}
+
 }

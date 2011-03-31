@@ -47,6 +47,8 @@
 
 #include <QtCore/QCoreApplication>
 
+namespace QtSolution {
+
 class QtLocalPeer;
 
 class QtSingleCoreApplication : public QCoreApplication
@@ -71,3 +73,5 @@ Q_SIGNALS:
 private:
     QtLocalPeer* peer;
 };
+
+}

@@ -49,6 +49,8 @@
 #include <QtNetwork/QLocalSocket>
 #include <QtCore/QDir>
 
+namespace QtSolution {
+
 namespace QtLP_Private {
 #include "qtlockedfile.h"
 }
@@ -74,8 +76,10 @@ protected:
     QString id;
     QString socketName;
     QLocalServer* server;
-    QtLP_Private::QtLockedFile lockFile;
+    QtLP_Private::QtSolution::QtLockedFile lockFile;
 
 private:
     static const char* ack;
 };
+
+}
