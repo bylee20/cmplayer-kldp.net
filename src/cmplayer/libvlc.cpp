@@ -37,6 +37,10 @@ void LibVLC::release() {
 	Data *d = s->d;
 	delete d->engine;
 	delete d->audio;
+	delete d->video;
+	libvlc_media_player_stop(d->mp);
+	libvlc_media_player_release(d->mp);
+	libvlc_release(d->inst);
 	delete s;
 }
 
@@ -173,9 +177,6 @@ LibVLC::LibVLC(): d(new Data) {
 }
 
 LibVLC::~LibVLC() {
-	libvlc_media_player_stop(d->mp);
-	libvlc_media_player_release(d->mp);
-	libvlc_release(d->inst);
 	delete d;
 }
 

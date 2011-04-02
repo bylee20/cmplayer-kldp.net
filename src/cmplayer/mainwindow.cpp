@@ -71,6 +71,7 @@ QIcon MainWindow::defaultIcon() {
 }
 
 MainWindow::MainWindow() {
+	LibVLC::init();
 	d = new Data(Menu::create(this));
 	d->pausedByHiding = d->dontShowMsg = false;
 	d->changingSub = d->moving = false;
@@ -209,8 +210,8 @@ MainWindow::~MainWindow() {
 	d->recent->setLastMrl(d->engine->mrl());
 	d->recent->save();
 	saveState();
-
 	delete d->subtitle;
+	LibVLC::release();
 	delete d;
 }
 

@@ -2,7 +2,6 @@
 #include "events.hpp"
 #include "translator.hpp"
 #include "mainwindow.hpp"
-#include "libvlc.hpp"
 #include "pref.hpp"
 #include "mrl.hpp"
 #include <QtGui/QStyleFactory>
@@ -37,7 +36,6 @@ Application::Application(int &argc, char **argv)
 	setApplicationName("CMPlayer");
 	setWindowIcon(MainWindow::defaultIcon());
 
-	LibVLC::init();
 	d->defStyle = style()->objectName();
 	setStyle(Pref::get().windowStyle);
 	d->main = 0;
@@ -53,7 +51,6 @@ Application::~Application() {
 	delete d->mb;
 	delete d->main;
 	delete d;
-	LibVLC::release();
 }
 
 void Application::setAlwaysOnTop(QWidget *widget, bool onTop) {

@@ -74,7 +74,7 @@ const char *VideoRenderer::yuy2ToRgb =
 struct VideoRenderer::Data {
 	LogoDrawer logo;
 	bool logoOn, frameIsSet, hasPrograms;
-	bool locked;
+	bool binding;
 	Overlay *overlay;
 	GLuint texture[3];
 	double crop, aspect, fps, sar;
@@ -95,7 +95,7 @@ QGLFormat VideoRenderer::makeFormat() {
 
 VideoRenderer::VideoRenderer(QWidget *parent)
 : QGLWidget(makeFormat(), parent), d(new Data) {
-	d->locked = false;
+	d->binding = false;
 	setMinimumSize(QSize(200, 100));
 	setColorProperty(d->color);
 	d->frameIsSet = d->logoOn = false;
@@ -146,7 +146,6 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 }
 
 VideoRenderer::~VideoRenderer() {
-	qDebug() << "locked?" << d->locked;
 	delete d->overlay;
 	glDeleteTextures(3, d->texture);
 	if (d->hasPrograms)
@@ -202,7 +201,7 @@ void VideoRenderer::setUtil(VideoUtil *util) {
 
 void *VideoRenderer::lock(void **planes) {
 	d->mutex.lock();
-	d->locked = true;
+	d->binding = true;
 	for (int i=0; i<d->buffer.planeCount(); ++i)
 		planes[i] = d->buffer.data(i);
 	return 0;
@@ -212,7 +211,7 @@ void VideoRenderer::unlock(void *id, void *const *plane) {
 	Q_UNUSED(id);
 	Q_ASSERT(d->buffer.data() == plane[0]);
 	d->mutex.unlock();
-	d->locked = false;
+	d->binding = false;
 }
 
 void VideoRenderer::display(void *id) {
@@ -283,6 +282,7 @@ bool VideoRenderer::event(QEvent *event) {
 	d->frameIsSet = !d->frame.isEmpty();
 	if (d->frame.isEmpty())
 		return true;
+	d->binding = true;
 	makeCurrent();
 	uchar *data[3] = {d->frame.data(0), d->frame.data(1), d->frame.data(2)};
 	const VideoFrame &f = d->frame;
@@ -314,6 +314,7 @@ bool VideoRenderer::event(QEvent *event) {
 		d->frameIsSet = false;
 		break;
 	}
+	d->binding = false;
 	update();
 	return true;
 }
