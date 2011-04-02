@@ -5,10 +5,6 @@ VLC_INCLUDE_PATH ?= /Applications/VLC.app/Contents/MacOS/include
 VLC_LIB_PATH ?= /Applications/VLC.app/Contents/MacOS/lib
 VLC_PLUGINS_PATH ?= /Applications/VLC.app/Contents/MacOS/plugins
 
-cmplayer_major := 0
-cmplayer_minor := 5
-cmplayer_patch := 0
-cmplayer_version := $(cmplayer_major).$(cmplayer_minor).$(cmplayer_patch)
 cmplayer_exec_path := bin/cmplayer.app/Contents/MacOS
 install_file := install -m 644
 install_exe := install -m 755
