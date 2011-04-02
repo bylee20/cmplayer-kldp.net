@@ -95,8 +95,35 @@
         <translation type="obsolete">情報</translation>
     </message>
     <message>
+        <location filename="../ui/aboutdialog.ui" line="14"/>
+        <source>About CMPlayer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>CMPlayer</source>
         <translation type="obsolete">CMPlayer</translation>
+    </message>
+    <message>
+        <location filename="../ui/aboutdialog.ui" line="91"/>
+        <source>Version: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/aboutdialog.ui" line="121"/>
+        <source>If you find a bug or have any idea for CMPlayer, please contact by followings:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/aboutdialog.ui" line="137"/>
+        <source>Developer&apos;s blog: %1
+Developer&apos;s E-mail: %2
+CMPlayer project site: %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/aboutdialog.ui" line="196"/>
+        <source>View Full Text of License</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>CMPlayer is a multimedia player as a front end of various play engines.</source>
@@ -138,8 +165,9 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">ランタイムバージョン</translation>
     </message>
     <message>
+        <location filename="../ui/aboutdialog.ui" line="165"/>
         <source>License</source>
-        <translation type="obsolete">ライセンス</translation>
+        <translation type="unfinished">ライセンス</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -193,6 +221,11 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You should have received a copy of the GNU General Public License along with this program; if not, see &lt;a href=&quot;http://www.gnu.org/licenses&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;http://www.gnu.org/licenses&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <location filename="../aboutdialog.cpp" line="51"/>
+        <source>Close</source>
+        <translation type="unfinished">閉じる</translation>
     </message>
 </context>
 <context>
@@ -506,6 +539,11 @@ p, li { white-space: pre-wrap; }
         <source>Location</source>
         <translation>位置</translation>
     </message>
+    <message>
+        <location filename="../favoritesview.cpp" line="149"/>
+        <source>Favorites</source>
+        <translation type="unfinished">お気に入り</translation>
+    </message>
 </context>
 <context>
     <name>FavoritesView::FolderItem</name>
@@ -688,29 +726,38 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>HistoryView</name>
     <message>
-        <location filename="../historyview.cpp" line="50"/>
+        <location filename="../historyview.cpp" line="70"/>
         <source>Name</source>
         <translation>名前</translation>
     </message>
     <message>
-        <location filename="../historyview.cpp" line="50"/>
+        <location filename="../historyview.cpp" line="71"/>
         <source>Latest Play</source>
         <translation>最近再生した時間</translation>
     </message>
     <message>
-        <location filename="../historyview.cpp" line="50"/>
+        <location filename="../historyview.cpp" line="72"/>
         <source>Location</source>
         <translation>位置</translation>
     </message>
     <message>
-        <location filename="../historyview.cpp" line="61"/>
+        <location filename="../historyview.cpp" line="89"/>
         <source>Erase</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="../historyview.cpp" line="62"/>
+        <location filename="../historyview.cpp" line="90"/>
         <source>Clear</source>
         <translation>クリア</translation>
+    </message>
+    <message>
+        <location filename="../historyview.cpp" line="94"/>
+        <source>Play History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>History</source>
+        <translation type="obsolete">履歴</translation>
     </message>
 </context>
 <context>
@@ -735,17 +782,17 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Info</name>
     <message>
-        <location filename="../info.cpp" line="46"/>
+        <location filename="../info.cpp" line="47"/>
         <source>Video Files</source>
         <translation>ビデオファイル</translation>
     </message>
     <message>
-        <location filename="../info.cpp" line="48"/>
+        <location filename="../info.cpp" line="49"/>
         <source>Audio Files</source>
         <translation>オーディオファイル</translation>
     </message>
     <message>
-        <location filename="../info.cpp" line="50"/>
+        <location filename="../info.cpp" line="51"/>
         <source>All Files</source>
         <translation>すべてのファイル</translation>
     </message>
@@ -753,47 +800,47 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../mainwindow.cpp" line="383"/>
+        <location filename="../mainwindow.cpp" line="386"/>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="448"/>
+        <location filename="../mainwindow.cpp" line="458"/>
         <source>Subtitle Files</source>
         <translation>字幕ファイル</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="454"/>
+        <location filename="../mainwindow.cpp" line="464"/>
         <source>Open Subtitle</source>
         <translation>字幕を開く</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="588"/>
+        <location filename="../mainwindow.cpp" line="598"/>
         <source>Seeking</source>
         <translation>探索</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="588"/>
+        <location filename="../mainwindow.cpp" line="598"/>
         <source>sec</source>
         <translation>秒</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="623"/>
+        <location filename="../mainwindow.cpp" line="633"/>
         <source>Volume</source>
         <translation>音量</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="628"/>
+        <location filename="../mainwindow.cpp" line="638"/>
         <source>Mute</source>
         <translation>消音</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="685"/>
+        <location filename="../mainwindow.cpp" line="693"/>
         <source>Speed</source>
         <translation>速度</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="939"/>
+        <location filename="../mainwindow.cpp" line="947"/>
         <source>Autoscale Pitch</source>
         <translation>ピッチを自動調整</translation>
     </message>
@@ -802,32 +849,32 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">アンプ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="691"/>
+        <location filename="../mainwindow.cpp" line="699"/>
         <source>Amp</source>
         <translation>アンプ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="733"/>
+        <location filename="../mainwindow.cpp" line="741"/>
         <source>A-B Repeat</source>
         <translation>区間反復</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="739"/>
+        <location filename="../mainwindow.cpp" line="747"/>
         <source>Subtitle Position</source>
         <translation>字幕の位置</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="929"/>
+        <location filename="../mainwindow.cpp" line="937"/>
         <source>On</source>
         <translation>オン</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="929"/>
+        <location filename="../mainwindow.cpp" line="937"/>
         <source>Off</source>
         <translation>オフ</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="934"/>
+        <location filename="../mainwindow.cpp" line="942"/>
         <source>Normalize Volume</source>
         <translation>音量平準化</translation>
     </message>
@@ -844,22 +891,22 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">ソフトウェアビデオ処理</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="951"/>
+        <location filename="../mainwindow.cpp" line="959"/>
         <source>Brightness</source>
         <translation>明度</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="954"/>
+        <location filename="../mainwindow.cpp" line="962"/>
         <source>Saturation</source>
         <translation>彩度</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="957"/>
+        <location filename="../mainwindow.cpp" line="965"/>
         <source>Hue</source>
         <translation>色相</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="960"/>
+        <location filename="../mainwindow.cpp" line="968"/>
         <source>Contrast</source>
         <translation>コントラスト</translation>
     </message>
@@ -872,12 +919,12 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">速度: ×%1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="669"/>
+        <location filename="../mainwindow.cpp" line="679"/>
         <source>Pause</source>
         <translation>一時停止</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="674"/>
+        <location filename="../mainwindow.cpp" line="682"/>
         <source>Play</source>
         <translation>再生</translation>
     </message>
@@ -894,27 +941,27 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">区間反復: %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="709"/>
+        <location filename="../mainwindow.cpp" line="717"/>
         <source>Set A to %1</source>
         <translation>始点　%1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="713"/>
+        <location filename="../mainwindow.cpp" line="721"/>
         <source>Range is too short!</source>
         <translation>区間が短すぎます!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="718"/>
+        <location filename="../mainwindow.cpp" line="726"/>
         <source>Set B to %1. Start to repeat!</source>
         <translation>終点 %1. 反復を始めます!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="726"/>
+        <location filename="../mainwindow.cpp" line="734"/>
         <source>Quit repeating</source>
         <translation>反復終了</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="730"/>
+        <location filename="../mainwindow.cpp" line="738"/>
         <source>Repeat current subtitle</source>
         <translation>現在の字幕を反復</translation>
     </message>
@@ -935,12 +982,12 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">アンプ: %2% (最大: %1%)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="913"/>
+        <location filename="../mainwindow.cpp" line="921"/>
         <source>CMPlayer will be running in the system tray when the window closed.&lt;br&gt;You can change this behavior in the preferences.&lt;br&gt;If you want to exit CMPlayer, please use &apos;Exit&apos; menu.</source>
         <translation>ウィンドウを閉じてもCMPlayerはシステムトレ上で実行しされつづけます。&lt;br&gt;環境設定で行動方式を変更できます。&lt;br&gt;CMPlayerを終了したい場合は、&apos;終了&apos;メニューをご利用下さい。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="917"/>
+        <location filename="../mainwindow.cpp" line="925"/>
         <source>Do not display this message again</source>
         <translation>このメッセージを再び表示させない</translation>
     </message>
@@ -952,8 +999,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Menu</name>
     <message>
-        <location filename="../menu.cpp" line="314"/>
-        <location filename="../menu.cpp" line="365"/>
+        <location filename="../menu.cpp" line="296"/>
+        <location filename="../menu.cpp" line="347"/>
         <source>Open</source>
         <translation>開く</translation>
     </message>
@@ -974,13 +1021,13 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">最近再生したもの</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="320"/>
+        <location filename="../menu.cpp" line="302"/>
         <source>Recent Open</source>
         <translation>最近開いたもの</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="321"/>
-        <location filename="../menu.cpp" line="366"/>
+        <location filename="../menu.cpp" line="303"/>
+        <location filename="../menu.cpp" line="348"/>
         <source>Clear</source>
         <translation>クリア</translation>
     </message>
@@ -1013,133 +1060,172 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">フルサイズ</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="315"/>
+        <location filename="../menu.cpp" line="297"/>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="316"/>
+        <location filename="../menu.cpp" line="298"/>
         <source>Load URL</source>
         <translation>URLを開く</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="317"/>
+        <location filename="../menu.cpp" line="299"/>
         <source>Open DVD</source>
         <translation>DVDを開く</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="327"/>
+        <location filename="../menu.cpp" line="309"/>
         <source>Play Previous</source>
         <translation>以前の項目を再生</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="328"/>
+        <location filename="../menu.cpp" line="310"/>
         <source>Play Next</source>
         <translation>次の項目を再生</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="331"/>
+        <location filename="../menu.cpp" line="313"/>
         <source>Playback Speed</source>
         <translation>再生速度</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="364"/>
+        <location filename="../menu.cpp" line="346"/>
         <source>Subtitle File</source>
         <translation>字幕ファイル</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="368"/>
+        <location filename="../menu.cpp" line="350"/>
         <source>Subtitle Track</source>
         <translation>字幕トラック</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="379"/>
+        <location filename="../menu.cpp" line="361"/>
         <source>Video Track</source>
         <translation>ビデオトラック</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="382"/>
+        <location filename="../menu.cpp" line="364"/>
         <source>Aspect Ratio</source>
         <translation>縦横比</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="383"/>
+        <location filename="../menu.cpp" line="365"/>
         <source>Auto</source>
         <translation>自動</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="384"/>
-        <location filename="../menu.cpp" line="393"/>
+        <location filename="../menu.cpp" line="366"/>
+        <location filename="../menu.cpp" line="375"/>
         <source>Same as Window</source>
         <translation>ウィンドーに合わせる</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="385"/>
-        <location filename="../menu.cpp" line="394"/>
+        <location filename="../menu.cpp" line="367"/>
+        <location filename="../menu.cpp" line="376"/>
         <source>4:3 (TV)</source>
         <translation>4:3 (TV)</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="386"/>
-        <location filename="../menu.cpp" line="395"/>
+        <location filename="../menu.cpp" line="368"/>
+        <location filename="../menu.cpp" line="377"/>
         <source>16:9 (HDTV)</source>
         <translation>16:9 (HDTV)</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="387"/>
-        <location filename="../menu.cpp" line="396"/>
+        <location filename="../menu.cpp" line="369"/>
+        <location filename="../menu.cpp" line="378"/>
         <source>1.85:1 (Wide Vision)</source>
         <translation>1.85:1 (Wide Vision)</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="388"/>
-        <location filename="../menu.cpp" line="397"/>
+        <location filename="../menu.cpp" line="370"/>
+        <location filename="../menu.cpp" line="379"/>
         <source>2.35:1 (CinemaScope)</source>
         <translation>2.35:1 (CinemaScope)</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="391"/>
+        <location filename="../menu.cpp" line="373"/>
         <source>Crop</source>
         <translation>切り抜き</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="392"/>
+        <location filename="../menu.cpp" line="374"/>
         <source>Off</source>
         <translation>オフ</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="411"/>
+        <location filename="../menu.cpp" line="393"/>
         <source>Audio Track</source>
         <translation>オーディオトラック</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="421"/>
+        <location filename="../menu.cpp" line="402"/>
         <source>Tools</source>
         <translation>ツール</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="422"/>
+        <location filename="../menu.cpp" line="403"/>
         <source>Playlist</source>
         <translation>プレイリスト</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="423"/>
+        <location filename="../menu.cpp" line="404"/>
         <source>Favorites</source>
         <translation>お気に入り</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="429"/>
+        <location filename="../menu.cpp" line="405"/>
+        <source>Play History</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>History</source>
+        <translation type="obsolete">履歴</translation>
+    </message>
+    <message>
+        <location filename="../menu.cpp" line="406"/>
+        <source>Subtitle View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../menu.cpp" line="410"/>
         <source>Window</source>
         <translation>ウィンドー</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="434"/>
+        <location filename="../menu.cpp" line="411"/>
+        <source>Always Stay on Top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../menu.cpp" line="412"/>
+        <source>Stay on Top Playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../menu.cpp" line="413"/>
+        <source>Don&apos;t Stay on Top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../menu.cpp" line="415"/>
         <source>Fullscreen</source>
         <translation>フルスクリーン</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="324"/>
-        <location filename="../menu.cpp" line="325"/>
+        <location filename="../menu.cpp" line="418"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../menu.cpp" line="419"/>
+        <source>About %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../menu.cpp" line="306"/>
+        <location filename="../menu.cpp" line="307"/>
         <source>Play</source>
         <translation>再生</translation>
     </message>
@@ -1148,7 +1234,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">再生エンジン</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="326"/>
+        <location filename="../menu.cpp" line="308"/>
         <source>Stop</source>
         <translation>停止</translation>
     </message>
@@ -1165,35 +1251,36 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">速度</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="332"/>
+        <location filename="../menu.cpp" line="314"/>
         <source>Reset</source>
         <translation>初期化</translation>
     </message>
     <message>
+        <location filename="../menu.cpp" line="389"/>
         <source>Take Snapshot</source>
-        <translation type="obsolete">スナップショットを撮る</translation>
+        <translation type="unfinished">スナップショットを撮る</translation>
     </message>
     <message>
         <source>Toggle DVD Menu</source>
         <translation type="obsolete">DVDメニュー切り替え</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="336"/>
+        <location filename="../menu.cpp" line="318"/>
         <source>A-B Repeat</source>
         <translation>区間反復</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="337"/>
+        <location filename="../menu.cpp" line="319"/>
         <source>Set Range to Current Time</source>
         <translation>現在の時間で区間を設定</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="338"/>
+        <location filename="../menu.cpp" line="320"/>
         <source>Repeat Current Subtitle</source>
         <translation>現在の字幕を反復</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="339"/>
+        <location filename="../menu.cpp" line="321"/>
         <source>Quit</source>
         <translation>終了</translation>
     </message>
@@ -1202,7 +1289,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">詳しく設定</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="342"/>
+        <location filename="../menu.cpp" line="324"/>
         <source>Seek</source>
         <translation>シーク</translation>
     </message>
@@ -1215,7 +1302,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">%1秒戻る</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="362"/>
+        <location filename="../menu.cpp" line="344"/>
         <source>Subtitle</source>
         <translation>字幕</translation>
     </message>
@@ -1224,7 +1311,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">リスト</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="367"/>
+        <location filename="../menu.cpp" line="349"/>
         <source>Hide</source>
         <translation>非表示</translation>
     </message>
@@ -1233,17 +1320,17 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">原罪の字幕を表示</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="370"/>
+        <location filename="../menu.cpp" line="352"/>
         <source>Up %1%</source>
         <translation>%1%上へ</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="372"/>
+        <location filename="../menu.cpp" line="354"/>
         <source>Down %1%</source>
         <translation>%1%下へ</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="373"/>
+        <location filename="../menu.cpp" line="355"/>
         <source>Reset Sync</source>
         <translation>シンクを初期化</translation>
     </message>
@@ -1252,7 +1339,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">シンク %1秒</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="378"/>
+        <location filename="../menu.cpp" line="360"/>
         <source>Video</source>
         <translation>ビデオ</translation>
     </message>
@@ -1261,27 +1348,27 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">レンダラ</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="400"/>
+        <location filename="../menu.cpp" line="382"/>
         <source>Brightness %1%</source>
         <translation>明度 %1%</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="402"/>
+        <location filename="../menu.cpp" line="384"/>
         <source>Saturation %1%</source>
         <translation>彩度 %1%</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="404"/>
+        <location filename="../menu.cpp" line="386"/>
         <source>Contrast %1%</source>
         <translation>コントラスト %1%</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="406"/>
+        <location filename="../menu.cpp" line="388"/>
         <source>Hue %1%</source>
         <translation>色相 %1%</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="410"/>
+        <location filename="../menu.cpp" line="392"/>
         <source>Audio</source>
         <translation>オーディオ</translation>
     </message>
@@ -1298,12 +1385,12 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">メインメニュー</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="358"/>
+        <location filename="../menu.cpp" line="340"/>
         <source>Title</source>
         <translation>タイトル</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="359"/>
+        <location filename="../menu.cpp" line="341"/>
         <source>Chapter</source>
         <translation>チャプター</translation>
     </message>
@@ -1312,17 +1399,17 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">アングル</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="343"/>
+        <location filename="../menu.cpp" line="325"/>
         <source>Forward %1sec</source>
         <translation>%1秒進む</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="350"/>
+        <location filename="../menu.cpp" line="332"/>
         <source>Backward %1sec</source>
         <translation>%1秒戻る</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="375"/>
+        <location filename="../menu.cpp" line="357"/>
         <source>Sync %1sec</source>
         <translation>シンク %1秒</translation>
     </message>
@@ -1335,22 +1422,22 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">トラック</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="412"/>
+        <location filename="../menu.cpp" line="394"/>
         <source>Toggle Mute</source>
         <translation>消音切り替え</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="413"/>
+        <location filename="../menu.cpp" line="395"/>
         <source>Normalize Volume</source>
         <translation>音量平準化</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="416"/>
+        <location filename="../menu.cpp" line="397"/>
         <source>Volume %1%</source>
         <translation>音量 %1%</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="418"/>
+        <location filename="../menu.cpp" line="399"/>
         <source>Amp %1%</source>
         <translation>アンプ %1%</translation>
     </message>
@@ -1363,7 +1450,7 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">アンプ %1%</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="426"/>
+        <location filename="../menu.cpp" line="407"/>
         <source>Preferences</source>
         <translation>環境設定</translation>
     </message>
@@ -1372,13 +1459,36 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">情報</translation>
     </message>
     <message>
-        <location filename="../menu.cpp" line="438"/>
+        <location filename="../menu.cpp" line="420"/>
         <source>Exit</source>
         <translation>終了</translation>
     </message>
     <message>
         <source>Toggle Playlist</source>
         <translation type="obsolete">プレイリスト表示切り替え</translation>
+    </message>
+</context>
+<context>
+    <name>OpenDVDDialog</name>
+    <message>
+        <location filename="../ui/opendvddialog.ui" line="14"/>
+        <source>Select DVD Device</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/opendvddialog.ui" line="20"/>
+        <source>Open next device:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutdialog.cpp" line="99"/>
+        <source>Selected device is available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../aboutdialog.cpp" line="102"/>
+        <source>Selected device doesn&apos;t exists.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1410,11 +1520,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../ui/osdstyle_widget.ui" line="17"/>
         <source>Font</source>
         <translation>フォント</translation>
-    </message>
-    <message>
-        <location filename="../ui/osdstyle_widget.ui" line="42"/>
-        <source>font</source>
-        <translation></translation>
     </message>
     <message>
         <location filename="../ui/osdstyle_widget.ui" line="52"/>
@@ -1449,10 +1554,9 @@ p, li { white-space: pre-wrap; }
         <translation>%</translation>
     </message>
     <message>
-        <location filename="../ui/osdstyle_widget.ui" line="191"/>
         <source>*Some options might be ignored in case that the play engine doesn&apos;t support them.&lt;br&gt;
 *The size of font is ignored. Use size scale instead.</source>
-        <translation>*再生エンジンによりサポートされない一部のオプションは無視されることがあります。&lt;br&gt;
+        <translation type="obsolete">*再生エンジンによりサポートされない一部のオプションは無視されることがあります。&lt;br&gt;
 *フォンとのサイズは無視されます。代わりにサイズすケールをご利用下さい。</translation>
     </message>
 </context>
@@ -1578,19 +1682,20 @@ Do you want to start from where it&apos;s stopped?
         <translation>クリア</translation>
     </message>
     <message>
-        <location filename="../playlistview.cpp" line="75"/>
-        <location filename="../playlistview.cpp" line="121"/>
+        <location filename="../playlistview.cpp" line="77"/>
+        <location filename="../playlistview.cpp" line="127"/>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
     </message>
     <message>
-        <location filename="../playlistview.cpp" line="119"/>
-        <location filename="../playlistview.cpp" line="134"/>
+        <location filename="../playlistview.cpp" line="68"/>
+        <location filename="../playlistview.cpp" line="125"/>
+        <location filename="../playlistview.cpp" line="140"/>
         <source>Playlist</source>
         <translation>プレイリスト</translation>
     </message>
     <message>
-        <location filename="../playlistview.cpp" line="133"/>
+        <location filename="../playlistview.cpp" line="139"/>
         <source>Save File</source>
         <translation>ファイルを保存する</translation>
     </message>
@@ -2829,52 +2934,69 @@ e.g.: English, Korean</source>
 <context>
     <name>SnapshotDialog</name>
     <message>
+        <location filename="../snapshotdialog.cpp" line="51"/>
         <source>Images</source>
-        <translation type="obsolete">イメージ</translation>
+        <translation type="unfinished">イメージ</translation>
     </message>
     <message>
+        <location filename="../snapshotdialog.cpp" line="56"/>
         <source>Save File</source>
-        <translation type="obsolete">ファイルを保存する</translation>
+        <translation type="unfinished">ファイルを保存する</translation>
     </message>
     <message>
         <source>Taking a snapshot...</source>
         <translation type="obsolete">スナップショットを撮っています…</translation>
     </message>
     <message>
+        <location filename="../snapshotdialog.cpp" line="78"/>
         <source>Failed in getting a snapshot!</source>
-        <translation type="obsolete">スナップショットの撮影に失敗しました!</translation>
+        <translation type="unfinished">スナップショットの撮影に失敗しました!</translation>
     </message>
     <message>
+        <location filename="../ui/snapshotdialog.ui" line="14"/>
         <source>Take Snapshot</source>
-        <translation type="obsolete">スナップショットを撮る</translation>
+        <translation type="unfinished">スナップショットを撮る</translation>
     </message>
     <message>
+        <location filename="../ui/snapshotdialog.ui" line="32"/>
         <source>Take</source>
-        <translation type="obsolete">撮る</translation>
+        <translation type="unfinished">撮る</translation>
     </message>
     <message>
+        <location filename="../ui/snapshotdialog.ui" line="42"/>
         <source>Zoom Out</source>
-        <translation type="obsolete">縮小</translation>
+        <translation type="unfinished">縮小</translation>
     </message>
     <message>
+        <location filename="../ui/snapshotdialog.ui" line="45"/>
+        <location filename="../ui/snapshotdialog.ui" line="56"/>
         <source>Zoom In</source>
-        <translation type="obsolete">拡大</translation>
+        <translation type="unfinished">拡大</translation>
     </message>
     <message>
+        <location filename="../ui/snapshotdialog.ui" line="67"/>
         <source>View Original Size</source>
-        <translation type="obsolete">元のサイズで見る</translation>
+        <translation type="unfinished">元のサイズで見る</translation>
     </message>
     <message>
+        <location filename="../ui/snapshotdialog.ui" line="70"/>
         <source>Zoom Original</source>
-        <translation type="obsolete">元のサイズで見る</translation>
+        <translation type="unfinished">元のサイズで見る</translation>
     </message>
     <message>
+        <location filename="../ui/snapshotdialog.ui" line="81"/>
+        <source>Include subtitle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/snapshotdialog.ui" line="107"/>
         <source>Save</source>
-        <translation type="obsolete">保存</translation>
+        <translation type="unfinished">保存</translation>
     </message>
     <message>
+        <location filename="../ui/snapshotdialog.ui" line="114"/>
         <source>Close</source>
-        <translation type="obsolete">閉じる</translation>
+        <translation type="unfinished">閉じる</translation>
     </message>
 </context>
 <context>
@@ -2906,17 +3028,17 @@ e.g.: English, Korean</source>
 <context>
     <name>SubtitleComponentModel</name>
     <message>
-        <location filename="../subtitlemodel.cpp" line="78"/>
+        <location filename="../subtitlemodel.cpp" line="83"/>
         <source>Start</source>
         <translation>始点</translation>
     </message>
     <message>
-        <location filename="../subtitlemodel.cpp" line="80"/>
+        <location filename="../subtitlemodel.cpp" line="84"/>
         <source>End</source>
         <translation>終点</translation>
     </message>
     <message>
-        <location filename="../subtitlemodel.cpp" line="82"/>
+        <location filename="../subtitlemodel.cpp" line="85"/>
         <source>Text</source>
         <translation>テキスト</translation>
     </message>
@@ -2945,33 +3067,33 @@ e.g.: English, Korean</source>
         <source>Scroll to current time</source>
         <translation>現在の時間に合わせてスクロール</translation>
     </message>
+    <message>
+        <location filename="../subtitleview.cpp" line="66"/>
+        <source>Subtitle View</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ToolBox</name>
     <message>
-        <location filename="../toolbox.cpp" line="135"/>
         <source>Playlist</source>
-        <translation>プレイリスト</translation>
+        <translation type="obsolete">プレイリスト</translation>
     </message>
     <message>
-        <location filename="../toolbox.cpp" line="136"/>
         <source>Favorites</source>
-        <translation>お気に入り</translation>
+        <translation type="obsolete">お気に入り</translation>
     </message>
     <message>
-        <location filename="../toolbox.cpp" line="137"/>
         <source>History</source>
-        <translation>履歴</translation>
+        <translation type="obsolete">履歴</translation>
     </message>
     <message>
-        <location filename="../toolbox.cpp" line="138"/>
         <source>Subtitle</source>
-        <translation>字幕</translation>
+        <translation type="obsolete">字幕</translation>
     </message>
     <message>
-        <location filename="../toolbox.cpp" line="188"/>
         <source>TOOL BOX</source>
-        <translation>ツールボックス</translation>
+        <translation type="obsolete">ツールボックス</translation>
     </message>
     <message>
         <source>Video Color</source>
