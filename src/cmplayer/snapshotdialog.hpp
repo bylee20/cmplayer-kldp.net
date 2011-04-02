@@ -11,8 +11,8 @@ class SnapshotDialog : public QDialog {
 public:
 	SnapshotDialog(QWidget *parent = 0);
 	~SnapshotDialog();
-	void setVideoRenderer(const VideoRenderer *video);
 	void setSubtitleRenderer(const SubtitleRenderer *subtitle);
+	void setVideoRenderer(const VideoRenderer *video);
 public slots:
 	void take();
 private slots:
