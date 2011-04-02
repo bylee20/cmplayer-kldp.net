@@ -97,6 +97,7 @@ private:
 	void mousePressEvent(QMouseEvent *event);
 	void wheelEvent(QWheelEvent *event);
 	void dropEvent(QDropEvent *event);
+	void dragEnterEvent(QDragEnterEvent *event);
 	class VideoScreen;
 	void doSubtitleAutoLoad();
 	void doSubtitleAutoSelection();

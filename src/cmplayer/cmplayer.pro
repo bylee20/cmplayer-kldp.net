@@ -1,3 +1,5 @@
+TARGET = cmplayer
+
 !isEmpty(RELEASE) {
 	CONFIG += release
 	macx {
@@ -19,12 +21,13 @@ macx {
 	}
 	ICON = ../../icons/cmplayer.icns
 	LIBS += -framework Cocoa -framework IOKit
+	QMAKE_INFO_PLIST = Info.plist
+	TARGET = CMPlayer
 } else:x11 {
 	LIBS += -lX11
 }
 
 TEMPLATE = app
-TARGET = cmplayer
 CONFIG += link_pkgconfig debug_and_release
 
 QT = core gui opengl network

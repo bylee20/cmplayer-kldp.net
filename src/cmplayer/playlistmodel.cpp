@@ -71,6 +71,18 @@ void PlaylistModel::append(const Mrl &mrl) {
 	append(list);
 }
 
+void PlaylistModel::merge(const Playlist &playlist) {
+	if (m_list.isEmpty())
+		m_list = playlist;
+	else {
+		for (int i=0; i<playlist.size(); ++i) {
+			if (!m_list.contains(playlist[i]))
+				m_list.append(playlist[i]);
+		}
+	}
+	reset();
+}
+
 void PlaylistModel::append(const Playlist &list) {
 	if (list.isEmpty())
 		return;

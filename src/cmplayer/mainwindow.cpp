@@ -101,6 +101,10 @@ MainWindow::MainWindow() {
 	setMouseTracking(true);
 	setCentralWidget(d->center);
 	setWindowTitle(QString("CMPlayer %1").arg(Info::version()));
+	setAcceptDrops(true);
+	d->video->setAcceptDrops(false);
+	d->center->setAcceptDrops(false);
+	d->control->setAcceptDrops(false);
 
 	Menu &menu = d->menu;
 	Menu &open = menu("open");		Menu &play = menu("play");
@@ -829,6 +833,11 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 	QMainWindow::wheelEvent(event);
 }
 
+void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
+	if (event->mimeData()->hasUrls())
+		event->acceptProposedAction();
+}
+
 void MainWindow::dropEvent(QDropEvent *event) {
 	if (!event->mimeData()->hasUrls())
 		return;
@@ -853,6 +862,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 	}
 	if (!playlist.isEmpty()) {
 		d->playlist->append(playlist);
+		d->playlist->play(playlist.first());
 	} else if (!subList.isEmpty())
 		appendSubFiles(subList, true, d->pref.subtitleEncoding);
 }

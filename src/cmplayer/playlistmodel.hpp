@@ -33,6 +33,7 @@ public:
 	bool swap(int r1, int r2);
 	Mrl mrl(int row) const {return m_list.value(row);}
 	Mrl current() const {return m_list.value(m_current);}
+	void merge(const Playlist &playlist);
 public slots:
 	void clear() {m_list.clear(); m_current = -1; reset();}
 private:

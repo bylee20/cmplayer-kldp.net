@@ -201,7 +201,6 @@ void VideoRenderer::setUtil(VideoUtil *util) {
 
 void *VideoRenderer::lock(void **planes) {
 	d->mutex.lock();
-	d->binding = true;
 	for (int i=0; i<d->buffer.planeCount(); ++i)
 		planes[i] = d->buffer.data(i);
 	return 0;
@@ -211,13 +210,16 @@ void VideoRenderer::unlock(void *id, void *const *plane) {
 	Q_UNUSED(id);
 	Q_ASSERT(d->buffer.data() == plane[0]);
 	d->mutex.unlock();
-	d->binding = false;
 }
 
 void VideoRenderer::display(void *id) {
 	Q_UNUSED(id);
-	VideoFrameEvent *event = new VideoFrameEvent(d->buffer);
-	QCoreApplication::postEvent(this, event);
+	if (d->binding) {
+		qDebug() << "drop a frame!";
+	} else {
+		VideoFrameEvent *event = new VideoFrameEvent(d->buffer);
+		QCoreApplication::postEvent(this, event);
+	}
 }
 
 void VideoRenderer::prepare(const VideoFormat *format) {

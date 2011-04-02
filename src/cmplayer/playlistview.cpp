@@ -250,3 +250,6 @@ void PlaylistView::append(const Playlist &list) {
 	d->model->append(list);
 }
 
+void PlaylistView::merge(const Playlist &list) {
+	d->model->merge(list);
+}

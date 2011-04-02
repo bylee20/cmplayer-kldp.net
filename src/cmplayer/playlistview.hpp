@@ -17,6 +17,7 @@ public:
 	void setPlaylist(const Playlist &list);
 	void play(const Mrl &mrl);
 	void append(const Playlist &list);
+	void merge(const Playlist &list);
 	const PlaylistModel *model() const;
 public slots:
 	void playNext();

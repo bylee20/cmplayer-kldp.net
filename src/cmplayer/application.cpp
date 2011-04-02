@@ -1,4 +1,6 @@
 #include "application.hpp"
+#include <QtGui/QMessageBox>
+#include <QtGui/QFileOpenEvent>
 #include "events.hpp"
 #include "translator.hpp"
 #include "mainwindow.hpp"
@@ -22,6 +24,7 @@ struct Application::Data {
 	MainWindow *main;
 	QString defStyle;
 	QMenuBar *mb;
+	QUrl url;
 #if defined(Q_WS_MAC)
 	ApplicationMac helper;
 #elif defined(Q_WS_X11)
@@ -62,10 +65,22 @@ void Application::setScreensaverDisabled(bool disabled) {
 }
 
 bool Application::event(QEvent *event) {
-	if (event->type() != (int)Event::Reopen)
+	switch (event->type()) {
+	case QEvent::FileOpen: {
+		d->url = static_cast<QFileOpenEvent*>(event)->url().toString();
+		if (d->main) {
+			d->main->openMrl(d->url.toString());
+			d->url.clear();
+		}
+		event->accept();
+		return true;
+	} case Event::Reopen:
+		d->main->show();
+		event->accept();
+		return true;
+	default:
 		return QApplication::event(event);
-	d->main->show();
-	return true;
+	}
 }
 
 QStringList Application::devices() const {
@@ -77,7 +92,11 @@ MainWindow *Application::mainWindow() const {
 }
 
 void Application::initialize() {
-	const Mrl mrl = getMrlFromCommandLine();
+	Mrl mrl = getMrlFromCommandLine();
+	if (mrl.isEmpty() && !d->url.isEmpty()) {
+		mrl = d->url.toString();
+		d->url.clear();
+	}
 	if (Pref::get().singleApplication && sendMessage("wakeUp")) {
 		if (!mrl.isEmpty())
 			sendMessage("mrl " + mrl.toString());
@@ -130,8 +149,7 @@ void Application::initialize() {
 		if (!mrl.isEmpty())
 			d->main->openMrl(mrl);
 		setActivationWindow(d->main, false);
-		connect(this, SIGNAL(messageReceived(const QString&))
-				, this, SLOT(parseMessage(const QString&)));
+		CONNECT(this, messageReceived(QString), this, parseMessage(QString));
 	}
 }
 
