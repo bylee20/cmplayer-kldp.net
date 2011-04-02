@@ -1,12 +1,13 @@
 #ifndef PLAYLISTVIEW_HPP
 #define PLAYLISTVIEW_HPP
 
-#include <QtGui/QWidget>
+#include "dialogs.hpp"
 
 class PlayEngine;		class Mrl;
 class Playlist;			class QModelIndex;
+class PlaylistModel;
 
-class PlaylistView : public QWidget {
+class PlaylistView : public ToggleDialog {
 	Q_OBJECT
 public:
 	PlaylistView(PlayEngine *engine, QWidget *parent);
@@ -16,8 +17,8 @@ public:
 	void setPlaylist(const Playlist &list);
 	void play(const Mrl &mrl);
 	void append(const Playlist &list);
+	const PlaylistModel *model() const;
 public slots:
-	void toggleVisibility() {setVisible(!isVisible());}
 	void playNext();
 	void playPrevious();
 signals:
@@ -36,6 +37,7 @@ private slots:
 	void save();
 	void handleDoubleClick(const QModelIndex &index);
 private:
+	static Playlist generatePlaylist(const Mrl &mrl);
 	void move(bool up);
 	void setCurrentIndex(int idx);
 	class Item;

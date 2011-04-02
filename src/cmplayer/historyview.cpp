@@ -1,3 +1,7 @@
+#include "listmodel.hpp"
+#include <set>
+#include <QtGui/QTreeView>
+#include <QtGui/QVBoxLayout>
 #include "historyview.hpp"
 #include <QtCore/QDebug>
 #include <QtGui/QMenu>
@@ -5,8 +9,8 @@
 #include "playengine.hpp"
 #include "recentinfo.hpp"
 
-struct HistoryView::Item : public QTreeWidgetItem {
-	enum Column {Name = 0, Latest = 1, Location = 2, ColumnCount = 3};
+class HistoryView::Item : public ListModel::Item {
+public:
 	Item() {}
 	Item(const Mrl &mrl, const QDateTime &date);
 	~Item() {}
@@ -14,15 +18,28 @@ struct HistoryView::Item : public QTreeWidgetItem {
 	void setStoppedTime(int time) {m_stopped = time;}
 	bool isStopped() const {return time >= 0;}
 	const Mrl &mrl() const {return m_mrl;}
+	QVariant data(int column, int role) const {
+		if (role != Qt::DisplayRole)
+			return QVariant();
+		switch (column) {
+		case Name:
+			return m_mrl.displayName();
+		case Latest:
+			return m_date.toString(Qt::ISODate);
+		case Location:
+			return m_mrl.toString();
+		default:
+			return QVariant();
+		}
+	}
 	void update(const QDateTime &date) {
 		m_date = date;
-		setText(Latest, m_date.toString(Qt::ISODate));
+		emitDataChanged(Latest);
 	}
 	void update() {update(QDateTime::currentDateTime());}
 	void setMrl(const Mrl &mrl) {
 		m_mrl = mrl;
-		setText(Name, mrl.displayName());
-		setText(Location, mrl.toString());
+		emitDataChanged();
 	}
 	const QDateTime &date() const {return m_date;}
 private:
@@ -41,20 +58,31 @@ HistoryView::Item::Item(const Mrl &mrl, const QDateTime &date)
 struct HistoryView::Data {
 	PlayEngine *engine;
 	QMenu *context;
+	ListModel *model;
+	QTreeView *view;
 };
 
 HistoryView::HistoryView(PlayEngine *engine, QWidget *parent)
-: QTreeWidget(parent), d(new Data) {
-	setSelectionMode(ExtendedSelection);
-	setRootIsDecorated(false);
-	setHeaderLabels(QStringList() << tr("Name") << tr("Latest Play") << tr("Location"));
+: ToggleDialog(parent), d(new Data) {
+	d->engine = engine;
+
+	d->model = new ListModel(ColumnCount, this);
+	d->model->setColumnTitle(Name, tr("Name"));
+	d->model->setColumnTitle(Latest, tr("Latest Play"));
+	d->model->setColumnTitle(Location, tr("Location"));
+
+	d->view = new QTreeView(this);
+	d->view->setSelectionMode(QTreeView::ExtendedSelection);
+	d->view->setAlternatingRowColors(true);
+	d->view->setRootIsDecorated(false);
+	d->view->setModel(d->model);
+
 	connect(engine,	SIGNAL(stopped(Mrl,int,int)), this, SLOT(handleStopped(Mrl,int,int)));
 	connect(engine, SIGNAL(finished(Mrl)), this, SLOT(handleFinished(Mrl)));
 	connect(engine, SIGNAL(stateChanged(MediaState,MediaState))
 		, this, SLOT(handleStateChanged(MediaState,MediaState)));
-	connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int))
-		, this, SLOT(play(QTreeWidgetItem*)));
-	d->engine = engine;
+	connect(d->view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(play(QModelIndex)));
+
 	load();
 
 	d->context = new QMenu(this);
@@ -63,6 +91,10 @@ HistoryView::HistoryView(PlayEngine *engine, QWidget *parent)
 	setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu()));
 
+	setWindowTitle(tr("Play History"));
+
+	QVBoxLayout *vbox = new QVBoxLayout(this);
+	vbox->addWidget(d->view);
 }
 
 HistoryView::~HistoryView() {
@@ -75,14 +107,12 @@ void HistoryView::showContextMenu() {
 }
 
 void HistoryView::erase() {
-	QList<QTreeWidgetItem*> items = selectedItems();
-	for (int i=0; i<items.size(); ++i)
-		delete items[i];
+	d->model->removeItem(d->view->selectionModel()->selectedRows());
 }
 
 int HistoryView::findIndex(const Mrl &mrl) const {
-	for (int i=0; i<topLevelItemCount(); ++i) {
-		Item *item = static_cast<Item*>(topLevelItem(i));
+	for (int i=0; i<d->model->size(); ++i) {
+		Item *item = static_cast<Item*>(d->model->at(i));
 		if (item->mrl() == mrl)
 			return i;
 	}
@@ -90,7 +120,7 @@ int HistoryView::findIndex(const Mrl &mrl) const {
 }
 
 HistoryView::Item *HistoryView::item(int index) const {
-	return static_cast<Item*>(topLevelItem(index));
+	return static_cast<Item*>(d->model->item(index));
 }
 
 void HistoryView::handleFinished(Mrl mrl) {
@@ -113,38 +143,36 @@ void HistoryView::handleStopped(Mrl mrl, int time, int duration) {
 }
 
 void HistoryView::handleStateChanged(MediaState state, MediaState old) {
-	if ((old == StoppedState || old == FinishedState)
-			&& (state == PausedState || state == PlayingState)) {
-		const Mrl mrl = d->engine->mrl();
-		if (mrl.isEmpty())
-			return;
-		int idx = findIndex(mrl);
-		if (idx >= 0) {
-			Item *item = this->item(idx);
-			if (idx > 0) {
-				takeTopLevelItem(idx);
-				insertTopLevelItem(0, item);
-				emit historyChanged();
-			}
-			item->update();
-			item->setStoppedTime(-1);
-		} else {
-			const QDateTime date = QDateTime::currentDateTime();
-			Item *item = new Item();
-			item->setMrl(mrl);
-			item->update(date);
-			insertTopLevelItem(0, item);
-			while (topLevelItemCount() > 999)
-				delete takeTopLevelItem(topLevelItemCount()-1);
-			emit historyChanged();
-		}
+	if (old != StoppedState && old != FinishedState)
+		return;
+	if (state != PausedState && state != PlayingState)
+		return;
+	const Mrl mrl = d->engine->mrl();
+	if (mrl.isEmpty())
+		return;
+	int idx = findIndex(mrl);
+	if (idx == -1) {
+		const QDateTime date = QDateTime::currentDateTime();
+		Item *item = new Item();
+		item->setMrl(mrl);
+		item->update(date);
+		d->model->prependItem(item);
+		while (d->model->size() > 999)
+			d->model->removeItem(d->model->size()-1);
+	} else {
+		Item *item = this->item(idx);
+		if (idx > 0)
+			d->model->moveItem(idx, 0);
+		item->update();
+		item->setStoppedTime(-1);
 	}
+	emit historyChanged();
 }
 
 QList<Mrl> HistoryView::top(int count) const {
 	QList<Mrl> list;
-	for (int i=0; i<count && i<topLevelItemCount(); ++i)
-		list << item(i)->mrl();
+	for (int i=0; i<count && i<d->model->size(); ++i)
+		list.push_back(item(i)->mrl());
 	return list;
 }
 
@@ -153,26 +181,20 @@ int HistoryView::stoppedTime(const Mrl &mrl) const {
 	return item ? item->stoppedTime() : -1;
 }
 
-void HistoryView::play(QTreeWidgetItem *treeItem) {
-	const Item *item = static_cast<Item*>(treeItem);
+void HistoryView::play(const QModelIndex &index) {
+	const Item *item = static_cast<Item*>(this->item(index.row()));
 	if (item)
 		emit playRequested(item->mrl());
-//		return;
-//	if (d->engine->mrl() != item->mrl()) {
-//		d->engine->stop();
-//		d->engine->setMrl(item->mrl());
-//	}
-//	d->engine->play();
 }
 
 void HistoryView::clearAll() {
-	clear();
+	d->model->clear();
 }
 
 void HistoryView::save() const {
 	QSettings set;
 	set.beginGroup("history");
-	const int size = topLevelItemCount();
+	const int size = d->model->size();
 	set.beginWriteArray("list", size);
 	for (int i=0; i<size; ++i) {
 		const Item *item = this->item(i);
@@ -200,7 +222,7 @@ void HistoryView::load() {
 		item->setMrl(mrl);
 		item->update(date);
 		item->setStoppedTime(stopped);
-		addTopLevelItem(item);
+		d->model->append(item);
 		if (stopped > 0)
 			RecentInfo::get().setStopped(mrl, stopped, date);
 	}

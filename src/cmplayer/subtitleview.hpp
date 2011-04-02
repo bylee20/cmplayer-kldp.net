@@ -1,12 +1,12 @@
 #ifndef SUBTITLEVIEW_HPP
 #define SUBTITLEVIEW_HPP
 
-#include <QtGui/QWidget>
+#include "dialogs.hpp"
 
 class PlayEngine;		class Subtitle;
 class SubtitleComponentModel;
 
-class SubtitleView : public QWidget {
+class SubtitleView : public ToggleDialog {
 	Q_OBJECT
 public:
 	SubtitleView(QWidget *parent = 0);

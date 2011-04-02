@@ -22,10 +22,19 @@
 
 #include "application_mac.hpp"
 
-#include <QApplication>
+#ifdef Q_WS_MAC
 
-#ifdef QT_MAC_USE_COCOA
+#include <QtCore/QDebug>
+#include <IOKit/pwr_mgt/IOPMLib.h>
+#include "events.hpp"
+#include <QtGui/QApplication>
 #include <Cocoa/Cocoa.h>
+#include <mach/mach_port.h>
+#include <sys/param.h>
+#include <paths.h>
+#include <IOKit/storage/IODVDMedia.h>
+#include <IOKit/storage/IOMedia.h>
+#include <IOKit/IOBSD.h>
 
 @interface ApplicationObjC : NSObject {
 }
@@ -64,24 +73,38 @@
 }
 @end
 
-struct ApplicationStruct { ApplicationObjC *applicationObjC; };
+struct ApplicationMacData {
+	ApplicationObjC *objc;
+	bool eventsLoaded;
+};
 
-ApplicationObj::ApplicationObj( QObject *parent )
+ApplicationMac::ApplicationMac( QObject *parent )
 : QObject( parent )
-, eventsLoaded( false )
-, d( new ApplicationStruct )
-{
-	d->applicationObjC = [[ApplicationObjC alloc] init];
+, d( new ApplicationMacData ) {
+	d->eventsLoaded = false;
+	d->objc = [[ApplicationObjC alloc] init];
 	qApp->installEventFilter( this );
 }
 
-ApplicationObj::~ApplicationObj()
-{
-	[d->applicationObjC release];
+ApplicationMac::~ApplicationMac() {
+	[d->objc release];
 	delete d;
 }
 
-void ApplicationObj::setAlwaysOnTop(WId wid, bool onTop) {
+static void mac_install_event_handler(QObject *app) {
+	new ApplicationMac( app );
+}
+
+bool ApplicationMac::eventFilter( QObject *o, QEvent *e ) {
+	// Load here because cocoa NSApplication overides events
+	if(!d->eventsLoaded && o == qApp && e->type() == QEvent::ApplicationActivate) {
+		mac_install_event_handler(this);
+		d->eventsLoaded = true;
+	}
+	return QObject::eventFilter( o, e );
+}
+
+void ApplicationMac::setAlwaysOnTop(WId wid, bool onTop) {
 	NSView *view = (NSView*)(void*)wid;
 	NSWindow *window = [view window];
 	if (onTop)
@@ -90,33 +113,56 @@ void ApplicationObj::setAlwaysOnTop(WId wid, bool onTop) {
 		[window setLevel:NSNormalWindowLevel];
 }
 
-bool ApplicationObj::eventFilter( QObject *o, QEvent *e )
-{
-	// Load here because cocoa NSApplication overides events
-	if( o == qApp && e->type() == QEvent::ApplicationActivate && !eventsLoaded )
-	{
-		mac_install_event_handler( this );
-		eventsLoaded = true;
+QStringList ApplicationMac::devices() const {
+	mach_port_t port;
+	kern_return_t kernRet = IOMasterPort(MACH_PORT_NULL, &port);
+	if (kernRet != KERN_SUCCESS)
+		return QStringList();
+	CFMutableDictionaryRef dict = IOServiceMatching(kIODVDMediaClass);
+	if (!dict)
+		return QStringList();
+	CFDictionarySetValue(dict, CFSTR(kIOMediaEjectableKey), kCFBooleanTrue);
+	io_iterator_t it;
+	kernRet = IOServiceGetMatchingServices(port, dict, &it);
+	if (kernRet != KERN_SUCCESS)
+		return QStringList();
+	io_object_t device = 0;
+	QList<QString> devices;
+	while ((device = IOIteratorNext(it))) {
+		CFStringRef name = reinterpret_cast<CFStringRef>(
+				IORegistryEntryCreateCFProperty(device
+					, CFSTR(kIOBSDNameKey), kCFAllocatorDefault, 0));
+		if (!name) {
+			IOObjectRelease(device);
+			continue;
+		}
+		char path[MAXPATHLEN] = {0};
+		sprintf(path, "%sr", _PATH_DEV);
+		const size_t len = qstrlen(path);
+		if (CFStringGetCString(name, path + len, sizeof(path) - len, kCFStringEncodingASCII))
+			devices.push_back(QLatin1String(path));
+		CFRelease(name);
+		IOObjectRelease(device);
 	}
-	return QObject::eventFilter( o, e );
+	IOObjectRelease(it);
+	return devices;
 }
 
-#else
-#include <Carbon/Carbon.h>
-static OSStatus appleEventHandler( const AppleEvent *event, AppleEvent *, long )
-{
-	QApplication::postEvent( qApp, new REOpenEvent );
-	return 0;
+void ApplicationMac::setScreensaverDisabled(bool disabled) {
+	static bool prev = false;
+	static IOPMAssertionID idle = 0;
+	static IOPMAssertionID display = 0;
+	if (prev == disabled)
+		return;
+	prev = disabled;
+	if (disabled) {
+		IOPMAssertionCreate(kIOPMAssertionTypeNoIdleSleep, kIOPMAssertionLevelOn, &idle);
+		IOPMAssertionCreate(kIOPMAssertionTypeNoDisplaySleep, kIOPMAssertionLevelOn, &display);
+	} else {
+		IOPMAssertionRelease(idle);
+		IOPMAssertionRelease(display);
+		idle = display = 0;
+	}
 }
-#endif
 
-void mac_install_event_handler( QObject *app )
-{
-#ifdef QT_MAC_USE_COCOA
-	new ApplicationObj( app );
-#else
-	Q_UNUSED( app )
-	AEEventHandlerUPP appleEventHandlerPP = AEEventHandlerUPP(appleEventHandler);
-	AEInstallEventHandler( kCoreEventClass, kAEReopenApplication, appleEventHandlerPP, 0, false );
 #endif
-}

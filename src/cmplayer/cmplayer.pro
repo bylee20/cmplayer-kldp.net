@@ -17,10 +17,10 @@ macx {
 	isEmpty(VLC_LIB_PATH) {
 		VLC_LIB_PATH = /Applications/VLC.app/Contents/MacOS/lib
 	}
-	INCLUDEPATH += $${VLC_INCLUDE_PATH}
-	LIBS += -L$${VLC_LIB_PATH}
 	ICON = ../../icons/cmplayer.icns
-	LIBS += -framework Cocoa
+	LIBS += -framework Cocoa -framework IOKit
+} else:x11 {
+	LIBS += -lX11
 }
 
 TEMPLATE = app
@@ -32,6 +32,16 @@ QT = core gui opengl network
 INCLUDEPATH += ../libchardet-1.0.1/src
 
 LIBS += -lvlc -L../libchardet-1.0.1/src/.libs -lchardet
+
+!isEmpty(VLC_INCLUDE_PATH) {
+	INCLUDEPATH += $${VLC_INCLUDE_PATH}
+}
+!isEmpty(VLC_LIB_PATH) {
+	LIBS += -L$${VLC_LIB_PATH}
+}
+
+#DEFINES += "CMPLAYER_VLC_PLUGIN_PATH=\\\"test\\\""
+
 RESOURCES += rsclist.qrc
 HEADERS += playengine.hpp \
     mainwindow.hpp \
@@ -60,7 +70,6 @@ HEADERS += playengine.hpp \
     audiocontroller.hpp \
     info.hpp \
     charsetdetector.hpp \
-    screensavermanager.hpp \
     abrepeater.hpp \
     toolbox.hpp \
     playlist.hpp \
@@ -88,7 +97,12 @@ HEADERS += playengine.hpp \
     application_mac.hpp \
     subtitlemodel.hpp \
     tagiterator.hpp \
-    subtitle_parser_p.hpp
+    subtitle_parser_p.hpp \
+    aboutdialog.hpp \
+    snapshotdialog.hpp \
+    events.hpp \
+    application_x11.hpp \
+    listmodel.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -118,7 +132,6 @@ SOURCES += main.cpp \
     audiocontroller.cpp \
     info.cpp \
     charsetdetector.cpp \
-    screensavermanager.cpp \
     abrepeater.cpp \
     toolbox.cpp \
     playlist.cpp \
@@ -145,9 +158,17 @@ SOURCES += main.cpp \
     application_mac.mm \
     subtitlemodel.cpp \
     tagiterator.cpp \
-    subtitle_parser_p.cpp
+    subtitle_parser_p.cpp \
+    aboutdialog.cpp \
+    snapshotdialog.cpp \
+    events.cpp \
+    application_x11.cpp \
+    listmodel.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts
 FORMS += ui/pref_dialog.ui \
-    ui/osdstyle_widget.ui
+    ui/osdstyle_widget.ui \
+    ui/aboutdialog.ui \
+    ui/opendvddialog.ui \
+    ui/snapshotdialog.ui

@@ -1,4 +1,5 @@
 #include "osdrenderer.hpp"
+#include "events.hpp"
 #include <QtGui/QMouseEvent>
 #include "libvlc.hpp"
 #include "pixmapoverlay.hpp"
@@ -153,6 +154,48 @@ VideoRenderer::~VideoRenderer() {
 	delete d;
 }
 
+static inline void setRgbFromYuv(uchar *&r, int y, int _u, int _v) {
+	y -= 16;	y *= 298;
+	*r++ = qBound(0, (y + 409*_v + 128) >> 8, 255);
+	*r++ = qBound(0, (y - 100*_u - 208*_v + 128) >> 8, 255);
+	*r++ = qBound(0, (y + 516*_u + 128) >> 8, 255);
+}
+
+QImage VideoRenderer::frameImage() const {
+	if (!d->frameIsSet || !d->frame.isPlanar())
+		return QImage();
+	const VideoFrame frame = d->frame;
+	QImage image(frame.size(), QImage::Format_RGB888);
+	const int dy = frame.dataPitch(0);
+	const int dy2 = dy << 1;
+	const int dr = image.bytesPerLine();
+	const int duv = frame.dataPitch(1);
+	const uchar *y0 = frame.data(0);
+	const uchar *u0 = frame.data(1);
+	const uchar *v0 = frame.data(2);
+	uchar *r1 = image.bits();
+	for (int j = 0; j < image.height()/2; ++j) {
+		const uchar *u = u0;	const uchar *v = v0;
+		const uchar *y1 = y0;	const uchar *y2 = y1 + dy;
+		uchar *r2 = r1 + dr;
+		for (int i = 0; i < image.width()/2; ++i) {
+			const int _u = *u++ - 128;
+			const int _v = *v++ - 128;
+			setRgbFromYuv(r1, *y1++, _u, _v);
+			setRgbFromYuv(r1, *y1++, _u, _v);
+			setRgbFromYuv(r2, *y2++, _u, _v);
+			setRgbFromYuv(r2, *y2++, _u, _v);
+		}
+		r1 += dr;		y0 += dy2;
+		u0 += duv;		v0 += duv;
+	}
+	return image;
+}
+
+bool VideoRenderer::hasFrame() const {
+	return d->frameIsSet;
+}
+
 void VideoRenderer::setUtil(VideoUtil *util) {
 	d->util = util;
 }
@@ -231,15 +274,15 @@ void VideoRenderer::addOsd(OsdRenderer *osd) {
 	d->overlay->addOsd(osd);
 }
 
-void VideoRenderer::customEvent(QEvent *event) {
-	if (event->type() != VideoFrameEvent::Id)
-		return;
+bool VideoRenderer::event(QEvent *event) {
+	if (event->type() != (int)Event::VideoFrame)
+		return QGLWidget::event(event);
 	VideoFrameEvent *e = static_cast<VideoFrameEvent*>(event);
 	Q_ASSERT(d->frame.length() == e->length());
 	d->frame.setData(e->data());
 	d->frameIsSet = !d->frame.isEmpty();
 	if (d->frame.isEmpty())
-		return;
+		return true;
 	makeCurrent();
 	uchar *data[3] = {d->frame.data(0), d->frame.data(1), d->frame.data(2)};
 	const VideoFrame &f = d->frame;
@@ -272,22 +315,32 @@ void VideoRenderer::customEvent(QEvent *event) {
 		break;
 	}
 	update();
+	return true;
+}
+
+double VideoRenderer::targetAspectRatio() const {
+	if (d->aspect > 0.0)
+		return d->aspect;
+	if (d->aspect == 0.0)
+		return widgetRatio();
+	return (double)d->frame.width()*d->sar/(double)d->frame.height();
+}
+
+double VideoRenderer::targetCropRatio(double fallback) const {
+	if (d->crop > 0.0)
+		return d->crop;
+	if (d->crop == 0.0)
+		return widgetRatio();
+	return fallback;
 }
 
 QSize VideoRenderer::sizeHint() const {
 	if (d->frame.isEmpty())
 		return QSize(400, 300);
-	const QSizeF frame = d->frame.size();
-	QSizeF size(d->aspect, 1.0);
-	if (d->aspect > 0.0)
-		size.scale(frame, Qt::KeepAspectRatio);
-	else {
-		size = frame;
-		size.rwidth() *= d->sar;
-	}
-	if (d->crop <= 0.0)
-		return size.toSize();
-	QSizeF crop(d->crop, 1.0);
+	const double aspect = targetAspectRatio();
+	QSizeF size(aspect, 1.0);
+	size.scale(d->frame.size(), Qt::KeepAspectRatioByExpanding);
+	QSizeF crop(targetCropRatio(aspect), 1.0);
 	crop.scale(size, Qt::KeepAspectRatio);
 	return crop.toSize();
 }
@@ -359,18 +412,10 @@ void VideoRenderer::resizeEvent(QResizeEvent *event) {
 void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 	QPainter painter(this);
 	if (!d->logoOn && d->hasPrograms && d->frameIsSet) {
-		QSizeF frame(d->aspect, 1.0);
-		if (d->aspect < 0.0) {
-			frame = d->frame.size();
-			frame.rwidth() *= d->sar;
-		} else if (d->aspect == 0.0)
-			frame = size();
+		const double aspect = targetAspectRatio();
 		const QSizeF widget = renderableSize();
-		QSizeF letter(d->crop, 1.0);
-		if (d->crop < 0.0)
-			letter = frame;
-		else if (d->crop == 0.0)
-			letter = size();
+		QSizeF frame(aspect, 1.0);
+		QSizeF letter(targetCropRatio(aspect), 1.0);
 		letter.scale(widget, Qt::KeepAspectRatio);
 		frame.scale(letter, Qt::KeepAspectRatioByExpanding);
 
@@ -401,8 +446,7 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		const bool planar = d->frame.type() == VideoFrame::YV12
-			|| d->frame.type() == VideoFrame::I420;
+		const bool planar = d->frame.isPlanar();
 		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->shader[!planar]);
 		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0.0f
 			, d->contrast, d->sat_con, d->sat_con, d->brightness);

@@ -16,9 +16,14 @@ public:
 	// takes ownership
 	void addOsd(OsdRenderer *osd);
 	QSize sizeHint() const;
+	bool hasFrame() const;
+	QImage frameImage() const;
 	double frameRate() const;
 	double aspectRatio() const;
 	double cropRatio() const;
+	double targetAspectRatio() const;
+	double targetCropRatio(double fallback) const;
+	double targetCropRatio() const {return targetCropRatio(targetAspectRatio());}
 	void setLogoMode(bool on);
 	void setColorProperty(const ColorProperty &prop);
 	const ColorProperty &colorProperty() const;
@@ -33,6 +38,7 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 private:
+	double widgetRatio() const {return (double)width()/(double)height();}
 	static int translateButton(Qt::MouseButton qbutton);
 
 	void setUtil(VideoUtil *util);
@@ -49,7 +55,7 @@ private:
 	static QGLFormat makeFormat();
 	void paintEvent(QPaintEvent *event);
 	void resizeEvent(QResizeEvent *event);
-	void customEvent(QEvent *event);
+	bool event(QEvent *event);
 	typedef void (*_glProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
 	typedef void (*_glBindProgramARB) (GLenum, GLuint);
 	typedef void (*_glDeleteProgramsARB) (GLsizei, const GLuint *);

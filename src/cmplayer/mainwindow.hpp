@@ -19,7 +19,7 @@ public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
 private slots:
-	void setStaysOnTopMode(int mode);
+	void about();
 	void setVolumeNormalized(bool norm);
 	void setTempoScaled(bool scaled);
 	void openFile();
@@ -67,9 +67,7 @@ private slots:
 	void setVideoTrack(QAction *act);
 
 	void updateStaysOnTop();
-	void togglePlaylist();
-	void toggleSubtitle();
-	void toggleHistory();
+	void takeSnapshot();
 private:
 	ControlWidget *createControlWidget();
 	QWidget *createCentralWidget(QWidget *video, QWidget *control);

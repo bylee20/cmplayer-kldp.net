@@ -15,7 +15,9 @@ public:
 	void setStyle(const QString &name);
 	static Mrl getMrlFromCommandLine();
 	MainWindow *mainWindow() const;
+	QStringList devices() const;
 	void setAlwaysOnTop(QWidget *widget, bool onTop);
+	void setScreensaverDisabled(bool disabled);
 #ifdef Q_WS_MAC
 	QMenuBar *globalMenuBar() const;
 #endif
@@ -24,7 +26,7 @@ private slots:
 	void open(const QString &url);
 	void parseMessage(const QString &message);
 private:
-	void customEvent(QEvent *event);
+	bool event(QEvent *event);
 	struct Data;
 	Data *d;
 };

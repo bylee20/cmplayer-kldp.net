@@ -1,8 +1,7 @@
 #include "application.hpp"
 #include <QtCore/QDebug>
 #include <QtCore/QMetaType>
-
-#include "richstring.hpp"
+#include <QtCore/QDateTime>
 
 int main(int argc, char **argv) {
 	Application app(argc, argv);

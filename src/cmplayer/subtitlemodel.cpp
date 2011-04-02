@@ -1,4 +1,5 @@
 #include "subtitlemodel.hpp"
+#include "global.hpp"
 #include <QtGui/QFont>
 #include <QtGui/QApplication>
 #include <QtCore/QDebug>
@@ -6,126 +7,86 @@
 #include <QtCore/QVector>
 #include <QtGui/QHeaderView>
 
-struct SubtitleComponentModel::Item {
+#define ITEM(row) (static_cast<SubtitleComponentModel::Item*>(at(row)))
+#define C_ITEM(row) (static_cast<const SubtitleComponentModel::Item*>(at(row)))
+
+struct SubtitleComponentModel::Item : public ListModel::Item {
 	Item(): m_end(-1) {}
 	Item(c_iterator it): m_end(-1), m_it(it) {}
-	int start() {return m_it.key();}
-	int end() {return m_end;}
+	int start() const {return m_it.key();}
+	int end() const {return m_end;}
 	QString text() const {return m_it->text.toPlain();}
-// private:
+	QVariant data(const int column, int role) const {
+		if (role == Qt::DisplayRole) {
+			switch (column) {
+			case Start:
+				return msecsToString(start());
+			case End:
+				return msecsToString(end());
+			case Text:
+				return text();
+			default:
+				return QVariant();
+			}
+		} else if (role == Qt::FontRole && column == Text)
+			return m_font;
+		return QVariant();
+	}
+	void setFont(const QFont &font) {
+		if (m_font != font) {
+			m_font = font;
+			emitDataChanged(Text);
+		}
+	}
+
 	int m_end;
 	c_iterator m_it;
+	QFont m_font;
 };
 
 struct SubtitleComponentModel::Data {
-	QVector<Item> item;
-	const QTime zero;
 	int curRow;
-	QFont curFont;
+	QFont curFont, defFont;
 	bool visible;
 	const Subtitle::Component *comp;
 	const Subtitle::Node *pended;
 };
 
 SubtitleComponentModel::SubtitleComponentModel(const Subtitle::Component *comp, QObject *parent)
-: QAbstractItemModel(parent), d(new Data) {
+: ListModel(ColumnCount, parent), d(new Data) {
 	d->comp = comp;
 	d->curRow = -1;
 	d->visible = false;
 	d->pended = 0;
-	d->curFont = QApplication::font();
 	d->curFont.setBold(true);
 	d->curFont.setItalic(true);
 
-	d->item.reserve(comp->size());
 	c_iterator it = comp->begin();
 	for (; it != comp->end(); ++it) {
 		if (it->text.hasWords()) {
 			it->index = 0;
-			d->item.push_back(it);
+			append(new Item(it));
 			break;
 		}
 	}
-	if (!d->item.isEmpty()) {
+	if (!isEmpty()) {
 		for (; it != comp->end(); ++it) {
-			if (d->item.last().m_end < 0)
-				d->item.last().m_end = it.key();
+			Item *last = static_cast<Item*>(this->last());
+			if (last->m_end < 0)
+				last->m_end = it.key();
 			if (it->text.hasWords())
-				d->item.push_back(it);
-			it->index = d->item.size()-1;
+				append(new Item(it));
+			it->index = size() - 1;
 		}
 	}
+
+	setColumnTitle(Start, tr("Start"));
+	setColumnTitle(End, tr("End"));
+	setColumnTitle(Text, tr("Text"));
 }
 
 QString SubtitleComponentModel::name() const {
 	return d->comp->name();
-}
-
-int SubtitleComponentModel::rowCount(const QModelIndex &parent) const {
-	return parent.isValid() ? 0 : d->item.size();
-}
-
-int SubtitleComponentModel::columnCount(const QModelIndex &parent) const {
-	return parent.isValid() ? 0 : ColumnCount;
-}
-
-QVariant SubtitleComponentModel::headerData(int s, Qt::Orientation o, int role) const {
-	if (role != Qt::DisplayRole)
-		return QVariant();
-	if (o == Qt::Horizontal) {
-		switch (s) {
-		case Start:
-			return tr("Start");
-		case End:
-			return tr("End");
-		case Text:
-			return tr("Text");
-		default:
-			return QVariant();
-		}
-	} else if (o == Qt::Vertical && isValidRow(s)) {
-		return s;
-	}
-	return QVariant();
-}
-
-QModelIndex SubtitleComponentModel::index(int row, int column, const QModelIndex &parent) const {
-	if (parent.isValid() || !isValidRow(row) || !isValidColumn(column))
-		return QModelIndex();
-	return createIndex(row, column);
-}
-
-QVariant SubtitleComponentModel::data(const QModelIndex &index, int role) const {
-	const int row = index.row();
-	const int column = index.column();
-	if (row < 0 || row >= d->item.size() || column < 0 || column >= 3)
-		return QVariant();
-	if (role == Qt::DisplayRole) {
-		switch (column) {
-		case Start:
-			return d->zero.addMSecs(d->item[row].start()).toString("hh:mm:ss");
-		case End: {
-			return d->zero.addMSecs(d->item[row].end()).toString("hh:mm:ss");
-		} case Text:
-			return d->item[row].text();
-		default:
-			return QVariant();
-		}
-	} else if (role == Qt::FontRole && column == Text && row == d->curRow)
-		return d->curFont;
-	return QVariant();
-}
-
-void SubtitleComponentModel::emitDataChanged(int top, int bottom) {
-	emit dataChanged(index(top, 0), index(bottom, ColumnCount - 1));
-}
-
-void SubtitleComponentModel::emitDataChanged(int row) {
-	emitDataChanged(row, row);
-}
-
-bool SubtitleComponentModel::isValidRow(int row) const {
-	return 0 <= row && row < d->item.size();
 }
 
 void SubtitleComponentModel::setVisible(bool visible) {
@@ -146,14 +107,10 @@ void SubtitleComponentModel::setCurrentNode(const Subtitle::Node *node) {
 			return;
 		const int old = d->curRow;
 		d->curRow = row;
-		if (d->curRow == old + 1 && isValidRow(old) && isValidRow(d->curRow))
-			emitDataChanged(old, d->curRow);
-		else {
-			if (isValidRow(old))
-				emitDataChanged(old);
-			if (isValidRow(d->curRow))
-				emitDataChanged(d->curRow);
-		}
+		if (isValidRow(d->curRow))
+			ITEM(d->curRow)->setFont(d->curFont);
+		if (isValidRow(old))
+			ITEM(old)->setFont(d->defFont);
 		emit currentRowChanged(d->curRow);
 	}
 }
@@ -228,3 +185,6 @@ void SubtitleComponentView::hideEvent(QHideEvent *event) {
 	if (d->model)
 		d->model->setVisible(false);
 }
+
+#undef ITEM
+#undef C_ITEM

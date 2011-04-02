@@ -1,4 +1,5 @@
 #include "application.hpp"
+#include "events.hpp"
 #include "translator.hpp"
 #include "mainwindow.hpp"
 #include "libvlc.hpp"
@@ -12,16 +13,20 @@
 #include <QtCore/QUrl>
 #include <QtGui/QMenuBar>
 
-#ifdef Q_WS_MAC
+#if defined(Q_WS_MAC)
 #include "application_mac.hpp"
+#elif defined(Q_WS_X11)
+#include "application_x11.hpp"
 #endif
 
 struct Application::Data {
 	MainWindow *main;
 	QString defStyle;
 	QMenuBar *mb;
-#ifdef Q_WS_MAC
-	ApplicationObj mac;
+#if defined(Q_WS_MAC)
+	ApplicationMac helper;
+#elif defined(Q_WS_X11)
+	ApplicationX11 helper;
 #endif
 };
 
@@ -52,17 +57,22 @@ Application::~Application() {
 }
 
 void Application::setAlwaysOnTop(QWidget *widget, bool onTop) {
-#ifdef Q_WS_MAC
-	d->mac.setAlwaysOnTop(widget->winId(), onTop);
-#endif
+	d->helper.setAlwaysOnTop(widget->winId(), onTop);
 }
 
-void Application::customEvent(QEvent *event) {
-	Q_UNUSED(event);
-#ifdef Q_WS_MAC
-	if (event->type() == (QEvent::Type)ReopenEvent::Type)
-		d->main->show();
-#endif
+void Application::setScreensaverDisabled(bool disabled) {
+	d->helper.setScreensaverDisabled(disabled);
+}
+
+bool Application::event(QEvent *event) {
+	if (event->type() != (int)Event::Reopen)
+		return QApplication::event(event);
+	d->main->show();
+	return true;
+}
+
+QStringList Application::devices() const {
+	return d->helper.devices();
 }
 
 MainWindow *Application::mainWindow() const {

@@ -1,4 +1,5 @@
 #include "global.hpp"
+#include <QtGui/QFileDialog>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QX11Info>
@@ -53,6 +54,18 @@ qint64 stringToMSecs(const QString &str, const QString &format) {
 
 const QTime &nullTime() {
 	return data()->zero;
+}
+
+QStringList getOpenFileNames(QWidget *p, const QString &t, const QString &dir, const QString &f) {
+	return QFileDialog::getOpenFileNames(p, t, dir, f);
+}
+
+QString getOpenFileName(QWidget *p, const QString &t, const QString &dir, const QString &f) {
+	return QFileDialog::getOpenFileName(p, t, dir, f);
+}
+
+QString getSaveFileName(QWidget *p, const QString &t, const QString &dir, const QString &f) {
+	return QFileDialog::getSaveFileName(p, t, dir, f);
 }
 
 }

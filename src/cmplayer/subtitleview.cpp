@@ -41,7 +41,7 @@ struct SubtitleView::Data {
 };
 
 SubtitleView::SubtitleView(QWidget *parent)
-: QWidget(parent), d(new Data) {
+: ToggleDialog(parent), d(new Data) {
 	QScrollArea *area = new QScrollArea(this);
 	d->splitter = new QSplitter(Qt::Horizontal, area);
 	d->timeVisible = new QCheckBox(tr("Show start/end time"), this);
@@ -56,13 +56,14 @@ SubtitleView::SubtitleView(QWidget *parent)
 	vbox->addWidget(area);
 	vbox->addWidget(d->timeVisible);
 	vbox->addWidget(d->autoScroll);
-	vbox->setMargin(2);
 
 	setAutoScrollEnabled(d->autoScroll->isChecked());
 	setTimeVisible(d->timeVisible->isChecked());
 
 	connect(d->timeVisible, SIGNAL(toggled(bool)), this, SLOT(setTimeVisible(bool)));
 	connect(d->autoScroll, SIGNAL(toggled(bool)), this, SLOT(setAutoScrollEnabled(bool)));
+
+	setWindowTitle(tr("Subtitle View"));
 }
 
 SubtitleView::~SubtitleView() {

@@ -23,34 +23,25 @@
  */
 
 #include <QtGui/QWidget>
+#include <QtCore/QEvent>
 
-#ifdef QT_MAC_USE_COCOA
-#include <QtCore/QObject>
-struct ApplicationStruct;
-class ApplicationObj: public QObject
-{
+#ifdef Q_WS_MAC
+
+struct ApplicationMacData;
+
+class ApplicationMac: public QObject {
 	Q_OBJECT
 public:
-	ApplicationObj( QObject *parent = 0 );
-	~ApplicationObj();
+	ApplicationMac( QObject *parent = 0 );
+	~ApplicationMac();
 	void setAlwaysOnTop(WId wid, bool onTop);
+	QStringList devices() const;
+	void setScreensaverDisabled(bool disabled);
 private:
 	bool eventFilter( QObject *o, QEvent *e );
-
-	bool eventsLoaded;
-	ApplicationStruct *d;
+	ApplicationMacData *d;
 };
+
 #endif
-
-#include <QEvent>
-
-class ReopenEvent: public QEvent
-{
-public:
-	enum { Type = QEvent::User + 1 };
-	ReopenEvent(): QEvent( QEvent::Type(Type) ) {}
-};
-
-void mac_install_event_handler( QObject *app );
 
 #endif

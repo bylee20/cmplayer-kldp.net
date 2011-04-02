@@ -1,4 +1,5 @@
 #include "audiocontroller.hpp"
+#include "info.hpp"
 #include "videorenderer.hpp"
 #include "videoframe.hpp"
 #include "playengine.hpp"
@@ -128,7 +129,7 @@ LibVLC::LibVLC(): d(new Data) {
 //		"--verbose=2",
 		"--no-xlib",
 		"--reset-plugins-cache",
-//		"--plugin-path", "/Users/xylosper/cmplayer-vlc/src/cmplayer-vlc-plugins",
+		"--plugin-path", Info::pluginPath(),
 		"--no-media-library",
 		"--no-osd",
 		"--no-sub-autodetect-file",
@@ -148,8 +149,6 @@ LibVLC::LibVLC(): d(new Data) {
 		"--cmplayer-afilter-data", pData,
 		"--cmplayer-afilter-util", paUtil,
 		"--audio-filter", "cmplayer-afilter",
-//		"--cmplayer-scaletempo-enabled", paScaletempo,
-//		"--audio-filter", "scaletempo"
 	};
 	d->inst = libvlc_new(sizeof(args)/sizeof(*args), args);
 	d->mp = libvlc_media_player_new(d->inst);

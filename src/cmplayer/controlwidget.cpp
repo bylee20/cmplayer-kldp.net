@@ -299,7 +299,7 @@ void ControlWidget::setTrackNumber(int nth, int total) {
 	if (nth < 1 || total < 2)
 		d->lcd->track->clear();
 	else
-		d->lcd->track->setText(QString("%1/%2 ").arg(nth).arg(total));
+		d->lcd->track->setText(QString("[%1/%2] ").arg(nth).arg(total));
 	hideMessage();
 }
 

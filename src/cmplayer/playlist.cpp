@@ -14,6 +14,10 @@ Playlist::Playlist()
 Playlist::Playlist(const Playlist &rhs)
 : QList<Mrl>(rhs) {}
 
+Playlist::Playlist(const Mrl &mrl): QList<Mrl>() {
+	push_back(mrl);
+}
+
 Playlist::Playlist(const QList<Mrl> &rhs)
 : QList<Mrl>(rhs) {}
 
@@ -31,6 +35,15 @@ bool Playlist::save(const QString &filePath, Type type) const {
 	default:
 		return false;
 	}
+}
+
+Playlist &Playlist::loadAll(const QDir &dir) {
+	clear();
+	const QStringList filter = Info::mediaNameFilter();
+	const QStringList files = dir.entryList(filter, QDir::Files, QDir::Name);
+	for (int i=0; i<files.size(); ++i)
+		push_back(dir.absoluteFilePath(files[i]));
+	return *this;
 }
 
 bool Playlist::load(const QString &filePath, const QString &enc, Type type) {

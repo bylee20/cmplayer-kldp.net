@@ -23,7 +23,7 @@ Info::Info() {
 
 Info::~Info() {}
 
-QString Info::ExtensionList::toFilter() const {
+QString Info::ExtList::toFilter() const {
 	QString filter;
 	for (QStringList::const_iterator it = begin(); it != end(); ++it)
 		filter += "*." + *it + ' ';
@@ -35,19 +35,36 @@ QString Info::ExtensionList::toFilter() const {
 		return QString();
 }
 
-QStringList Info::ExtensionList::toNameFilter() const {
+QStringList Info::ExtList::toNameFilter() const {
 	QStringList nameFilter;
 	for (QStringList::const_iterator it = begin(); it != end(); ++it)
 		nameFilter << ("*." + *it);
 	return nameFilter;
 }
 
-QString Info::mediaExtensionFilter() {
-	static const QString filter = QCoreApplication::translate("Info", "Video Files") +' '
-			+ Info::videoExtension().toFilter() + ";;"
+QString Info::mediaExtFilter() {
+	static const QString filter
+		= QCoreApplication::translate("Info", "Video Files") + ' '
+			+ Info::videoExt().toFilter() + ";;"
 			+ QCoreApplication::translate("Info", "Audio Files") + ' '
-			+ Info::audioExtension().toFilter() + ";;"
+			+ Info::audioExt().toFilter() + ";;"
 			+ QCoreApplication::translate("Info", "All Files") + ' ' + "(*.*)";
 	return filter;
+}
+
+const char *Info::pluginPath() {
+	static QByteArray path;
+	if (!path.isEmpty())
+		return path.constData();
+	path = qgetenv("CMPLAYER_VLC_PLUGIN_PATH");
+	if (!path.isEmpty())
+		return path.constData();
+#ifdef CMPLAYER_VLC_PLUGIN_PATH
+	path = CMPLAYER_VLC_PLUGIN_PATH;
+	if (!path.isEmpty())
+		return path.constData();
+#endif
+	path = "./plugins";
+	return path.constData();
 }
 

@@ -4,13 +4,14 @@
 #include "mrl.hpp"
 #include <QtCore/QSettings>
 
-class QFile;
+class QFile;		class QDir;
 
 class Playlist : public QList<Mrl> {
 public:
 	enum Type {Unknown, PLS, M3U};
 	Playlist();
 	Playlist(const Playlist &rhs);
+	Playlist(const Mrl &mrl);
 	Playlist(const QList<Mrl> &rhs);
 	void save(const QString &prefix, QSettings *set) const;
 	void load(const QString &prefix, QSettings *set);
@@ -18,6 +19,7 @@ public:
 	bool load(const QString &filePath, const QString &enc = QString(), Type type = Unknown);
 	bool load(const Mrl &url, const QString &enc = QString(), Type type = Unknown);
 	bool load(QFile *file, const QString &enc = QString(), Type type = Unknown);
+	Playlist &loadAll(const QDir &dir);
 private:
 	static Type getType(const QString &fileName);
 	bool savePLS(QFile *file) const;

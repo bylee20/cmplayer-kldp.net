@@ -319,10 +319,4 @@ QString GetUrlDialog::encoding() const {
 
 /******************************************************************************/
 
-ToggleDialog::ToggleDialog(QWidget *widget, QWidget *parent)
-: QDialog(parent, Qt::Tool), w(widget) {
-	QVBoxLayout *vbox = new QVBoxLayout(this);
-	vbox->setSpacing(0);
-	vbox->setMargin(0);
-	vbox->addWidget(w);
-}
+ToggleDialog::ToggleDialog(QWidget *parent): QDialog(parent, Qt::Tool) {}

@@ -1,7 +1,11 @@
 #include "timelineosdrenderer.hpp"
-#include "screensavermanager.hpp"
+#include "playlistview.hpp"
+#include "historyview.hpp"
+#include "playlistmodel.hpp"
+#include "aboutdialog.hpp"
 #include "subtitlerenderer.hpp"
 #include "charsetdetector.hpp"
+#include "snapshotdialog.hpp"
 #include "subtitle_parser.hpp"
 #include "audiocontroller.hpp"
 #include "controlwidget.hpp"
@@ -34,35 +38,36 @@ void qt_mac_set_dock_menu(QMenu *menu);
 struct MainWindow::Data {
 	Data(Menu &menu): menu(menu), pref(Pref::get()) {}
 	bool moving, changingSub, pausedByHiding, dontShowMsg;
-	Menu &menu;
-	const Pref &pref;
-	ControlWidget *control;
-	PlayEngine *engine;
-	VideoRenderer *video;
-	AudioController *audio;
-	SubtitleRenderer *subtitle;
-	TimeLineOsdRenderer *timeLine;
-	TextOsdRenderer *message;
-	Subtitle subLoaded;
-	QList<int> subSelected;
-	ABRepeater *ab;
-//	ToolBox *tool;
-	QPoint prevPos;
-	QTimer *hider;
-	QWidget *center;
-	RecentInfo *recent;
-
-	PlaylistView *playlist;
-	HistoryView *history;
+	Menu &menu;			const Pref &pref;
+	ControlWidget *control;		QWidget *center;
+	PlayEngine *engine;		VideoRenderer *video;
+	SubtitleRenderer *subtitle;	AudioController *audio;
+	TimeLineOsdRenderer *timeLine;	TextOsdRenderer *message;
+	Subtitle subLoaded;		QList<int> subSelected;
+	QPoint prevPos;			QTimer *hider;
+	RecentInfo *recent;		ABRepeater *ab;
+	PlaylistView *playlist;		HistoryView *history;
 //	FavoritesView *favorite;
-
 #ifndef Q_WS_MAC
 	QSystemTrayIcon *tray;
 #endif
 };
 
 QIcon MainWindow::defaultIcon() {
-	return QIcon(":/img/cmplayer512.png");
+	static QIcon icon;
+	static bool init = false;
+	if (!init) {
+		icon.addFile(":/img/cmplayer16.png", QSize(16, 16));
+		icon.addFile(":/img/cmplayer22.png", QSize(22, 22));
+		icon.addFile(":/img/cmplayer24.png", QSize(24, 24));
+		icon.addFile(":/img/cmplayer32.png", QSize(32, 32));
+		icon.addFile(":/img/cmplayer64.png", QSize(64, 64));
+		icon.addFile(":/img/cmplayer128.png", QSize(128, 128));
+		icon.addFile(":/img/cmplayer256.png", QSize(256, 256));
+		icon.addFile(":/img/cmplayer512.png", QSize(512, 512));
+		init = true;
+	}
+	return icon;
 }
 
 MainWindow::MainWindow() {
@@ -77,7 +82,6 @@ MainWindow::MainWindow() {
 	d->timeLine = new TimeLineOsdRenderer;
 	d->message = new TextOsdRenderer(Qt::AlignTop | Qt::AlignLeft);
 	d->ab = new ABRepeater(d->engine, d->subtitle);
-//	d->tool = new ToolBox(this);
 	d->control = createControlWidget();
 	d->center = createCentralWidget(d->video, d->control);
 	d->recent = &RecentInfo::get();
@@ -95,15 +99,13 @@ MainWindow::MainWindow() {
 
 	setMouseTracking(true);
 	setCentralWidget(d->center);
+	setWindowTitle(QString("CMPlayer %1").arg(Info::version()));
 
 	Menu &menu = d->menu;
-	Menu &open = menu("open");
-	Menu &play = menu("play");
-	Menu &video = menu("video");
-	Menu &audio = menu("audio");
-	Menu &sub = menu("subtitle");
-	Menu &tool = menu("tool");
-	Menu &win = menu("window");
+	Menu &open = menu("open");		Menu &play = menu("play");
+	Menu &video = menu("video");		Menu &audio = menu("audio");
+	Menu &sub = menu("subtitle");		Menu &tool = menu("tool");
+	Menu &win = menu("window");		Menu &help = menu("help");
 
 	CONNECT(open["file"], triggered(), this, openFile());
 	CONNECT(open["url"], triggered(), this, openUrl());
@@ -124,7 +126,7 @@ MainWindow::MainWindow() {
 	CONNECT(video("track").g(), triggered(QAction*), this, setVideoTrack(QAction*));
 	CONNECT(video("aspect").g(), triggered(double), d->video, setAspectRatio(double));
 	CONNECT(video("crop").g(), triggered(double), d->video, setCropRatio(double));
-//	CONNECT(screen["snapshot"], triggered(), this, takeSnapshot());
+	CONNECT(video["snapshot"], triggered(), this, takeSnapshot());
 	CONNECT(video.g("color"), triggered(QAction*), this, setColorProperty(QAction*));
 
 	CONNECT(audio("track").g(), triggered(QAction*), this, setAudioTrack(QAction*));
@@ -141,17 +143,15 @@ MainWindow::MainWindow() {
 	CONNECT(sub.g("pos"), triggered(int), this, moveSubtitle(int));
 	CONNECT(sub.g("sync"), triggered(int), this, setSyncDelay(int));
 
-	CONNECT(tool["playlist"], triggered(), this, togglePlaylist());
-	CONNECT(tool["history"], triggered(), this, toggleHistory());
-	CONNECT(tool["subtitle"], triggered(), this, toggleSubtitle());
+	CONNECT(tool["playlist"], triggered(), d->playlist, toggle());
+	CONNECT(tool["history"], triggered(), d->history, toggle());
+	CONNECT(tool["subtitle"], triggered(), d->subtitle->view(), toggle());
 	CONNECT(tool["pref"], triggered(), this, setPref());
 
 	CONNECT(win.g("sot"), triggered(int), this, updateStaysOnTop());
 	CONNECT(win.g("size"), triggered(double), this, setVideoSize(double));
 
-
-//	CONNECT(menu["about"], triggered(), this, showAbout());
-//// 	CONNECT(menu["help"], triggered(), this, slotHelp());
+	CONNECT(help["about"], triggered(), this, about());
 	CONNECT(menu["exit"], triggered(), qApp, quit());
 
 	CONNECT(&play, aboutToShow(), this, checkPlayMenu());
@@ -173,7 +173,6 @@ MainWindow::MainWindow() {
 	CONNECT(d->video, frameRateChanged(double), d->subtitle, setFrameRate(double));
 	CONNECT(d->audio, mutedChanged(bool), audio["mute"], setChecked(bool));
 	CONNECT(d->audio, volumeNormalizedChanged(bool), audio["volnorm"], setChecked(bool));
-//	CONNECT(d->audio, tempoScaledChanged(bool), audio["scaletempo"], setChecked(bool));
 
 	CONNECT(d->recent, openListChanged(QList<Mrl>), this, updateRecentActions(QList<Mrl>));
 	CONNECT(d->hider, timeout(), this, hideCursor());
@@ -200,6 +199,7 @@ MainWindow::MainWindow() {
 	mb->addMenu(&sub);
 	mb->addMenu(&tool);
 	mb->addMenu(&win);
+	mb->addMenu(&help);
 #endif
 }
 
@@ -366,19 +366,22 @@ void MainWindow::openMrl(const Mrl &mrl) {
 }
 
 void MainWindow::openMrl(const Mrl &mrl, const QString &enc) {
-	if (mrl == d->engine->mrl())
-		return;
-	d->playlist->load(mrl, enc);
-	if (!mrl.isPlaylist()) {
-		d->playlist->play(mrl);
-		if (!mrl.isDVD())
-			RecentInfo::get().stack(mrl);
+	if (mrl == d->engine->mrl()) {
+		if (!d->engine->isPlaying())
+			d->engine->play();
+	} else {
+		d->playlist->load(mrl, enc);
+		if (!mrl.isPlaylist()) {
+			d->playlist->play(mrl);
+			if (!mrl.isDVD())
+				RecentInfo::get().stack(mrl);
+		}
 	}
 }
 
 void MainWindow::openFile() {
 	AppState as;
-	const QString filter = Info::mediaExtensionFilter();
+	const QString filter = Info::mediaExtFilter();
 	const QString dir = QFileInfo(as[AppState::LastOpenFile].toString()).absolutePath();
 	const QString file = QFileDialog::getOpenFileName(this, tr("Open File"), dir, filter);
 	if (!file.isEmpty()) {
@@ -388,8 +391,12 @@ void MainWindow::openFile() {
 }
 
 void MainWindow::openDvd() {
-	const Mrl mrl("dvd:///dev/rdisk4");
-	openMrl(mrl);
+	OpenDVDDialog dlg(this);
+	dlg.setDevices(app()->devices());
+	if (dlg.exec()) {
+		const Mrl mrl(QLatin1String("dvd://") + dlg.device());
+		openMrl(mrl);
+	}
 }
 
 void MainWindow::openUrl() {
@@ -433,6 +440,9 @@ void MainWindow::updateMrl(const Mrl &mrl) {
 	}
 	d->changingSub = false;
 	updateSubtitle();
+	const int row = d->playlist->model()->currentRow() + 1;
+	if (row > 0)
+		d->control->setTrackNumber(row, d->playlist->model()->rowCount());
 }
 
 void MainWindow::clearSubtitles() {
@@ -445,7 +455,7 @@ void MainWindow::clearSubtitles() {
 }
 
 void MainWindow::openSubFile() {
-	const QString filter = tr("Subtitle Files") +' '+ Info::subtitleExtension().toFilter();
+	const QString filter = tr("Subtitle Files") +' '+ Info::subtitleExt().toFilter();
 	QString enc = d->pref.subtitleEncoding;
 	QString dir;
 	if (d->engine->mrl().isLocalFile())
@@ -499,7 +509,7 @@ void MainWindow::doSubtitleAutoLoad() {
 	// needs local file checking!
 	if (d->pref.subtitleAutoLoad == NoAutoLoad)
 		return;
-	const QStringList filter = Info::subtitleExtension().toNameFilter();
+	const QStringList filter = Info::subtitleNameFilter();
 	const QFileInfo fileInfo(mrl.toLocalFile());
 	const QFileInfoList all = fileInfo.dir().entryInfoList(filter, QDir::Files, QDir::Name);
 	const QString base = fileInfo.completeBaseName();
@@ -631,6 +641,8 @@ void MainWindow::setMuted(bool muted) {
 void MainWindow::setFullScreen(bool full) {
 	if (full == isFullScreen())
 		return;
+	d->moving = false;
+	d->prevPos = QPoint();
 	d->control->setHidden(full);
 	if (full) {
 		app()->setAlwaysOnTop(this, false);
@@ -663,14 +675,10 @@ void MainWindow::updateState(MediaState state, MediaState old) {
 	if (old == state)
 		return;
 	if (state == PlayingState) {
-#ifdef Q_WS_X11
-		ScreensaverManager::setDisabled(d->pref.disableScreensaver);
-#endif
+		app()->setScreensaverDisabled(d->pref.disableScreensaver);
 		d->menu("play")["pause"]->setText(tr("Pause"));
 	} else {
-#ifdef Q_WS_X11
-		ScreensaverManager::setDisabled(false);
-#endif
+		app()->setScreensaverDisabled(false);
 		d->menu("play")["pause"]->setText(tr("Play"));
 	}
 	d->video->setLogoMode(state == StoppedState);
@@ -831,14 +839,14 @@ void MainWindow::dropEvent(QDropEvent *event) {
 	QStringList subList;
 	for (int i=0; i<urls.size(); ++i) {
 		const QString suffix = QFileInfo(urls[i].path()).suffix().toLower();
-		if (Info::playlistExtension().contains(suffix)) {
+		if (Info::playlistExt().contains(suffix)) {
 			Playlist list;
 			list.load(urls[i].toString());
 			playlist += list;
-		} else if (Info::subtitleExtension().contains(suffix)) {
+		} else if (Info::subtitleExt().contains(suffix)) {
 			subList << urls[i].toLocalFile();
-		} else if (Info::videoExtension().contains(suffix)
-				|| Info::audioExtension().contains(suffix)) {
+		} else if (Info::videoExt().contains(suffix)
+				|| Info::audioExt().contains(suffix)) {
 			playlist.append(urls[i].toString());
 		}
 	}
@@ -986,22 +994,18 @@ void MainWindow::updateStaysOnTop() {
 	app()->setAlwaysOnTop(this, onTop);
 }
 
-void MainWindow::setStaysOnTopMode(int mode) {
-
-	qDebug() << StaysOnTopEnum::name((StaysOnTop)mode);
+void MainWindow::takeSnapshot() {
+	static SnapshotDialog *dlg = new SnapshotDialog(this);
+	dlg->setVideoRenderer(d->video);
+	dlg->setSubtitleRenderer(d->subtitle);
+	dlg->take();
+	dlg->adjustSize();
+	dlg->show();
 }
 
-void MainWindow::togglePlaylist() {
-	static ToggleDialog *dlg = new ToggleDialog(d->playlist, this);
-	dlg->toggle();
+void MainWindow::about() {
+	AboutDialog dlg(this);
+	dlg.exec();
 }
 
-void MainWindow::toggleSubtitle() {
-	static ToggleDialog *dlg = new ToggleDialog(d->subtitle->view(this), this);
-	dlg->toggle();
-}
 
-void MainWindow::toggleHistory() {
-	static ToggleDialog *dlg = new ToggleDialog(d->history, this);
-	dlg->toggle();
-}

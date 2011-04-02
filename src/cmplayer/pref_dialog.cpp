@@ -193,7 +193,7 @@ Pref::Dialog::Dialog(QWidget *parent)
 	d->ui.autoAdd->addItem(tr("Do not add any other files"), DoNotAddFiles);
 	setComboIndex(d->ui.autoAdd, p.autoAddFiles.value());
 
-	const QStringList subExt = Info::subtitleExtension();
+	const QStringList subExt = Info::subtitleExt();
 	d->ui.subSelectExt->addItem(tr("All"), QString());
 	for (int i=0; i<subExt.size(); ++i)
 		d->ui.subSelectExt->addItem(subExt[i], subExt[i]);

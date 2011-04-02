@@ -145,6 +145,8 @@ FavoritesView::FavoritesView(PlayEngine *engine, QWidget *parent)
 	connect(modify, SIGNAL(triggered()), this, SLOT(modify()));
 
 	load();
+
+	setWindowTitle(tr("Favorites"));
 }
 
 FavoritesView::~FavoritesView() {

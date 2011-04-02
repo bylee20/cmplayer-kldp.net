@@ -86,13 +86,16 @@ typedef EnumSpace::Enum<Qt::KeyboardModifier> ModifierEnum;
 
 QTime secsToTime(int secs);
 QTime msecsToTime(qint64 msecs);
-QString msecsToString(qint64 msecs, const QString &format = QString("hh:mm:ss"));
-QString secsToString(int secs, const QString &format = QString("hh:mm:ss"));
+QString msecsToString(qint64 msecs, const QString &format = QLatin1String("hh:mm:ss"));
+QString secsToString(int secs, const QString &format = QLatin1String("hh:mm:ss"));
 qint64 timeToMSecs(const QTime &time);
 qint64 timeToMSecs(int h, int m, int s, int ms = 0);
-qint64 stringToMSecs(const QString &str, const QString &format = QString("hh:mm:ss"));
+qint64 stringToMSecs(const QString &str, const QString &format = QLatin1String("hh:mm:ss"));
 const QTime &nullTime();
 
+QStringList getOpenFileNames(QWidget *p, const QString &t, const QString &dir, const QString &f);
+QString getOpenFileName(QWidget *p, const QString &t, const QString &dir, const QString &f);
+QString getSaveFileName(QWidget *p, const QString &t, const QString &dir, const QString &f);
 }
 
 using namespace Global;

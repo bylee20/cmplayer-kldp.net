@@ -31,6 +31,7 @@ public:
 	int height() const {return m_size.height();}
 	Type type() const {return m_type;}
 	bool isEmpty() const {return m_length <= 0;}
+	bool isPlanar() const {return m_type == I420 || m_type == YV12;}
 	VideoFrame &operator= (const VideoFrame &rhs);
 	VideoFrame(const VideoFrame &rhs);
 	void copy(const VideoFrame &frame);
@@ -49,21 +50,5 @@ private:
 	int m_offset[VIDEO_FRAME_MAX_PLANE_COUNT];
 	int m_planeCount;
 };
-
-class VideoFrameEvent : public QEvent {
-public:
-	static const int Id = QEvent::User + 1;
-	VideoFrameEvent(const VideoFrame &frame)
-	: QEvent((Type)Id), m_length(frame.length()) {
-		m_data = new uchar[m_length];
-		memcpy(m_data, frame.data(), m_length);
-	}
-	uchar *data() const {return m_data;}
-	int length() const {return m_length;}
-private:
-	uchar *m_data;
-	int m_length;
-};
-
 
 #endif // VIDEOFRAME_HPP

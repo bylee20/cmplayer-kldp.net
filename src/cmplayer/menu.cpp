@@ -29,7 +29,6 @@ Menu &Menu::create(QWidget *parent) {
 	Menu *root = new Menu("root", parent);
 
 	Menu *open = root->addMenu("open");
-//	open->setIcon(QIcon(":/img/document-open.png"));
 
 	QAction *file = open->addAction("file");
 	file->setShortcut(Qt::CTRL + Qt::Key_F);
@@ -49,7 +48,6 @@ Menu &Menu::create(QWidget *parent) {
 	recent->addAction("clear");
 
 	Menu *play = root->addMenu("play");
-//	play->setIcon(QIcon(":/img/player-time.png"));
 
 	QAction *pause = play->addAction("pause");
 	pause->setShortcut(Qt::Key_Space);
@@ -105,8 +103,6 @@ Menu &Menu::create(QWidget *parent) {
 	play->addMenu("chapter")->setEnabled(false);
 
 	Menu *subtitle = root->addMenu("subtitle");
-//	subtitle->setIcon(QIcon(":/img/format-text-bold.png"));
-
 	subtitle->addMenu("spu")->setEnabled(false);
 
 	Menu *sList = subtitle->addMenu("list");
@@ -129,10 +125,9 @@ Menu &Menu::create(QWidget *parent) {
 	subtitle->addActionToGroup("sync-sub", false, "sync")->setShortcut(Qt::Key_A);
 
 	Menu *video = root->addMenu("video");
-//	video->setIcon(QIcon(":/img/games-config-background.png"));
-
 	video->addMenu("track")->setEnabled(false);
-
+	video->addSeparator();
+	video->addAction("snapshot")->setShortcut(Qt::CTRL + Qt::Key_S);
 	video->addSeparator();
 
 	Menu *aspect = video->addMenu("aspect");
@@ -162,16 +157,9 @@ Menu &Menu::create(QWidget *parent) {
 	video->addActionToGroup("hue+", false, "color")->setShortcut(Qt::Key_I);
 	video->addActionToGroup("hue-", false, "color")->setShortcut(Qt::Key_K);
 
-	//	video->addSeparator();
-	//	QAction *snapshot = video->addAction("snapshot");
-	//	snapshot->setIcon(QIcon(":/img/snapshot.png"));
-	//	snapshot->setShortcut(Qt::CTRL + Qt::Key_S);
 
 	Menu *audio = root->addMenu("audio");
-//	audio->setIcon(QIcon(":/img/speaker.png"));
-
 	audio->addMenu("track")->setEnabled(false);
-
 	audio->addSeparator();
 
 	QAction *volUp = audio->addActionToGroup("volume-up", false, "volume");
@@ -182,8 +170,6 @@ Menu &Menu::create(QWidget *parent) {
 	mute->setShortcut(Qt::Key_M);
 	QAction *volnorm = audio->addAction("volnorm", true);
 	volnorm->setShortcut(Qt::Key_N);
-//	QAction *scaletempo = audio->addAction("scaletempo", true);
-//	scaletempo->setShortcut(Qt::Key_Semicolon);
 
 	audio->addSeparator();
 
@@ -193,11 +179,10 @@ Menu &Menu::create(QWidget *parent) {
 	ampDown->setShortcut(Qt::CTRL + Qt::Key_Down);
 
 	Menu *tool = root->addMenu("tool");
-//	tool->setIcon(QIcon(":/img/preferences-plugin.png"));
-	tool->addAction("playlist");
+	tool->addAction("playlist")->setShortcut(Qt::Key_L);
 	tool->addAction("favorites")->setVisible(false);
-	tool->addAction("history");
-	tool->addAction("subtitle");
+	tool->addAction("history")->setShortcut(Qt::Key_C);
+	tool->addAction("subtitle")->setShortcut(Qt::Key_V);
 	QAction *pref = tool->addAction("pref");
 	pref->setShortcut(Qt::Key_P);
 	pref->setMenuRole(QAction::PreferencesRole);
@@ -231,9 +216,9 @@ Menu &Menu::create(QWidget *parent) {
 	toFull->setShortcuts(QList<QKeySequence>()
 			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
 
-// 	root->addAction("help")->setIcon(QIcon(":/img/help-contents.png"));
-//	QAction *about = root->addAction("about");
-//	about->setIcon(QIcon(":/img/help-about.png"));
+	Menu *help = root->addMenu("help");
+	QAction *about = help->addAction("about");
+	about->setMenuRole(QAction::AboutQtRole);
 
 	QAction *exit = root->addAction("exit");
 #ifdef Q_WS_MAC
@@ -241,8 +226,6 @@ Menu &Menu::create(QWidget *parent) {
 #else
 	exit->setShortcut(Qt::CTRL + Qt::Key_Q);
 #endif
-//	exit->setIcon(QIcon(":/img/application-exit.png"));
-
 
 	root->m_click[OpenFile] = file;
 	root->m_click[ToggleFullScreen] = toFull;
@@ -266,9 +249,8 @@ Menu &Menu::create(QWidget *parent) {
 	root->m_context->addMenu(tool);
 	root->m_context->addMenu(window);
 	root->m_context->addSeparator();
-// 	root->m_context->addAction(help);
-//	root->m_context->addAction(about);
 	root->m_context->addSeparator();
+	root->m_context->addAction(about);
 	root->m_context->addAction(exit);
 
 	parent->addActions(root->m_context->actions());
@@ -404,14 +386,13 @@ void Menu::updatePref() {
 			, tr("Contrast %1%"), p.brightnessStep);
 	setVideoPropStep(video, "hue", ColorProperty::Hue
 			, tr("Hue %1%"), p.brightnessStep);
-	//	screen["snapshot"]->setText(tr("Take Snapshot"));
+	video["snapshot"]->setText(tr("Take Snapshot"));
 
 	Menu &audio = root("audio");
 	audio.setTitle(tr("Audio"));
 	audio("track").setTitle(tr("Audio Track"));
 	audio["mute"]->setText(tr("Toggle Mute"));
 	audio["volnorm"]->setText(tr("Normalize Volume"));
-//	audio["scaletempo"]->setText(tr("Autoscale Pitch"));
 	setActionStep(audio["volume-up"], audio["volume-down"]
 			, tr("Volume %1%"), p.volumeStep);
 	setActionStep(audio["amp-up"], audio["amp-down"]
@@ -421,20 +402,21 @@ void Menu::updatePref() {
 	tool.setTitle(tr("Tools"));
 	tool["playlist"]->setText(tr("Playlist"));
 	tool["favorites"]->setText(tr("Favorites"));
-	tool["history"]->setText("Past History");
-	tool["subtitle"]->setText("View Subtitles");
+	tool["history"]->setText(tr("Play History"));
+	tool["subtitle"]->setText(tr("Subtitle View"));
 	tool["pref"]->setText(tr("Preferences"));
 
 	Menu &window = root("window");
 	window.setTitle(tr("Window"));
-	window["sot-always"]->setText("Always Stay on Top");
-	window["sot-playing"]->setText("Stay on Top Playing");
-	window["sot-disabled"]->setText("Don't Stay on Top");
+	window["sot-always"]->setText(tr("Always Stay on Top"));
+	window["sot-playing"]->setText(tr("Stay on Top Playing"));
+	window["sot-disabled"]->setText(tr("Don't Stay on Top"));
 
 	window["full"]->setText(tr("Fullscreen"));
 
-// 	root["help"]->setText(tr("Help"));
-//	root["about"]->setText(tr("About..."));
+	Menu &help = root("help");
+	help.setTitle(tr("Help"));
+	help["about"]->setText(tr("About %1").arg("CMPlayer"));
 	root["exit"]->setText(tr("Exit"));
 
 	saveShortcut();

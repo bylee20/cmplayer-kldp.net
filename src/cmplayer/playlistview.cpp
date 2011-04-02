@@ -21,7 +21,7 @@ struct PlaylistView::Data {
 };
 
 PlaylistView::PlaylistView(PlayEngine *engine, QWidget *parent)
-: QWidget(parent), d(new Data) {
+: ToggleDialog(parent), d(new Data) {
 	d->engine = engine;
 	d->view = new QTreeView(this);
 	d->view->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -64,6 +64,8 @@ PlaylistView::PlaylistView(PlayEngine *engine, QWidget *parent)
 	connect(d->engine, SIGNAL(finished(Mrl)), this, SLOT(handleFinished()));
 	connect(d->view, SIGNAL(doubleClicked(QModelIndex))
 		, this, SLOT(handleDoubleClick(QModelIndex)));
+
+	setWindowTitle(tr("Playlist"));
 }
 
 PlaylistView::~PlaylistView() {
@@ -71,12 +73,16 @@ PlaylistView::~PlaylistView() {
 }
 
 void PlaylistView::addFile() {
-	const QString filter = Info::mediaExtensionFilter();
+	const QString filter = Info::mediaExtFilter();
 	QStringList files = QFileDialog::getOpenFileNames(this, tr("Open File"), QString(), filter);
 	Playlist list;
 	for (int i=0; i<files.size(); ++i)
 		list << Mrl(files[i]);
 	d->model->append(list);
+}
+
+const PlaylistModel *PlaylistView::model() const {
+	return d->model;
 }
 
 void PlaylistView::addUrl() {
@@ -116,7 +122,7 @@ void PlaylistView::clear() {
 
 void PlaylistView::open() {
 	QString enc;
-	const QString filter = tr("Playlist") +' '+ Info::playlistExtension().toFilter();
+	const QString filter = tr("Playlist") +' '+ Info::playlistExt().toFilter();
 	const QString file = EncodingFileDialog::getOpenFileName(this
 		, tr("Open File"), QString(), filter, &enc);
 	if (!file.isEmpty()) {
@@ -143,52 +149,54 @@ void PlaylistView::showContextMenu(const QPoint &/*pos*/) {
 	d->context->exec(QCursor::pos());
 }
 
+Playlist PlaylistView::generatePlaylist(const Mrl &mrl) {
+	const AutoAddFiles mode = Pref::get().autoAddFiles;
+	if (!mrl.isLocalFile() || mode == DoNotAddFiles)
+		return Playlist(mrl);
+	const QFileInfo file(mrl.toLocalFile());
+	const QDir dir = file.dir();
+	if (mode == AllFiles)
+		return Playlist().loadAll(dir);
+	const QStringList filter = Info::mediaNameFilter();
+	const QFileInfoList files = dir.entryInfoList(filter, QDir::Files, QDir::Name);
+	const QString fileName = file.fileName();
+	Playlist list;
+	bool prefix = false, suffix = false;
+	QFileInfoList::const_iterator it = files.begin();
+	for(; it != files.end(); ++it) {
+		static QRegExp rxs("(\\D*)\\d+(.*)");
+		static QRegExp rxt("(\\D*)\\d+(.*)");
+		if (rxs.indexIn(fileName) == -1)
+			continue;
+		if (rxt.indexIn(it->fileName()) == -1)
+			continue;
+		if (!prefix && !suffix) {
+			if (rxs.cap(1) == rxt.cap(1))
+				prefix = true;
+			else if (rxs.cap(2) == rxt.cap(2))
+				suffix = true;
+			else
+				continue;
+		} else if (prefix) {
+			if (rxs.cap(1) != rxt.cap(1))
+				continue;
+		} else if (suffix) {
+			if (rxs.cap(2) != rxt.cap(2))
+				continue;
+		}
+		list.append(it->absoluteFilePath());
+	}
+	if (list.isEmpty())
+		return Playlist(mrl);
+	return list;
+}
+
 void PlaylistView::load(const Mrl &mrl, const QString &enc) {
 	Playlist list;
 	if (mrl.isPlaylist())
 		list.load(mrl, enc);
-	else {
-		const AutoAddFiles mode = Pref::get().autoAddFiles;
-		if (mrl.isLocalFile() && mode != DoNotAddFiles) {
-			const QFileInfo file(mrl.toLocalFile());
-			QStringList filter = Info::videoExtension().toNameFilter()
-				+ Info::audioExtension().toNameFilter();
-			if (!filter.contains(file.suffix()))
-				filter += ("*." + file.suffix());
-			const QFileInfoList files = file.dir().entryInfoList(filter
-					, QDir::Files, QDir::Name);
-			const QString fileName = file.fileName();
-			bool prefix = false, suffix = false;
-			QFileInfoList::const_iterator it = files.begin();
-			for(; it != files.end(); ++it) {
-				if (mode != AllFiles) {
-					static QRegExp rxs("(\\D*)\\d+(.*)");
-					static QRegExp rxt("(\\D*)\\d+(.*)");
-					if (rxs.indexIn(fileName) == -1)
-						continue;
-					if (rxt.indexIn(it->fileName()) == -1)
-						continue;
-					if (!prefix && !suffix) {
-						if (rxs.cap(1) == rxt.cap(1))
-							prefix = true;
-						else if (rxs.cap(2) == rxt.cap(2))
-							suffix = true;
-						else
-							continue;
-					} else if (prefix) {
-						if (rxs.cap(1) != rxt.cap(1))
-							continue;
-					} else if (suffix) {
-						if (rxs.cap(2) != rxt.cap(2))
-							continue;
-					}
-				}
-				list.append(Mrl(it->absoluteFilePath()));
-			}
-		}
-		if (list.isEmpty())
-			list.append(mrl);
-	}
+	else
+		list = generatePlaylist(mrl);
 	setPlaylist(list);
 }
 
