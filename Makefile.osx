@@ -8,7 +8,8 @@ VLC_PLUGINS_PATH ?= /Applications/VLC.app/Contents/MacOS/plugins
 cmplayer_exec_path := bin/cmplayer.app/Contents/MacOS
 install_file := install -m 644
 install_exe := install -m 755
-qmake_vars := DESTDIR=\\\"../../bin\\\" RELEASE=\\\"yes\\\" VLC_INCLUDE_PATH=\\\"$(VLC_INCLUDE_PATH)\\\" VLC_LIB_PATH=$(VLC_LIB_PATH)
+qmake_vars := DESTDIR=\\\"../../bin\\\" RELEASE=\\\"yes\\\" \
+	VLC_INCLUDE_PATH=\\\"$(VLC_INCLUDE_PATH)\\\" VLC_LIB_PATH=$(VLC_LIB_PATH)
 
 cmplayer: cmplayer-vlc-plugins translations libchardet
 	cd src/cmplayer && $(QMAKE) $(qmake_vars) cmplayer.pro 
