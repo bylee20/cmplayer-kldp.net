@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>338</width>
-    <height>233</height>
+    <height>193</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -39,7 +39,7 @@
       <enum>QFrame::Sunken</enum>
      </property>
      <property name="text">
-      <string>font</string>
+      <string notr="true"/>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -186,17 +186,6 @@
     </layout>
    </item>
    <item row="5" column="0" colspan="3">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>*Some options might be ignored in case that the play engine doesn't support them.&lt;br&gt;
-*The size of font is ignored. Use size scale instead.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0" colspan="3">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
