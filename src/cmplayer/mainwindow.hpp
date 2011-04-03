@@ -19,6 +19,7 @@ public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
 private slots:
+	void setEffect(QAction *action);
 	void about();
 	void setVolumeNormalized(bool norm);
 	void setTempoScaled(bool scaled);

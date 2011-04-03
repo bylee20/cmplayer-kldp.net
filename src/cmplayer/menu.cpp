@@ -1,4 +1,5 @@
 #include "menu.hpp"
+#include "videorenderer.hpp"
 #include "pref.hpp"
 #include "colorproperty.hpp"
 #include "mrl.hpp"
@@ -148,6 +149,19 @@ Menu &Menu::create(QWidget *parent) {
 
 	video->addSeparator();
 
+	Menu *effect = video->addMenu("effect");
+	effect->g()->setExclusive(false);
+	effect->addActionToGroup("flip-v", true)->setData((int)VideoRenderer::FlipVertically);
+	effect->addActionToGroup("flip-h", true)->setData((int)VideoRenderer::FlipHorizontally);
+	effect->addSeparator();
+	effect->addActionToGroup("blur", true)->setData((int)VideoRenderer::Blur);
+	effect->addActionToGroup("sharpen", true)->setData((int)VideoRenderer::Sharpen);
+	effect->addSeparator();
+	effect->addActionToGroup("gray", true)->setData((int)VideoRenderer::Grayscale);
+	effect->addActionToGroup("invert", true)->setData((int)VideoRenderer::InvertColor);
+
+	video->addSeparator();
+
 	video->addActionToGroup("brightness+", false, "color")->setShortcut(Qt::Key_T);
 	video->addActionToGroup("brightness-", false, "color")->setShortcut(Qt::Key_G);
 	video->addActionToGroup("contrast+", false, "color")->setShortcut(Qt::Key_Y);
@@ -156,7 +170,6 @@ Menu &Menu::create(QWidget *parent) {
 	video->addActionToGroup("saturation-", false, "color")->setShortcut(Qt::Key_J);
 	video->addActionToGroup("hue+", false, "color")->setShortcut(Qt::Key_I);
 	video->addActionToGroup("hue-", false, "color")->setShortcut(Qt::Key_K);
-
 
 	Menu *audio = root->addMenu("audio");
 	audio->addMenu("track")->setEnabled(false);
@@ -377,6 +390,15 @@ void Menu::updatePref() {
 	crop["16:9"]->setText(tr("16:9 (HDTV)"));
 	crop["1.85:1"]->setText(tr("1.85:1 (Wide Vision)"));
 	crop["2.35:1"]->setText(tr("2.35:1 (CinemaScope)"));
+
+	Menu &effect = video("effect");
+	effect.setTitle(tr("Effect"));
+	effect["flip-v"]->setText(tr("Flip Vertically"));
+	effect["flip-h"]->setText(tr("Flip Horizontally"));
+	effect["blur"]->setText(tr("Blur"));
+	effect["sharpen"]->setText(tr("Sharpen"));
+	effect["gray"]->setText(tr("Grayscale"));
+	effect["invert"]->setText(tr("Invert Color"));
 
 	setVideoPropStep(video, "brightness", ColorProperty::Brightness
 			, tr("Brightness %1%"), p.brightnessStep);

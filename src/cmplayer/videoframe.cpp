@@ -20,10 +20,6 @@ VideoFrame::VideoFrame(const VideoFormat &format) {
 	case FOURCC('I', '4', '2', '0'):
 		m_type = I420;
 		break;
-	case FOURCC('Y', 'U', 'Y', '2'):
-	case FOURCC('Y', 'U', 'Y', 'V'):
-		m_type = YUY2;
-		break;
 	case FOURCC('R', 'V', '1', '6'):
 		m_type = RV16;
 		break;

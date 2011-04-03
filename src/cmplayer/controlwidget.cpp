@@ -74,18 +74,23 @@ public:
 
 class ControlWidget::Slider : public QWidget {
 public:
-	Slider(QWidget *parent = 0): QWidget(parent) {
+	Slider(QWidget *parent = 0)
+	: QWidget(parent)
+	, muted(":/img/speaker-off.png")
+	, unmuted(":/img/speaker.png") {
 		mute = new Button(this);
 		mute->setBlock(false);
-		mute->setIconSize(10);
+		mute->setFixedWidth(10);
+		mute->setIcon(unmuted);
 		QHBoxLayout *hbox = new QHBoxLayout(this);
-		hbox->setSpacing(0);
+		hbox->setSpacing(2);
 		hbox->setContentsMargins(0, 0, 0, 0);
 		setFixedHeight(15);
 		hbox->addWidget(new SeekSlider(this));
 		hbox->addWidget(mute);
 		hbox->addWidget(new VolumeSlider(this));
 	}
+	QIcon muted, unmuted;
 	Button *mute;
 };
 
@@ -158,7 +163,6 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	d->prev->setIcon(QIcon(":/img/go-first-view-gray.png"));
 	d->next->setIcon(QIcon(":/img/go-last-view-gray.png"));
 	d->forward->setIcon(QIcon(":/img/arrow-right-double-gray.png"));
-	d->slider->mute->setIcon(QIcon(":/img/irc-voice.png"));
 
 	const int big = d->lcd->sizeHint().height() + d->slider->height() - 2;
 	const int small = big/2-4;
@@ -180,18 +184,10 @@ ControlWidget::ControlWidget(PlayEngine *engine, QWidget *parent)
 	middle->addWidget(d->lcd);
 	middle->addWidget(d->slider);
 
-//	QGridLayout *right = new QGridLayout;
-//	right->setContentsMargins(2, 0, 0, 0);
-//	right->addWidget(d->open, 0, 0, 1, 1);
-//	right->addWidget(d->pref, 1, 0, 1, 1);
-//	right->addWidget(d->tool, 0, 1, 1, 1);
-//	right->addWidget(d->fullScreen, 1, 1, 1, 1);
-
 	QHBoxLayout *hbox = new QHBoxLayout;
 	hbox->setContentsMargins(2, 0, 2, 0);
 	hbox->addLayout(left);
 	hbox->addLayout(middle);
-//	hbox->addLayout(right);
 
 	QVBoxLayout *layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
@@ -222,8 +218,7 @@ void ControlWidget::paintEvent(QPaintEvent */*event*/) {
 }
 
 void ControlWidget::updateMuted(bool muted) {
-	const QIcon icon(muted ? ":/img/irc-unvoice.png" : ":/img/irc-voice.png");
-	d->slider->mute->setIcon(icon);
+	d->slider->mute->setIcon(muted ? d->slider->muted : d->slider->unmuted);
 }
 
 void ControlWidget::connectMute(QAction *action) {

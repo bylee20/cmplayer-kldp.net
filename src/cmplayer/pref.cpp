@@ -76,7 +76,11 @@ void Pref::load() {
 	LOAD(hideClosed, true, toBool);
 	LOAD(singleApplication, true, toBool);
 	LOAD(disableScreensaver, true, toBool);
-	LOAD(subtitleEncoding, "UTF-8", toString);
+	LOAD(locale, QLocale::system(), toLocale);
+	if (this->locale.language() == QLocale::Korean)
+		LOAD(subtitleEncoding, "CP949", toString);
+	else
+		LOAD(subtitleEncoding, "UTF-8", toString);
 	LOAD(useSubtitleEncodingAutoDetection, true, toBool);
 	LOAD(subtitleEncodingConfidence, 70, toInt);
 	LOAD(msPerChar, 500, toInt);
@@ -93,7 +97,6 @@ void Pref::load() {
 	LOAD(saturationStep, DefaultColorPropStep, toInt);
 	LOAD(contrastStep, DefaultColorPropStep, toInt);
 	LOAD(hueStep, DefaultColorPropStep, toInt);
-	LOAD(locale, QLocale::c(), toLocale);
 	LOAD(windowStyle, QString(), toString);
 	LOAD(subtitleExtension, QString(), toString);
 

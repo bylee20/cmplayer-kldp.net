@@ -12,7 +12,7 @@
 class VideoFrame {
 public:
 	typedef FramePlane Plane;
-	enum Type {Unknown = 0, I420, YV12, YUY2, RV16};
+	enum Type {Unknown = 0, I420, YV12, RV16};
 	static QString fourccToString(uint32_t fourcc);
 	VideoFrame();
 	VideoFrame(const VideoFormat &format);

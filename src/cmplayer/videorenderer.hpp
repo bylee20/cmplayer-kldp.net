@@ -11,6 +11,17 @@ class VideoUtil;
 class VideoRenderer : public QGLWidget {
 	Q_OBJECT
 public:
+	enum Effect {
+		NoEffect		= 0,
+		FlipVertically		= 1 << 0,
+		FlipHorizontally	= 1 << 1,
+		Grayscale		= 1 << 2,
+		InvertColor		= 1 << 3,
+		Blur			= 1 << 4,
+		Sharpen			= 1 << 5,
+		DetectEdge		= 1 << 6
+	};
+	Q_DECLARE_FLAGS(Effects, Effect)
 	VideoRenderer(QWidget *parent = 0);
 	~VideoRenderer();
 	// takes ownership
@@ -28,6 +39,9 @@ public:
 	void setColorProperty(const ColorProperty &prop);
 	const ColorProperty &colorProperty() const;
 	void setFixedRenderSize(const QSize &size);
+	void clearEffects();
+	void setEffect(Effect effect, bool on);
+	void setEffects(Effects effect);
 public slots:
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
@@ -38,6 +52,7 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 private:
+	class FragmentProgram;
 	double widgetRatio() const {return (double)width()/(double)height();}
 	static int translateButton(Qt::MouseButton qbutton);
 
@@ -50,8 +65,6 @@ private:
 
 	void updateSize();
 	QSize renderableSize() const;
-	static const char *i420ToRgb;
-	static const char *yuy2ToRgb;
 	static QGLFormat makeFormat();
 	void paintEvent(QPaintEvent *event);
 	void resizeEvent(QResizeEvent *event);
@@ -71,5 +84,7 @@ private:
 	struct Data;
 	Data *d;
 };
+
+ Q_DECLARE_OPERATORS_FOR_FLAGS(VideoRenderer::Effects)
 
 #endif

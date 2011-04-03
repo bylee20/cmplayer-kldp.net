@@ -4,23 +4,20 @@
         <file>img/go-first-view-gray.png</file>
         <file>img/arrow-right-double-gray.png</file>
         <file>img/go-last-view-gray.png</file>
-        <file>img/irc-voice.png</file>
-        <file>img/irc-unvoice.png</file>
         <file>img/zoom-original.png</file>
         <file>img/zoom-in.png</file>
         <file>img/zoom-out.png</file>
         <file>img/subtitle.png</file>
         <file>img/system-run.png</file>
-        <file>img/go-top.png</file>
         <file>img/media-playback-pause.png</file>
         <file>img/media-playback-start.png</file>
         <file>img/preferences-desktop-keyboard.png</file>
-        <file>img/preferences-plugin.png</file>
         <file>translations/cmplayer_ko</file>
         <file>translations/cmplayer_en</file>
         <file>translations/cmplayer_ja</file>
         <file>img/speaker.png</file>
         <file>img/cmplayer512.png</file>
         <file>gpl.html</file>
+        <file>img/speaker-off.png</file>
     </qresource>
 </RCC>

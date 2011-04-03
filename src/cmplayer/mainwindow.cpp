@@ -134,6 +134,7 @@ MainWindow::MainWindow() {
 	CONNECT(video("crop").g(), triggered(double), d->video, setCropRatio(double));
 	CONNECT(video["snapshot"], triggered(), this, takeSnapshot());
 	CONNECT(video.g("color"), triggered(QAction*), this, setColorProperty(QAction*));
+	CONNECT(&video("effect"), triggered(QAction*), this, setEffect(QAction*));
 
 	CONNECT(audio("track").g(), triggered(QAction*), this, setAudioTrack(QAction*));
 	CONNECT(audio.g("volume"), triggered(int), this, setVolume(int));
@@ -1020,4 +1021,14 @@ void MainWindow::about() {
 	dlg.exec();
 }
 
-
+void MainWindow::setEffect(QAction *act) {
+	if (!act)
+		return;
+	const QList<QAction*> acts = d->menu("video")("effect").actions();
+	VideoRenderer::Effects effects = 0;
+	for (int i=0; i<acts.size(); ++i) {
+		if (acts[i]->isChecked())
+			effects |= static_cast<VideoRenderer::Effect>(acts[i]->data().toInt());
+	}
+	d->video->setEffects(effects);
+}
