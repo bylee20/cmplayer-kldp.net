@@ -69,9 +69,6 @@ static int ctor(vlc_object_t *object) {
 		switch (vd->source.i_chroma) {
 		case VLC_CODEC_I420:
 		case VLC_CODEC_YV12:
-		case VLC_CODEC_YUYV:
-//		case VLC_CODEC_YVYU:
-//		case VLC_CODEC_UYVY:
 			fmt.i_chroma = vd->source.i_chroma;
 			break;
 		default:
@@ -298,7 +295,7 @@ vlc_module_begin()
 	set_subcategory(SUBCAT_VIDEO_VOUT)
 	set_capability("vout display", 0)
 
-	add_string(MODULE_STRING"-chroma", "RV16", NULL, "", "", true)
+	add_string(MODULE_STRING"-chroma", "I420", NULL, "", "", true)
 		change_private()
 	add_string(MODULE_STRING "-cb-prepare", "0", NULL, "", "", true)
 		change_volatile()
