@@ -74,7 +74,6 @@ HEADERS += playengine.hpp \
     info.hpp \
     charsetdetector.hpp \
     abrepeater.hpp \
-    toolbox.hpp \
     playlist.hpp \
     playlistmodel.hpp \
     playlistview.hpp \
@@ -136,7 +135,6 @@ SOURCES += main.cpp \
     info.cpp \
     charsetdetector.cpp \
     abrepeater.cpp \
-    toolbox.cpp \
     playlist.cpp \
     playlistmodel.cpp \
     playlistview.cpp \

@@ -61,6 +61,7 @@ QIcon MainWindow::defaultIcon() {
 		icon.addFile(":/img/cmplayer22.png", QSize(22, 22));
 		icon.addFile(":/img/cmplayer24.png", QSize(24, 24));
 		icon.addFile(":/img/cmplayer32.png", QSize(32, 32));
+		icon.addFile(":/img/cmplayer48.png", QSize(48, 48));
 		icon.addFile(":/img/cmplayer64.png", QSize(64, 64));
 		icon.addFile(":/img/cmplayer128.png", QSize(128, 128));
 		icon.addFile(":/img/cmplayer256.png", QSize(256, 256));
