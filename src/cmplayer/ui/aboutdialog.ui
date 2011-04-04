@@ -136,7 +136,7 @@
            <property name="text">
             <string>Developer's blog: %1
 Developer's E-mail: %2
-CMPlayer project site: %3</string>
+CMPlayer project homepage: %3</string>
            </property>
           </widget>
          </item>
