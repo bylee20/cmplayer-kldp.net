@@ -18,8 +18,7 @@ public:
 		Grayscale		= 1 << 2,
 		InvertColor		= 1 << 3,
 		Blur			= 1 << 4,
-		Sharpen			= 1 << 5,
-		DetectEdge		= 1 << 6
+		Sharpen			= 1 << 5
 	};
 	Q_DECLARE_FLAGS(Effects, Effect)
 	VideoRenderer(QWidget *parent = 0);

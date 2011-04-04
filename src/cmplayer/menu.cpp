@@ -413,7 +413,7 @@ void Menu::updatePref() {
 	Menu &audio = root("audio");
 	audio.setTitle(tr("Audio"));
 	audio("track").setTitle(tr("Audio Track"));
-	audio["mute"]->setText(tr("Toggle Mute"));
+	audio["mute"]->setText(tr("Mute"));
 	audio["volnorm"]->setText(tr("Normalize Volume"));
 	setActionStep(audio["volume-up"], audio["volume-down"]
 			, tr("Volume %1%"), p.volumeStep);

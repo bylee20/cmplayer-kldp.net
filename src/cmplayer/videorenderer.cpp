@@ -68,6 +68,22 @@
 "MIN "var", 1.0, "var";"\
 "MAX "var", 0.0, "var";"
 
+#define SHADER_GET_AND_ADD_KERNEL(as, yuv, coord, yuv_temp, coord_temp, dxdy, kern) \
+as" "coord_temp", "coord", "dxdy";"\
+SHADER_GET_YUV(yuv_temp, coord_temp)\
+"MUL "yuv_temp", "yuv_temp", "kern";"\
+"ADD "yuv", "yuv", "yuv_temp";"
+
+#define SHADER_ADD_KERNEL_ND(yuv, coord, yuv_temp, coord_temp) \
+SHADER_GET_AND_ADD_KERNEL("ADD", yuv, coord, yuv_temp, coord_temp, "param2.zyxx", "param1.w") \
+SHADER_GET_AND_ADD_KERNEL("ADD", yuv, coord, yuv_temp, coord_temp, "param2.xyxx", "param1.w") \
+SHADER_GET_AND_ADD_KERNEL("ADD", yuv, coord, yuv_temp, coord_temp, "param2.wyxx", "param1.z") \
+SHADER_GET_AND_ADD_KERNEL("ADD", yuv, coord, yuv_temp, coord_temp, "param2.xwxx", "param1.z") \
+SHADER_GET_AND_ADD_KERNEL("SUB", yuv, coord, yuv_temp, coord_temp, "param2.zyxx", "param1.w") \
+SHADER_GET_AND_ADD_KERNEL("SUB", yuv, coord, yuv_temp, coord_temp, "param2.xyxx", "param1.w") \
+SHADER_GET_AND_ADD_KERNEL("SUB", yuv, coord, yuv_temp, coord_temp, "param2.wyxx", "param1.z") \
+SHADER_GET_AND_ADD_KERNEL("SUB", yuv, coord, yuv_temp, coord_temp, "param2.xwxx", "param1.z")
+
 static const char *i420ToRgb =
 SHADER_HEADER
 "TEMP yuv;"
@@ -92,52 +108,8 @@ SHADER_HEADER
 "TEMP yuv_i, yuv_o, coord_it;"
 SHADER_GET_YUV("yuv_i", "coord")
 "MUL yuv_i, yuv_i, param1.y;"
-
-"ADD coord_it.xy, coord.xyxy, param2.zwzw;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.w;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"ADD coord_it.xy, coord.xyxy, param2.xwxw;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.w;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"ADD coord_it.xy, coord.xyxy, param2.zyzy;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.w;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"ADD coord_it.xy, coord.xyxy, param2.xyxy;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.w;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"MOV coord_it.y, coord.y;"
-"ADD coord_it.x, coord.x, param2.x;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.z;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"ADD coord_it.x, coord.x, param2.z;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.z;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"MOV coord_it.x, coord.x;"
-"ADD coord_it.y, coord.y, param2.y;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.z;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"MOV coord_it.x, coord.x;"
-"ADD coord_it.y, coord.y, param2.w;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.z;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
+SHADER_ADD_KERNEL_ND("yuv_i", "coord", "yuv_o", "coord_it")
 "MUL yuv_i, yuv_i, coord.z;"
-
 SHADER_SET_COLOR_PROP("yuv_i", "yuv_o")
 SHADER_YUV_TO_RGB("yuv_o", "result.color")
 "END";
@@ -149,52 +121,8 @@ SHADER_HEADER
 "TEMP yuv_i, yuv_o, coord_it;"
 SHADER_GET_YUV("yuv_i", "coord")
 "MUL yuv_i, yuv_i, param1.y;"
-
-"ADD coord_it.xy, coord.xyxy, param2.zwzw;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.w;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"ADD coord_it.xy, coord.xyxy, param2.xwxw;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.w;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"ADD coord_it.xy, coord.xyxy, param2.zyzy;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.w;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"ADD coord_it.xy, coord.xyxy, param2.xyxy;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.w;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"MOV coord_it.y, coord.y;"
-"ADD coord_it.x, coord.x, param2.x;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.z;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"ADD coord_it.x, coord.x, param2.z;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.z;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"MOV coord_it.x, coord.x;"
-"ADD coord_it.y, coord.y, param2.y;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.z;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
-"MOV coord_it.x, coord.x;"
-"ADD coord_it.y, coord.y, param2.w;"
-SHADER_GET_YUV("yuv_o", "coord_it")
-"MUL yuv_o, yuv_o, param1.z;"
-"ADD yuv_i, yuv_i, yuv_o;"
-
+SHADER_ADD_KERNEL_ND("yuv_i", "coord", "yuv_o", "coord_it")
 "MUL yuv_i, yuv_i, coord.z;"
-
 SHADER_SET_COLOR_PROP("yuv_i", "yuv_o")
 SHADER_YUV_TO_RGB("yuv_o", "yuv_i")
 SHADER_CLIP("yuv_i")
@@ -564,14 +492,12 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->shader);
 		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0.0f
 			, d->contrast, d->sat_con, d->coshue, d->sinhue);
-		const double den = 1.0/(d->kernel_c + d->kernel_n*4.0 + d->kernel_d*4.0);
 		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 1.0f
 			, d->brightness, d->kernel_c, d->kernel_n, d->kernel_d);
 		const double dx = 1.0/(double)d->frame.dataPitch(0);
 		const double dy = 1.0/(double)d->frame.dataLines(0);
 		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 2.0f
-			, dx, dy, -dx, -dy);
-
+			, dx, dy, -dx, 0.0);
 		glEnable(GL_FRAGMENT_PROGRAM_ARB);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -582,6 +508,7 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		glBindTexture(GL_TEXTURE_2D, d->texture[2]);
 		glActiveTexture(GL_TEXTURE0);
 
+		const double den = 1.0/(d->kernel_c + d->kernel_n*4.0 + d->kernel_d*4.0);
 		const float textureCoords[] = {
 			left,	top,	den,
 			right,	top,	den,
@@ -685,7 +612,7 @@ void VideoRenderer::setEffects(Effects effects) {
 		return;
 	d->effects = effects;
 	int idx = i420ToRgbIdx;
-	d->hasKernel = (d->effects & Blur) || (d->effects & Sharpen) || (d->effects & DetectEdge);
+	d->hasKernel = (d->effects & Blur) || (d->effects & Sharpen);
 	if (d->hasKernel) {
 		if (d->effects & InvertColor)
 			idx = i420ToKernelInvertedRgbIdx;
@@ -700,11 +627,6 @@ void VideoRenderer::setEffects(Effects effects) {
 		if (d->effects & Sharpen) {
 			d->kernel_c += 5.0;
 			d->kernel_n += -1.0;
-			d->kernel_d += 0.0;
-		}
-		if (d->effects & DetectEdge) {
-			d->kernel_c += -4;
-			d->kernel_n += 1;
 			d->kernel_d += 0.0;
 		}
 	} else if (d->effects & InvertColor)
