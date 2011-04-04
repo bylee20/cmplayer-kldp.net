@@ -239,6 +239,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>Application</name>
+    <message>
+        <location filename="../application.cpp" line="98"/>
+        <source>CMPlayer needs OpenGL to render video. Your system has no OpenGL support. Exit CMPlayer.</source>
+        <translation>CMPlayerはビデオの表示のためにOpenGLを必要とします。貴方のシステムはOpenGLを提供しません。CMPlayerを終了します。</translation>
+    </message>
+</context>
+<context>
     <name>ControlWidget</name>
     <message>
         <location filename="../controlwidget.cpp" line="270"/>

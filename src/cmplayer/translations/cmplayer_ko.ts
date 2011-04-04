@@ -198,6 +198,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>Application</name>
+    <message>
+        <location filename="../application.cpp" line="98"/>
+        <source>CMPlayer needs OpenGL to render video. Your system has no OpenGL support. Exit CMPlayer.</source>
+        <translation>CMPlayer 는 비디오 표시를 위해 OpenGL을 필요로 합니다. 당신의 시스템은 OpenGL을 지원하지 않습니다. CMPlayer를 종료합니다.</translation>
+    </message>
+</context>
+<context>
     <name>CheckDialog</name>
     <message>
         <source>&amp;Ok</source>
