@@ -1,6 +1,6 @@
 PREFIX ?= /usr/local
 CMPLAYER_BIN_PATH ?= $(PREFIX)/bin
-#CMPLAYER_PLUGIN_PATH ?= $(PREFIX)/lib/cmplayer/plugins
+CMPLAYER_PLUGIN_PATH ?= $(PREFIX)/lib/cmplayer/plugins
 CMPLAYER_DATA_PATH ?= $(PREFIX)/share
 CMPLAYER_ICON_PATH ?= $(CMPLAYER_DATA_PATH)/icons/hicolor
 CMPLAYER_APP_PATH ?= $(CMPLAYER_DATA_PATH)/applications
