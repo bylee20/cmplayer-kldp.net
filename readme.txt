@@ -1,11 +1,8 @@
-CMPlayer
-
-GStreamer에 기반한 쓰기 편리한 엔드유저를 위한 멀티미디어 플레이어입니다.
-
-CMPlayer은 GPL로 배포됩니다. 자세한 내용은 copyright.txt를 참고하시기 바랍니다.
-
-이용하시면서 불편한점이나 문제등이 있으신 경우 다음 중 한곳으로 연락 주시기 바랍니다.
-
-만든이 블로그: http://xylosper.net
-만든이 전자메일: darklin20@gmail.com
-CMPlayer 프로젝트 페이지: http://kldp.net/projects/cmplayer/
+CMPlayer is a multimedia player for end users, which does not require complex settings.
+CMPlayer can be executed in Linux and OS X.
+CMPlayer is distributed under GPL. For more details, please read copyright.txt.
+To compile and install CMPlayer, please read install.txt.
+If you find a bug or have some idea for CMPlayer, please contact followings:
+Developer's Blog: http://xylosper.net
+Developer's E-mail: darklin20@gmail.com
+CMPlayer project homepage: http://kldp.net/projects/cmplayer/
