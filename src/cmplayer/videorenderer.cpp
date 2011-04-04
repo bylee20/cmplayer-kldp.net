@@ -160,7 +160,7 @@ struct VideoRenderer::Data {
 	QRectF vtx;
 	Effects effects;
 	double kernel_d, kernel_c, kernel_n;
-	bool hasKernel;
+	bool hasKernel, prepared;
 };
 
 QGLFormat VideoRenderer::makeFormat() {
@@ -172,6 +172,7 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 : QGLWidget(makeFormat(), parent), d(new Data) {
 	d->effects = 0;
 	d->shader = 0;
+	d->prepared = false;
 	d->hasKernel = false;
 	d->binding = false;
 	setMinimumSize(QSize(200, 100));
@@ -180,7 +181,7 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	d->fps = d->crop = d->aspect = -1.0;
 	d->overlay = Overlay::create(this);
 	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
-
+	qDebug() << QGLFormat::hasOpenGL();
 	makeCurrent();
 	glGenTextures(3, d->texture);
 #define GET_PROC_ADDRESS(func) func = (_##func)context()->getProcAddress(QLatin1String(#func))
@@ -302,25 +303,29 @@ void VideoRenderer::display(void *id) {
 }
 
 void VideoRenderer::prepare(const VideoFormat *format) {
-	d->buffer = VideoFrame(*format);
-	d->frame = d->buffer;
-	d->sar = format->sar;
-	if (!qFuzzyCompare(d->fps, format->fps))
-		emit frameRateChanged(d->fps = format->fps);
-	const VideoFrame &f = d->buffer;
-	if (!f.isPlanar())
-		return;
-	makeCurrent();
-	for (int i=0; i<3; ++i) {
-		glBindTexture(GL_TEXTURE_2D, d->texture[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE
-			, f.dataPitch(i), f.dataLines(i), 0
-			, GL_LUMINANCE, GL_UNSIGNED_BYTE, f.data(i));
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	}
+	VideoPrepareEvent *event = new VideoPrepareEvent(format);
+	QCoreApplication::postEvent(this, event);
+//	d->buffer = VideoFrame(*format);
+//	d->frame = d->buffer;
+//	d->sar = format->sar;
+//	if (!qFuzzyCompare(d->fps, format->fps))
+//		emit frameRateChanged(d->fps = format->fps);
+//	const VideoFrame &f = d->buffer;
+//	if (!f.isPlanar())
+//		return;
+//	qDebug() << "prepare" << f.size();
+//	makeCurrent();
+//	for (int i=0; i<3; ++i) {
+//		glBindTexture(GL_TEXTURE_2D, d->texture[i]);
+//		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE
+//			, f.dataPitch(i), f.dataLines(i), 0
+//			, GL_LUMINANCE, GL_UNSIGNED_BYTE, f.data(i));
+//		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+//		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//	}
+//	qDebug() << "end prepare";
 }
 
 double VideoRenderer::frameRate() const {
@@ -332,39 +337,68 @@ void VideoRenderer::addOsd(OsdRenderer *osd) {
 }
 
 bool VideoRenderer::event(QEvent *event) {
-	if (event->type() != (int)Event::VideoFrame)
-		return QGLWidget::event(event);
-	VideoFrameEvent *e = static_cast<VideoFrameEvent*>(event);
-	Q_ASSERT(d->frame.length() == e->length());
-	d->frame.setData(e->data());
-	d->frameIsSet = !d->frame.isEmpty();
-	if (d->frame.isEmpty())
+	if (event->type() == (int)Event::VideoFrame) {
+		if (!d->prepared)
+			return true;
+		VideoFrameEvent *e = static_cast<VideoFrameEvent*>(event);
+		Q_ASSERT(d->frame.length() == e->length());
+		d->frame.setData(e->data());
+		d->frameIsSet = !d->frame.isEmpty();
+		if (d->frame.isEmpty())
+			return true;
+		d->binding = true;
+		makeCurrent();
+		uchar *data[3] = {d->frame.data(0), d->frame.data(1), d->frame.data(2)};
+		const VideoFrame &f = d->frame;
+		switch (d->frame.type()) {
+		case VideoFrame::YV12:
+			qSwap(data[1], data[2]);
+		case VideoFrame::I420:
+	#define BIND_TEXTURE_I420(idx)\
+			glBindTexture(GL_TEXTURE_2D, d->texture[idx]);\
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0\
+				, f.dataPitch(idx), f.dataLines(idx)\
+				, GL_LUMINANCE, GL_UNSIGNED_BYTE, data[idx]);
+			BIND_TEXTURE_I420(0);
+			BIND_TEXTURE_I420(1);
+			BIND_TEXTURE_I420(2);
+	#undef BIND_TEXTURE_I420
+			break;
+		default:
+			d->frameIsSet = false;
+			break;
+		}
+		d->binding = false;
+		update();
 		return true;
-	d->binding = true;
-	makeCurrent();
-	uchar *data[3] = {d->frame.data(0), d->frame.data(1), d->frame.data(2)};
-	const VideoFrame &f = d->frame;
-	switch (d->frame.type()) {
-	case VideoFrame::YV12:
-		qSwap(data[1], data[2]);
-	case VideoFrame::I420:
-#define BIND_TEXTURE_I420(idx)\
-		glBindTexture(GL_TEXTURE_2D, d->texture[idx]);\
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0\
-			, f.dataPitch(idx), f.dataLines(idx)\
-			, GL_LUMINANCE, GL_UNSIGNED_BYTE, data[idx]);
-		BIND_TEXTURE_I420(0);
-		BIND_TEXTURE_I420(1);
-		BIND_TEXTURE_I420(2);
-#undef BIND_TEXTURE_I420
-		break;
-	default:
-		d->frameIsSet = false;
-		break;
-	}
-	d->binding = false;
-	update();
-	return true;
+	} else if (event->type() == (int)Event::VideoPrepare) {
+		d->prepared = false;
+		const VideoFormat &format = static_cast<VideoPrepareEvent*>(event)->format();
+		d->buffer = VideoFrame(format);
+		d->frame = d->buffer;
+		d->sar = format.sar;
+		if (!qFuzzyCompare(d->fps, format.fps))
+			emit frameRateChanged(d->fps = format.fps);
+		const VideoFrame &f = d->buffer;
+		if (!f.isPlanar())
+			return true;
+		qDebug() << "prepare" << f.size();
+		makeCurrent();
+		for (int i=0; i<3; ++i) {
+			glBindTexture(GL_TEXTURE_2D, d->texture[i]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE
+				, f.dataPitch(i), f.dataLines(i), 0
+				, GL_LUMINANCE, GL_UNSIGNED_BYTE, f.data(i));
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
+		qDebug() << "end prepare";
+		d->prepared = true;
+		return true;
+	} else
+		return QGLWidget::event(event);
 }
 
 double VideoRenderer::targetAspectRatio() const {

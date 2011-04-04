@@ -23,6 +23,8 @@ macx {
 	LIBS += -framework Cocoa -framework IOKit
 	QMAKE_INFO_PLIST = Info.plist
 	TARGET = CMPlayer
+	HEADERS += application_mac.hpp
+	SOURCES += application_mac.mm
 } else:x11 {
 	LIBS += -lX11
 }
@@ -96,7 +98,6 @@ HEADERS += playengine.hpp \
     overlay.hpp \
     videorenderer.hpp \
     avmisc.hpp \
-    application_mac.hpp \
     subtitlemodel.hpp \
     tagiterator.hpp \
     subtitle_parser_p.hpp \
@@ -156,7 +157,6 @@ SOURCES += main.cpp \
     pixmapoverlay.cpp \
     overlay.cpp \
     videorenderer.cpp \     
-    application_mac.mm \
     subtitlemodel.cpp \
     tagiterator.cpp \
     subtitle_parser_p.cpp \

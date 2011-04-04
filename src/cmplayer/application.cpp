@@ -65,7 +65,7 @@ void Application::setScreensaverDisabled(bool disabled) {
 }
 
 bool Application::event(QEvent *event) {
-	switch (event->type()) {
+	switch ((int)event->type()) {
 	case QEvent::FileOpen: {
 		d->url = static_cast<QFileOpenEvent*>(event)->url().toString();
 		if (d->main) {

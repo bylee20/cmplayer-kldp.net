@@ -36,7 +36,7 @@ void ApplicationX11::ss_reset() {
 void ApplicationX11::setAlwaysOnTop(WId wid, bool onTop) {
 }
 
-QStringList ApplicationX11:devices() const {
+QStringList ApplicationX11::devices() const {
 	return QStringList();
 }
 

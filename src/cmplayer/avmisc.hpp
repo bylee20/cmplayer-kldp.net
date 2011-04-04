@@ -45,7 +45,7 @@ struct FramePlane {
 };
 
 struct VideoFormat {
-	uint32_t fourcc;
+	quint32 fourcc;
 	int width;
 	int height;
 	FramePlane planes[VIDEO_FRAME_MAX_PLANE_COUNT];

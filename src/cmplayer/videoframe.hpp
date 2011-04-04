@@ -8,12 +8,11 @@
 #include <QtCore/QList>
 #include "avmisc.hpp"
 
-
 class VideoFrame {
 public:
 	typedef FramePlane Plane;
 	enum Type {Unknown = 0, I420, YV12, RV16};
-	static QString fourccToString(uint32_t fourcc);
+	static QString fourccToString(quint32 fourcc);
 	VideoFrame();
 	VideoFrame(const VideoFormat &format);
 	~VideoFrame();

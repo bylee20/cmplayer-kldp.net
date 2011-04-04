@@ -5,7 +5,7 @@
 
 class Event : public QEvent {
 public:
-	enum Type {Reopen = QEvent::User + 1, VideoFrame, };
+	enum Type {Reopen = QEvent::User + 1, VideoFrame, VideoPrepare};
 	Event(Type type): QEvent(static_cast<QEvent::Type>(type)) {}
 	Type type() const {return static_cast<Type>(QEvent::type());}
 };
@@ -15,7 +15,16 @@ public:
 	ReopenEvent(): Event(Reopen) {}
 };
 
-class VideoFrame;
+class VideoFrame;	class VideoFormat;
+
+class VideoPrepareEvent : public Event {
+public:
+	VideoPrepareEvent(const VideoFormat *format);
+	~VideoPrepareEvent();
+	const VideoFormat &format() const {return *m_format;}
+private:
+	VideoFormat *m_format;
+};
 
 class VideoFrameEvent : public Event {
 public:
