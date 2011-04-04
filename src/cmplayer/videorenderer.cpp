@@ -179,7 +179,7 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	setColorProperty(d->color);
 	d->frameIsSet = d->logoOn = false;
 	d->fps = d->crop = d->aspect = -1.0;
-	d->overlay = Overlay::create(this, Overlay::Pixmap);
+	d->overlay = Overlay::create(this, Overlay::PixelBuffer);
 	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
 	qDebug() << QGLFormat::hasOpenGL();
 	makeCurrent();
@@ -456,7 +456,8 @@ const ColorProperty &VideoRenderer::colorProperty() const {
 void VideoRenderer::setFixedRenderSize(const QSize &size) {
 	if (d->renderSize != size) {
 		d->renderSize = size;
-		updateSize();
+		if (this->size() != size)
+			updateSize();
 	}
 }
 
@@ -471,7 +472,7 @@ void VideoRenderer::updateSize() {
 
 void VideoRenderer::resizeEvent(QResizeEvent *event) {
 	QGLWidget::resizeEvent(event);
-//	updateSize();
+	updateSize();
 }
 
 void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
