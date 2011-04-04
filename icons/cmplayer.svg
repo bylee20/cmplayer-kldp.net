@@ -16,9 +16,9 @@
    version="1.1"
    inkscape:version="0.48.1 r9760"
    sodipodi:docname="cmplayer.svg"
-   inkscape:export-filename="/Users/xylosper/cmplayer-vlc/icons/cmplayer24.png"
-   inkscape:export-xdpi="16.875"
-   inkscape:export-ydpi="16.875">
+   inkscape:export-filename="/Users/xylosper/cmplayer-vlc/icons/cmplayer16.png"
+   inkscape:export-xdpi="11.25"
+   inkscape:export-ydpi="11.25">
   <defs
      id="defs4094">
     <linearGradient
@@ -273,7 +273,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="4.3852551"
-     inkscape:cx="62.185827"
+     inkscape:cx="23.875627"
      inkscape:cy="53.330931"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -354,7 +354,7 @@
      transform="translate(0,-924.36218)">
     <g
        id="g4267"
-       style="opacity:1;fill:#000000;fill-opacity:1">
+       style="opacity:0.7;fill:#000000;fill-opacity:1">
       <path
          inkscape:connector-curvature="0"
          id="path4167"
@@ -369,7 +369,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <path
-       style="fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
        d="m 69.207071,931.42518 c -12.096627,0.20082 -24.626894,3.98788 -35.79862,11.56094 l -17.44989,6.7258 4.773149,4.33923 c -17.8552967,20.01637 -21.54036714,48.42935 -7.159724,69.21065 17.088588,24.6944 53.248558,29.3014 81.019562,10.4761 l 17.449892,-6.7258 -4.77315,-4.3393 c 17.8553,-20.0162 21.54037,-48.42931 7.15972,-69.21055 -10.21418,-14.76036 -27.247417,-22.33547 -45.220939,-22.03707 z"
        id="path4431"
        inkscape:connector-curvature="0" />
