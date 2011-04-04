@@ -179,7 +179,7 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	setColorProperty(d->color);
 	d->frameIsSet = d->logoOn = false;
 	d->fps = d->crop = d->aspect = -1.0;
-	d->overlay = Overlay::create(this, Overlay::PixelBuffer);
+	d->overlay = Overlay::create(this);
 	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
 	qDebug() << QGLFormat::hasOpenGL();
 	makeCurrent();

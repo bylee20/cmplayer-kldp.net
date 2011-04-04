@@ -1,6 +1,7 @@
 #include "info.hpp"
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QDebug>
 
 Info Info::self;
 
@@ -57,11 +58,11 @@ const char *Info::pluginPath() {
 	if (!path.isEmpty())
 		return path.constData();
 	path = qgetenv("CMPLAYER_VLC_PLUGIN_PATH");
-	if (!path.isEmpty())
+	if (!path.isEmpty() && QDir(QString::fromLocal8Bit(path.data())).exists())
 		return path.constData();
 #ifdef CMPLAYER_VLC_PLUGIN_PATH
 	path = CMPLAYER_VLC_PLUGIN_PATH;
-	if (!path.isEmpty())
+	if (!path.isEmpty() && QDir(QString::fromLocal8Bit(path.data())).exists())
 		return path.constData();
 #endif
 	path = "./plugins";

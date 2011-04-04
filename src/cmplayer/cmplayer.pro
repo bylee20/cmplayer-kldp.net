@@ -45,8 +45,6 @@ LIBS += -lvlc -L../libchardet-1.0.1/src/.libs -lchardet
 	LIBS += -L$${VLC_LIB_PATH}
 }
 
-#DEFINES += "CMPLAYER_VLC_PLUGIN_PATH=\\\"test\\\""
-
 RESOURCES += rsclist.qrc
 HEADERS += playengine.hpp \
     mainwindow.hpp \

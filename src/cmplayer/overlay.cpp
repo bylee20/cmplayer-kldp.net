@@ -9,8 +9,8 @@ Overlay *Overlay::create(QGLWidget *video, Type type) {
 	if (type == Auto) {
 		if (QGLFramebufferObject::hasOpenGLFramebufferObjects())
 			type = FramebufferObject;
-		else if (QGLPixelBuffer::hasOpenGLPbuffers())
-			type = PixelBuffer;
+//		else if (QGLPixelBuffer::hasOpenGLPbuffers())
+//			type = PixelBuffer;
 		else
 			type = Pixmap;
 	}
