@@ -13,6 +13,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 #include <QtGui/QMenuBar>
+#include <QtOpenGL/QGLFormat>
 
 #if defined(Q_WS_MAC)
 #include "application_mac.hpp"
@@ -92,6 +93,12 @@ MainWindow *Application::mainWindow() const {
 }
 
 void Application::initialize() {
+	if (!QGLFormat::hasOpenGL()) {
+		QMessageBox::critical(0, "CMPlayer"
+			, tr("CMPlayer needs OpenGL to render video. Your system has no OpenGL support. Exit CMPlayer."));
+		quit();
+		return;
+	}
 	Mrl mrl = getMrlFromCommandLine();
 	if (mrl.isEmpty() && !d->url.isEmpty()) {
 		mrl = d->url.toString();
