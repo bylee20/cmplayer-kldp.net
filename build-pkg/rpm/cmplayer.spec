@@ -1,5 +1,5 @@
 %define name cmplayer
-%define version 0.4.0
+%define version 0.5.1
 
 #define is_mandrake %(test -e /etc/mandrake-release && echo 1 || echo 0)
 #define is_suse %(test -e /etc/SuSE-release && echo 1 || echo 0)
@@ -30,23 +30,23 @@
 %define action_dir %{_datadir}/apps/solid/actions
 %endif
 
-%define common_build_require gcc-c++ %{qt_pkg}-devel >= 4.4
+%define common_build_require gcc-c++ %{qt_pkg}-devel >= 4.6 vlc-devel >= 1.1
 %define build_require %{common_build_require}
 
 %if 0%{?mandriva_version}
 %ifarch x86_64
-%define build_require %{common_build_require} qt4-linguist lib64gstreamer-plugins-base0.10-devel >= 0.10.23 liboil-devel
+%define build_require %{common_build_require} qt4-linguist
 %else
-%define build_require %{common_build_require} qt4-linguist libgstreamer-plugins-base0.10-devel >= 0.10.23 liboil-devel
+%define build_require %{common_build_require} qt4-linguist
 %endif
 %endif
 
 %if 0%{?fedora_version}
-%define build_require %{common_build_require} gstreamer-plugins-base-devel >= 0.10.23 liboil-devel
+%define build_require %{common_build_require}
 %endif
 
 %if 0%{?suse_version}
-%define build_require %{common_build_require} update-desktop-files gstreamer-0_10-plugins-base-devel >= 0.10.23 liboil-devel
+%define build_require %{common_build_require} update-desktop-files
 %endif
 
 Name: %{name}
@@ -73,10 +73,10 @@ CMPlayer is a media player.
 export PATH=/usr/lib/qt4/bin:$PATH  
 export QTDIR=%{_prefix}/lib/qt4/
 %endif  
-make QMAKE=%{qmake_cmd} LRELEASE=%{lrelease_cmd} LOAD_CONFIG=no CMPLAYER_BIN_PATH=%{_bindir} CMPLAYER_DATA_PATH=%{_datadir} CMPLAYER_ACTION_PATH=%{action_dir}
+make QMAKE=%{qmake_cmd} LRELEASE=%{lrelease_cmd} CMPLAYER_BIN_PATH=%{_bindir} CMPLAYER_DATA_PATH=%{_datadir} CMPLAYER_PLUGIN_PATH=%{_libdir}/cmplayer/plugins CMPLAYER_ACTION_PATH=%{action_dir} -f Makefile.linux cmplayer
 
 %install
-make QMAKE=%{qmake_cmd} LRELEASE=%{lrelease_cmd} DEST_DIR=%{?buildroot:%{buildroot}} LOAD_CONFIG=no CMPLAYER_BIN_PATH=%{_bindir} CMPLAYER_DATA_PATH=%{_datadir} CMPLAYER_ACTION_PATH=%{action_dir} install
+make QMAKE=%{qmake_cmd} LRELEASE=%{lrelease_cmd} DEST_DIR=%{?buildroot:%{buildroot}} CMPLAYER_BIN_PATH=%{_bindir} CMPLAYER_DATA_PATH=%{_datadir} CMPLAYER_PLUGIN_PATH=%{_libdir}/cmplayer/plugins CMPLAYER_ACTION_PATH=%{action_dir} -f Makefile.linux install
 %if 0%{?suse_version}
 %suse_update_desktop_file cmplayer AudioVideo Player Video
 %endif
@@ -93,6 +93,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr (-,root,root)
 %dir %{_bindir}/cmplayer
+%dir %{_libdir}/cmplayer
+%dir %{_libdir}/cmplayer/plugins
 %if 0%{?mandriva_version}
 %dir %{_datadir}/applications
 %else
@@ -112,16 +114,22 @@ rm -rf $RPM_BUILD_ROOT
 %endif
 %dir %{_datadir}/icons/hicolor/16x16/apps
 %dir %{_datadir}/icons/hicolor/22x22/apps
+%dir %{_datadir}/icons/hicolor/24x24/apps
 %dir %{_datadir}/icons/hicolor/32x32/apps
 %dir %{_datadir}/icons/hicolor/48x48/apps
 %dir %{_datadir}/icons/hicolor/64x64/apps
 %dir %{_datadir}/icons/hicolor/128x128/apps
+%dir %{_datadir}/icons/hicolor/256x256/apps
 %{_bindir}/%{name}
+%{_libdir}/cmplayer/plugins/libcmplayer-vout_plugin.so
+%{_libdir}/cmplayer/plugins/libcmplayer-afilter_plugin.so
 %{_datadir}/applications/cmplayer.desktop
 %{action_dir}/cmplayer-opendvd.desktop
 %{_datadir}/icons/hicolor/16x16/apps/cmplayer.png
 %{_datadir}/icons/hicolor/22x22/apps/cmplayer.png
+%{_datadir}/icons/hicolor/24x24/apps/cmplayer.png
 %{_datadir}/icons/hicolor/32x32/apps/cmplayer.png
 %{_datadir}/icons/hicolor/48x48/apps/cmplayer.png
 %{_datadir}/icons/hicolor/64x64/apps/cmplayer.png
 %{_datadir}/icons/hicolor/128x128/apps/cmplayer.png
+%{_datadir}/icons/hicolor/256x256/apps/cmplayer.png
