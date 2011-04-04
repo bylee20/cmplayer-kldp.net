@@ -13,9 +13,7 @@ VideoPrepareEvent::VideoPrepareEvent(const VideoFormat *format)
 	m_format->width = format->width;
 	for (int i=0; i<m_format->planeCount; ++i) {
 		m_format->planes[i] = format->planes[i];
-		qDebug() << m_format->planes[i].framePitch << m_format->planes[i].dataLines;
 	}
-	qDebug() << m_format->fourcc << FOURCC('I', '4', '2', '0') << m_format->planeCount;
 }
 
 VideoPrepareEvent::~VideoPrepareEvent() {

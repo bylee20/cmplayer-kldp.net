@@ -181,7 +181,7 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	d->fps = d->crop = d->aspect = -1.0;
 	d->overlay = Overlay::create(this);
 	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
-	qDebug() << QGLFormat::hasOpenGL();
+
 	makeCurrent();
 	glGenTextures(3, d->texture);
 #define GET_PROC_ADDRESS(func) func = (_##func)context()->getProcAddress(QLatin1String(#func))

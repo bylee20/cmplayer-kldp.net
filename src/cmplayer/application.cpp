@@ -57,12 +57,7 @@ Application::~Application() {
 }
 
 void Application::setAlwaysOnTop(QWidget *widget, bool onTop) {
-#ifdef Q_WS_OSX
-	d->helper.setAlwaysOnTop(widget->winId(), onTop);
-#else
-	d->helper.setAlwaysOnTop(widget->winId(), onTop);
-	qDebug() << widget->effectiveWinId() << widget->winId();
-#endif	Atom aOnTop, aAbove;
+	d->helper.setAlwaysOnTop(widget->effectiveWinId(), onTop);
 }
 
 void Application::setScreensaverDisabled(bool disabled) {
