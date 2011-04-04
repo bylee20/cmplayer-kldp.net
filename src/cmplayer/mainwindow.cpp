@@ -333,6 +333,8 @@ ControlWidget *MainWindow::createControlWidget() {
 QWidget *MainWindow::createCentralWidget(QWidget *video, QWidget *control) {
 	QWidget *w = new QWidget(this);
 	w->setMouseTracking(true);
+	w->setAutoFillBackground(false);
+	w->setAttribute(Qt::WA_OpaquePaintEvent, true);
 
 	QVBoxLayout *vbox = new QVBoxLayout(w);
 	vbox->addWidget(video);
@@ -416,8 +418,12 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
 	QMainWindow::resizeEvent(event);
 	int width = d->center->width();
 	int height = d->center->height();
-	if (!isFullScreen())
+	if (isFullScreen()) {
+		d->video->setFixedRenderSize(QSize(width, height));
+	} else {
+		d->video->setFixedRenderSize(QSize());
 		height -= d->control->height();
+	}
 	showMessage(QString("%1x%2").arg(width).arg(height), 1000);
 }
 
@@ -656,13 +662,13 @@ void MainWindow::setFullScreen(bool full) {
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
 		if (d->pref.hideCursor)
 			d->hider->start(d->pref.hideDelay);
-		d->video->setFixedRenderSize(size());
+//		d->video->setFixedRenderSize(size());
 	} else {
 		setWindowState(windowState() ^ Qt::WindowFullScreen);
 		d->hider->stop();
 		if (cursor().shape() == Qt::BlankCursor)
 			unsetCursor();
-		d->video->setFixedRenderSize(QSize());
+//		d->video->setFixedRenderSize(QSize());
 		updateStaysOnTop();
 	}
 }

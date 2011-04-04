@@ -16,7 +16,6 @@ struct Data {
 
 	}
 	const QTime zero;
-	QTimer ssTimer;
 };
 
 static Data *data() {

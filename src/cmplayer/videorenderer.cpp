@@ -179,7 +179,7 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	setColorProperty(d->color);
 	d->frameIsSet = d->logoOn = false;
 	d->fps = d->crop = d->aspect = -1.0;
-	d->overlay = Overlay::create(this);
+	d->overlay = Overlay::create(this, Overlay::Pixmap);
 	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
 	qDebug() << QGLFormat::hasOpenGL();
 	makeCurrent();
@@ -303,30 +303,11 @@ void VideoRenderer::display(void *id) {
 }
 
 void VideoRenderer::prepare(const VideoFormat *format) {
-	qDebug() << format->planes[0].framePitch << format->planes[0].dataLines;
+	d->prepared = false;
+	d->buffer = VideoFrame(*format);
+	d->frame = d->buffer;
 	VideoPrepareEvent *event = new VideoPrepareEvent(format);
 	QCoreApplication::postEvent(this, event);
-//	d->buffer = VideoFrame(*format);
-//	d->frame = d->buffer;
-//	d->sar = format->sar;
-//	if (!qFuzzyCompare(d->fps, format->fps))
-//		emit frameRateChanged(d->fps = format->fps);
-//	const VideoFrame &f = d->buffer;
-//	if (!f.isPlanar())
-//		return;
-//	qDebug() << "prepare" << f.size();
-//	makeCurrent();
-//	for (int i=0; i<3; ++i) {
-//		glBindTexture(GL_TEXTURE_2D, d->texture[i]);
-//		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE
-//			, f.dataPitch(i), f.dataLines(i), 0
-//			, GL_LUMINANCE, GL_UNSIGNED_BYTE, f.data(i));
-//		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-//		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//	}
-//	qDebug() << "end prepare";
 }
 
 double VideoRenderer::frameRate() const {
@@ -375,15 +356,12 @@ bool VideoRenderer::event(QEvent *event) {
 	} else if (event->type() == (int)Event::VideoPrepare) {
 		d->prepared = false;
 		const VideoFormat &format = static_cast<VideoPrepareEvent*>(event)->format();
-		d->buffer = VideoFrame(format);
-		d->frame = d->buffer;
 		d->sar = format.sar;
 		if (!qFuzzyCompare(d->fps, format.fps))
 			emit frameRateChanged(d->fps = format.fps);
-		const VideoFrame &f = d->buffer;
+		const VideoFrame &f = d->frame;
 		if (!f.isPlanar())
 			return true;
-		qDebug() << "prepare" << f.size();
 		makeCurrent();
 		for (int i=0; i<3; ++i) {
 			glBindTexture(GL_TEXTURE_2D, d->texture[i]);
@@ -395,7 +373,6 @@ bool VideoRenderer::event(QEvent *event) {
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}
-		qDebug() << "end prepare";
 		d->prepared = true;
 		return true;
 	} else
@@ -477,8 +454,10 @@ const ColorProperty &VideoRenderer::colorProperty() const {
 }
 
 void VideoRenderer::setFixedRenderSize(const QSize &size) {
-	d->renderSize = size;
-	updateSize();
+	if (d->renderSize != size) {
+		d->renderSize = size;
+		updateSize();
+	}
 }
 
 QSize VideoRenderer::renderableSize() const {
@@ -492,7 +471,7 @@ void VideoRenderer::updateSize() {
 
 void VideoRenderer::resizeEvent(QResizeEvent *event) {
 	QGLWidget::resizeEvent(event);
-	updateSize();
+//	updateSize();
 }
 
 void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
