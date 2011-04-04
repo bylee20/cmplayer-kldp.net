@@ -1,12 +1,12 @@
 # Maintainer: xylosper <darklin20@gmail.com>
 
 pkgname=('cmplayer')
-pkgver=0.4.0
+pkgver=0.5.1
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://kldp.net/projects/cmplayer/"
 license=('GPL')
-depends=('qt>=4.4' 'gstreamer0.10-base>=0.10.23')
+depends=('qt>=4.6' 'vlc>=1.1')
 #source=(http://kldp.net/frs/download.php/5212/$pkgname-$pkgver-src.tar.gz)
 #source=(http://xylosper.net/$pkgname-$pkgver-src.tar.gz)
 #source=($pkgname-$pkgver.tar.gz)
@@ -14,11 +14,11 @@ depends=('qt>=4.4' 'gstreamer0.10-base>=0.10.23')
 
 build() {
 	cd "$srcdir/$pkgname-$pkgver"
-	make PREFIX=/usr || return 1
+	make PREFIX=/usr CMPLAYER_PLUGIN_PATH=/usr/lib/cmplayer/plugins -f Makefile.linux cmplayer || return 1
 }
 
 package() {
 	pkgdesc="CMPlayer is a multimedia player."
 	cd "$srcdir/$pkgname-$pkgver"
-	make DEST_DIR=$pkgdir install || return 1
+	make DEST_DIR=$pkgdir CMPLAYER_PLUGIN_PATH=/usr/lib/cmplayer/plugins -f Makefile.linux install || return 1
 }
