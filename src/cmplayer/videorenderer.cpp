@@ -303,6 +303,7 @@ void VideoRenderer::display(void *id) {
 }
 
 void VideoRenderer::prepare(const VideoFormat *format) {
+	qDebug() << format->planes[0].framePitch << format->planes[0].dataLines;
 	VideoPrepareEvent *event = new VideoPrepareEvent(format);
 	QCoreApplication::postEvent(this, event);
 //	d->buffer = VideoFrame(*format);

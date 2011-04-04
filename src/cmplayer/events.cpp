@@ -1,14 +1,25 @@
 #include "events.hpp"
 #include "videoframe.hpp"
+#include <QtCore/QDebug>
 
 VideoPrepareEvent::VideoPrepareEvent(const VideoFormat *format)
 : Event(VideoPrepare) {
-	m_format = (VideoFormat*)malloc(sizeof(VideoFormat));
-	memcpy(m_format, format, sizeof(VideoFormat));
+	m_format = new VideoFormat;
+	m_format->fourcc = format->fourcc;
+	m_format->fps = format->fps;
+	m_format->height = format->height;
+	m_format->planeCount = format->planeCount;
+	m_format->sar = format->sar;
+	m_format->width = format->width;
+	for (int i=0; i<m_format->planeCount; ++i) {
+		m_format->planes[i] = format->planes[i];
+		qDebug() << m_format->planes[i].framePitch << m_format->planes[i].dataLines;
+	}
+	qDebug() << m_format->fourcc << FOURCC('I', '4', '2', '0') << m_format->planeCount;
 }
 
 VideoPrepareEvent::~VideoPrepareEvent() {
-	free(m_format);
+	delete m_format;
 }
 
 VideoFrameEvent::VideoFrameEvent(const ::VideoFrame &frame)
