@@ -27,6 +27,8 @@ macx {
 	SOURCES += application_mac.mm
 } else:x11 {
 	LIBS += -lX11
+	HEADERS += application_x11.hpp
+	SOURCES += application_x11.cpp
 }
 
 TEMPLATE = app
@@ -102,7 +104,6 @@ HEADERS += playengine.hpp \
     aboutdialog.hpp \
     snapshotdialog.hpp \
     events.hpp \
-    application_x11.hpp \
     listmodel.hpp
 SOURCES += main.cpp \
     playengine.cpp \
@@ -161,7 +162,6 @@ SOURCES += main.cpp \
     aboutdialog.cpp \
     snapshotdialog.cpp \
     events.cpp \
-    application_x11.cpp \
     listmodel.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \

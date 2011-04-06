@@ -34,7 +34,7 @@ typedef struct _VideoUtil {
 typedef struct vout_display_sys_t {
 	picture_pool_t *pool;
 	VideoUtil *util;
-	void *(*lock)(void *sys, void **planes);
+	void *(*lock)(void *sys, void ***planes);
 	void (*unlock)(void *sys, void *id, void *const *plane);
 	void (*display)(void *sys, void *id);
 	void (*prepare)(void *sys, const VideoFormat *format);
@@ -120,7 +120,7 @@ static int ctor(vlc_object_t *object) {
 		return VLC_ENOMEM;
 
 	str = var_CreateGetString(vd, MODULE_STRING "-cb-lock" );
-	d->lock = (void *(*)(void *, void **))(intptr_t)atoll(str);
+	d->lock = (void *(*)(void *, void ***))(intptr_t)atoll(str);
 	free(str);
 
 	str = var_CreateGetString(vd, MODULE_STRING "-cb-unlock" );
@@ -258,10 +258,10 @@ static int lock(picture_t *picture) {
 	PicData *pd = picture->p_sys;
 	Data *d = pd->d;
 
-	void *planes[PICTURE_PLANE_MAX];
-	pd->id = d->lock(d->opaque, planes);
+	void **planes[PICTURE_PLANE_MAX];
 	for (int i=0; i<picture->i_planes; ++i)
-		picture->p[i].p_pixels = planes[i];
+		planes[i] = &picture->p[i].p_pixels;
+	pd->id = d->lock(d->opaque, planes);
 	return VLC_SUCCESS;
 }
 

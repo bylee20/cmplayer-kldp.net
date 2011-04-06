@@ -24,7 +24,7 @@ public:
 private:
 	static void cbAudioPrepare(void *data, const AudioFormat *format);
 	static AudioBuffer *cbAudioProcess(void *data, AudioBuffer *in);
-	static void *cbVideoLock(void *data, void **planes);
+	static void *cbVideoLock(void *data, void ***planes);
 	static void cbVideoUnlock(void *data, void *id, void *const *plane);
 	static void cbVideoDisplay(void *data, void *id);
 	static void cbVideoPrepare(void *data, const VideoFormat *format);

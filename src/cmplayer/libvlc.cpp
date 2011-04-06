@@ -57,7 +57,7 @@ AudioBuffer *LibVLC::cbAudioProcess(void *data, AudioBuffer *in) {
 	return 0;
 }
 
-void *LibVLC::cbVideoLock(void *data, void **planes) {
+void *LibVLC::cbVideoLock(void *data, void ***planes) {
 	VideoRenderer *video = reinterpret_cast<LibVLC*>(data)->d->video;
 	if (video)
 		return video->lock(planes);

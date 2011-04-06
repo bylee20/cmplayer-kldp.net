@@ -20,7 +20,7 @@ VideoPrepareEvent::~VideoPrepareEvent() {
 	delete m_format;
 }
 
-VideoFrameEvent::VideoFrameEvent(const ::VideoFrame &frame)
-: Event(VideoFrame), m_length(frame.length()), m_data(new uchar[m_length]) {
-	memcpy(m_data, frame.data(), m_length);
-}
+//VideoFrameEvent::VideoFrameEvent(const ::VideoFrame &frame, uchar *buffer)
+//: Event(VideoFrame), m_length(frame.length()), m_data(buffer) {
+//	memcpy(m_data, frame.data(), m_length);
+//}

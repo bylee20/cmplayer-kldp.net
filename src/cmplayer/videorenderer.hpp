@@ -55,8 +55,9 @@ private:
 	double widgetRatio() const {return (double)width()/(double)height();}
 	static int translateButton(Qt::MouseButton qbutton);
 
+	void setPlanes();
 	void setUtil(VideoUtil *util);
-	void *lock(void **planes);
+	void *lock(void ***planes);
 	void unlock(void *id, void *const *plane);
 	void display(void *id);
 	void prepare(const VideoFormat *format);
