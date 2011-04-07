@@ -37,7 +37,7 @@ void qt_mac_set_dock_menu(QMenu *menu);
 
 struct MainWindow::Data {
 	Data(Menu &menu): menu(menu), pref(Pref::get()) {}
-	bool moving, changingSub, pausedByHiding, dontShowMsg;
+	bool moving, changingSub, pausedByHiding, dontShowMsg, dontPause;
 	Menu &menu;			const Pref &pref;
 	ControlWidget *control;		QWidget *center;
 	PlayEngine *engine;		VideoRenderer *video;
@@ -74,6 +74,7 @@ QIcon MainWindow::defaultIcon() {
 MainWindow::MainWindow() {
 	LibVLC::init();
 	d = new Data(Menu::create(this));
+	d->dontPause = false;
 	d->pausedByHiding = d->dontShowMsg = false;
 	d->changingSub = d->moving = false;
 	d->engine = LibVLC::engine();
@@ -654,6 +655,7 @@ void MainWindow::setMuted(bool muted) {
 void MainWindow::setFullScreen(bool full) {
 	if (full == isFullScreen())
 		return;
+	d->dontPause = true;
 	d->moving = false;
 	d->prevPos = QPoint();
 	d->control->setHidden(full);
@@ -671,6 +673,7 @@ void MainWindow::setFullScreen(bool full) {
 //		d->video->setFixedRenderSize(QSize());
 		updateStaysOnTop();
 	}
+	d->dontPause = false;
 }
 
 void MainWindow::setVideoSize(double rate) {
@@ -898,7 +901,7 @@ void MainWindow::showEvent(QShowEvent *event) {
 
 void MainWindow::hideEvent(QHideEvent *event) {
 	QMainWindow::hideEvent(event);
-	if (!d->pref.pauseMinimized || !d->engine)
+	if (!d->pref.pauseMinimized || !d->engine || d->dontPause)
 		return;
 	if (!d->engine->isPlaying() || (d->pref.pauseVideoOnly && !d->engine->hasVideo()))
 		return;
