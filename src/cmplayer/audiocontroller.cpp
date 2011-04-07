@@ -3,9 +3,9 @@
 #include <math.h>
 #include <QtCore/QDebug>
 
-class VolumeController {
+class AudioController::Volume {
 public:
-	VolumeController() {
+	Volume() {
 		m_size = 20;
 		m_maxLevel = 2.0f;
 		m_sum = m_gain = m_last = 0;
@@ -15,7 +15,7 @@ public:
 		m_muted = false;
 		m_normalized = false;
 	}
-	~VolumeController() {delete [] m_last;}
+	~Volume() {delete [] m_last;}
 	void init(const AudioFormat &format) {
 		if (m_last)
 			delete [] m_last;
@@ -100,7 +100,7 @@ private:
 struct AudioController::Data {
 	AudioUtil *util;
 	AudioFormat format;
-	VolumeController volume;
+	Volume volume;
 };
 
 void AudioController::setUtil(AudioUtil *util) {

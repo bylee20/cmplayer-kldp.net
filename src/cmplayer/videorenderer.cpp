@@ -160,7 +160,7 @@ struct VideoRenderer::Data {
 	VideoUtil *util;
 	QRectF vtx;
 	Effects effects;
-	double kernel_d, kernel_c, kernel_n;
+	double kern_d, kern_c, kern_n, kern_r;
 	bool hasKernel, prepared;
 	void **planes[VIDEO_FRAME_MAX_PLANE_COUNT];
 };
@@ -172,6 +172,8 @@ QGLFormat VideoRenderer::makeFormat() {
 
 VideoRenderer::VideoRenderer(QWidget *parent)
 : QGLWidget(makeFormat(), parent), d(new Data) {
+	d->kern_c = d->kern_r = 1.0;
+	d->kern_d = d->kern_n = 0.0;
 	d->effects = 0;
 	d->shader = 0;
 	d->frame = &d->buf[0];
@@ -248,11 +250,9 @@ static inline void setRgbFromYuv(uchar *&r, int y, int _u, int _v) {
 }
 
 QImage VideoRenderer::frameImage() const {
-	if (!d->frameIsSet)
+	if (!d->frameIsSet || !d->frame->isPlanar())
 		return QImage();
 	const VideoFrame frame = *d->frame;
-	if (!frame.isPlanar())
-		return QImage();
 	QImage image(frame.size(), QImage::Format_RGB888);
 	const int dy = frame.dataPitch(0);
 	const int dy2 = dy << 1;
@@ -527,7 +527,7 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0.0f
 			, d->contrast, d->sat_con, d->coshue, d->sinhue);
 		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 1.0f
-			, d->brightness, d->kernel_c, d->kernel_n, d->kernel_d);
+			, d->brightness, d->kern_c, d->kern_n, d->kern_d);
 		const double dx = 1.0/(double)d->frame->dataPitch(0);
 		const double dy = 1.0/(double)d->frame->dataLines(0);
 		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 2.0f
@@ -542,12 +542,11 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		glBindTexture(GL_TEXTURE_2D, d->texture[2]);
 		glActiveTexture(GL_TEXTURE0);
 
-		const double den = 1.0/(d->kernel_c + d->kernel_n*4.0 + d->kernel_d*4.0);
 		const float textureCoords[] = {
-			left,	top,	den,
-			right,	top,	den,
-			right,	bottom,	den,
-			left,	bottom, den
+			left,	top,	d->kern_r,
+			right,	top,	d->kern_r,
+			right,	bottom,	d->kern_r,
+			left,	bottom, d->kern_r
 		};
 		const float vertexCoords[] = {
 			vtx.left(),	vtx.top(),
@@ -652,17 +651,18 @@ void VideoRenderer::setEffects(Effects effects) {
 			idx = i420ToKernelInvertedRgbIdx;
 		else
 			idx = i420ToKernelRgbIdx;
-		d->kernel_c = d->kernel_d = d->kernel_n = 0.0;
+		d->kern_c = d->kern_d = d->kern_n = 0.0;
 		if (d->effects & Blur) {
-			d->kernel_c += 1.0; // center
-			d->kernel_n += 2.0; // neighbor
-			d->kernel_d += 1.0; // diagonal
+			d->kern_c += 1.0; // center
+			d->kern_n += 2.0; // neighbor
+			d->kern_d += 1.0; // diagonal
 		}
 		if (d->effects & Sharpen) {
-			d->kernel_c += 5.0;
-			d->kernel_n += -1.0;
-			d->kernel_d += 0.0;
+			d->kern_c += 5.0;
+			d->kern_n += -1.0;
+			d->kern_d += 0.0;
 		}
+		d->kern_r = 1.0/(d->kern_c + d->kern_n*4.0 + d->kern_d*4.0);
 	} else if (d->effects & InvertColor)
 		idx = i420ToInvertedRgbIdx;
 	d->shader = d->shaders[idx];

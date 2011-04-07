@@ -28,6 +28,7 @@ signals:
 	void volumeNormalizedChanged(bool norm);
 	void tempoScaledChanged(bool scaled);
 private:
+	class Volume;
 	void setUtil(AudioUtil *util);
 	void prepare(const AudioFormat *format);
 	AudioBuffer *process(AudioBuffer *in);
