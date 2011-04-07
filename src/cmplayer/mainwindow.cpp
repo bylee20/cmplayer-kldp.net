@@ -934,6 +934,7 @@ void MainWindow::applyPref() {
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
+#ifndef Q_WS_MAC
 	if (d->pref.enableSystemTray && d->pref.hideClosed) {
 		hide();
 		AppState as;
@@ -953,6 +954,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 		event->accept();
 		qApp->quit();
 	}
+#else
+	event->accept();
+#endif
 }
 
 void MainWindow::showMessage(const QString &cmd, bool value, int last) {

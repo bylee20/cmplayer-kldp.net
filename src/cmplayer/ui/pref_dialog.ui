@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>694</width>
-    <height>539</height>
+    <height>553</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -320,7 +320,7 @@
              <item>
               <widget class="QGroupBox" name="groupBox">
                <property name="title">
-                <string>System Tray Icon</string>
+                <string>System Tray Icon (Linux Only)</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_23">
                 <item>
