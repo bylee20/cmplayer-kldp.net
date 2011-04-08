@@ -104,7 +104,8 @@ HEADERS += playengine.hpp \
     aboutdialog.hpp \
     snapshotdialog.hpp \
     events.hpp \
-    listmodel.hpp
+    listmodel.hpp \
+    fragmentprogram.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -162,7 +163,8 @@ SOURCES += main.cpp \
     aboutdialog.cpp \
     snapshotdialog.cpp \
     events.cpp \
-    listmodel.cpp
+    listmodel.cpp \
+    fragmentprogram.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts

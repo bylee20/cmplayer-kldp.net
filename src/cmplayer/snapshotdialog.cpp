@@ -1,4 +1,5 @@
 #include "snapshotdialog.hpp"
+#include "global.hpp"
 #include "subtitlerenderer.hpp"
 #include "videorenderer.hpp"
 #include "ui_snapshotdialog.h"
@@ -53,7 +54,7 @@ void SnapshotDialog::save() {
 	QString fileName = QLatin1String("cmplayer-snapshot-");
 	fileName += QDateTime::currentDateTime().toString("yyyy-MM-dd-hh-mm-ss");
 	fileName += QLatin1String(".png");
-	QString file = QFileDialog::getSaveFileName(this, tr("Save File"), fileName, filter);
+	QString file = getSaveFileName(this, tr("Save File"), fileName, filter);
 	if (file.isEmpty())
 		return;
 	if (!ext.contains(QFileInfo(file).suffix()))

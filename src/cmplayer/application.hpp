@@ -18,6 +18,7 @@ public:
 	QStringList devices() const;
 	void setAlwaysOnTop(QWidget *widget, bool onTop);
 	void setScreensaverDisabled(bool disabled);
+	QString test();
 #ifdef Q_WS_MAC
 	QMenuBar *globalMenuBar() const;
 #endif

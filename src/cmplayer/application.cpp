@@ -61,6 +61,10 @@ void Application::setAlwaysOnTop(QWidget *widget, bool onTop) {
 	d->helper.setAlwaysOnTop(widget->effectiveWinId(), onTop);
 }
 
+QString Application::test() {
+	return d->helper.test();
+}
+
 void Application::setScreensaverDisabled(bool disabled) {
 	d->helper.setScreensaverDisabled(disabled);
 }

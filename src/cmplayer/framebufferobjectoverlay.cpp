@@ -66,8 +66,12 @@ void FramebufferObjectOverlay::cache() {
 	d->fbo->release();
 
 	QPainter painter(d->fbo);
-	for (int i=0; i<d->osds.size(); ++i)
-		d->osds[i]->render(&painter, d->osds[i]->posHint());
+	for (int i=0; i<d->osds.size(); ++i) {
+		QPointF pos = d->osds[i]->posHint();
+		if (pos.y() < d->area.top())
+			pos.setY(d->area.top());
+		d->osds[i]->render(&painter, pos);
+	}
 	painter.end();
 	video()->update();
 }

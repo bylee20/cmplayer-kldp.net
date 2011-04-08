@@ -393,7 +393,7 @@ void MainWindow::openFile() {
 	AppState as;
 	const QString filter = Info::mediaExtFilter();
 	const QString dir = QFileInfo(as[AppState::LastOpenFile].toString()).absolutePath();
-	const QString file = QFileDialog::getOpenFileName(this, tr("Open File"), dir, filter);
+	const QString file = getOpenFileName(this, tr("Open File"), dir, filter);
 	if (!file.isEmpty()) {
 		openMrl(Mrl(file));
 		as[AppState::LastOpenFile] = file;

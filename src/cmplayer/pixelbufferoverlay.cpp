@@ -62,8 +62,12 @@ void PixelBufferOverlay::cache() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	QPainter painter(d->pbuffer);
-	for (int i=0; i<d->osds.size(); ++i)
-		d->osds[i]->render(&painter, d->osds[i]->posHint());
+	for (int i=0; i<d->osds.size(); ++i) {
+		QPointF pos = d->osds[i]->posHint();
+		if (pos.y() < d->area.top())
+			pos.setY(d->area.top());
+		d->osds[i]->render(&painter, pos);
+	}
 	painter.end();
 	d->pbuffer->updateDynamicTexture(d->texture);
 	video()->update();

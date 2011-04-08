@@ -56,15 +56,15 @@ const QTime &nullTime() {
 }
 
 QStringList getOpenFileNames(QWidget *p, const QString &t, const QString &dir, const QString &f) {
-	return QFileDialog::getOpenFileNames(p, t, dir, f);
+	return QFileDialog::getOpenFileNames(p, t, dir, f, 0, QFileDialog::DontUseNativeDialog);
 }
 
 QString getOpenFileName(QWidget *p, const QString &t, const QString &dir, const QString &f) {
-	return QFileDialog::getOpenFileName(p, t, dir, f);
+	return QFileDialog::getOpenFileName(p, t, dir, f, 0, QFileDialog::DontUseNativeDialog);
 }
 
 QString getSaveFileName(QWidget *p, const QString &t, const QString &dir, const QString &f) {
-	return QFileDialog::getSaveFileName(p, t, dir, f);
+	return QFileDialog::getSaveFileName(p, t, dir, f, 0, QFileDialog::DontUseNativeDialog);
 }
 
 }

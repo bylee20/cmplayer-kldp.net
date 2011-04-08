@@ -21,7 +21,7 @@
  */
 
 #include "application_mac.hpp"
-
+#include <QtCore/QAbstractEventDispatcher>
 #ifdef Q_WS_MAC
 
 #include <QtCore/QDebug>
@@ -163,6 +163,67 @@ void ApplicationMac::setScreensaverDisabled(bool disabled) {
 		IOPMAssertionRelease(display);
 		idle = display = 0;
 	}
+}
+
+QString ApplicationMac::test() {
+	int i; // Loop counter.
+
+	// Create the File Open Dialog class.
+	NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+
+	// Enable the selection of files in the dialog.
+	[openDlg setCanChooseFiles:YES];
+
+	// Enable the selection of directories in the dialog.
+	[openDlg setCanChooseDirectories:YES];
+
+	// Display the dialog.  If the OK button was pressed,
+	// process the files.
+	int ret = [openDlg runModalForDirectory:nil file:nil];
+	QAbstractEventDispatcher::instance()->interrupt();
+	if (ret== NSOKButton )
+	{
+	    // Get an array containing the full filenames of all
+	    // files and directories selected.
+	    NSArray* files = [openDlg filenames];
+
+	    // Loop through all the files and process them.
+	    for( i = 0; i < [files count]; i++ )
+	    {
+		NSString* filename = [files objectAtIndex:i];
+		NSRange range;
+		range.location = 0;
+		range.length = [filename length];
+    //	    QString result(range.length, QChar(0));
+
+		unichar *chars = new unichar[range.length];
+		[filename getCharacters:chars range:range];
+		QString result = QString::fromUtf16(chars, range.length);
+		delete[] chars;
+		return result;
+		// Do something with the filename.
+	    }
+	}
+
+	return QString();
+
+
+	NSOpenPanel *op = [NSOpenPanel openPanel];
+	if ([op runModal] == NSOKButton)
+	{
+	    NSString *filename = [op filename];
+	    NSRange range;
+	    range.location = 0;
+	    range.length = [filename length];
+//	    QString result(range.length, QChar(0));
+
+	    unichar *chars = new unichar[range.length];
+	    [filename getCharacters:chars range:range];
+	    QString result = QString::fromUtf16(chars, range.length);
+	    delete[] chars;
+	    return result;
+	}
+	return QString();
 }
 
 #endif

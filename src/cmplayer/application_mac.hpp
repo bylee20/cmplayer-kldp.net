@@ -37,6 +37,7 @@ public:
 	void setAlwaysOnTop(WId wid, bool onTop);
 	QStringList devices() const;
 	void setScreensaverDisabled(bool disabled);
+	QString test();
 private:
 	bool eventFilter( QObject *o, QEvent *e );
 	ApplicationMacData *d;
