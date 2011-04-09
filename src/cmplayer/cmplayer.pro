@@ -105,7 +105,10 @@ HEADERS += playengine.hpp \
     snapshotdialog.hpp \
     events.hpp \
     listmodel.hpp \
-    fragmentprogram.hpp
+    fragmentprogram.hpp \
+    shader/i420_to_rgb_simple.hpp \
+    shader/i420_to_rgb_filter.hpp \
+    shader/i420_to_rgb_kernel.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \

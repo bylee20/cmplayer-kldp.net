@@ -1,4 +1,5 @@
 #include "osdrenderer.hpp"
+#include "fragmentprogram.hpp"
 #include "events.hpp"
 #include <QtGui/QMouseEvent>
 #include "libvlc.hpp"
@@ -16,131 +17,13 @@
 #include <QtCore/QSize>
 #include <math.h>
 
-#define SHADER_GET_YUV(var, c) \
-"TEX "var".x, "c", texture[1], 2D;"\
-"MOV "var".y, "var".x;"\
-"TEX "var".x, "c", texture[2], 2D;"\
-"MOV "var".z, "var".x;"\
-"TEX "var".x, "c", texture[0], 2D;"
+#include "shader/i420_to_rgb_simple.hpp"
+#include "shader/i420_to_rgb_filter.hpp"
+#include "shader/i420_to_rgb_kernel.hpp"
 
-#define SHADER_SET_COLOR_PROP(yuv_i, yuv_o) \
-"SUB "yuv_o".x, "yuv_i".x, coef_r.a;"\
-"SUB "yuv_i".y, "yuv_i".y, coef_g.a;"\
-"SUB "yuv_i".z, "yuv_i".z, coef_b.a;"\
-"MUL "yuv_o".yz, "yuv_i", param0.z;"\
-"MUL "yuv_i".yz, "yuv_i".xzyw, param0.w;"\
-"ADD "yuv_o".y, "yuv_o", "yuv_i";"\
-"SUB "yuv_o".z, "yuv_o", "yuv_i";"\
-"MUL "yuv_o", "yuv_o", param0.xyyz;"\
-"ADD "yuv_o".x, "yuv_o", param1.x;"
-
-#define SHADER_GET_YUV_AND_SET_COLOR_PROP(yuv)\
-"TEX "yuv".x, fragment.texcoord[0], texture[1], 2D;"\
-"SUB "yuv".z, "yuv".x, coef_g.a;"\
-"TEX "yuv".x, fragment.texcoord[0], texture[2], 2D;"\
-"SUB "yuv".w, "yuv".x, coef_b.a;"\
-"MUL "yuv".x, "yuv".z, param0.z;"\
-"MUL "yuv".y, "yuv".w, param0.w;"\
-"ADD "yuv".y, "yuv".x, "yuv".y;"\
-"MUL "yuv".x, "yuv".z, param0.w;"\
-"MUL "yuv".w, "yuv".w, param0.z;"\
-"SUB "yuv".z, "yuv".w, "yuv".x;"\
-"TEX "yuv".x, fragment.texcoord[0], texture[0], 2D;"\
-"SUB "yuv".x, "yuv", coef_r.a;"\
-"MUL "yuv", "yuv", param0.xyyz;"\
-"ADD "yuv".x, "yuv", param1.x;"
-
-#define SHADER_HEADER \
-"!!ARBfp1.0"\
-"PARAM param0 = program.local[0];"\
-"PARAM param1 = program.local[1];"\
-"PARAM coef_r = {1.16438356,  0.0,          1.59602679,  0.0625};"\
-"PARAM coef_g = {1.16438356, -0.391762290, -0.812967647, 0.5};"\
-"PARAM coef_b = {1.16438356,  2.01723214,   0.0,         0.5};"
-
-#define SHADER_YUV_TO_RGB(yuv, rgb) \
-"DP3 "rgb".r, "yuv", coef_r;"\
-"DP3 "rgb".g, "yuv", coef_g;"\
-"DP3 "rgb".b, "yuv", coef_b;"\
-"MOV "rgb".a, 1.0;"
-
-#define SHADER_CLIP(var)\
-"MIN "var", 1.0, "var";"\
-"MAX "var", 0.0, "var";"
-
-#define SHADER_GET_AND_ADD_KERNEL(as, yuv, coord, yuv_temp, coord_temp, dxdy, kern) \
-as" "coord_temp", "coord", "dxdy";"\
-SHADER_GET_YUV(yuv_temp, coord_temp)\
-"MUL "yuv_temp", "yuv_temp", "kern";"\
-"ADD "yuv", "yuv", "yuv_temp";"
-
-#define SHADER_ADD_KERNEL_ND(yuv, coord, yuv_temp, coord_temp) \
-SHADER_GET_AND_ADD_KERNEL("ADD", yuv, coord, yuv_temp, coord_temp, "param2.zyxx", "param1.w") \
-SHADER_GET_AND_ADD_KERNEL("ADD", yuv, coord, yuv_temp, coord_temp, "param2.xyxx", "param1.w") \
-SHADER_GET_AND_ADD_KERNEL("ADD", yuv, coord, yuv_temp, coord_temp, "param2.wyxx", "param1.z") \
-SHADER_GET_AND_ADD_KERNEL("ADD", yuv, coord, yuv_temp, coord_temp, "param2.xwxx", "param1.z") \
-SHADER_GET_AND_ADD_KERNEL("SUB", yuv, coord, yuv_temp, coord_temp, "param2.zyxx", "param1.w") \
-SHADER_GET_AND_ADD_KERNEL("SUB", yuv, coord, yuv_temp, coord_temp, "param2.xyxx", "param1.w") \
-SHADER_GET_AND_ADD_KERNEL("SUB", yuv, coord, yuv_temp, coord_temp, "param2.wyxx", "param1.z") \
-SHADER_GET_AND_ADD_KERNEL("SUB", yuv, coord, yuv_temp, coord_temp, "param2.xwxx", "param1.z")
-
-static const char *i420ToRgb =
-SHADER_HEADER
-"TEMP yuv;"
-SHADER_GET_YUV_AND_SET_COLOR_PROP("yuv")
-SHADER_YUV_TO_RGB("yuv", "result.color")
-"END";
-
-static const char *i420ToInvertedRgb =
-SHADER_HEADER
-"TEMP yuv, rgb;"
-SHADER_GET_YUV_AND_SET_COLOR_PROP("yuv")
-SHADER_YUV_TO_RGB("yuv", "rgb")
-SHADER_CLIP("rgb")
-"SUB result.color, 1.0, rgb;"
-"MOV result.color.a, 1.0;"
-"END";
-
-static const char *i420ToKernelRgb =
-SHADER_HEADER
-"ATTRIB coord = fragment.texcoord[0];"
-"PARAM param2 = program.local[2];"
-"TEMP yuv_i, yuv_o, coord_it;"
-SHADER_GET_YUV("yuv_i", "coord")
-"MUL yuv_i, yuv_i, param1.y;"
-SHADER_ADD_KERNEL_ND("yuv_i", "coord", "yuv_o", "coord_it")
-"MUL yuv_i, yuv_i, coord.z;"
-SHADER_SET_COLOR_PROP("yuv_i", "yuv_o")
-SHADER_YUV_TO_RGB("yuv_o", "result.color")
-"END";
-
-static const char *i420ToKernelInvertedRgb =
-SHADER_HEADER
-"ATTRIB coord = fragment.texcoord[0];"
-"PARAM param2 = program.local[2];"
-"TEMP yuv_i, yuv_o, coord_it;"
-SHADER_GET_YUV("yuv_i", "coord")
-"MUL yuv_i, yuv_i, param1.y;"
-SHADER_ADD_KERNEL_ND("yuv_i", "coord", "yuv_o", "coord_it")
-"MUL yuv_i, yuv_i, coord.z;"
-SHADER_SET_COLOR_PROP("yuv_i", "yuv_o")
-SHADER_YUV_TO_RGB("yuv_o", "yuv_i")
-SHADER_CLIP("yuv_i")
-"SUB result.color, 1.0, yuv_i;"
-"MOV result.color.a, 1.0;"
-"END";
-
-static const char *shader[] = {
-	i420ToRgb,
-	i420ToInvertedRgb,
-	i420ToKernelRgb,
-	i420ToKernelInvertedRgb
-};
-static const int i420ToRgbIdx = 0;
-static const int i420ToInvertedRgbIdx = 1;
-static const int i420ToKernelRgbIdx = 2;
-static const int i420ToKernelInvertedRgbIdx = 3;
-static const int shaderCount = 4;
+static const int i420ToRgbSimple = 0;
+static const int i420ToRgbFilter = 1;
+static const int i420ToRgbKernel = 2;
 
 struct VideoRenderer::Data {
 	LogoDrawer logo;
@@ -155,14 +38,18 @@ struct VideoRenderer::Data {
 	QMutex mutex;
 	VideoFrame *buffer, *frame, *temp;
 	VideoFrame buf[3];
-	GLuint shaders[shaderCount];
-	GLuint shader;
 	VideoUtil *util;
 	QRectF vtx;
 	Effects effects;
-	double kern_d, kern_c, kern_n, kern_r;
+	double kern_d, kern_c, kern_n;
 	bool hasKernel, prepared;
 	void **planes[VIDEO_FRAME_MAX_PLANE_COUNT];
+	QList<FragmentProgram*> shaders;
+	FragmentProgram *shader;
+	double rgb_base;
+	double rgb_c_r;
+	double rgb_c_g;
+	double rgb_c_b;
 };
 
 QGLFormat VideoRenderer::makeFormat() {
@@ -172,7 +59,9 @@ QGLFormat VideoRenderer::makeFormat() {
 
 VideoRenderer::VideoRenderer(QWidget *parent)
 : QGLWidget(makeFormat(), parent), d(new Data) {
-	d->kern_c = d->kern_r = 1.0;
+	d->rgb_base = 0.0;
+	d->rgb_c_r = d->rgb_c_g = d->rgb_c_b = 1.0;
+	d->kern_c = 1.0;
 	d->kern_d = d->kern_n = 0.0;
 	d->effects = 0;
 	d->shader = 0;
@@ -190,43 +79,24 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	for (int i=0; i<VIDEO_FRAME_MAX_PLANE_COUNT; ++i)
 		d->planes[i] = 0;
 	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
-
 	makeCurrent();
 	glGenTextures(3, d->texture);
 #define GET_PROC_ADDRESS(func) func = (_##func)context()->getProcAddress(QLatin1String(#func))
-	GET_PROC_ADDRESS(glProgramStringARB);
-	GET_PROC_ADDRESS(glBindProgramARB);
-	GET_PROC_ADDRESS(glDeleteProgramsARB);
-	GET_PROC_ADDRESS(glGenProgramsARB);
-	GET_PROC_ADDRESS(glProgramLocalParameter4fARB);
 	GET_PROC_ADDRESS(glActiveTexture);
 #undef GET_PROC_ADDRESS
-	d->hasPrograms = glActiveTexture != 0;
-	d->hasPrograms = glProgramStringARB && glBindProgramARB && glDeleteProgramsARB;
-	d->hasPrograms = d->hasPrograms && glGenProgramsARB;
-	d->hasPrograms = d->hasPrograms && glProgramLocalParameter4fARB;
-	if (d->hasPrograms) {
-		glGenProgramsARB(shaderCount, d->shaders);
-
-		bool error = false;
-		for(int i = 0; i < shaderCount && !error;  ++i) {
-			glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->shaders[i]);
-			const GLbyte *src = reinterpret_cast<const GLbyte *>(shader[i]);
-			glProgramStringARB(GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB
-					, strlen(shader[i]), src);
-			if (glGetError() != GL_NO_ERROR)
-				error = true;
-		}
-		if (error) {
-			glDeleteProgramsARB(shaderCount, d->shaders);
-			d->hasPrograms = false;
-			qDebug() << "Shader compilation error!";
-		}
-		d->shader = d->shaders[i420ToRgbIdx];
+	d->hasPrograms = glActiveTexture;
+	QList<QByteArray> codes;
+#define GET_CODE(name) codes.push_back(QByteArray((char*)name##_fp, name##_fp_len))
+	GET_CODE(i420_to_rgb_simple);
+	GET_CODE(i420_to_rgb_filter);
+	GET_CODE(i420_to_rgb_kernel);
+#undef GET_CODE
+	for (int i=0; i<codes.size(); ++i) {
+		FragmentProgram *fp = new FragmentProgram(codes[i]);
+		Q_ASSERT(fp->isAvailable() && !fp->hasError());
+		d->shaders.push_back(fp);
 	}
-	if (!d->hasPrograms)
-		qDebug() << "Shader program is not available!";
-
+	d->shader = d->shaders.first();
 	setAutoFillBackground(false);
 	setAttribute(Qt::WA_OpaquePaintEvent, true);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -235,10 +105,9 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 }
 
 VideoRenderer::~VideoRenderer() {
+	qDeleteAll(d->shaders);
 	delete d->overlay;
 	glDeleteTextures(3, d->texture);
-	if (d->hasPrograms)
-		glDeleteProgramsARB(shaderCount, d->shaders);
 	delete d;
 }
 
@@ -517,22 +386,17 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 			qSwap(left, right);
 		if (d->effects & FlipVertically)
 			qSwap(top, bottom);
-
-		painter.beginNativePainting();
-		makeCurrent();
-
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		glBindProgramARB(GL_FRAGMENT_PROGRAM_ARB, d->shader);
-		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 0.0f
-			, d->contrast, d->sat_con, d->coshue, d->sinhue);
-		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 1.0f
-			, d->brightness, d->kern_c, d->kern_n, d->kern_d);
 		const double dx = 1.0/(double)d->frame->dataPitch(0);
 		const double dy = 1.0/(double)d->frame->dataLines(0);
-		glProgramLocalParameter4fARB(GL_FRAGMENT_PROGRAM_ARB, 2.0f
-			, dx, dy, -dx, 0.0);
-		glEnable(GL_FRAGMENT_PROGRAM_ARB);
+		painter.beginNativePainting();
+		makeCurrent();
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		d->shader->bind();
+		d->shader->setLocalParam(0, d->contrast, d->sat_con, d->coshue, d->sinhue);
+		d->shader->setLocalParam(1, d->rgb_c_r, d->rgb_c_g, d->rgb_c_b, d->rgb_base);
+		d->shader->setLocalParam(2, dx, dy, -dx, 0.0);
+		d->shader->setLocalParam(3, d->kern_c, d->kern_n, d->kern_d, 0.0f);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, d->texture[0]);
@@ -543,10 +407,10 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		glActiveTexture(GL_TEXTURE0);
 
 		const float textureCoords[] = {
-			left,	top,	d->kern_r,
-			right,	top,	d->kern_r,
-			right,	bottom,	d->kern_r,
-			left,	bottom, d->kern_r
+			left,	top,	d->brightness,
+			right,	top,	d->brightness,
+			right,	bottom,	d->brightness,
+			left,	bottom, d->brightness
 		};
 		const float vertexCoords[] = {
 			vtx.left(),	vtx.top(),
@@ -563,7 +427,7 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
 
-		glDisable(GL_FRAGMENT_PROGRAM_ARB);
+		d->shader->release();
 
 		painter.endNativePainting();
 
@@ -643,14 +507,18 @@ void VideoRenderer::setEffect(Effect effect, bool on) {
 void VideoRenderer::setEffects(Effects effects) {
 	if (d->effects == effects)
 		return;
+	int idx = i420ToRgbSimple;
 	d->effects = effects;
-	int idx = i420ToRgbIdx;
+	d->rgb_base = 0.0;
+	d->rgb_c_r = d->rgb_c_g = d->rgb_c_b = 1.0;
+	if (d->effects & InvertColor) {
+		idx = i420ToRgbFilter;
+		d->rgb_base = 1.0;
+		d->rgb_c_r = d->rgb_c_g = d->rgb_c_b = -1.0;
+	}
 	d->hasKernel = (d->effects & Blur) || (d->effects & Sharpen);
 	if (d->hasKernel) {
-		if (d->effects & InvertColor)
-			idx = i420ToKernelInvertedRgbIdx;
-		else
-			idx = i420ToKernelRgbIdx;
+		idx = i420ToRgbKernel;
 		d->kern_c = d->kern_d = d->kern_n = 0.0;
 		if (d->effects & Blur) {
 			d->kern_c += 1.0; // center
@@ -662,10 +530,12 @@ void VideoRenderer::setEffects(Effects effects) {
 			d->kern_n += -1.0;
 			d->kern_d += 0.0;
 		}
-		d->kern_r = 1.0/(d->kern_c + d->kern_n*4.0 + d->kern_d*4.0);
-	} else if (d->effects & InvertColor)
-		idx = i420ToInvertedRgbIdx;
-	d->shader = d->shaders[idx];
+		const double den = 1.0/(d->kern_c + d->kern_n*4.0 + d->kern_d*4.0);
+		d->kern_c *= den;
+		d->kern_d *= den;
+		d->kern_n *= den;
+	}
+	d->shader = d->shaders.value(idx, d->shaders.first());
 	if (d->effects & Grayscale)
 		d->sat_con = 0.0;
 	else

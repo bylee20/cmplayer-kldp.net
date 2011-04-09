@@ -51,7 +51,6 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 private:
-	class FragmentProgram;
 	double widgetRatio() const {return (double)width()/(double)height();}
 	static int translateButton(Qt::MouseButton qbutton);
 
