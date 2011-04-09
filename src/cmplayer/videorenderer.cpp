@@ -539,7 +539,9 @@ void VideoRenderer::setEffects(Effects effects) {
 	d->shader = d->shaders.value(idx, d->shaders.first());
 	if (d->effects & Grayscale)
 		d->sat_con = 0.0;
-	else
-		d->sat_con = qBound(0., d->color.saturation() + 1., 2.)*d->contrast;
+	else {
+		d->sat_con = d->color.saturation() + 1.0f;
+		d->sat_con = qBound(0.0f, d->sat_con, 2.0f)*d->contrast;
+	}
 	update();
 }
