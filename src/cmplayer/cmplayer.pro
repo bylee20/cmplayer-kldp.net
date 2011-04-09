@@ -25,10 +25,10 @@ macx {
 	TARGET = CMPlayer
 	HEADERS += application_mac.hpp
 	SOURCES += application_mac.mm
-} else:x11 {
+} else:unix {
 	LIBS += -lX11
-	HEADERS += application_x11.hpp
-	SOURCES += application_x11.cpp
+        HEADERS += application_x11.hpp
+        SOURCES += application_x11.cpp
 }
 
 TEMPLATE = app
