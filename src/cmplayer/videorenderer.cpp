@@ -386,18 +386,19 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 			qSwap(left, right);
 		if (d->effects & FlipVertically)
 			qSwap(top, bottom);
-		const double dx = 1.0/(double)d->frame->dataPitch(0);
-		const double dy = 1.0/(double)d->frame->dataLines(0);
 		painter.beginNativePainting();
 		makeCurrent();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		d->shader->bind();
 		d->shader->setLocalParam(0, d->contrast, d->sat_con, d->coshue, d->sinhue);
-		d->shader->setLocalParam(1, d->rgb_c_r, d->rgb_c_g, d->rgb_c_b, d->rgb_base);
-		d->shader->setLocalParam(2, dx, dy, -dx, 0.0);
-		d->shader->setLocalParam(3, d->kern_c, d->kern_n, d->kern_d, 0.0f);
-
+		if (d->shader != d->shaders.first()) {
+			const double dx = 1.0/(double)d->frame->dataPitch(0);
+			const double dy = 1.0/(double)d->frame->dataLines(0);
+			d->shader->setLocalParam(1, d->rgb_c_r, d->rgb_c_g, d->rgb_c_b, d->rgb_base);
+			d->shader->setLocalParam(2, dx, dy, -dx, 0.0f);
+			d->shader->setLocalParam(3, d->kern_c, d->kern_n, d->kern_d, 0.0f);
+		}
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, d->texture[0]);
 		glActiveTexture(GL_TEXTURE1);
