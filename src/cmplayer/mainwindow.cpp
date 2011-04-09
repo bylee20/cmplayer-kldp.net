@@ -411,16 +411,6 @@ void MainWindow::updateMrl(const Mrl &mrl) {
 	else
 		clearSubtitles();
 	d->sync_subtitle_file_menu();
-//	Menu &list = d->menu("subtitle")("list");
-//	d->changingSub = true;
-//	const Subtitle &loaded = d->subtitle->loaded();
-//	const QList<int> &selected = d->subtitle->selected();
-//	for (int i=0; i<loaded.size(); ++i) {
-//		QAction *action = list.addActionToGroupWithoutKey(loaded[i].name(), true);
-//		action->setData(i);
-//		action->setChecked(selected.contains(i));
-//	}
-//	d->changingSub = false;
 	const int row = d->playlist->model()->currentRow() + 1;
 	if (row > 0)
 		d->control->setTrackNumber(row, d->playlist->model()->rowCount());
@@ -448,37 +438,10 @@ void MainWindow::openSubFile() {
 void MainWindow::appendSubFiles(const QStringList &files, bool checked, const QString &enc) {
 	if (files.isEmpty())
 		return;
-//	Menu &list = d->menu("subtitle")("list");
 	for (int i=0; i<files.size(); ++i) {
 		d->subtitle->load(files[i], enc, checked);
 	}
 	d->sync_subtitle_file_menu();
-//	const Subtitle &loaded = d->subtitle->loaded();
-//	const int from = list.g()->actions().size();
-//	for (int i = from; i<loaded.size(); ++i) {
-
-//	}
-//	int idx = d->subLoaded.size();
-//	for (int i=0; i<files.size(); ++i) {
-//		Subtitle sub;
-//		if (!sub.load(files[i], enc))
-//			continue;
-//		for (int j=0; j<sub.size(); ++j, ++idx) {
-//			d->subSelected.append(idx);
-//			d->subLoaded.append(sub[j]);
-//			QAction *action = list.addActionToGroupWithoutKey(
-//					d->subLoaded[idx].name(), true);
-//			action->setData(idx);
-//			if (checked) {
-//				d->changingSub = true;
-//				action->setChecked(true);
-//			}
-//		}
-//	}
-//	if (d->changingSub) {
-//		d->changingSub = false;
-//		d->update_subtitle();
-//	}
 }
 
 void MainWindow::updateSubtitle(QAction *action) {
