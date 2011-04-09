@@ -31,7 +31,7 @@ clean:
 	rm -f build-stamp
 
 	# Add here commands to clean up after the build process.
-	make clean
+	make QMAKE=qmake-qt4 LRELEASE=lrelease-qt4 PREFIX=/usr CMPLAYER_ACTION_PATH=/usr/share/kde4/apps/solid/actions CMPLAYER_PLUGIN_PATH=/usr/lib/cmplayer/plugins -f Makefile.linux clean
 
 	dh_clean
 
