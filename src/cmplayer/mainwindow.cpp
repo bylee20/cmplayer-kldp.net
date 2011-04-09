@@ -58,7 +58,7 @@ MainWindow::MainWindow() {
 	d->playlist = new PlaylistView(d->engine, this);
 	d->history = new HistoryView(d->engine, this);
 #ifndef Q_WS_MAC
-	d->tray = new QSystemTrayIcon(defaultIcon(), this);
+	d->tray = new QSystemTrayIcon(app()->defaultIcon(), this);
 #endif
 
 	d->hider->setSingleShot(true);
