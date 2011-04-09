@@ -38,6 +38,7 @@ public:
 			Subtitle::Node node;
 			node.index = 0;
 			insert(0, node);
+			m_flag = false;
 		}
 		Component &unite(const Component &other, double frameRate);
 		Component united(const Component &other, double frameRate) const {
@@ -58,11 +59,14 @@ public:
 			if (to == Time) return msec(key, frameRate);
 			else return frame(key, frameRate);
 		}
+		bool flag() const;
+		void setFlag(bool flag) {m_flag = flag;}
 	private:
 		friend class Parser;
 		QString m_file;
 		Base m_base;
 		Language m_lang;
+		bool m_flag;
 	};
 	typedef QMapIterator<int, Node> ComponentIterator;
 	const Component &operator[] (int rhs) const {return m_comp[rhs];}

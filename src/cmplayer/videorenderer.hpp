@@ -2,11 +2,9 @@
 #define GLRENDERER_H
 
 #include <QtOpenGL/QGLWidget>
-#include "overlay.hpp"
-#include "colorproperty.hpp"
 
 class OsdRenderer;	class VideoFormat;
-class VideoUtil;
+class VideoUtil;	class ColorProperty;
 
 class VideoRenderer : public QGLWidget {
 	Q_OBJECT
@@ -53,8 +51,6 @@ protected:
 private:
 	double widgetRatio() const {return (double)width()/(double)height();}
 	static int translateButton(Qt::MouseButton qbutton);
-
-	void setPlanes();
 	void setUtil(VideoUtil *util);
 	void *lock(void ***planes);
 	void unlock(void *id, void *const *plane);

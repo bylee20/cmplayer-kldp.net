@@ -1,4 +1,6 @@
+#include "mainwindow_p.hpp"
 #include "timelineosdrenderer.hpp"
+#include "colorproperty.hpp"
 #include "playlistview.hpp"
 #include "historyview.hpp"
 #include "playlistmodel.hpp"
@@ -35,45 +37,9 @@
 void qt_mac_set_dock_menu(QMenu *menu);
 #endif
 
-struct MainWindow::Data {
-	Data(Menu &menu): menu(menu), pref(Pref::get()) {}
-	bool moving, changingSub, pausedByHiding, dontShowMsg, dontPause;
-	Menu &menu;			const Pref &pref;
-	ControlWidget *control;		QWidget *center;
-	PlayEngine *engine;		VideoRenderer *video;
-	SubtitleRenderer *subtitle;	AudioController *audio;
-	TimeLineOsdRenderer *timeLine;	TextOsdRenderer *message;
-	Subtitle subLoaded;		QList<int> subSelected;
-	QPoint prevPos;			QTimer *hider;
-	RecentInfo *recent;		ABRepeater *ab;
-	PlaylistView *playlist;		HistoryView *history;
-//	FavoritesView *favorite;
-#ifndef Q_WS_MAC
-	QSystemTrayIcon *tray;
-#endif
-};
-
-QIcon MainWindow::defaultIcon() {
-	static QIcon icon;
-	static bool init = false;
-	if (!init) {
-		icon.addFile(":/img/cmplayer16.png", QSize(16, 16));
-		icon.addFile(":/img/cmplayer22.png", QSize(22, 22));
-		icon.addFile(":/img/cmplayer24.png", QSize(24, 24));
-		icon.addFile(":/img/cmplayer32.png", QSize(32, 32));
-		icon.addFile(":/img/cmplayer48.png", QSize(48, 48));
-		icon.addFile(":/img/cmplayer64.png", QSize(64, 64));
-		icon.addFile(":/img/cmplayer128.png", QSize(128, 128));
-		icon.addFile(":/img/cmplayer256.png", QSize(256, 256));
-		icon.addFile(":/img/cmplayer512.png", QSize(512, 512));
-		init = true;
-	}
-	return icon;
-}
-
 MainWindow::MainWindow() {
 	LibVLC::init();
-	d = new Data(Menu::create(this));
+	d = new MainWindowData(Menu::create(this));
 	d->dontPause = false;
 	d->pausedByHiding = d->dontShowMsg = false;
 	d->changingSub = d->moving = false;
@@ -440,32 +406,31 @@ void MainWindow::showContextMenu(const QPoint &pos) {
 }
 
 void MainWindow::updateMrl(const Mrl &mrl) {
-	if (mrl.isLocalFile()) {
-		doSubtitleAutoLoad();
-		doSubtitleAutoSelection();
-	} else
+	if (mrl.isLocalFile())
+		d->subtitle->autoload(mrl, true);
+	else
 		clearSubtitles();
-	Menu &list = d->menu("subtitle")("list");
-	d->changingSub = true;
-	for (int i=0; i<d->subLoaded.size(); ++i) {
-		QAction *action = list.addActionToGroupWithoutKey(d->subLoaded[i].name(), true);
-		action->setData(i);
-		action->setChecked(d->subSelected.contains(i));
-	}
-	d->changingSub = false;
-	updateSubtitle();
+	d->sync_subtitle_file_menu();
+//	Menu &list = d->menu("subtitle")("list");
+//	d->changingSub = true;
+//	const Subtitle &loaded = d->subtitle->loaded();
+//	const QList<int> &selected = d->subtitle->selected();
+//	for (int i=0; i<loaded.size(); ++i) {
+//		QAction *action = list.addActionToGroupWithoutKey(loaded[i].name(), true);
+//		action->setData(i);
+//		action->setChecked(selected.contains(i));
+//	}
+//	d->changingSub = false;
 	const int row = d->playlist->model()->currentRow() + 1;
 	if (row > 0)
 		d->control->setTrackNumber(row, d->playlist->model()->rowCount());
 }
 
 void MainWindow::clearSubtitles() {
-	d->subLoaded.clear();
-	d->subSelected.clear();
+	d->subtitle->unload();
 	QList<QAction*> acts = d->menu("subtitle")("list").g()->actions();
 	for (int i=0; i<acts.size(); ++i)
 		delete acts[i];
-	d->subtitle->setSubtitle(d->subLoaded);
 }
 
 void MainWindow::openSubFile() {
@@ -483,124 +448,44 @@ void MainWindow::openSubFile() {
 void MainWindow::appendSubFiles(const QStringList &files, bool checked, const QString &enc) {
 	if (files.isEmpty())
 		return;
-	Menu &list = d->menu("subtitle")("list");
-	int idx = d->subLoaded.size();
+//	Menu &list = d->menu("subtitle")("list");
 	for (int i=0; i<files.size(); ++i) {
-		Subtitle sub;
-		if (!sub.load(files[i], enc))
-			continue;
-		for (int j=0; j<sub.size(); ++j, ++idx) {
-			d->subSelected.append(idx);
-			d->subLoaded.append(sub[j]);
-			QAction *action = list.addActionToGroupWithoutKey(
-					d->subLoaded[idx].name(), true);
-			action->setData(idx);
-			if (checked) {
-				d->changingSub = true;
-				action->setChecked(true);
-			}
-		}
+		d->subtitle->load(files[i], enc, checked);
 	}
-	if (d->changingSub) {
-		d->changingSub = false;
-		updateSubtitle();
-	}
+	d->sync_subtitle_file_menu();
+//	const Subtitle &loaded = d->subtitle->loaded();
+//	const int from = list.g()->actions().size();
+//	for (int i = from; i<loaded.size(); ++i) {
+
+//	}
+//	int idx = d->subLoaded.size();
+//	for (int i=0; i<files.size(); ++i) {
+//		Subtitle sub;
+//		if (!sub.load(files[i], enc))
+//			continue;
+//		for (int j=0; j<sub.size(); ++j, ++idx) {
+//			d->subSelected.append(idx);
+//			d->subLoaded.append(sub[j]);
+//			QAction *action = list.addActionToGroupWithoutKey(
+//					d->subLoaded[idx].name(), true);
+//			action->setData(idx);
+//			if (checked) {
+//				d->changingSub = true;
+//				action->setChecked(true);
+//			}
+//		}
+//	}
+//	if (d->changingSub) {
+//		d->changingSub = false;
+//		d->update_subtitle();
+//	}
 }
 
 void MainWindow::updateSubtitle(QAction *action) {
-	if (d->changingSub)
-		return;
-	const int idx = action->data().toInt();
-	d->subSelected.removeAll(idx);
-	if (action->isChecked())
-		d->subSelected.append(idx);
-	updateSubtitle();
-}
-
-void MainWindow::doSubtitleAutoLoad() {
-	clearSubtitles();
-	const Mrl mrl = d->engine->mrl();
-	// needs local file checking!
-	if (d->pref.subtitleAutoLoad == NoAutoLoad)
-		return;
-	const QStringList filter = Info::subtitleNameFilter();
-	const QFileInfo fileInfo(mrl.toLocalFile());
-	const QFileInfoList all = fileInfo.dir().entryInfoList(filter, QDir::Files, QDir::Name);
-	const QString base = fileInfo.completeBaseName();
-	for (int i=0; i<all.size(); ++i) {
-		if (d->pref.subtitleAutoLoad != SamePath) {
-			if (d->pref.subtitleAutoLoad == Matched) {
-				if (base != all[i].completeBaseName())
-					continue;
-			} else if (!all[i].fileName().contains(base))
-				continue;
-		}
-		Subtitle sub;
-		if (sub.load(all[i].absoluteFilePath(), d->pref.subtitleEncoding)) {
-			d->subLoaded += sub;
-		}
+	if (!d->changingSub) {
+		const int idx = action->data().toInt();
+		d->subtitle->select(idx, action->isChecked());
 	}
-}
-
-void MainWindow::doSubtitleAutoSelection() {
-	const Mrl mrl = d->engine->mrl();
-	d->subSelected.clear();
-	if (d->subLoaded.isEmpty() || !mrl.isLocalFile())
-		return;
-	QSet<QString> langSet;
-	const QString base = QFileInfo(mrl.toLocalFile()).completeBaseName();
-	for (int i=0; i<d->subLoaded.size(); ++i) {
-		bool select = false;
-		if (d->pref.subtitleAutoSelect == SameName) {
-			select = QFileInfo(d->subLoaded[i].fileName()).completeBaseName() == base;
-		} else if (d->pref.subtitleAutoSelect == AllLoaded) {
-			select = true;
-		} else if (d->pref.subtitleAutoSelect == EachLanguage) {
-			const QString lang = d->subLoaded[i].language().id();
-			if ((select = (!langSet.contains(lang))))
-				langSet.insert(lang);
-		}
-		if (select)
-			d->subSelected.push_back(i);
-	}
-	if (d->pref.subtitleAutoSelect == SameName
-			&& d->subSelected.size() > 1 && !d->pref.subtitleExtension.isEmpty()) {
-		int index = -1;
-		for (int i=0; i<d->subSelected.size(); ++i) {
-			const QString fileName = d->subLoaded[d->subSelected[i]].fileName();
-			const QString suffix = QFileInfo(fileName).suffix().toLower();
-			if (d->pref.subtitleExtension == suffix) {
-				index = d->subSelected[i];
-				break;
-			}
-		}
-		if (index != -1) {
-			d->subSelected.clear();
-			d->subSelected.push_back(index);
-		}
-	}
-}
-
-void MainWindow::updateSubtitle() {
-	const QStringList priority = d->pref.subtitlePriority;
-	QList<int> order;
-	QList<int> indexes = d->subSelected;
-	QList<int>::iterator it;
-	for (int i=0; i<priority.size(); ++i) {
-		it = indexes.begin();
-		while(it != indexes.end()) {
-			if (d->subLoaded[*it].language().id() == priority[i]) {
-				order.append(*it);
-				it = indexes.erase(it);
-			} else
-				++it;
-		}
-	}
-	order += indexes;
-	Subtitle subtitle;
-	for (int i=0; i<order.size(); ++i)
-		subtitle.append(d->subLoaded[order[i]]);
-	d->subtitle->setSubtitle(subtitle);
 }
 
 void MainWindow::seek(int diff) {

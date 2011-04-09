@@ -11,6 +11,7 @@ class Application : public QtSolution::QtSingleApplication {
 public:
 	Application(int &argc, char **argv);
 	~Application();
+	static QIcon defaultIcon();
 	QString defaultStyleName();
 	void setStyle(const QString &name);
 	static Mrl getMrlFromCommandLine();

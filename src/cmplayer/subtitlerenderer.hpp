@@ -5,7 +5,9 @@
 #include "textosdrenderer.hpp"
 #include <QtCore/QObject>
 
-class QDialog;
+class QDialog;		class Mrl;
+
+
 
 class SubtitleRenderer : public QObject {
 	Q_OBJECT
@@ -25,6 +27,13 @@ public:
 	double pos() const;
 	void setPos(double pos);
 	QWidget *view(QWidget *parent = 0) const;
+	void unload();
+	int autoload(const Mrl &mrl, bool autoselect = true);
+	void select(int idx, bool selected = true);
+	void deselct(int idx) {select(idx, false);}
+	const Subtitle &loaded() const;
+	bool load(const QString &fileName, const QString &enc, bool select);
+	QList<bool> selection() const;
 public slots:
 	void clear();
 	void setFrameRate(double frameRate);
@@ -32,6 +41,7 @@ public slots:
 	void setVisible(bool visible);
 	void setHidden(bool hidden) {setVisible(!hidden);}
 private:
+	void applySelection();
 	struct Data;
 	Data *d;
 };

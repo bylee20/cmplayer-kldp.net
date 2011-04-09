@@ -38,7 +38,7 @@ Application::Application(int &argc, char **argv)
 	setOrganizationName("xylosper");
 	setOrganizationDomain("xylosper.net");
 	setApplicationName("CMPlayer");
-	setWindowIcon(MainWindow::defaultIcon());
+	setWindowIcon(defaultIcon());
 
 	d->defStyle = style()->objectName();
 	setStyle(Pref::get().windowStyle);
@@ -57,12 +57,34 @@ Application::~Application() {
 	delete d;
 }
 
+QIcon Application::defaultIcon() {
+	static QIcon icon;
+	static bool init = false;
+	if (!init) {
+		icon.addFile(":/img/cmplayer16.png", QSize(16, 16));
+		icon.addFile(":/img/cmplayer22.png", QSize(22, 22));
+		icon.addFile(":/img/cmplayer24.png", QSize(24, 24));
+		icon.addFile(":/img/cmplayer32.png", QSize(32, 32));
+		icon.addFile(":/img/cmplayer48.png", QSize(48, 48));
+		icon.addFile(":/img/cmplayer64.png", QSize(64, 64));
+		icon.addFile(":/img/cmplayer128.png", QSize(128, 128));
+		icon.addFile(":/img/cmplayer256.png", QSize(256, 256));
+		icon.addFile(":/img/cmplayer512.png", QSize(512, 512));
+		init = true;
+	}
+	return icon;
+}
+
 void Application::setAlwaysOnTop(QWidget *widget, bool onTop) {
 	d->helper.setAlwaysOnTop(widget->effectiveWinId(), onTop);
 }
 
 QString Application::test() {
+#ifdef Q_OS_MAC
 	return d->helper.test();
+#else
+	return QString();
+#endif
 }
 
 void Application::setScreensaverDisabled(bool disabled) {

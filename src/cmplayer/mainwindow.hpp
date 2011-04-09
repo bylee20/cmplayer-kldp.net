@@ -7,6 +7,7 @@
 
 class Mrl;		class PlayEngine;
 class Track;		class ControlWidget;
+class MainWindowData;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -14,7 +15,6 @@ public:
 	MainWindow();
 	~MainWindow();
 	PlayEngine *engine() const;
-	static QIcon defaultIcon();
 public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
@@ -100,9 +100,8 @@ private:
 	void dropEvent(QDropEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);
 	class VideoScreen;
-	void doSubtitleAutoLoad();
-	void doSubtitleAutoSelection();
-	void updateSubtitle();
+//	void doSubtitleAutoLoad();
+//	void doSubtitleAutoSelection();
 	void showMessage(const QString &message, int last = 2500);
 	void showMessage(const QString &cmd, int value
 		, const QString &unit, bool sign = false, int last = 2500);
@@ -111,8 +110,7 @@ private:
 		, const QString &unit, bool sign = false, int last = 2500);
 	void showMessage(const QString &cmd, bool value, int last = 2500);
 	void setupUi();
-	struct Data;
-	Data *d;
+	MainWindowData *d;
 };
 
 #endif // MAINWINDOW_HPP

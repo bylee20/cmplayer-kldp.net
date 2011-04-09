@@ -108,7 +108,8 @@ HEADERS += playengine.hpp \
     fragmentprogram.hpp \
     shader/i420_to_rgb_simple.hpp \
     shader/i420_to_rgb_filter.hpp \
-    shader/i420_to_rgb_kernel.hpp
+    shader/i420_to_rgb_kernel.hpp \
+    mainwindow_p.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -167,7 +168,8 @@ SOURCES += main.cpp \
     snapshotdialog.cpp \
     events.cpp \
     listmodel.cpp \
-    fragmentprogram.cpp
+    fragmentprogram.cpp \
+    mainwindow_p.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts

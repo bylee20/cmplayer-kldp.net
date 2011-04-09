@@ -1,4 +1,7 @@
 #include "subtitlerenderer.hpp"
+#include "info.hpp"
+#include "mrl.hpp"
+#include "pref.hpp"
 #include "subtitlemodel.hpp"
 #include "osdstyle.hpp"
 #include "subtitleview.hpp"
@@ -14,6 +17,8 @@ struct SubtitleRenderer::Data {
 	int delay, ms;
 	double pos;
 	bool visible, empty;
+	Subtitle loaded;
+	QList<bool> selection;
 };
 
 SubtitleRenderer::SubtitleRenderer(): d(new Data) {
@@ -122,6 +127,142 @@ double SubtitleRenderer::frameRate() const {
 
 int SubtitleRenderer::delay() const {
 	return d->delay;
+}
+
+void SubtitleRenderer::unload() {
+	d->loaded.clear();
+	d->selection.clear();
+	setSubtitle(d->loaded);
+}
+
+const Subtitle &SubtitleRenderer::loaded() const {
+	return d->loaded;
+}
+
+QList<bool> SubtitleRenderer::selection() const {
+	return d->selection;
+}
+
+void SubtitleRenderer::select(int idx, bool selected) {
+	if (0 <= idx && idx < d->selection.size()) {
+		if (d->selection[idx] != selected) {
+			d->selection[idx] = selected;
+			applySelection();
+		}
+	}
+}
+
+void SubtitleRenderer::applySelection() {
+	Q_ASSERT(d->selection.size() == d->loaded.size());
+	const Pref &pref = Pref::get();
+	const QStringList priority = pref.subtitlePriority;
+	QList<int> order;
+	QList<int> indexes;
+	QList<int>::iterator it;
+	for (int i=0; i<d->selection.size(); ++i) {
+		if (d->selection[i])
+			indexes.push_back(i);
+	}
+	for (int i=0; i<priority.size(); ++i) {
+		it = indexes.begin();
+		while(it != indexes.end()) {
+			const QString id = d->loaded[*it].language().id();
+			if (id == priority[i]) {
+				order.append(*it);
+				it = indexes.erase(it);
+			} else
+				++it;
+		}
+	}
+	order += indexes;
+	Subtitle sub;
+	for (int i=0; i<order.size(); ++i)
+		sub.append(d->loaded[order[i]]);
+	setSubtitle(sub);
+}
+
+bool SubtitleRenderer::load(const QString &fileName, const QString &enc, bool select) {
+	int idx = d->loaded.size();
+	Subtitle sub;
+	if (!sub.load(fileName, enc))
+		return false;
+	d->loaded += sub;
+	for (int i=idx; i<d->loaded.size(); ++i)
+		d->selection.push_back(select);
+	Q_ASSERT(d->loaded.size() == d->selection.size());
+	applySelection();
+	return true;
+}
+
+static QList<bool> autoselection(const Mrl &mrl, const Subtitle &loaded) {
+	QList<bool> selection;
+	QList<int> selected;
+	if (loaded.isEmpty() || !mrl.isLocalFile())
+		return selection;
+	const Pref &p = Pref::get();
+	QSet<QString> langSet;
+	const QString base = QFileInfo(mrl.toLocalFile()).completeBaseName();
+	for (int i=0; i<loaded.size(); ++i) {
+		selection.push_back(false);
+		bool select = false;
+		if (p.subtitleAutoSelect == SameName) {
+			select = QFileInfo(loaded[i].fileName()).completeBaseName() == base;
+		} else if (p.subtitleAutoSelect == AllLoaded) {
+			select = true;
+		} else if (p.subtitleAutoSelect == EachLanguage) {
+			const QString lang = loaded[i].language().id();
+			if ((select = (!langSet.contains(lang))))
+				langSet.insert(lang);
+		}
+		if (select)
+			selected.push_back(i);
+	}
+	if (p.subtitleAutoSelect == SameName
+			&& !selected.isEmpty() && !p.subtitleExtension.isEmpty()) {
+		for (int i=0; i<selected.size(); ++i) {
+			const QString fileName = loaded[selected[i]].fileName();
+			const QString suffix = QFileInfo(fileName).suffix().toLower();
+			if (p.subtitleExtension == suffix) {
+				const int idx = selected[i];
+				selected.clear();
+				selected.push_back(idx);
+				break;
+			}
+		}
+	}
+	for (int i=0; i<selected.size(); ++i) {
+		selection[selected[i]] = true;
+	}
+	return selection;
+}
+
+int SubtitleRenderer::autoload(const Mrl &mrl, bool autoselect) {
+	unload();
+	const Pref &pref = Pref::get();
+	if (pref.subtitleAutoLoad == NoAutoLoad)
+		return 0;
+	const QStringList filter = Info::subtitleNameFilter();
+	const QFileInfo fileInfo(mrl.toLocalFile());
+	const QFileInfoList all = fileInfo.dir().entryInfoList(filter, QDir::Files, QDir::Name);
+	const QString base = fileInfo.completeBaseName();
+	for (int i=0; i<all.size(); ++i) {
+		if (pref.subtitleAutoLoad != SamePath) {
+			if (pref.subtitleAutoLoad == Matched) {
+				if (base != all[i].completeBaseName())
+					continue;
+			} else if (!all[i].fileName().contains(base))
+				continue;
+		}
+		Subtitle subtitle;
+		if (subtitle.load(all[i].absoluteFilePath(), pref.subtitleEncoding)) {
+			d->loaded += subtitle;
+		}
+	}
+	if (autoselect) {
+		d->selection = autoselection(mrl, d->loaded);
+		applySelection();
+	}
+	return d->loaded.size();
 }
 
 int SubtitleRenderer::start(int pos) const {

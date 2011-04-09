@@ -1,55 +1,96 @@
-#include "osdrenderer.hpp"
 #include "fragmentprogram.hpp"
+#include "overlay.hpp"
+#include "colorproperty.hpp"
 #include "events.hpp"
-#include <QtGui/QMouseEvent>
 #include "libvlc.hpp"
-#include "pixmapoverlay.hpp"
 #include "videorenderer.hpp"
 #include "videoframe.hpp"
 #include "logodrawer.hpp"
-#include "pixelbufferoverlay.hpp"
-#include <QtOpenGL/QGLFramebufferObject>
 #include <QtGui/QPainter>
-#include <QtCore/QCoreApplication>
-#include <QtCore/QRegExp>
+#include <QtGui/QMouseEvent>
 #include <QtCore/QDebug>
 #include <QtCore/QMutex>
 #include <QtCore/QSize>
+#include <QtCore/QRegExp>
+#include <QtCore/QCoreApplication>
 #include <math.h>
 
 #include "shader/i420_to_rgb_simple.hpp"
 #include "shader/i420_to_rgb_filter.hpp"
 #include "shader/i420_to_rgb_kernel.hpp"
 
-static const int i420ToRgbSimple = 0;
-static const int i420ToRgbFilter = 1;
-static const int i420ToRgbKernel = 2;
-
 struct VideoRenderer::Data {
-	LogoDrawer logo;
-	bool logoOn, frameIsSet, hasPrograms;
-	bool binding;
-	Overlay *overlay;
-	GLuint texture[3];
-	double crop, aspect, fps, sar;
-	float brightness, contrast, sat_con, sinhue, coshue;
-	ColorProperty color;
-	QSize renderSize;
-	QMutex mutex;
-	VideoFrame *buffer, *frame, *temp;
-	VideoFrame buf[3];
-	VideoUtil *util;
-	QRectF vtx;
-	Effects effects;
-	double kern_d, kern_c, kern_n;
-	bool hasKernel, prepared;
+	static const int i420ToRgbSimple = 0;
+	static const int i420ToRgbFilter = 1;
+	static const int i420ToRgbKernel = 2;
+	QMutex mutex;		QSize renderSize;	ColorProperty color;
+	LogoDrawer logo;	Overlay *overlay;	GLuint texture[3];
+	VideoFrame *buffer, *frame, *temp, buf[3];	VideoUtil *util;
+	QRectF vtx;		Effects effects;
 	void **planes[VIDEO_FRAME_MAX_PLANE_COUNT];
-	QList<FragmentProgram*> shaders;
-	FragmentProgram *shader;
-	double rgb_base;
-	double rgb_c_r;
-	double rgb_c_g;
-	double rgb_c_b;
+	QList<FragmentProgram*> shaders;		FragmentProgram *shader;
+	double rgb_base, rgb_c_r, rgb_c_g, rgb_c_b;
+	double crop, aspect, fps, sar, kern_d, kern_c, kern_n;
+	double brightness, contrast, sat_con, sinhue, coshue;
+	bool hasKernel, prepared, logoOn, frameIsSet, hasPrograms, binding;
+// methods
+	inline void update_sat_con() {
+		sat_con = (effects & Grayscale) ? 0.0
+			: qBound(0.0, color.saturation() + 1.0, 2.0)*contrast;
+	}
+	inline void update_color_prop() {
+		color.clamp();
+		brightness = qBound(-1.0, color.brightness(), 1.0);
+		contrast = qBound(0., color.contrast() + 1., 2.);
+		update_sat_con();
+		const double hue = qBound(-M_PI, color.hue()*M_PI, M_PI);
+		sinhue = sin(hue);	coshue = cos(hue);
+	}
+	inline void update_planes() {
+		*planes[0] = buffer->data(0);
+		*planes[1] = buffer->data(1);
+		*planes[2] = buffer->data(2);
+	}
+	void update_effects() {
+		int idx = i420ToRgbSimple;
+		rgb_base = 0.0;
+		rgb_c_r = rgb_c_g = rgb_c_b = 1.0;
+		kern_c = kern_d = kern_n = 0.0;
+		if (effects & InvertColor) {
+			idx = i420ToRgbFilter;
+			rgb_base = 1.0;
+			rgb_c_r = rgb_c_g = rgb_c_b = -1.0;
+		}
+		hasKernel = (effects & Blur) || (effects & Sharpen);
+		if (hasKernel) {
+			idx = i420ToRgbKernel;
+			if (effects & Blur) {
+				kern_c += 1.0; // center
+				kern_n += 2.0; // neighbor
+				kern_d += 1.0; // diagonal
+			}
+			if (effects & Sharpen) {
+				kern_c += 5.0;
+				kern_n += -1.0;
+				kern_d += 0.0;
+			}
+			const double den = 1.0/(kern_c + kern_n*4.0 + kern_d*4.0);
+			kern_c *= den;
+			kern_d *= den;
+			kern_n *= den;
+		}
+		shader = shaders.value(idx, shaders.first());
+		update_sat_con();
+	}
+	void init_program() {
+#define GET_CODE(name) (QByteArray((char*)name##_fp, name##_fp_len))
+		shaders.push_back(new FragmentProgram(GET_CODE(i420_to_rgb_simple)));
+		shaders.push_back(new FragmentProgram(GET_CODE(i420_to_rgb_filter)));
+		shaders.push_back(new FragmentProgram(GET_CODE(i420_to_rgb_kernel)));
+#undef GET_CODE
+		hasPrograms = (shader = shaders.value(0, 0));
+		Q_ASSERT(hasPrograms);
+	}
 };
 
 QGLFormat VideoRenderer::makeFormat() {
@@ -59,44 +100,25 @@ QGLFormat VideoRenderer::makeFormat() {
 
 VideoRenderer::VideoRenderer(QWidget *parent)
 : QGLWidget(makeFormat(), parent), d(new Data) {
-	d->rgb_base = 0.0;
-	d->rgb_c_r = d->rgb_c_g = d->rgb_c_b = 1.0;
-	d->kern_c = 1.0;
-	d->kern_d = d->kern_n = 0.0;
-	d->effects = 0;
-	d->shader = 0;
-	d->frame = &d->buf[0];
-	d->temp = &d->buf[1];
-	d->buffer = &d->buf[2];
-	d->prepared = false;
-	d->hasKernel = false;
-	d->binding = false;
-	setMinimumSize(QSize(200, 100));
-	setColorProperty(d->color);
-	d->frameIsSet = d->logoOn = false;
-	d->fps = d->crop = d->aspect = -1.0;
-	d->overlay = Overlay::create(this);
-	for (int i=0; i<VIDEO_FRAME_MAX_PLANE_COUNT; ++i)
-		d->planes[i] = 0;
-	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
 	makeCurrent();
 	glGenTextures(3, d->texture);
 #define GET_PROC_ADDRESS(func) func = (_##func)context()->getProcAddress(QLatin1String(#func))
 	GET_PROC_ADDRESS(glActiveTexture);
+	Q_ASSERT(glActiveTexture != 0);
 #undef GET_PROC_ADDRESS
-	d->hasPrograms = glActiveTexture;
-	QList<QByteArray> codes;
-#define GET_CODE(name) codes.push_back(QByteArray((char*)name##_fp, name##_fp_len))
-	GET_CODE(i420_to_rgb_simple);
-	GET_CODE(i420_to_rgb_filter);
-	GET_CODE(i420_to_rgb_kernel);
-#undef GET_CODE
-	for (int i=0; i<codes.size(); ++i) {
-		FragmentProgram *fp = new FragmentProgram(codes[i]);
-		Q_ASSERT(fp->isAvailable() && !fp->hasError());
-		d->shaders.push_back(fp);
-	}
-	d->shader = d->shaders.first();
+	d->init_program();
+	doneCurrent();
+
+	d->update_color_prop();
+	d->effects = 0;	d->update_effects();
+	d->planes[0] = d->planes[1] = d->planes[2] = 0;
+	d->fps = d->crop = d->aspect = -1.0;
+	d->frame = &d->buf[0];	d->temp = &d->buf[1];	d->buffer = &d->buf[2];
+	d->frameIsSet = d->logoOn = d->binding = d->hasKernel = d->prepared = false;
+	d->overlay = Overlay::create(this);
+	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
+
+	setMinimumSize(QSize(200, 100));
 	setAutoFillBackground(false);
 	setAttribute(Qt::WA_OpaquePaintEvent, true);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -105,6 +127,7 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 }
 
 VideoRenderer::~VideoRenderer() {
+	makeCurrent();
 	qDeleteAll(d->shaders);
 	delete d->overlay;
 	glDeleteTextures(3, d->texture);
@@ -157,20 +180,12 @@ void VideoRenderer::setUtil(VideoUtil *util) {
 	d->util = util;
 }
 
-void VideoRenderer::setPlanes() {
-	for (int i=0; i<VIDEO_FRAME_MAX_PLANE_COUNT; ++i)
-		*d->planes[i] = d->buffer->data(i);
-}
-
 void *VideoRenderer::lock(void ***planes) {
 	d->mutex.lock();
 	d->planes[0] = planes[0];
 	d->planes[1] = planes[1];
 	d->planes[2] = planes[2];
-
-	*d->planes[0] = d->buffer->data(0);
-	*d->planes[1] = d->buffer->data(1);
-	*d->planes[2] = d->buffer->data(2);
+	d->update_planes();
 	return 0;
 }
 
@@ -188,9 +203,7 @@ void VideoRenderer::display(void *id) {
 		Q_ASSERT(d->temp->length() == d->buffer->length());
 		qSwap(d->temp, d->buffer);
 		QCoreApplication::postEvent(this, new NewVideoFrameEvent);
-		*d->planes[0] = d->buffer->data(0);
-		*d->planes[1] = d->buffer->data(1);
-		*d->planes[2] = d->buffer->data(2);
+		d->update_planes();
 	}
 }
 
@@ -326,15 +339,8 @@ void VideoRenderer::setLogoMode(bool on) {
 
 void VideoRenderer::setColorProperty(const ColorProperty &prop) {
 	d->color = prop;
-	d->brightness = qBound(-1.0, d->color.brightness(), 1.0);
-	d->contrast = qBound(0., d->color.contrast() + 1., 2.);
-	if (d->effects & Grayscale)
-		d->sat_con = 0.0;
-	else
-		d->sat_con = qBound(0., d->color.saturation() + 1., 2.)*d->contrast;
-	const double hue = qBound(-M_PI, d->color.hue()*M_PI, M_PI);
-	d->sinhue = sin(hue);
-	d->coshue = cos(hue);
+	d->update_color_prop();
+	update();
 }
 
 const ColorProperty &VideoRenderer::colorProperty() const {
@@ -346,6 +352,7 @@ void VideoRenderer::setFixedRenderSize(const QSize &size) {
 		d->renderSize = size;
 		if (this->size() != size)
 			updateSize();
+		update();
 	}
 }
 
@@ -396,8 +403,10 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 			const double dx = 1.0/(double)d->frame->dataPitch(0);
 			const double dy = 1.0/(double)d->frame->dataLines(0);
 			d->shader->setLocalParam(1, d->rgb_c_r, d->rgb_c_g, d->rgb_c_b, d->rgb_base);
-			d->shader->setLocalParam(2, dx, dy, -dx, 0.0f);
-			d->shader->setLocalParam(3, d->kern_c, d->kern_n, d->kern_d, 0.0f);
+			if (d->hasKernel) {
+				d->shader->setLocalParam(2, dx, dy, -dx, 0.0f);
+				d->shader->setLocalParam(3, d->kern_c, d->kern_n, d->kern_d, 0.0f);
+			}
 		}
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, d->texture[0]);
@@ -493,55 +502,18 @@ void VideoRenderer::mouseReleaseEvent(QMouseEvent *event) {
 
 void VideoRenderer::clearEffects() {
 	d->effects = 0;
+	d->update_effects();
 	update();
 }
 
 void VideoRenderer::setEffect(Effect effect, bool on) {
-	Effects effects = d->effects;
-	if (on)
-		effects |= effect;
-	else
-		effects &= ~effect;
-	setEffects(effects);
+	setEffects(on ? (d->effects | effect) : (d->effects & ~effect));
 }
 
 void VideoRenderer::setEffects(Effects effects) {
-	if (d->effects == effects)
-		return;
-	int idx = i420ToRgbSimple;
-	d->effects = effects;
-	d->rgb_base = 0.0;
-	d->rgb_c_r = d->rgb_c_g = d->rgb_c_b = 1.0;
-	if (d->effects & InvertColor) {
-		idx = i420ToRgbFilter;
-		d->rgb_base = 1.0;
-		d->rgb_c_r = d->rgb_c_g = d->rgb_c_b = -1.0;
+	if (d->effects != effects) {
+		d->effects = effects;
+		d->update_effects();
+		update();
 	}
-	d->hasKernel = (d->effects & Blur) || (d->effects & Sharpen);
-	if (d->hasKernel) {
-		idx = i420ToRgbKernel;
-		d->kern_c = d->kern_d = d->kern_n = 0.0;
-		if (d->effects & Blur) {
-			d->kern_c += 1.0; // center
-			d->kern_n += 2.0; // neighbor
-			d->kern_d += 1.0; // diagonal
-		}
-		if (d->effects & Sharpen) {
-			d->kern_c += 5.0;
-			d->kern_n += -1.0;
-			d->kern_d += 0.0;
-		}
-		const double den = 1.0/(d->kern_c + d->kern_n*4.0 + d->kern_d*4.0);
-		d->kern_c *= den;
-		d->kern_d *= den;
-		d->kern_n *= den;
-	}
-	d->shader = d->shaders.value(idx, d->shaders.first());
-	if (d->effects & Grayscale)
-		d->sat_con = 0.0;
-	else {
-		d->sat_con = d->color.saturation() + 1.0f;
-		d->sat_con = qBound(0.0f, d->sat_con, 2.0f)*d->contrast;
-	}
-	update();
 }
