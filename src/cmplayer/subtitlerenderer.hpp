@@ -5,9 +5,8 @@
 #include "textosdrenderer.hpp"
 #include <QtCore/QObject>
 
-class QDialog;		class Mrl;
-
-
+class QDialog;			class Mrl;
+class SubtitleComponentModel;
 
 class SubtitleRenderer : public QObject {
 	Q_OBJECT
@@ -16,8 +15,6 @@ public:
 	~SubtitleRenderer();
 	void setOsd(TextOsdRenderer *osd);
 	TextOsdRenderer *osd() const;
-	void setSubtitle(const Subtitle &subtitle);
-	const Subtitle &subtitle() const;
 	double frameRate() const;
 	int delay() const;
 	int start(int pos) const;
@@ -41,6 +38,17 @@ public slots:
 	void setVisible(bool visible);
 	void setHidden(bool hidden) {setVisible(!hidden);}
 private:
+	typedef Subtitle::Component Comp;
+	typedef Comp::const_iterator CompIt;
+	struct Render {
+		Render() {comp = 0; model = 0;}
+		Render(const Comp &comp);
+		~Render();
+		const Comp *comp;
+		CompIt prev;
+		SubtitleComponentModel *model;
+	};
+	typedef QList<Render*> RenderList;
 	void applySelection();
 	struct Data;
 	Data *d;

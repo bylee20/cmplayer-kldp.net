@@ -7,18 +7,40 @@
 #include "subtitleview.hpp"
 #include <QtCore/QDebug>
 
+SubtitleRenderer::Render::Render(const Comp &comp) {
+	this->comp = &comp;
+	this->model = new SubtitleComponentModel(this->comp);
+	this->prev = this->comp->end();
+}
+
+SubtitleRenderer::Render::~Render() {
+	delete this->model;
+}
+
 struct SubtitleRenderer::Data {
 	SubtitleView *view;
 	TextOsdRenderer *osd;
-	Subtitle sub;
-	QVector<Subtitle::Component::const_iterator> prev;
-	QVector<SubtitleComponentModel*> model;
+//	Subtitle sub;
+//	QVector<CompIt> prev;
+//	QVector<SubtitleComponentModel*> model;
+	QHash<int, Render*> selected;
 	double fps;
 	int delay, ms;
 	double pos;
 	bool visible, empty;
 	Subtitle loaded;
 	QList<bool> selection;
+	RenderList render;
+	QVector<SubtitleComponentModel*> model_list() const {
+		QVector<SubtitleComponentModel*> list;
+		for (int i=0; i<render.size(); ++i)
+			list.push_back(render[i]->model);
+		return list;
+	}
+	void reset_prev() {
+		for (int i=0; i<render.size(); ++i)
+			render[i]->prev = render[i]->comp->end();
+	}
 };
 
 SubtitleRenderer::SubtitleRenderer(): d(new Data) {
@@ -37,7 +59,7 @@ SubtitleRenderer::~SubtitleRenderer() {
 QWidget *SubtitleRenderer::view(QWidget *parent) const {
 	if (!d->view) {
 		d->view = new SubtitleView(parent);
-		d->view->setModel(d->model);
+		d->view->setModel(d->model_list());
 	}
 	return d->view;
 }
@@ -50,30 +72,10 @@ void SubtitleRenderer::setOsd(TextOsdRenderer *osd) {
 	d->osd = osd;
 }
 
-void SubtitleRenderer::setSubtitle(const Subtitle &subtitle) {
-	d->sub = subtitle;
-	d->prev.resize(d->sub.size());
-	qDeleteAll(d->model);
-	d->model.resize(d->sub.size());
-	d->empty = true;
-	for (int i=0; i<d->sub.size(); ++i) {
-		d->prev[i] = d->sub[i].end();
-		d->model[i] = new SubtitleComponentModel(&d->sub[i], this);
-		if (!d->sub[i].isEmpty())
-			d->empty = false;
-	}
-	if (d->empty)
-		clear();
-	else
-		render(d->ms);
-	if (d->view)
-		d->view->setModel(d->model);
-}
-
 void SubtitleRenderer::setFrameRate(double fps) {
 	if (d->fps != fps) {
-		for (int i=0; i<d->prev.size(); ++i)
-			d->prev[i] = d->sub[i].end();
+		d->fps = fps;
+		d->reset_prev();
 	}
 }
 
@@ -82,19 +84,22 @@ void SubtitleRenderer::render(int ms) {
 	if (!d->visible || d->empty || ms == 0 || !d->osd)
 		return;
 	bool changed = false;
-	for (int i=0; i<d->sub.size(); ++i) {
-		Subtitle::Component::const_iterator it = d->sub[i].start(ms - d->delay, d->fps);
-		if (it != d->prev[i]) {
-			d->prev[i] = it;
-			d->model[i]->setCurrentNode(&(*it));
+	for (int i=0; i<d->render.size(); ++i) {
+		Render &render = *d->render[i];
+		CompIt it = render.comp->start(ms - d->delay, d->fps);
+		if (it != render.prev) {
+			render.prev = it;
+			render.model->setCurrentNode(&(*it));
 			changed = true;
 		}
 	}
 	if (changed) {
 		RichString text;
-		for (int i=0; i<d->prev.size(); ++i) {
-			if (d->prev[i] != d->sub[i].end())
-				text.merge(d->prev[i]->text);
+		for (int i=0; i<d->render.size(); ++i) {
+			const Render &render = *d->render[i];
+			if (render.prev != render.comp->end()) {
+				text.merge(render.prev->text);
+			}
 		}
 		d->osd->showText(text);
 	}
@@ -111,15 +116,14 @@ void SubtitleRenderer::setVisible(bool visible) {
 }
 
 void SubtitleRenderer::clear() {
-	for (int i=0; i<d->prev.size(); ++i)
-		d->prev[i] = d->sub[i].end();
+	d->reset_prev();
 	if (d->osd)
 		d->osd->clear();
 }
 
-const Subtitle &SubtitleRenderer::subtitle() const {
-	return d->sub;
-}
+//const Subtitle &SubtitleRenderer::subtitle() const {
+//	return d->sub;
+//}
 
 double SubtitleRenderer::frameRate() const {
 	return d->fps;
@@ -130,9 +134,34 @@ int SubtitleRenderer::delay() const {
 }
 
 void SubtitleRenderer::unload() {
+	qDeleteAll(d->render);
+	d->render.clear();
 	d->loaded.clear();
 	d->selection.clear();
-	setSubtitle(d->loaded);
+	clear();
+	d->empty = true;
+	if (d->view)
+		d->view->setModel(d->model_list());
+
+	//	d->sub = subtitle;
+	//	d->prev.resize(d->sub.size());
+	//	qDeleteAll(d->model);
+	//	d->model.resize(d->sub.size());
+	//	d->empty = true;
+	//	for (int i=0; i<d->sub.size(); ++i) {
+	//		d->prev[i] = d->sub[i].end();
+	//		d->model[i] = new SubtitleComponentModel(&d->sub[i], this);
+	//		if (!d->sub[i].isEmpty())
+	//			d->empty = false;
+	//	}
+	//	if (d->empty)
+	//		clear();
+	//	else
+	//		render(d->ms);
+	//	if (d->view)
+	//		d->view->setModel(d->model);
+
+//	setSubtitle(d->loaded);
 }
 
 const Subtitle &SubtitleRenderer::loaded() const {
@@ -158,13 +187,12 @@ void SubtitleRenderer::applySelection() {
 	const QStringList priority = pref.subtitlePriority;
 	QList<int> order;
 	QList<int> indexes;
-	QList<int>::iterator it;
 	for (int i=0; i<d->selection.size(); ++i) {
 		if (d->selection[i])
 			indexes.push_back(i);
 	}
 	for (int i=0; i<priority.size(); ++i) {
-		it = indexes.begin();
+		QList<int>::iterator it = indexes.begin();
 		while(it != indexes.end()) {
 			const QString id = d->loaded[*it].language().id();
 			if (id == priority[i]) {
@@ -175,10 +203,37 @@ void SubtitleRenderer::applySelection() {
 		}
 	}
 	order += indexes;
-	Subtitle sub;
-	for (int i=0; i<order.size(); ++i)
-		sub.append(d->loaded[order[i]]);
-	setSubtitle(sub);
+
+	QList<Render*> render;
+	QHash<int, Render*> selected;
+	d->empty = true;
+	for (int i=0; i<order.size(); ++i) {
+		const int idx = order[i];
+		QHash<int, Render*>::iterator it = d->selected.find(idx);
+		if (it == d->selected.end()) {
+			Render *r = new Render(d->loaded[idx]);
+			render.push_back(r);
+			selected.insert(idx, r);
+		} else {
+			render.push_back(*it);
+			selected.insert(idx, *it);
+			d->selected.erase(it);
+		}
+		if (!render.last()->comp->isEmpty())
+			d->empty = false;
+	}
+	QHash<int, Render*>::iterator it = d->selected.begin();
+	for (; it != d->selected.end(); ++it)
+		delete *it;
+	d->render = render;
+	d->selected = selected;
+	d->reset_prev();
+	if (d->empty)
+		clear();
+	else
+		this->render(d->ms);
+	if (d->view)
+		d->view->setModel(d->model_list());
 }
 
 bool SubtitleRenderer::load(const QString &fileName, const QString &enc, bool select) {
@@ -265,12 +320,28 @@ int SubtitleRenderer::autoload(const Mrl &mrl, bool autoselect) {
 	return d->loaded.size();
 }
 
-int SubtitleRenderer::start(int pos) const {
-	return d->sub.start(pos - d->delay, d->fps);
+int SubtitleRenderer::start(int time) const {
+	int s = -1;
+	for (int i=0; i<d->render.size(); ++i) {
+		const Comp *comp = d->render[i]->comp;
+		const CompIt it = comp->start(time - d->delay, d->fps);
+		if (it != comp->end())
+			s = qMax(s, comp->isBasedOnFrame() ? Subtitle::msec(it.key(), d->fps) : it.key());
+	}
+	return s;
 }
 
-int SubtitleRenderer::end(int pos) const {
-	return d->sub.end(pos - d->delay, d->fps);
+int SubtitleRenderer::end(int time) const {
+	int e = -1;
+	for (int i=0; i<d->render.size(); ++i) {
+		const Comp *comp = d->render[i]->comp;
+		const CompIt it = comp->end(time - d->delay, d->fps);
+		if (it != comp->end()) {
+			const int t = comp->isBasedOnFrame() ? Subtitle::msec(it.key(), d->fps) : it.key();
+			e = e == -1 ? t : qMin(e, t);
+		}
+	}
+	return e;
 }
 
 void SubtitleRenderer::setDelay(int delay) {

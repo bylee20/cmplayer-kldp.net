@@ -76,27 +76,27 @@ Subtitle::Component &Subtitle::Component::unite(const Component &other, double f
 	return *this;
 }
 
-int Subtitle::start(int time, double frameRate) const {
-	int s = -1;
-	for (int i=0; i<m_comp.size(); ++i) {
-		const Component::const_iterator it = m_comp[i].start(time, frameRate);
-		if (it != m_comp[i].end())
-			s = qMax(s, m_comp[i].isBasedOnFrame() ? msec(it.key(), frameRate) : it.key());
-	}
-	return s;
-}
+//int Subtitle::start(int time, double frameRate) const {
+//	int s = -1;
+//	for (int i=0; i<m_comp.size(); ++i) {
+//		const Component::const_iterator it = m_comp[i].start(time, frameRate);
+//		if (it != m_comp[i].end())
+//			s = qMax(s, m_comp[i].isBasedOnFrame() ? msec(it.key(), frameRate) : it.key());
+//	}
+//	return s;
+//}
 
-int Subtitle::end(int time, double frameRate) const {
-	int e = -1;
-	for (int i=0; i<m_comp.size(); ++i) {
-		const Component::const_iterator it = m_comp[i].end(time, frameRate);
-		if (it != m_comp[i].end()) {
-			const int t = m_comp[i].isBasedOnFrame() ? msec(it.key(), frameRate) : it.key();
-			e = e == -1 ? t : qMin(e, t);
-		}
-	}
-	return e;
-}
+//int Subtitle::end(int time, double frameRate) const {
+//	int e = -1;
+//	for (int i=0; i<m_comp.size(); ++i) {
+//		const Component::const_iterator it = m_comp[i].end(time, frameRate);
+//		if (it != m_comp[i].end()) {
+//			const int t = m_comp[i].isBasedOnFrame() ? msec(it.key(), frameRate) : it.key();
+//			e = e == -1 ? t : qMin(e, t);
+//		}
+//	}
+//	return e;
+//}
 
 RichString Subtitle::text(int time, double frameRate) const {
 	if (m_comp.isEmpty())

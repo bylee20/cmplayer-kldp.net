@@ -100,8 +100,6 @@ private:
 	void dropEvent(QDropEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);
 	class VideoScreen;
-//	void doSubtitleAutoLoad();
-//	void doSubtitleAutoSelection();
 	void showMessage(const QString &message, int last = 2500);
 	void showMessage(const QString &cmd, int value
 		, const QString &unit, bool sign = false, int last = 2500);

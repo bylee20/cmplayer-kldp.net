@@ -78,20 +78,20 @@ public:
 	int size() const {return m_comp.size();}
 	bool isEmpty() const;
 	Component component(double frameRate) const;
-	int start(int time, double frameRate) const;
-	int end(int time, double frameRate) const;
+//	int start(int time, double frameRate) const;
+//	int end(int time, double frameRate) const;
 	RichString text(int time, double frameRate) const;
 	bool load(const QString &file, const QString &enc);
 	void clear() {m_comp.clear();}
 	void append(const Component &comp) {m_comp.append(comp);}
 	static Subtitle parse(const QString &fileName, const QString &enc);
-private:
 	static int msec(int frame, double frameRate) {
 		return qRound(frame/frameRate*1000.0);
 	}
 	static int frame(int msec, double frameRate) {
 		return qRound(msec*0.001*frameRate);
 	}
+private:
 	QList<Component> m_comp;
 };
 
