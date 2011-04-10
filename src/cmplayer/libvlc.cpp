@@ -130,7 +130,7 @@ LibVLC::LibVLC(): d(new Data) {
 		"--extraintf=logger",
 		"--quiet",
 //		"--verbose=2",
-	#ifdef Q_WS_X11
+	#ifndef Q_WS_X11
 		"--no-xlib",
 	#endif
 		"--reset-plugins-cache",

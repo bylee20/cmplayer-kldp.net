@@ -113,7 +113,6 @@ void AudioController::prepare(const AudioFormat *format) {
 }
 
 AudioBuffer *AudioController::process(AudioBuffer *in) {
-	return 0;
 	return d->volume.process(in);
 }
 
