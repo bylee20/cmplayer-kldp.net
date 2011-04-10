@@ -2,7 +2,10 @@
 #VLC_LIB_PATH ?= /Applications/VLC.app/Contents/MacOS/lib
 #VLC_PLUGINS_PATH ?= /Applications/VLC.app/Contents/MacOS/plugins
 
-cflags_vlc_plugins := -I. -std=gnu99 -lvlc -lvlccore -shared -pthread -fPIC
+cflags_vlc_plugins := -I. -std=gnu99 -lvlc -lvlccore -shared -pthread
+ifeq ($(shell uname -m),x86_64)
+	cflags_vlc_plugins = $(cflags_vlc_plugins) -fPIC	
+endif
 
 plugins: libcmplayer-vout_plugin libcmplayer-afilter_plugin
 
