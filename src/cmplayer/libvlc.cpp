@@ -154,6 +154,7 @@ LibVLC::LibVLC(): d(new Data) {
 		"--cmplayer-afilter-data", pData,
 		"--cmplayer-afilter-util", paUtil,
 		"--audio-filter", "cmplayer-afilter",
+		"--aout", "pulse",
 	};
 	d->inst = libvlc_new(sizeof(args)/sizeof(*args), args);
 	d->mp = libvlc_media_player_new(d->inst);
