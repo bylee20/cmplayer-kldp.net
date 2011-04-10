@@ -126,12 +126,13 @@ LibVLC::LibVLC(): d(new Data) {
 
 	const char *const args[] = {
 		"-I", "dummy",
-		"--reset-plugins-cache",
 		"--ignore-config",
 		"--extraintf=logger",
 		"--quiet",
 //		"--verbose=2",
+	#ifdef Q_WS_X11
 		"--no-xlib",
+	#endif
 		"--reset-plugins-cache",
 		"--plugin-path", Info::pluginPath(),
 		"--no-media-library",
