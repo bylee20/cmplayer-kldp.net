@@ -37,8 +37,8 @@ public:
 				buffer += m_channels;
 			}
 		} else {
+			// copied from vlc volnorm
 			float avg = 0;
-
 			/* Calculate the average power level on this buffer */
 			for(int i=0; i<samples; ++i) {
 				for(int ch=0; ch<m_channels; ++ch) {

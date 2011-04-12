@@ -25,23 +25,19 @@ LogoDrawer::LogoDrawer() {
 LogoDrawer::~LogoDrawer() {
 }
 
-void LogoDrawer::drawLogo(QPainter *painter, const QRect &bg) {
+void LogoDrawer::drawLogo(QPainter *painter, const QRectF &bg) {
 	const double w = bg.width();
 	const double h = bg.height();
 	const int len = qMin(qRound(qMin(w, h)*0.7), m_logo.width());
-	QRect rect;
-	rect.setX((w-len)*0.5 + 0.5);
-	rect.setY((h-len)*0.5 + 0.5);
-	rect.setWidth(len + 0.5);
-	rect.setHeight(len + 0.5);
+	const QPoint pos((w-len)*0.5 + 0.5, (h-len)*0.5 + 0.5);
 	if (len != m_logo.width())
-		painter->drawPixmap(rect, m_logo.scaled(len, len
+		painter->drawPixmap(pos, m_logo.scaled(len, len
 				, Qt::KeepAspectRatio, Qt::SmoothTransformation));
 	else
-		painter->drawPixmap(rect, m_logo);
+		painter->drawPixmap(pos, m_logo);
 }
 
-void LogoDrawer::draw(QPainter *painter, const QRect &bg) {
+void LogoDrawer::draw(QPainter *painter, const QRectF &bg) {
 	const double w = bg.width();
 	const double h = bg.height();
 

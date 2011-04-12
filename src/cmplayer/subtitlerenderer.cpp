@@ -1,4 +1,5 @@
 #include "subtitlerenderer.hpp"
+#include <QtCore/QLinkedList>
 #include "info.hpp"
 #include "mrl.hpp"
 #include "pref.hpp"
@@ -20,36 +21,54 @@ SubtitleRenderer::Render::~Render() {
 struct SubtitleRenderer::Data {
 	SubtitleView *view;
 	TextOsdRenderer *osd;
-//	Subtitle sub;
-//	QVector<CompIt> prev;
-//	QVector<SubtitleComponentModel*> model;
-	QHash<int, Render*> selected;
 	double fps;
 	int delay, ms;
 	double pos;
 	bool visible, empty;
-	Subtitle loaded;
-	QList<bool> selection;
-	RenderList render;
-	QVector<SubtitleComponentModel*> model_list() const {
+	QList<Loaded> loaded;
+	RenderList order;
+	bool selecting;
+	void set_model_list() {
+		if (!view)
+			return;
 		QVector<SubtitleComponentModel*> list;
-		for (int i=0; i<render.size(); ++i)
-			list.push_back(render[i]->model);
-		return list;
+		list.reserve(order.size());
+		RenderList::const_iterator it = order.begin();
+		for (; it!=order.end(); ++it) {
+			const Render *render = *it;
+			list.push_back(render->model);
+			if (!render->comp->isEmpty())
+				empty = false;
+		}
+		view->setModel(list);
 	}
 	void reset_prev() {
-		for (int i=0; i<render.size(); ++i)
-			render[i]->prev = render[i]->comp->end();
+		RenderList::const_iterator it = order.begin();
+		for (; it!=order.end(); ++it) {
+			Render *r = *it;
+			r->prev = r->comp->end();
+		}
+	}
+	QMap<QString, int> langMap;
+	int language_priority(const Render *r) const {
+		return langMap.value(r->comp->language().id(), -1);
+	}
+	void reset_lang_map() {
+		const QStringList priority = Pref::get().subtitlePriority;
+		for (int i=0; i< priority.size(); ++i)
+			langMap[priority[i]] = priority.size()-i;
 	}
 };
 
 SubtitleRenderer::SubtitleRenderer(): d(new Data) {
+	d->selecting = false;
 	d->empty = d->visible = true;
 	d->osd = 0;
 	d->fps = 30;
 	d->ms = d->delay = 0;
 	d->pos = 1.0;
 	d->view = 0;
+	d->reset_lang_map();
 }
 
 SubtitleRenderer::~SubtitleRenderer() {
@@ -59,7 +78,7 @@ SubtitleRenderer::~SubtitleRenderer() {
 QWidget *SubtitleRenderer::view(QWidget *parent) const {
 	if (!d->view) {
 		d->view = new SubtitleView(parent);
-		d->view->setModel(d->model_list());
+		d->set_model_list();
 	}
 	return d->view;
 }
@@ -84,8 +103,9 @@ void SubtitleRenderer::render(int ms) {
 	if (!d->visible || d->empty || ms == 0 || !d->osd)
 		return;
 	bool changed = false;
-	for (int i=0; i<d->render.size(); ++i) {
-		Render &render = *d->render[i];
+	RenderList::const_iterator o = d->order.begin();
+	for (; o != d->order.end(); ++o) {
+		Render &render = **o;
 		CompIt it = render.comp->start(ms - d->delay, d->fps);
 		if (it != render.prev) {
 			render.prev = it;
@@ -95,8 +115,8 @@ void SubtitleRenderer::render(int ms) {
 	}
 	if (changed) {
 		RichString text;
-		for (int i=0; i<d->render.size(); ++i) {
-			const Render &render = *d->render[i];
+		for (o = d->order.begin(); o != d->order.end(); ++o) {
+			const Render &render = **o;
 			if (render.prev != render.comp->end()) {
 				text.merge(render.prev->text);
 			}
@@ -134,161 +154,115 @@ int SubtitleRenderer::delay() const {
 }
 
 void SubtitleRenderer::unload() {
-	qDeleteAll(d->render);
-	d->render.clear();
+	qDeleteAll(d->order);
+	d->order.clear();
 	d->loaded.clear();
-	d->selection.clear();
-	clear();
+	d->set_model_list();
 	d->empty = true;
-	if (d->view)
-		d->view->setModel(d->model_list());
-
-	//	d->sub = subtitle;
-	//	d->prev.resize(d->sub.size());
-	//	qDeleteAll(d->model);
-	//	d->model.resize(d->sub.size());
-	//	d->empty = true;
-	//	for (int i=0; i<d->sub.size(); ++i) {
-	//		d->prev[i] = d->sub[i].end();
-	//		d->model[i] = new SubtitleComponentModel(&d->sub[i], this);
-	//		if (!d->sub[i].isEmpty())
-	//			d->empty = false;
-	//	}
-	//	if (d->empty)
-	//		clear();
-	//	else
-	//		render(d->ms);
-	//	if (d->view)
-	//		d->view->setModel(d->model);
-
-//	setSubtitle(d->loaded);
+	clear();
 }
 
-const Subtitle &SubtitleRenderer::loaded() const {
+const QList<SubtitleRenderer::Loaded> &SubtitleRenderer::loaded() const {
 	return d->loaded;
 }
 
-QList<bool> SubtitleRenderer::selection() const {
-	return d->selection;
-}
-
 void SubtitleRenderer::select(int idx, bool selected) {
-	if (0 <= idx && idx < d->selection.size()) {
-		if (d->selection[idx] != selected) {
-			d->selection[idx] = selected;
-			applySelection();
+	if (0 <= idx && idx < d->loaded.size() && d->loaded[idx].isSelected() != selected) {
+		d->loaded[idx].m_selected = selected;
+		RenderList::iterator o = d->order.begin();
+		const Comp *comp = &d->loaded[idx].m_comp;
+		Render *render = 0;
+		for (; o!= d->order.end(); ++o) {
+			if ((*o)->comp == comp) {
+				render = *o;
+				d->order.erase(o);
+				render->prev = comp->end();
+				break;
+			}
 		}
+		if (selected) {
+			if (!render)
+				render = new Render(*comp);
+			d->order.prepend(render);
+			o = d->order.begin();
+			while (o != d->order.end()) {
+				Render *&prev = *o;
+				if (++o == d->order.end())
+					break;
+				Render *&next = *o;
+				if (d->language_priority(prev) >= d->language_priority(next))
+					break;
+				qSwap(prev, next);
+			}
+		}
+		if (!d->selecting)
+			applySelection();
 	}
 }
 
 void SubtitleRenderer::applySelection() {
-	Q_ASSERT(d->selection.size() == d->loaded.size());
-	const Pref &pref = Pref::get();
-	const QStringList priority = pref.subtitlePriority;
-	QList<int> order;
-	QList<int> indexes;
-	for (int i=0; i<d->selection.size(); ++i) {
-		if (d->selection[i])
-			indexes.push_back(i);
-	}
-	for (int i=0; i<priority.size(); ++i) {
-		QList<int>::iterator it = indexes.begin();
-		while(it != indexes.end()) {
-			const QString id = d->loaded[*it].language().id();
-			if (id == priority[i]) {
-				order.append(*it);
-				it = indexes.erase(it);
-			} else
-				++it;
-		}
-	}
-	order += indexes;
-
-	QList<Render*> render;
-	QHash<int, Render*> selected;
 	d->empty = true;
-	for (int i=0; i<order.size(); ++i) {
-		const int idx = order[i];
-		QHash<int, Render*>::iterator it = d->selected.find(idx);
-		if (it == d->selected.end()) {
-			Render *r = new Render(d->loaded[idx]);
-			render.push_back(r);
-			selected.insert(idx, r);
-		} else {
-			render.push_back(*it);
-			selected.insert(idx, *it);
-			d->selected.erase(it);
-		}
-		if (!render.last()->comp->isEmpty())
-			d->empty = false;
-	}
-	QHash<int, Render*>::iterator it = d->selected.begin();
-	for (; it != d->selected.end(); ++it)
-		delete *it;
-	d->render = render;
-	d->selected = selected;
-	d->reset_prev();
+	d->set_model_list();
 	if (d->empty)
 		clear();
 	else
 		this->render(d->ms);
-	if (d->view)
-		d->view->setModel(d->model_list());
 }
 
 bool SubtitleRenderer::load(const QString &fileName, const QString &enc, bool select) {
-	int idx = d->loaded.size();
+	const int idx = d->loaded.size();
 	Subtitle sub;
 	if (!sub.load(fileName, enc))
 		return false;
-	d->loaded += sub;
-	for (int i=idx; i<d->loaded.size(); ++i)
-		d->selection.push_back(select);
-	Q_ASSERT(d->loaded.size() == d->selection.size());
-	applySelection();
+	for (int i=0; i<sub.size(); ++i) {
+		d->loaded.append(Loaded(sub[i]));
+	}
+	if (select) {
+		d->selecting = true;
+		for (int i=d->loaded.size()-1; i>=idx; --i) {
+			this->select(i, select);
+		}
+		d->selecting = false;
+		applySelection();
+	}
 	return true;
 }
 
-static QList<bool> autoselection(const Mrl &mrl, const Subtitle &loaded) {
-	QList<bool> selection;
+QList<int> SubtitleRenderer::autoselection(const Mrl &mrl, const QList<Loaded> &loaded) {
 	QList<int> selected;
 	if (loaded.isEmpty() || !mrl.isLocalFile())
-		return selection;
+		return selected;
 	const Pref &p = Pref::get();
 	QSet<QString> langSet;
 	const QString base = QFileInfo(mrl.toLocalFile()).completeBaseName();
 	for (int i=0; i<loaded.size(); ++i) {
-		selection.push_back(false);
 		bool select = false;
 		if (p.subtitleAutoSelect == SameName) {
-			select = QFileInfo(loaded[i].fileName()).completeBaseName() == base;
+			select = QFileInfo(loaded[i].m_comp.fileName()).completeBaseName() == base;
 		} else if (p.subtitleAutoSelect == AllLoaded) {
 			select = true;
 		} else if (p.subtitleAutoSelect == EachLanguage) {
-			const QString lang = loaded[i].language().id();
+			const QString lang = loaded[i].m_comp.language().id();
 			if ((select = (!langSet.contains(lang))))
 				langSet.insert(lang);
 		}
 		if (select)
-			selected.push_back(i);
+			selected.append(i);
 	}
 	if (p.subtitleAutoSelect == SameName
 			&& !selected.isEmpty() && !p.subtitleExtension.isEmpty()) {
 		for (int i=0; i<selected.size(); ++i) {
-			const QString fileName = loaded[selected[i]].fileName();
+			const QString fileName = loaded[selected[i]].m_comp.fileName();
 			const QString suffix = QFileInfo(fileName).suffix().toLower();
 			if (p.subtitleExtension == suffix) {
 				const int idx = selected[i];
 				selected.clear();
-				selected.push_back(idx);
+				selected.append(idx);
 				break;
 			}
 		}
 	}
-	for (int i=0; i<selected.size(); ++i) {
-		selection[selected[i]] = true;
-	}
-	return selection;
+	return selected;
 }
 
 int SubtitleRenderer::autoload(const Mrl &mrl, bool autoselect) {
@@ -308,13 +282,19 @@ int SubtitleRenderer::autoload(const Mrl &mrl, bool autoselect) {
 			} else if (!all[i].fileName().contains(base))
 				continue;
 		}
-		Subtitle subtitle;
-		if (subtitle.load(all[i].absoluteFilePath(), pref.subtitleEncoding)) {
-			d->loaded += subtitle;
+		Subtitle sub;
+		if (sub.load(all[i].absoluteFilePath(), pref.subtitleEncoding)) {
+			for (int i=0; i<sub.size(); ++i)
+				d->loaded.push_back(Loaded(sub[i]));
 		}
 	}
 	if (autoselect) {
-		d->selection = autoselection(mrl, d->loaded);
+		const QList<int> selected = autoselection(mrl, d->loaded);
+		d->selecting = true;
+		for (int i=0; i<selected.size(); ++i) {
+			select(selected[i], true);
+		}
+		d->selecting = false;
 		applySelection();
 	}
 	return d->loaded.size();
@@ -322,8 +302,9 @@ int SubtitleRenderer::autoload(const Mrl &mrl, bool autoselect) {
 
 int SubtitleRenderer::start(int time) const {
 	int s = -1;
-	for (int i=0; i<d->render.size(); ++i) {
-		const Comp *comp = d->render[i]->comp;
+	RenderList::const_iterator it = d->order.begin();
+	for (; it != d->order.end(); ++it) {
+		const Comp *comp = (*it)->comp;
 		const CompIt it = comp->start(time - d->delay, d->fps);
 		if (it != comp->end())
 			s = qMax(s, comp->isBasedOnFrame() ? Subtitle::msec(it.key(), d->fps) : it.key());
@@ -333,8 +314,9 @@ int SubtitleRenderer::start(int time) const {
 
 int SubtitleRenderer::end(int time) const {
 	int e = -1;
-	for (int i=0; i<d->render.size(); ++i) {
-		const Comp *comp = d->render[i]->comp;
+	RenderList::const_iterator it = d->order.begin();
+	for (; it != d->order.end(); ++it) {
+		const Comp *comp = (*it)->comp;
 		const CompIt it = comp->end(time - d->delay, d->fps);
 		if (it != comp->end()) {
 			const int t = comp->isBasedOnFrame() ? Subtitle::msec(it.key(), d->fps) : it.key();

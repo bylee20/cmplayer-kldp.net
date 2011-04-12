@@ -66,7 +66,7 @@ public:
 		QString m_file;
 		Base m_base;
 		Language m_lang;
-		bool m_flag;
+		mutable bool m_flag;
 	};
 	typedef QMapIterator<int, Node> ComponentIterator;
 	const Component &operator[] (int rhs) const {return m_comp[rhs];}

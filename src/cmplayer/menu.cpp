@@ -157,6 +157,9 @@ Menu &Menu::create(QWidget *parent) {
 	effect->addActionToGroup("blur", true)->setData((int)VideoRenderer::Blur);
 	effect->addActionToGroup("sharpen", true)->setData((int)VideoRenderer::Sharpen);
 	effect->addSeparator();
+	effect->addActionToGroup("remap", true)->setData((int)VideoRenderer::RemapLuma);
+	effect->addActionToGroup("auto-contrast", true)->setData((int)VideoRenderer::AutoContrast);
+	effect->addSeparator();
 	effect->addActionToGroup("gray", true)->setData((int)VideoRenderer::Grayscale);
 	effect->addActionToGroup("invert", true)->setData((int)VideoRenderer::InvertColor);
 
@@ -399,6 +402,8 @@ void Menu::updatePref() {
 	effect["sharpen"]->setText(tr("Sharpen"));
 	effect["gray"]->setText(tr("Grayscale"));
 	effect["invert"]->setText(tr("Invert Color"));
+	effect["remap"]->setText(tr("Adjust Constrast for PC"));
+	effect["auto-contrast"]->setText(tr("Auto Contrast (High CPU Usage)"));
 
 	setVideoPropStep(video, "brightness", ColorProperty::Brightness
 			, tr("Brightness %1%"), p.brightnessStep);

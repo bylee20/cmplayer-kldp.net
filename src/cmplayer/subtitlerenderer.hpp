@@ -4,6 +4,7 @@
 #include "subtitle.hpp"
 #include "textosdrenderer.hpp"
 #include <QtCore/QObject>
+#include <QtCore/QtContainerFwd>
 
 class QDialog;			class Mrl;
 class SubtitleComponentModel;
@@ -11,6 +12,20 @@ class SubtitleComponentModel;
 class SubtitleRenderer : public QObject {
 	Q_OBJECT
 public:
+	typedef Subtitle::Component Comp;
+	typedef Comp::const_iterator CompIt;
+
+	struct Loaded {
+		Loaded(): m_selected(false) {}
+		bool isSelected() const {return m_selected;}
+		QString name() const {return m_comp.name();}
+	private:
+		friend class SubtitleRenderer;
+		Loaded(const Comp &comp): m_selected(false), m_comp(comp) {}
+		bool m_selected;
+		Comp m_comp;
+	};
+
 	SubtitleRenderer();
 	~SubtitleRenderer();
 	void setOsd(TextOsdRenderer *osd);
@@ -27,10 +42,9 @@ public:
 	void unload();
 	int autoload(const Mrl &mrl, bool autoselect = true);
 	void select(int idx, bool selected = true);
-	void deselct(int idx) {select(idx, false);}
-	const Subtitle &loaded() const;
+	void select(const QList<int> &idx, bool selected = true);
+	const QList<Loaded> &loaded() const;
 	bool load(const QString &fileName, const QString &enc, bool select);
-	QList<bool> selection() const;
 public slots:
 	void clear();
 	void setFrameRate(double frameRate);
@@ -38,8 +52,8 @@ public slots:
 	void setVisible(bool visible);
 	void setHidden(bool hidden) {setVisible(!hidden);}
 private:
-	typedef Subtitle::Component Comp;
-	typedef Comp::const_iterator CompIt;
+	QList<int> autoselection(const Mrl &mrl, const QList<SubtitleRenderer::Loaded> &loaded);
+	void applySelection();
 	struct Render {
 		Render() {comp = 0; model = 0;}
 		Render(const Comp &comp);
@@ -48,8 +62,11 @@ private:
 		CompIt prev;
 		SubtitleComponentModel *model;
 	};
-	typedef QList<Render*> RenderList;
-	void applySelection();
+	struct Order {
+		int lang;
+	};
+
+	typedef QLinkedList<Render*> RenderList;
 	struct Data;
 	Data *d;
 };

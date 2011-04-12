@@ -10,7 +10,9 @@ public:
 	void setEncoding(const QString &enc) {m_enc = enc;}
 	static Parser *create(const QString &ext);
 	static void setMsPerCharactor(int msPerChar) {Parser::msPerChar = msPerChar;}
+	bool save(const Subtitle &sub, const QString &fileName);
 protected:
+	virtual bool _save(QString &/*save*/, const Subtitle &/*sub*/) {return false;}
 	virtual void _parse(Subtitle &sub) = 0;
 	QStringRef getLineRef() const {return trimmed(processLine(m_pos, m_all));}
 	QString getLine() const {return getLineRef().toString();}

@@ -57,6 +57,18 @@ AudioBuffer *LibVLC::cbAudioProcess(void *data, AudioBuffer *in) {
 	return 0;
 }
 
+void LibVLC::cbVideoProcess(void *data, void **planes) {
+	VideoRenderer *video = reinterpret_cast<LibVLC*>(data)->d->video;
+	if (video)
+		video->process(planes);
+}
+
+void LibVLC::cbVideoRender(void *data, void **planes) {
+	VideoRenderer *video = reinterpret_cast<LibVLC*>(data)->d->video;
+	if (video)
+		video->render(planes);
+}
+
 void *LibVLC::cbVideoLock(void *data, void ***planes) {
 	VideoRenderer *video = reinterpret_cast<LibVLC*>(data)->d->video;
 	if (video)
@@ -109,54 +121,44 @@ LibVLC::LibVLC(): d(new Data) {
 	d->audio = 0;
 	d->video = 0;
 	d->engine = 0;
+#define PTR_TO_ARG(ptr) (QByteArray().setNum((qint64)(qptrdiff)(void*)(ptr)))
+	QList<QByteArray> args;
+	args << "-I" << "dummy" << "--ignore-config" << "--extraintf=logger"
+		<< "--quiet"
+//		<< "--verbose=2"
+#ifndef Q_WS_X11
+		<< "--no-xlib"
+#endif
+		<< "--reset-plugins-cache" << "--plugin-path" << Info::pluginPath()
+		<< "--no-media-library" << "--no-osd" << "--no-sub-autodetect-file"
+		<< "--no-stats" << "--no-video-title-show" << "--album-art=0"
+		<< "--cmplayer-vout-chroma" << "AUTO"
+		<< "--cmplayer-vout-cb-lock" << PTR_TO_ARG(cbVideoLock)
+		<< "--cmplayer-vout-cb-unlock" << PTR_TO_ARG(cbVideoUnlock)
+		<< "--cmplayer-vout-cb-display" << PTR_TO_ARG(cbVideoDisplay)
+		<< "--cmplayer-vout-cb-render" << PTR_TO_ARG(cbVideoRender)
+		<< "--cmplayer-vout-cb-prepare" << PTR_TO_ARG(cbVideoPrepare)
+		<< "--cmplayer-vout-data" << PTR_TO_ARG(this)
+		<< "--cmplayer-vout-util" << PTR_TO_ARG(&d->vUtil)
+		<< "--vout" << "cmplayer-vout"
+		<< "--cmplayer-vfilter-data" << PTR_TO_ARG(this)
+		<< "--cmplayer-vfilter-cb-process" << PTR_TO_ARG(cbVideoProcess)
+		<< "--video-filter" << "cmplayer-vfilter"
+		<< "--cmplayer-afilter-cb-prepare" << PTR_TO_ARG(cbAudioPrepare)
+		<< "--cmplayer-afilter-cb-process" << PTR_TO_ARG(cbAudioProcess)
+		<< "--cmplayer-afilter-data" << PTR_TO_ARG(this)
+		<< "--cmplayer-afilter-util" << PTR_TO_ARG(&d->aUtil)
+		<< "--audio-filter"<< "cmplayer-afilter";
+	const QByteArray add = qgetenv("CMPLAYER_VLC_OPTION");
+	if (!add.isEmpty())
+		args.append(add.split(','));
+	qDebug() << "Iniitalize vlc with:";
+	qDebug() << args;
 
-	char pvLock[125], pvUnlock[125], pvDisplay[125], pvPrepare[125];
-	char paProcess[125], paPrepare[125], paUtil[125];
-	char pData[125], pvUtil[125], paScaletempo[125];
-	sprintf(pvLock, "%lld", (long long int)(intptr_t)(void*)cbVideoLock);
-	sprintf(pvUnlock, "%lld", (long long int)(intptr_t)(void*)cbVideoUnlock);
-	sprintf(pvDisplay, "%lld", (long long int)(intptr_t)(void*)cbVideoDisplay);
-	sprintf(pvPrepare, "%lld", (long long int)(intptr_t)(void*)cbVideoPrepare);
-	sprintf(paProcess, "%lld", (long long int)(intptr_t)(void*)cbAudioProcess);
-	sprintf(paPrepare, "%lld", (long long int)(intptr_t)(void*)cbAudioPrepare);
-	sprintf(pData, "%lld", (long long int)(intptr_t)(void*)this);
-	sprintf(pvUtil, "%lld", (long long int)(intptr_t)(void*)&d->vUtil);
-	sprintf(paUtil, "%lld", (long long int)(intptr_t)(void*)&d->aUtil);
-	sprintf(paScaletempo, "%lld", (long long int)(intptr_t)&d->aUtil.scaletempoEnabled);
-
-	const char *const args[] = {
-		"-I", "dummy",
-		"--ignore-config",
-		"--extraintf=logger",
-		"--quiet",
-//		"--verbose=2",
-	#ifndef Q_WS_X11
-		"--no-xlib",
-	#endif
-		"--reset-plugins-cache",
-		"--plugin-path", Info::pluginPath(),
-		"--no-media-library",
-		"--no-osd",
-		"--no-sub-autodetect-file",
-		"--no-stats",
-		"--no-video-title-show",
-		"--album-art=0",
-		"--cmplayer-vout-chroma", "AUTO",
-		"--cmplayer-vout-cb-lock", pvLock,
-		"--cmplayer-vout-cb-unlock", pvUnlock,
-		"--cmplayer-vout-cb-display", pvDisplay,
-		"--cmplayer-vout-cb-prepare", pvPrepare,
-		"--cmplayer-vout-data", pData,
-		"--cmplayer-vout-util", pvUtil,
-		"--vout", "cmplayer-vout",
-		"--cmplayer-afilter-cb-prepare", paPrepare,
-		"--cmplayer-afilter-cb-process", paProcess,
-		"--cmplayer-afilter-data", pData,
-		"--cmplayer-afilter-util", paUtil,
-		"--audio-filter", "cmplayer-afilter",
-		"--aout", "pulse",
-	};
-	d->inst = libvlc_new(sizeof(args)/sizeof(*args), args);
+	QVector<const char*> argv(args.size());
+	for (int i=0; i<argv.size(); ++i)
+		argv[i] = args[i].constData();
+	d->inst = libvlc_new(argv.count(), argv.constData());
 	d->mp = libvlc_media_player_new(d->inst);
 	libvlc_video_set_mouse_input(d->mp, 0);
 	libvlc_event_manager_t *man = libvlc_media_player_event_manager(d->mp);

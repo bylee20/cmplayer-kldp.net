@@ -16,9 +16,15 @@ public:
 		Grayscale		= 1 << 2,
 		InvertColor		= 1 << 3,
 		Blur			= 1 << 4,
-		Sharpen			= 1 << 5
+		Sharpen			= 1 << 5,
+		RemapLuma		= 1 << 6,
+		AutoContrast		= 1 << 7,
 	};
 	Q_DECLARE_FLAGS(Effects, Effect)
+private:
+	static const int FilterEffects = InvertColor | RemapLuma | AutoContrast;
+	static const int KernelEffects = Blur | Sharpen;
+public:
 	VideoRenderer(QWidget *parent = 0);
 	~VideoRenderer();
 	// takes ownership
@@ -55,6 +61,8 @@ private:
 	void *lock(void ***planes);
 	void unlock(void *id, void *const *plane);
 	void display(void *id);
+	void process(void **planes);
+	void render(void **planes);
 	void prepare(const VideoFormat *format);
 	friend class LibVLC;
 

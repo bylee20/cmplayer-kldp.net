@@ -215,14 +215,14 @@ int RichString::size() const {
 }
 
 RichString &RichString::merge(const RichString &other) {
-	if (!hasWords()) {
-		*this = other;
-	} else if (other.hasWords()) {
-		m_rich += "<br>";
-		m_rich += other.m_rich;
-		m_plain += '\n';
-		m_plain += other.m_plain;
-	}
+	if (!other.hasWords())
+		return *this;
+	if (!hasWords())
+		return (*this = other);
+	m_rich += "<br>";
+	m_rich += other.m_rich;
+	m_plain += '\n';
+	m_plain += other.m_plain;
 	return *this;
 }
 

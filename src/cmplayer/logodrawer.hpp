@@ -9,9 +9,9 @@ class LogoDrawer {
 public:
 	LogoDrawer();
 	~LogoDrawer();
-	void draw(QPainter *painter, const QRect &rect);
+	void draw(QPainter *painter, const QRectF &rect);
 private:
-	void drawLogo(QPainter *painter, const QRect &rect);
+	void drawLogo(QPainter *painter, const QRectF &rect);
 	QPixmap m_logo;
 	QBrush m_bgBrush, m_lightBrush;
 	QPainterPath m_lightPath;

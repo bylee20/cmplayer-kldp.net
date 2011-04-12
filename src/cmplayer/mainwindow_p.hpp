@@ -59,7 +59,7 @@ class MainWindowData {
 		changingSub = true;
 		Menu &list = menu("subtitle")("list");
 		ActionGroup *g = list.g();
-		const Subtitle &loaded = subtitle->loaded();
+		const QList<SubtitleRenderer::Loaded> loaded = subtitle->loaded();
 		while (g->actions().size() < loaded.size()) {
 			list.addActionToGroupWithoutKey("", true);
 		}
@@ -67,15 +67,75 @@ class MainWindowData {
 			delete g->actions().last();
 		}
 		const QList<QAction*> actions = g->actions();
-		const QList<bool> &selection = subtitle->selection();
 		Q_ASSERT(loaded.size() == actions.size());
-		Q_ASSERT(loaded.size() == selection.size());
 		for (int i=0; i<actions.size(); ++i) {
 			actions[i]->setText(loaded[i].name());
 			actions[i]->setData(i);
-			actions[i]->setChecked(selection[i]);
+			actions[i]->setChecked(loaded[i].isSelected());
 		}
 		changingSub = false;
+	}
+
+	void load_state() {
+		dontShowMsg = true;
+		AppState as;
+		as.load();
+
+		menu("video")("aspect").g()->trigger(as[AppState::AspectRatio]);
+		menu("video")("crop").g()->trigger(as[AppState::Crop]);
+		menu("window").g("sot")->trigger(StaysOnTopEnum::value(as[AppState::StaysOnTop].toString()));
+
+		audio->setVolume(as[AppState::Volume].toInt());
+		audio->setMuted(as[AppState::Muted].toBool());
+		audio->setPreAmp(as[AppState::Amp].toDouble());
+		audio->setVolumeNormalized(as[AppState::VolNorm].toBool());
+
+		engine->setSpeed(as[AppState::PlaySpeed].toDouble());
+		subtitle->setPos(as[AppState::SubPos].toDouble());
+		subtitle->setDelay(as[AppState::SubSync].toInt());
+
+		dontShowMsg = false;
+	}
+
+	void save_state() const {
+		AppState as;
+		as[AppState::AspectRatio] = video->aspectRatio();
+		as[AppState::Crop] = video->cropRatio();
+		as[AppState::Volume] = audio->volume();
+		as[AppState::VolNorm] = audio->isVolumeNormalized();
+		as[AppState::Muted] = audio->isMuted();
+		as[AppState::Amp] = audio->preAmp();
+		as[AppState::PlaySpeed] = engine->speed();
+		as[AppState::SubPos] = subtitle->pos();
+		as[AppState::SubSync] = subtitle->delay();
+		as[AppState::StaysOnTop] = StaysOnTopEnum::name(stay_on_top_mode());
+		as.save();
+	}
+
+	StaysOnTop stay_on_top_mode() const {
+		const int data = menu("window").g("sot")->checkedAction()->data().toInt();
+		switch (data) {
+		case OnTopPlaying:
+			return OnTopPlaying;
+		case AlwaysOnTop:
+			return AlwaysOnTop;
+		case DontStayOnTop:
+			return DontStayOnTop;
+		default:
+			return OnTopPlaying;
+		}
+	}
+
+	void apply_pref() {
+		Subtitle::Parser::setMsPerCharactor(pref.msPerChar);
+		Translator::load(pref.locale);
+		app()->setStyle(pref.windowStyle);
+		subtitle->osd()->setStyle(pref.subtitleStyle);
+		menu.updatePref();
+	#ifndef Q_WS_MAC
+		tray->setVisible(pref.enableSystemTray);
+	#endif
+		control->setState(engine->state());
 	}
 };
 

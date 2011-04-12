@@ -1,37 +1,4 @@
 #include "mainwindow_p.hpp"
-#include "timelineosdrenderer.hpp"
-#include "colorproperty.hpp"
-#include "playlistview.hpp"
-#include "historyview.hpp"
-#include "playlistmodel.hpp"
-#include "aboutdialog.hpp"
-#include "subtitlerenderer.hpp"
-#include "charsetdetector.hpp"
-#include "snapshotdialog.hpp"
-#include "subtitle_parser.hpp"
-#include "audiocontroller.hpp"
-#include "controlwidget.hpp"
-#include "pref_dialog.hpp"
-#include "application.hpp"
-#include "recentinfo.hpp"
-#include "abrepeater.hpp"
-#include "mainwindow.hpp"
-#include "playengine.hpp"
-#include "translator.hpp"
-#include "videorenderer.hpp"
-#include "appstate.hpp"
-#include "playlist.hpp"
-#include "dialogs.hpp"
-#include "toolbox.hpp"
-#include "libvlc.hpp"
-#include "menu.hpp"
-#include "info.hpp"
-#include <QtGui/QMouseEvent>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMenuBar>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <qmath.h>
 
 #ifdef Q_WS_MAC
 void qt_mac_set_dock_menu(QMenu *menu);
@@ -139,11 +106,9 @@ MainWindow::MainWindow() {
 	CONNECT(&sub("spu"), aboutToShow(), this, checkSPUMenu());
 
 	CONNECT(d->engine, mrlChanged(Mrl), this, updateMrl(Mrl));
-	CONNECT(d->engine, stateChanged(MediaState,MediaState)
-		, this, updateState(MediaState,MediaState));
+	CONNECT(d->engine, stateChanged(MediaState,MediaState), this, updateState(MediaState,MediaState));
 	CONNECT(d->engine, tick(int), d->subtitle, render(int));
-	CONNECT(d->video, customContextMenuRequested(const QPoint&)
-		, this, showContextMenu(const QPoint&));
+	CONNECT(d->video, customContextMenuRequested(const QPoint&), this, showContextMenu(const QPoint&));
 	CONNECT(d->video, frameRateChanged(double), d->subtitle, setFrameRate(double));
 	CONNECT(d->audio, mutedChanged(bool), audio["mute"], setChecked(bool));
 	CONNECT(d->audio, volumeNormalizedChanged(bool), audio["volnorm"], setChecked(bool));
@@ -156,8 +121,8 @@ MainWindow::MainWindow() {
 		, this, handleTray(QSystemTrayIcon::ActivationReason));
 #endif
 
-	loadState();
-	applyPref();
+	d->load_state();
+	d->apply_pref();
 
 	d->playlist->setPlaylist(d->recent->lastPlaylist());
 	d->engine->setMrl(d->recent->lastMrl());
@@ -235,55 +200,6 @@ void MainWindow::openLocation(const QString &loc) {
 	openMrl(Mrl(loc));
 }
 
-void MainWindow::loadState() {
-	d->dontShowMsg = true;
-	AppState as;
-	as.load();
-
-	d->menu("video")("aspect").g()->trigger(as[AppState::AspectRatio]);
-	d->menu("video")("crop").g()->trigger(as[AppState::Crop]);
-	d->menu("window").g("sot")->trigger(StaysOnTopEnum::value(as[AppState::StaysOnTop].toString()));
-
-	d->audio->setVolume(as[AppState::Volume].toInt());
-	d->audio->setMuted(as[AppState::Muted].toBool());
-	d->audio->setPreAmp(as[AppState::Amp].toDouble());
-	d->audio->setVolumeNormalized(as[AppState::VolNorm].toBool());
-
-	d->engine->setSpeed(as[AppState::PlaySpeed].toDouble());
-	d->subtitle->setPos(as[AppState::SubPos].toDouble());
-	d->subtitle->setDelay(as[AppState::SubSync].toInt());
-
-	d->dontShowMsg = false;
-}
-
-StaysOnTop MainWindow::staysOnTopMode() const {
-	const int data = d->menu("window").g("sot")->checkedAction()->data().toInt();
-	switch (data) {
-	case OnTopPlaying:
-		return OnTopPlaying;
-	case AlwaysOnTop:
-		return AlwaysOnTop;
-	case DontStayOnTop:
-		return DontStayOnTop;
-	default:
-		return OnTopPlaying;
-	}
-}
-
-void MainWindow::saveState() {
-	AppState as;
-	as[AppState::AspectRatio] = d->video->aspectRatio();
-	as[AppState::Crop] = d->video->cropRatio();
-	as[AppState::Volume] = d->audio->volume();
-	as[AppState::VolNorm] = d->audio->isVolumeNormalized();
-	as[AppState::Muted] = d->audio->isMuted();
-	as[AppState::Amp] = d->audio->preAmp();
-	as[AppState::PlaySpeed] = d->engine->speed();
-	as[AppState::SubPos] = d->subtitle->pos();
-	as[AppState::SubSync] = d->subtitle->delay();
-	as[AppState::StaysOnTop] = StaysOnTopEnum::name(staysOnTopMode());
-	as.save();
-}
 
 ControlWidget *MainWindow::createControlWidget() {
 	ControlWidget *w = new ControlWidget(d->engine, 0);
@@ -509,16 +425,14 @@ void MainWindow::setFullScreen(bool full) {
 	d->control->setHidden(full);
 	if (full) {
 		app()->setAlwaysOnTop(this, false);
-		setWindowState(windowState() ^ Qt::WindowFullScreen);
+		setWindowState(windowState() | Qt::WindowFullScreen);
 		if (d->pref.hideCursor)
 			d->hider->start(d->pref.hideDelay);
-//		d->video->setFixedRenderSize(size());
 	} else {
-		setWindowState(windowState() ^ Qt::WindowFullScreen);
+		setWindowState(windowState() & ~Qt::WindowFullScreen);
 		d->hider->stop();
 		if (cursor().shape() == Qt::BlankCursor)
 			unsetCursor();
-//		d->video->setFixedRenderSize(QSize());
 		updateStaysOnTop();
 	}
 	d->dontPause = false;
@@ -736,7 +650,7 @@ void MainWindow::setSyncDelay(int diff) {
 void MainWindow::setPref() {
 	Pref::Dialog dlg(this);
 	if (dlg.exec())
-		applyPref();
+		d->apply_pref();
 }
 
 void MainWindow::showEvent(QShowEvent *event) {
@@ -769,17 +683,7 @@ void MainWindow::handleTray(QSystemTrayIcon::ActivationReason reason) {
 		d->menu.contextMenu()->exec(QCursor::pos());
 }
 
-void MainWindow::applyPref() {
-	Subtitle::Parser::setMsPerCharactor(d->pref.msPerChar);
-	Translator::load(d->pref.locale);
-	app()->setStyle(d->pref.windowStyle);
-	d->subtitle->osd()->setStyle(d->pref.subtitleStyle);
-	d->menu.updatePref();
-#ifndef Q_WS_MAC
-	d->tray->setVisible(d->pref.enableSystemTray);
-#endif
-	d->control->setState(d->engine->state());
-}
+
 
 void MainWindow::closeEvent(QCloseEvent *event) {
 #ifndef Q_WS_MAC
@@ -893,3 +797,15 @@ void MainWindow::setEffect(QAction *act) {
 	}
 	d->video->setEffects(effects);
 }
+
+//void MainWindow::setFilter(QAction *act) {
+//	if (!act)
+//		return;
+//	const QList<QAction*> acts = d->menu("video")("filter").actions();
+//	VideoRenderer::Filters filters = 0;
+//	for (int i=0; i<acts.size(); ++i) {
+//		if (acts[i]->isChecked())
+//			filters |= static_cast<VideoRenderer::Filter>(acts[i]->data().toInt());
+//	}
+//	d->video->setFilters(filters);
+//}

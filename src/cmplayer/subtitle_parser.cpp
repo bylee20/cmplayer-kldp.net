@@ -1,9 +1,26 @@
 #include "subtitle_parser_p.hpp"
+#include <QtCore/QTextCodec>
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
 #include <QtCore/QFileInfo>
 
 int Subtitle::Parser::msPerChar = -1;
+
+bool Subtitle::Parser::save(const Subtitle &sub, const QString &fileName) {
+	QString content;
+	if (!_save(content, sub))
+		return false;
+	QFile file(fileName);
+	if (!file.open(QFile::WriteOnly | QFile::Truncate))
+		return false;
+	QTextCodec *codec = QTextCodec::codecForName(m_enc.toLocal8Bit());
+	if (!codec)
+		return false;
+	if (file.write(codec->fromUnicode(content)) < 0)
+		return false;
+	file.close();
+	return true;
+}
 
 Subtitle Subtitle::Parser::parse(const QString &fileName) {
 	Subtitle sub;

@@ -177,4 +177,5 @@ FORMS += ui/pref_dialog.ui \
     ui/osdstyle_widget.ui \
     ui/aboutdialog.ui \
     ui/opendvddialog.ui \
-    ui/snapshotdialog.ui
+    ui/snapshotdialog.ui \
+    ui/pref_dialog_mac.ui

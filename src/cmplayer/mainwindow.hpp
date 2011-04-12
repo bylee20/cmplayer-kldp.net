@@ -20,6 +20,7 @@ public slots:
 	void openMrl(const Mrl &mrl);
 private slots:
 	void setEffect(QAction *action);
+//	void setFilter(QAction *action);
 	void about();
 	void setVolumeNormalized(bool norm);
 	void setTempoScaled(bool scaled);
@@ -73,11 +74,7 @@ private:
 	ControlWidget *createControlWidget();
 	QWidget *createCentralWidget(QWidget *video, QWidget *control);
 	void appendSubFiles(const QStringList &files, bool checked, const QString &enc);
-	StaysOnTop staysOnTopMode() const;
-	void loadState();
-	void saveState();
 	void closeEvent(QCloseEvent *event);
-	void applyPref();
 	void showEvent(QShowEvent *event);
 	void hideEvent(QHideEvent *event);
 	void setFullScreen(bool full);
@@ -99,7 +96,6 @@ private:
 	void wheelEvent(QWheelEvent *event);
 	void dropEvent(QDropEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);
-	class VideoScreen;
 	void showMessage(const QString &message, int last = 2500);
 	void showMessage(const QString &cmd, int value
 		, const QString &unit, bool sign = false, int last = 2500);
@@ -107,7 +103,6 @@ private:
 	void showMessage(const QString &cmd, double value
 		, const QString &unit, bool sign = false, int last = 2500);
 	void showMessage(const QString &cmd, bool value, int last = 2500);
-	void setupUi();
 	MainWindowData *d;
 };
 

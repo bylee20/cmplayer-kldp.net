@@ -1,6 +1,7 @@
 #include "subtitle_parser_p.hpp"
 #include "tagiterator.hpp"
 #include "global.hpp"
+#include <QtCore/QDebug>
 
 void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 	int sync = -1;
@@ -49,15 +50,34 @@ void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 		int time = tag.valueToInt("start");
 		QString klass = tag.value("class").toString();
 		QString text, plain;
+		int brIdx = -1;
 		for (;;) {
 			int a = tag.pos();
-			appendTo(text, tag);
-			if (tag.elementIs("br"))
-				plain += '\n';
+			const bool br = tag.elementIs("br");
+			if (br) {
+				if (!text.isEmpty()) {
+					if (brIdx == -1)
+						brIdx = text.size();
+					appendTo(text, tag);
+					plain += '\n';
+				}
+			} else {
+				brIdx = -1;
+				appendTo(text, tag);
+			}
 			const int idx = tag.next();
 			const int count = idx < 0 ? -1 : idx - a;
 			const QStringRef ref = all().midRef(a, count);
+			const int prev = text.size();
 			RichString::process(ref, text, plain, false);
+			if (brIdx != -1) {
+				for (int i=text.size()-1; i>=prev; --i) {
+					if (!isspace(text[i].unicode())) {
+						brIdx = -1;
+						break;
+					}
+				}
+			}
 			if (idx < 0) {
 				sync = -1;
 				break;
@@ -72,6 +92,12 @@ void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 				break;
 			}
 		}
+		int chop = 0;
+		for (int i=plain.size()-1; i>=0 && isspace(plain[i].unicode()); --i, ++chop) ;
+		plain.chop(chop);
+		if (brIdx != -1)
+			text.chop(text.size() - brIdx);
+
 		Node node;
 		node.text = RichString(text, plain);
 		QMap<QString, int>::const_iterator it = idxes.find(klass);

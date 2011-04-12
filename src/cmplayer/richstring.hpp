@@ -5,6 +5,7 @@
 
 class RichString {
 public:
+	static QStringRef ref(const QString &str) {return str.midRef(0);}
 	static QStringRef trimmed(const QStringRef &ref);
 	static QStringRef processEntity(int &idx, const QStringRef &ref);
 	static bool skipSeperator(int &idx, const QStringRef &text);

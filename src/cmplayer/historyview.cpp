@@ -94,6 +94,8 @@ HistoryView::HistoryView(PlayEngine *engine, QWidget *parent)
 	setWindowTitle(tr("Play History"));
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
+	vbox->setSpacing(0);
+	vbox->setMargin(0);
 	vbox->addWidget(d->view);
 }
 

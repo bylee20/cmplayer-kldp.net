@@ -14,15 +14,15 @@ ycc.yz = temp.xzwy + ycc;
 
 #define GET_YCbCr_KERNEL_APPLIED(ycc, tmp1, tmp2)\
 tmp1 = 0.0;\
-GET_YCbCr_AND_ADD_TO(tmp1, ycc, coord, param2.wyxx);\
-GET_YCbCr_AND_ADD_TO(tmp1, ycc, coord, param2.xwxx);\
-tmp1 = tmp1 * param3.y;\
+GET_YCbCr_AND_ADD_TO(tmp1, ycc, coord, param3.wyxx);\
+GET_YCbCr_AND_ADD_TO(tmp1, ycc, coord, param3.xwxx);\
+tmp1 = tmp1 * param4.y;\
 tmp2 = 0.0;\
-GET_YCbCr_AND_ADD_TO(tmp2, ycc, coord, param2.zyxx);\
-GET_YCbCr_AND_ADD_TO(tmp2, ycc, coord, param2.xyxx);\
-tmp2 = tmp2 * param3.z;\
+GET_YCbCr_AND_ADD_TO(tmp2, ycc, coord, param3.zyxx);\
+GET_YCbCr_AND_ADD_TO(tmp2, ycc, coord, param3.xyxx);\
+tmp2 = tmp2 * param4.z;\
 GET_YCbCr(ycc, coord);\
-ycc = ycc * param3.x;\
+ycc = ycc * param4.x;\
 ycc = ycc + tmp1;\
 ycc = ycc + tmp2;
 
@@ -30,16 +30,11 @@ DEC_COMMON_VARS();
 PARAM param1 = program.local[1];
 PARAM param2 = program.local[2];
 PARAM param3 = program.local[3];
+PARAM param4 = program.local[4];
 TEMP t1, t2, t3;
 ALIAS ycc = t3;
 ALIAS yuv = t1;
 ALIAS rgb = t2;
 GET_YCbCr_KERNEL_APPLIED(ycc, t1, t2);
-ycc.x = ycc.x - coef_r.a;
-ycc.y = ycc.y - coef_g.a;
-ycc.z = ycc.z - coef_b.a;
-SET_COLOR_PROP(yuv, ycc);
-YUV_TO_RGB_SAT(rgb, yuv);
-rgb = rgb * param1;
-output = param1.w + rgb;
-output.a = 1.0;
+APPLY_COLOR_FILTER_AND_OUTPUT(ycc, t1);
+

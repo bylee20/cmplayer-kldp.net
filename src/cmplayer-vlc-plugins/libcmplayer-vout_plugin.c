@@ -15,6 +15,7 @@ typedef struct _Plane {
 } Plane;
 
 typedef struct _VideoFormat {
+	uint32_t source;
 	uint32_t fourcc;
 	int width;
 	int height;
@@ -38,6 +39,7 @@ typedef struct vout_display_sys_t {
 	void (*unlock)(void *sys, void *id, void *const *plane);
 	void (*display)(void *sys, void *id);
 	void (*prepare)(void *sys, const VideoFormat *format);
+	void (*render)(void *sys, void **planes);
 	void *opaque;
 } Data;
 
@@ -53,6 +55,7 @@ static void handleMouseReleased(void *vd, int button);
 static void handleMouseMoved(void *vd, int x, int y);
 static picture_pool_t *pool(vout_display_t *, unsigned);
 static void display(vout_display_t *, picture_t *);
+static void render(vout_display_t *, picture_t *);
 static int control(vout_display_t *, int, va_list);
 static void manage (vout_display_t *);
 static int lock(picture_t *);
@@ -130,6 +133,9 @@ static int ctor(vlc_object_t *object) {
 	str = var_CreateGetString(vd, MODULE_STRING "-cb-display" );
 	d->display = (void (*)(void *, void *))(intptr_t)atoll(str);
 	free(str);
+	str = var_CreateGetString(vd, MODULE_STRING "-cb-render" );
+	d->render = (void (*)(void *, void **))(intptr_t)atoll(str);
+	free(str);
 
 	str = var_CreateGetString(vd, MODULE_STRING "-cb-prepare" );
 	d->prepare = (void (*)(void *, const VideoFormat*))(intptr_t)atoll(str);
@@ -179,7 +185,7 @@ static int ctor(vlc_object_t *object) {
 	vd->fmt = fmt;
 	vd->info = info;
 	vd->pool = pool;
-	vd->prepare = NULL;
+	vd->prepare = render;
 	vd->display = display;
 	vd->control = control;
 	vd->manage  = manage;
@@ -192,6 +198,7 @@ static int ctor(vlc_object_t *object) {
 	const double sar = (double)vd->source.i_sar_num/(double)vd->source.i_sar_den;
 
 	VideoFormat format;
+	format.source = vd->source.i_chroma;
 	format.fourcc = fmt.i_chroma;
 	format.width = fmt.i_width;
 	format.height = fmt.i_height;
@@ -250,6 +257,16 @@ static int control(vout_display_t *vd, int query, va_list args) {
 		return VLC_EGENERIC;
 	}
 }
+
+static void render(vout_display_t *vd, picture_t *picture) {
+	PicData *pd = picture->p_sys;
+	Data *d = pd->d;
+	void *planes[PICTURE_PLANE_MAX];
+	for (int i=0; i<picture->i_planes; ++i)
+		planes[i] = picture->p[i].p_pixels;
+	d->render(d->opaque, planes);
+}
+
 static void manage(vout_display_t *vd) {
 	VLC_UNUSED(vd);
 }
@@ -304,6 +321,8 @@ vlc_module_begin()
 	add_string(MODULE_STRING "-cb-unlock", "0", NULL, "", "", true)
 		change_volatile()
 	add_string(MODULE_STRING "-cb-display", "0", NULL, "", "", true)
+		change_volatile()
+	add_string(MODULE_STRING "-cb-render", "0", NULL, "", "", true)
 		change_volatile()
 	add_string(MODULE_STRING "-data", "0", NULL, "", "", true)
 		change_volatile()

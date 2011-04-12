@@ -43,4 +43,16 @@ rgb.r = DP3_SAT(yuv, coef_r);\
 rgb.g = DP3_SAT(yuv, coef_g);\
 rgb.b = DP3_SAT(yuv, coef_b);
 
+#define APPLY_COLOR_FILTER_AND_OUTPUT(ycc, tmp) \
+ycc.x = ycc.x - param2.x;\
+ycc.x = ycc.x * param2.y;\
+ycc.x = ycc.x - coef_r.a;\
+ycc.y = ycc.y - coef_g.a;\
+ycc.z = ycc.z - coef_b.a;\
+SET_COLOR_PROP(tmp, ycc);\
+YUV_TO_RGB_SAT(ycc, tmp);\
+ycc = ycc * param1;\
+output = param1.w + ycc;\
+output.a = 1.0;
+
 #endif

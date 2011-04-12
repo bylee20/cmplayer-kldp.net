@@ -19,16 +19,14 @@ class VideoFrame;	class VideoFormat;
 
 class VideoPrepareEvent : public Event {
 public:
-	VideoPrepareEvent(const VideoFormat *format);
-	~VideoPrepareEvent();
-	const VideoFormat &format() const {return *m_format;}
-private:
-	VideoFormat *m_format;
+	VideoPrepareEvent(): Event(VideoPrepare) {}
 };
 
 class NewVideoFrameEvent : public Event {
 public:
-	NewVideoFrameEvent(): Event(NewVideoFrame) {}
+	NewVideoFrameEvent(double y_min, double y_max)
+		: Event(NewVideoFrame), y_min(y_min), y_max(y_max) {}
+	double y_min, y_max;
 };
 
 //class VideoFrameEvent : public Event {
