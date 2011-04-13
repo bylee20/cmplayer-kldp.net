@@ -58,8 +58,8 @@ TextOsdRenderer::TextOsdRenderer(Qt::Alignment align): d(new Data) {
 	d->points.resize(d->sc.count());
 	OsdStyle style = this->style();
 	style.alignment = align;
-	style.bgColor.setAlphaF(0.7);
-	style.scale = OsdStyle::FitToWidth;
+	style.color_bg.setAlphaF(0.7);
+	style.auto_size = OsdStyle::FitToWidth;
 	setStyle(style);
 	d->clearer.setSingleShot(true);
 	connect(&d->clearer, SIGNAL(timeout()), this, SLOT(clear()));
@@ -89,14 +89,14 @@ void TextOsdRenderer::setStyle(const OsdStyle &style) {
 
 QString TextOsdRenderer::bgHtml() const {
 	static const QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
-	QString html = QString("<font color='%1'>").arg(style().bgColor.name());
+	QString html = QString("<font color='%1'>").arg(style().color_bg.name());
 	html += QString(text().toString()).remove(rxColor);
 	html += "</font>";
 	return html;
 }
 
 QString TextOsdRenderer::fgHtml() const {
-	QString html = QString("<font color='%1'>").arg(style().fgColor.name());
+	QString html = QString("<font color='%1'>").arg(style().color_fg.name());
 	html += text().toString();
 	html += "</font>";
 	return html;
@@ -127,7 +127,7 @@ void TextOsdRenderer::cache() {
 	const QPointF origin = getOrigin();
 	QPainter painter(&d->interm);
 	d->doc.setHtml(bgHtml());
-	painter.setOpacity(d->style.bgColor.alphaF());
+	painter.setOpacity(d->style.color_bg.alphaF());
 	painter.translate(origin);
 	d->doc.drawContents(&painter);
 	painter.end();
@@ -141,7 +141,7 @@ void TextOsdRenderer::cache() {
 	d->interm.fill(Qt::transparent);
 	painter.begin(&d->interm);
 	d->doc.setHtml(fgHtml());
-	painter.setOpacity(d->style.fgColor.alphaF());
+	painter.setOpacity(d->style.color_fg.alphaF());
 	painter.translate(origin);
 	d->doc.drawContents(&painter);
 	painter.end();
@@ -158,7 +158,7 @@ void TextOsdRenderer::cache() {
 void TextOsdRenderer::renderDirectly(QPainter *painter, const QPointF &pos) {
 	painter->save();
 	const QPointF origin = getOrigin() + pos;
-	painter->setOpacity(style().bgColor.alphaF());
+	painter->setOpacity(style().color_bg.alphaF());
 	d->doc.setHtml(bgHtml());
 	for (int i=0; i<d->points.size(); ++i) {
 		painter->save();
@@ -167,7 +167,7 @@ void TextOsdRenderer::renderDirectly(QPainter *painter, const QPointF &pos) {
 		painter->restore();
 	}
 
-	painter->setOpacity(style().fgColor.alphaF());
+	painter->setOpacity(style().color_fg.alphaF());
 	d->doc.setHtml(fgHtml());
 	painter->translate(origin + QPointF(d->bw, d->bw));
 	d->doc.drawContents(painter);
@@ -225,15 +225,15 @@ QSizeF TextOsdRenderer::size() const {
 
 void TextOsdRenderer::updateFont() {
 	int px = 0;
-	const OsdStyle::Scale scale = style().scale;
-	if (scale == OsdStyle::FitToDiagonal)
-		px = qRound(qSqrt(d->bg.height()*d->bg.height() + d->bg.width()*d->bg.width()) * style().textSize);
-	else if (scale == OsdStyle::FitToWidth)
-		px = qRound(d->bg.width()*style().textSize);
+	const OsdStyle::AutoSize size = style().auto_size;
+	if (size == OsdStyle::FitToDiagonal)
+		px = qRound(qSqrt(d->bg.height()*d->bg.height() + d->bg.width()*d->bg.width()) * style().text_scale);
+	else if (size == OsdStyle::FitToWidth)
+		px = qRound(d->bg.width()*style().text_scale);
 	else
-		px = qRound(d->bg.height()*style().textSize);
+		px = qRound(d->bg.height()*style().text_scale);
 	px = qMax(1, px);
-	d->bw = qMax(style().borderWidth*px, 1.0);
+	d->bw = qMax(style().border_width*px, 1.0);
 	for (int i=0; i<d->sc.count(); ++i) {
 		d->points[i].setX(d->bw*(1 + d->sc.sine(i)));
 		d->points[i].setY(d->bw*(1 + d->sc.cosine(i)));

@@ -8,20 +8,20 @@ class QSettings;
 class OsdStyle {
 public:
 	class Widget;
-	enum Scale {FitToWidth, FitToHeight, FitToDiagonal};
-	OsdStyle(): bgColor(Qt::black), fgColor(Qt::white) {
+	enum AutoSize {FitToWidth, FitToHeight, FitToDiagonal};
+	OsdStyle(): color_bg(Qt::black), color_fg(Qt::white) {
 		alignment = Qt::AlignCenter;
-		borderWidth = 0.05;
-		textSize = 0.03;
-		scale = FitToDiagonal;
+		border_width = 0.05;
+		text_scale = 0.03;
+		auto_size = FitToDiagonal;
 	}
 	void save(QSettings *set, const QString &group) const;
 	void load(QSettings *set, const QString &group);
 	QFont font;
-	QColor bgColor, fgColor;
-	double borderWidth, textSize;
+	QColor color_bg, color_fg;
+	double border_width, text_scale;
 	Qt::Alignment alignment;
-	Scale scale;
+	AutoSize auto_size;
 };
 
 class QLabel;

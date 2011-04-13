@@ -109,7 +109,8 @@ HEADERS += playengine.hpp \
     shader/i420_to_rgb_simple.hpp \
     shader/i420_to_rgb_filter.hpp \
     shader/i420_to_rgb_kernel.hpp \
-    mainwindow_p.hpp
+    mainwindow_p.hpp \
+    pref_widget.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -169,13 +170,14 @@ SOURCES += main.cpp \
     events.cpp \
     listmodel.cpp \
     fragmentprogram.cpp \
-    mainwindow_p.cpp
+    mainwindow_p.cpp \
+    pref_widget.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts
-FORMS += ui/pref_dialog.ui \
+FORMS += \
     ui/osdstyle_widget.ui \
     ui/aboutdialog.ui \
     ui/opendvddialog.ui \
     ui/snapshotdialog.ui \
-    ui/pref_dialog_mac.ui
+    ui/pref_widget.ui

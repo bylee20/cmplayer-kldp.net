@@ -29,6 +29,8 @@ SimpleListWidget::SimpleListWidget(QWidget *parent)
 	hbox->addWidget(d->down);
 	vbox->addLayout(hbox);
 	vbox->addWidget(d->list);
+	vbox->setMargin(0);
+	hbox->setMargin(0);
 
 	connect(d->list, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*))
 			, this, SLOT(slotCurrentItemChanged(QListWidgetItem*)));

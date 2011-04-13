@@ -127,10 +127,10 @@ class MainWindowData {
 	}
 
 	void apply_pref() {
-		Subtitle::Parser::setMsPerCharactor(pref.msPerChar);
+		Subtitle::Parser::setMsPerCharactor(pref.ms_per_char);
 		Translator::load(pref.locale);
-		app()->setStyle(pref.windowStyle);
-		subtitle->osd()->setStyle(pref.subtitleStyle);
+		app()->setStyle(pref.window_style);
+		subtitle->osd()->setStyle(pref.sub_style);
 		menu.updatePref();
 	#ifndef Q_WS_MAC
 		tray->setVisible(pref.enableSystemTray);

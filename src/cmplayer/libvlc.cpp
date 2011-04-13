@@ -27,7 +27,7 @@ void LibVLC::init() {
 
 	d->vUtil.vd = 0;
 	d->aUtil.af = 0;
-	d->aUtil.scaletempoEnabled = 0;
+	d->aUtil.scaletempo_enabled = 0;
 
 	d->video->setUtil(&d->vUtil);
 	d->audio->setUtil(&d->aUtil);

@@ -149,7 +149,7 @@ void PlaylistView::showContextMenu(const QPoint &/*pos*/) {
 }
 
 Playlist PlaylistView::generatePlaylist(const Mrl &mrl) {
-	const AutoAddFiles mode = Pref::get().autoAddFiles;
+	const AutoAddFiles mode = Pref::get().auto_add_files;
 	if (!mrl.isLocalFile() || mode == DoNotAddFiles)
 		return Playlist(mrl);
 	const QFileInfo file(mrl.toLocalFile());

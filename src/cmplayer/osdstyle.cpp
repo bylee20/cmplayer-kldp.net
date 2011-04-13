@@ -8,35 +8,35 @@
 void OsdStyle::save(QSettings *set, const QString &group) const {
 	set->beginGroup(group);
 	set->setValue("font", font);
-	set->setValue("bgColor", bgColor);
-	set->setValue("fgColor", fgColor);
-	set->setValue("borderWidth", borderWidth);
-	set->setValue("textSize", textSize);
+	set->setValue("color_bg", color_bg);
+	set->setValue("color_fg", color_fg);
+	set->setValue("border_width", border_width);
+	set->setValue("text_scale", text_scale);
 	set->setValue("alignment", int(alignment));
-	if (scale == FitToWidth)
-		set->setValue("scale", "FitToWidth");
-	else if (scale == FitToHeight)
-		set->setValue("scale", "FitToHeight");
+	if (auto_size == FitToWidth)
+		set->setValue("auto_size", "FitToWidth");
+	else if (auto_size == FitToHeight)
+		set->setValue("auto_size", "FitToHeight");
 	else
-		set->setValue("scale", "FitToDiagonal");
+		set->setValue("auto_size", "FitToDiagonal");
 	set->endGroup();
 }
 
 void OsdStyle::load(QSettings *set, const QString &group) {
 	set->beginGroup(group);
 	font = set->value("font", font).value<QFont>();
-	bgColor = set->value("bgColor", bgColor).value<QColor>();
-	fgColor = set->value("fgColor", fgColor).value<QColor>();
-	borderWidth = set->value("borderWidth", borderWidth).toDouble();
-	textSize = set->value("textSize", textSize).toDouble();
+	color_bg = set->value("color_bg", color_bg).value<QColor>();
+	color_fg = set->value("color_fg", color_fg).value<QColor>();
+	border_width = set->value("border_width", border_width).toDouble();
+	text_scale = set->value("text_scale", text_scale).toDouble();
 	alignment = Qt::Alignment(set->value("alignment", int(alignment)).toInt());
-	const QString scale = set->value("scale", "FitToDiagonal").toString();
-	if (scale == "FitToWidth")
-		this->scale = FitToWidth;
-	else if (scale == "FitToHeight")
-		this->scale = FitToHeight;
+	const QString size = set->value("auto_size", "FitToDiagonal").toString();
+	if (size == "FitToWidth")
+		auto_size = FitToWidth;
+	else if (size == "FitToHeight")
+		auto_size = FitToHeight;
 	else
-		this->scale = FitToDiagonal;
+		auto_size = FitToDiagonal;
 	set->endGroup();
 }
 
@@ -68,10 +68,10 @@ void OsdStyle::Widget::slotColor() {
 	QColor *before = 0;
 	if (sender() == d->ui.fgColorButton) {
 		label = d->ui.fgColorLabel;
-		before = &d->style.fgColor;
+		before = &d->style.color_fg;
 	} else if (sender() == d->ui.bgColorButton) {
 		label = d->ui.bgColorLabel;
-		before = &d->style.bgColor;
+		before = &d->style.color_bg;
 	} else
 		return;
 	bool ok = false;
@@ -99,10 +99,10 @@ void OsdStyle::Widget::updateFont(const QFont &font) {
 void OsdStyle::Widget::setStyle(const OsdStyle &style) {
 	d->style = style;
 	updateFont(d->style.font);
-	setColor(d->ui.fgColorLabel, d->style.fgColor);
-	setColor(d->ui.bgColorLabel, d->style.bgColor);
-	d->ui.scale->setCurrentIndex(d->ui.scale->findData(d->style.scale));
-	d->ui.size->setValue(d->style.textSize*100.);
+	setColor(d->ui.fgColorLabel, d->style.color_fg);
+	setColor(d->ui.bgColorLabel, d->style.color_bg);
+	d->ui.scale->setCurrentIndex(d->ui.scale->findData(d->style.auto_size));
+	d->ui.size->setValue(d->style.text_scale*100.);
 }
 
 void OsdStyle::Widget::setColor(QLabel *label, const QColor &color) {
@@ -121,7 +121,7 @@ void OsdStyle::Widget::setColor(QLabel *label, const QColor &color) {
 const OsdStyle &OsdStyle::Widget::style() const {
 	const int scale = d->ui.scale->currentIndex();
 	if (scale != -1)
-		d->style.scale = (OsdStyle::Scale)(d->ui.scale->itemData(scale).toInt());
-	d->style.textSize = d->ui.size->value()/100.;
+		d->style.auto_size = (OsdStyle::AutoSize)(d->ui.scale->itemData(scale).toInt());
+	d->style.text_scale = d->ui.size->value()/100.;
 	return d->style;
 }

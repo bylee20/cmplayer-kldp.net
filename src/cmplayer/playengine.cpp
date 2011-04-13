@@ -192,7 +192,7 @@ bool PlayEngine::play() {
 	const RecentInfo &recent = RecentInfo::get();
 	const int record = recent.stoppedTime(d->media->mrl());
 	if (record > 0) {
-		if (Pref::get().askWhenRecordFound) {
+		if (Pref::get().ask_record_found) {
 			const QDateTime date = recent.stoppedDate(d->media->mrl());
 			const QString title = tr("Stopped Record Found");
 			const QString text = tr("This file was stopped during its playing before.\n"

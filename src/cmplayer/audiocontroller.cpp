@@ -168,10 +168,10 @@ bool AudioController::isVolumeNormalized() const {
 }
 
 void AudioController::setTempoScaled(bool scaled) {
-	if (d->util->scaletempoEnabled != scaled)
-		emit tempoScaledChanged((d->util->scaletempoEnabled = scaled));
+	if (d->util->scaletempo_enabled != scaled)
+		emit tempoScaledChanged((d->util->scaletempo_enabled = scaled));
 }
 
 bool AudioController::isTempoScaled() const {
-	return d->util->scaletempoEnabled != 0;
+	return d->util->scaletempo_enabled != 0;
 }

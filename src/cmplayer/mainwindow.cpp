@@ -341,7 +341,7 @@ void MainWindow::clearSubtitles() {
 
 void MainWindow::openSubFile() {
 	const QString filter = tr("Subtitle Files") +' '+ Info::subtitleExt().toFilter();
-	QString enc = d->pref.subtitleEncoding;
+	QString enc = d->pref.sub_enc;
 	QString dir;
 	if (d->engine->mrl().isLocalFile())
 		dir = QFileInfo(d->engine->mrl().toLocalFile()).absolutePath();
@@ -426,8 +426,8 @@ void MainWindow::setFullScreen(bool full) {
 	if (full) {
 		app()->setAlwaysOnTop(this, false);
 		setWindowState(windowState() | Qt::WindowFullScreen);
-		if (d->pref.hideCursor)
-			d->hider->start(d->pref.hideDelay);
+		if (d->pref.hide_cursor)
+			d->hider->start(d->pref.hide_delay);
 	} else {
 		setWindowState(windowState() & ~Qt::WindowFullScreen);
 		d->hider->stop();
@@ -453,7 +453,7 @@ void MainWindow::updateState(MediaState state, MediaState old) {
 	if (old == state)
 		return;
 	if (state == PlayingState) {
-		app()->setScreensaverDisabled(d->pref.disableScreensaver);
+		app()->setScreensaverDisabled(d->pref.disable_screensaver);
 		d->menu("play")["pause"]->setText(tr("Pause"));
 	} else {
 		app()->setScreensaverDisabled(false);
@@ -542,7 +542,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 	}
 	if (IS_BUTTON(Qt::MidButton)) {
 		QAction *action = getTriggerAction(event->modifiers()
-				, d->pref.middleClickMap, d->menu.clickAction(), 0);
+				, d->pref.middle_click_map, d->menu.clickAction(), 0);
 		if (action)
 			action->trigger();
 	}
@@ -563,8 +563,8 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 		QRect rect = this->rect();
 		rect.setTop(rect.height() - h);
 		d->control->setVisible(rect.contains(event->pos()));
-		if (d->pref.hideCursor)
-			d->hider->start(d->pref.hideDelay);
+		if (d->pref.hide_cursor)
+			d->hider->start(d->pref.hide_delay);
 	} else {
 		if (d->moving) {
 			const QPoint pos = event->globalPos();
@@ -586,7 +586,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 	QMainWindow::mouseDoubleClickEvent(event);
 	if (IS_BUTTON(Qt::LeftButton) && IS_IN_CENTER) {
 		QAction *action = getTriggerAction(event->modifiers()
-				, d->pref.doubleClickMap, d->menu.clickAction(), 0);
+				, d->pref.double_click_map, d->menu.clickAction(), 0);
 		if (action)
 			action->trigger();
 	}
@@ -596,7 +596,7 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 	if (IS_IN_CENTER && event->delta()) {
 		Menu::WheelActionPair pair;
 		pair = getTriggerAction(event->modifiers()
-				, d->pref.wheelScrollMap, d->menu.wheelAction(), pair);
+				, d->pref.wheel_scroll_map, d->menu.wheelAction(), pair);
 		if (!pair.isNull()) {
 			((event->delta() > 0) ? pair.up : pair.down)->trigger();
 			event->accept();
@@ -637,7 +637,7 @@ void MainWindow::dropEvent(QDropEvent *event) {
 		d->playlist->append(playlist);
 		d->playlist->play(playlist.first());
 	} else if (!subList.isEmpty())
-		appendSubFiles(subList, true, d->pref.subtitleEncoding);
+		appendSubFiles(subList, true, d->pref.sub_enc);
 }
 
 void MainWindow::setSyncDelay(int diff) {
@@ -663,9 +663,9 @@ void MainWindow::showEvent(QShowEvent *event) {
 
 void MainWindow::hideEvent(QHideEvent *event) {
 	QMainWindow::hideEvent(event);
-	if (!d->pref.pauseMinimized || !d->engine || d->dontPause)
+	if (!d->pref.pause_minimized || !d->engine || d->dontPause)
 		return;
-	if (!d->engine->isPlaying() || (d->pref.pauseVideoOnly && !d->engine->hasVideo()))
+	if (!d->engine->isPlaying() || (d->pref.pause_video_only && !d->engine->hasVideo()))
 		return;
 	d->pausedByHiding = true;
 	d->engine->pause();
@@ -728,29 +728,34 @@ void MainWindow::setTempoScaled(bool scaled) {
 void MainWindow::setColorProperty(QAction *action) {
 	const QList<QVariant> data = action->data().toList();
 	const ColorProperty::Value prop = ColorProperty::Value(data[0].toInt());
-	ColorProperty color = d->video->colorProperty();
-	color.setValue(prop, color.value(prop) + data[1].toInt()*0.01);
-	d->video->setColorProperty(color);
-	QString cmd;
-	switch(prop) {
-	case ColorProperty::Brightness:
-		cmd = tr("Brightness");
-		break;
-	case ColorProperty::Saturation:
-		cmd = tr("Saturation");
-		break;
-	case ColorProperty::Hue:
-		cmd = tr("Hue");
-		break;
-	case ColorProperty::Contrast:
-		cmd = tr("Contrast");
-		break;
-	default:
-		return;
+	if (prop == -1) {
+		d->video->setColorProperty(ColorProperty());
+		showMessage("Reset brightness, contrast, saturation and hue");
+	} else {
+		ColorProperty color = d->video->colorProperty();
+		color.setValue(prop, color.value(prop) + data[1].toInt()*0.01);
+		d->video->setColorProperty(color);
+		QString cmd;
+		switch(prop) {
+		case ColorProperty::Brightness:
+			cmd = tr("Brightness");
+			break;
+		case ColorProperty::Saturation:
+			cmd = tr("Saturation");
+			break;
+		case ColorProperty::Hue:
+			cmd = tr("Hue");
+			break;
+		case ColorProperty::Contrast:
+			cmd = tr("Contrast");
+			break;
+		default:
+			return;
+		}
+		const double v = d->video->colorProperty()[prop]*100.0;
+		const int value = v + (v < 0 ? -0.5 : 0.5);
+		showMessage(cmd, value, "%", true);
 	}
-	const double v = d->video->colorProperty()[prop]*100.0;
-	const int value = v + (v < 0 ? -0.5 : 0.5);
-	showMessage(cmd, value, "%", true);
 }
 
 void MainWindow::updateStaysOnTop() {

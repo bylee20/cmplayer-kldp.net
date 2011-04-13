@@ -112,9 +112,9 @@ RichString Subtitle::text(int time, double frameRate) const {
 
 bool Subtitle::load(const QString &file, const QString &enc) {
 	const Pref &p = Pref::get();
-	const double conf = p.subtitleEncodingConfidence*0.01;
+	const double conf = p.sub_enc_confidence*0.01;
 	QString encoding;
-	if (p.useSubtitleEncodingAutoDetection)
+	if (p.sub_enc_autodetection)
 		encoding = CharsetDetector::detect(file, conf);
 	if (encoding.isEmpty())
 		encoding = enc;

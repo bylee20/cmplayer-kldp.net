@@ -165,6 +165,9 @@ Menu &Menu::create(QWidget *parent) {
 
 	video->addSeparator();
 
+	QAction *creset = video->addActionToGroup("reset", false, "color");
+	creset->setShortcut(Qt::Key_O);
+	creset->setData(QList<QVariant>() << -1 << 0);
 	video->addActionToGroup("brightness+", false, "color")->setShortcut(Qt::Key_T);
 	video->addActionToGroup("brightness-", false, "color")->setShortcut(Qt::Key_G);
 	video->addActionToGroup("contrast+", false, "color")->setShortcut(Qt::Key_Y);
@@ -328,7 +331,7 @@ void Menu::updatePref() {
 	Menu &speed = play("speed");
 	speed.setTitle(tr("Playback Speed"));
 	speed["reset"]->setText(tr("Reset"));
-	setActionStep(speed["faster"], speed["slower"], "%1%", p.speedStep);
+	setActionStep(speed["faster"], speed["slower"], "%1%", p.speed_step);
 
 	Menu &repeat = play("repeat");
 	repeat.setTitle(tr("A-B Repeat"));
@@ -339,19 +342,19 @@ void Menu::updatePref() {
 	Menu &seek = play("seek");
 	seek.setTitle(tr("Seek"));
 	const QString forward = tr("Forward %1sec");
-	setActionAttr(seek["forward1"], p.seekingStep1
-			, forward, p.seekingStep1*0.001, false);
-	setActionAttr(seek["forward2"], p.seekingStep2
-			, forward, p.seekingStep2*0.001, false);
-	setActionAttr(seek["forward3"], p.seekingStep3
-			, forward, p.seekingStep3*0.001, false);
+	setActionAttr(seek["forward1"], p.seek_step1
+			, forward, p.seek_step1*0.001, false);
+	setActionAttr(seek["forward2"], p.seek_step2
+			, forward, p.seek_step2*0.001, false);
+	setActionAttr(seek["forward3"], p.seek_step3
+			, forward, p.seek_step3*0.001, false);
 	const QString backward = tr("Backward %1sec");
-	setActionAttr(seek["backward1"], -p.seekingStep1
-			, backward, p.seekingStep1*0.001, false);
-	setActionAttr(seek["backward2"], -p.seekingStep2
-			, backward, p.seekingStep2*0.001, false);
-	setActionAttr(seek["backward3"], -p.seekingStep3
-			, backward, p.seekingStep3*0.001, false);
+	setActionAttr(seek["backward1"], -p.seek_step1
+			, backward, p.seek_step1*0.001, false);
+	setActionAttr(seek["backward2"], -p.seek_step2
+			, backward, p.seek_step2*0.001, false);
+	setActionAttr(seek["backward3"], -p.seek_step3
+			, backward, p.seek_step3*0.001, false);
 
 	play("title").setTitle(tr("Title"));
 	play("chapter").setTitle(tr("Chapter"));
@@ -364,13 +367,13 @@ void Menu::updatePref() {
 	list["clear"]->setText(tr("Clear"));
 	list["hide"]->setText(tr("Hide"));
 	sub("spu").setTitle(tr("Subtitle Track"));
-	setActionAttr(sub["pos-up"], -p.subtitlePosStep
-			, tr("Up %1%"), p.subtitlePosStep, false);
-	setActionAttr(sub["pos-down"], p.subtitlePosStep
-			, tr("Down %1%"), p.subtitlePosStep, false);
+	setActionAttr(sub["pos-up"], -p.sub_pos_step
+			, tr("Up %1%"), p.sub_pos_step, false);
+	setActionAttr(sub["pos-down"], p.sub_pos_step
+			, tr("Down %1%"), p.sub_pos_step, false);
 	sub["sync-reset"]->setText(tr("Reset Sync"));
 	setActionStep(sub["sync-add"], sub["sync-sub"]
-			, tr("Sync %1sec"), p.syncDelayStep, 0.001);
+			, tr("Sync %1sec"), p.sync_delay_step, 0.001);
 
 	Menu &video = root("video");
 	video.setTitle(tr("Video"));
@@ -395,7 +398,7 @@ void Menu::updatePref() {
 	crop["2.35:1"]->setText(tr("2.35:1 (CinemaScope)"));
 
 	Menu &effect = video("effect");
-	effect.setTitle(tr("Effect"));
+	effect.setTitle(tr("Filter"));
 	effect["flip-v"]->setText(tr("Flip Vertically"));
 	effect["flip-h"]->setText(tr("Flip Horizontally"));
 	effect["blur"]->setText(tr("Blur"));
@@ -403,16 +406,17 @@ void Menu::updatePref() {
 	effect["gray"]->setText(tr("Grayscale"));
 	effect["invert"]->setText(tr("Invert Color"));
 	effect["remap"]->setText(tr("Adjust Constrast for PC"));
-	effect["auto-contrast"]->setText(tr("Auto Contrast (High CPU Usage)"));
+	effect["auto-contrast"]->setText(tr("Auto Contrast (Massive)"));
 
+	video["reset"]->setText(tr("Reset"));
 	setVideoPropStep(video, "brightness", ColorProperty::Brightness
-			, tr("Brightness %1%"), p.brightnessStep);
+			, tr("Brightness %1%"), p.brightness_step);
 	setVideoPropStep(video, "saturation", ColorProperty::Saturation
-			, tr("Saturation %1%"), p.brightnessStep);
+			, tr("Saturation %1%"), p.brightness_step);
 	setVideoPropStep(video, "contrast", ColorProperty::Contrast
-			, tr("Contrast %1%"), p.brightnessStep);
+			, tr("Contrast %1%"), p.brightness_step);
 	setVideoPropStep(video, "hue", ColorProperty::Hue
-			, tr("Hue %1%"), p.brightnessStep);
+			, tr("Hue %1%"), p.brightness_step);
 	video["snapshot"]->setText(tr("Take Snapshot"));
 
 	Menu &audio = root("audio");
@@ -421,9 +425,9 @@ void Menu::updatePref() {
 	audio["mute"]->setText(tr("Mute"));
 	audio["volnorm"]->setText(tr("Normalize Volume"));
 	setActionStep(audio["volume-up"], audio["volume-down"]
-			, tr("Volume %1%"), p.volumeStep);
+			, tr("Volume %1%"), p.volume_step);
 	setActionStep(audio["amp-up"], audio["amp-down"]
-			, tr("Amp %1%"), p.ampStep);
+			, tr("Amp %1%"), p.amp_step);
 
 	Menu &tool = root("tool");
 	tool.setTitle(tr("Tools"));

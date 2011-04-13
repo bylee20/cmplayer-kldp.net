@@ -54,7 +54,7 @@ struct SubtitleRenderer::Data {
 		return langMap.value(r->comp->language().id(), -1);
 	}
 	void reset_lang_map() {
-		const QStringList priority = Pref::get().subtitlePriority;
+		const QStringList priority = Pref::get().sub_priority;
 		for (int i=0; i< priority.size(); ++i)
 			langMap[priority[i]] = priority.size()-i;
 	}
@@ -237,11 +237,11 @@ QList<int> SubtitleRenderer::autoselection(const Mrl &mrl, const QList<Loaded> &
 	const QString base = QFileInfo(mrl.toLocalFile()).completeBaseName();
 	for (int i=0; i<loaded.size(); ++i) {
 		bool select = false;
-		if (p.subtitleAutoSelect == SameName) {
+		if (p.sub_autoselect == SameName) {
 			select = QFileInfo(loaded[i].m_comp.fileName()).completeBaseName() == base;
-		} else if (p.subtitleAutoSelect == AllLoaded) {
+		} else if (p.sub_autoselect == AllLoaded) {
 			select = true;
-		} else if (p.subtitleAutoSelect == EachLanguage) {
+		} else if (p.sub_autoselect == EachLanguage) {
 			const QString lang = loaded[i].m_comp.language().id();
 			if ((select = (!langSet.contains(lang))))
 				langSet.insert(lang);
@@ -249,12 +249,12 @@ QList<int> SubtitleRenderer::autoselection(const Mrl &mrl, const QList<Loaded> &
 		if (select)
 			selected.append(i);
 	}
-	if (p.subtitleAutoSelect == SameName
-			&& !selected.isEmpty() && !p.subtitleExtension.isEmpty()) {
+	if (p.sub_autoselect == SameName
+			&& !selected.isEmpty() && !p.sub_ext.isEmpty()) {
 		for (int i=0; i<selected.size(); ++i) {
 			const QString fileName = loaded[selected[i]].m_comp.fileName();
 			const QString suffix = QFileInfo(fileName).suffix().toLower();
-			if (p.subtitleExtension == suffix) {
+			if (p.sub_ext == suffix) {
 				const int idx = selected[i];
 				selected.clear();
 				selected.append(idx);
@@ -268,22 +268,22 @@ QList<int> SubtitleRenderer::autoselection(const Mrl &mrl, const QList<Loaded> &
 int SubtitleRenderer::autoload(const Mrl &mrl, bool autoselect) {
 	unload();
 	const Pref &pref = Pref::get();
-	if (pref.subtitleAutoLoad == NoAutoLoad)
+	if (pref.sub_autoload == NoAutoLoad)
 		return 0;
 	const QStringList filter = Info::subtitleNameFilter();
 	const QFileInfo fileInfo(mrl.toLocalFile());
 	const QFileInfoList all = fileInfo.dir().entryInfoList(filter, QDir::Files, QDir::Name);
 	const QString base = fileInfo.completeBaseName();
 	for (int i=0; i<all.size(); ++i) {
-		if (pref.subtitleAutoLoad != SamePath) {
-			if (pref.subtitleAutoLoad == Matched) {
+		if (pref.sub_autoload != SamePath) {
+			if (pref.sub_autoload == Matched) {
 				if (base != all[i].completeBaseName())
 					continue;
 			} else if (!all[i].fileName().contains(base))
 				continue;
 		}
 		Subtitle sub;
-		if (sub.load(all[i].absoluteFilePath(), pref.subtitleEncoding)) {
+		if (sub.load(all[i].absoluteFilePath(), pref.sub_enc)) {
 			for (int i=0; i<sub.size(); ++i)
 				d->loaded.push_back(Loaded(sub[i]));
 		}

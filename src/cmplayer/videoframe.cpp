@@ -11,9 +11,9 @@ VideoFrame::VideoFrame(): m_data(0), m_length(0) {}
 
 VideoFrame::VideoFrame(const VideoFormat &format)
 : m_format(format), m_data(0), m_length(0) {
-	for (int i=0; i<m_format.planeCount; ++i) {
+	for (int i=0; i<m_format.plane_count; ++i) {
 		m_offset[i] = m_length;
-		m_length += m_format.planes[i].dataLines*m_format.planes[i].dataPitch;
+		m_length += m_format.planes[i].data_lines*m_format.planes[i].data_pitch;
 	}
 	if (m_length > 0)
 		m_data = new uchar[m_length];

@@ -41,7 +41,7 @@ Application::Application(int &argc, char **argv)
 	setWindowIcon(defaultIcon());
 
 	d->defStyle = style()->objectName();
-	setStyle(Pref::get().windowStyle);
+	setStyle(Pref::get().window_style);
 	d->main = 0;
 	d->mb = 0;
 #ifdef Q_WS_MAC
@@ -130,7 +130,7 @@ void Application::initialize() {
 		mrl = d->url.toString();
 		d->url.clear();
 	}
-	if (Pref::get().singleApplication && sendMessage("wakeUp")) {
+	if (Pref::get().single_app && sendMessage("wakeUp")) {
 		if (!mrl.isEmpty())
 			sendMessage("mrl " + mrl.toString());
 		quit();

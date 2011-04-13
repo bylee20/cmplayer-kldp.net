@@ -31,31 +31,38 @@ public:
 	static const int DefaultSpeedStep = 10;
 	static const int DefaultColorPropStep = 1;
 
-	AutoAddFilesEnum autoAddFiles;
-	bool rememberStopped, pauseMinimized, pauseVideoOnly;
-	bool askWhenRecordFound, hideCursor, disableScreensaver;
-	bool enableSystemTray, hideClosed, singleApplication;
-	bool useSubtitleEncodingAutoDetection;
+	AutoAddFilesEnum auto_add_files;
+	bool remember_stopped, pause_minimized, pause_video_only;
+	bool ask_record_found, hide_cursor, disable_screensaver;
+	bool enable_system_tray, hide_rather_close, single_app;;
+	bool sub_enc_autodetection;
 
-	SubtitleAutoLoadEnum subtitleAutoLoad;
-	SubtitleAutoSelectEnum subtitleAutoSelect;
-	OsdStyle subtitleStyle;
-	QString subtitleEncoding, subtitleExtension;
-	QStringList subtitlePriority;
-	int msPerChar;
-	int seekingStep1, seekingStep2, seekingStep3, speedStep;
-	int volumeStep, syncDelayStep, ampStep, subtitlePosStep;
-	int brightnessStep, saturationStep, contrastStep, hueStep;
-	int hideDelay, subtitleEncodingConfidence;
-	ClickActionMap doubleClickMap, middleClickMap;
-	WheelActionMap wheelScrollMap;
+	int blur_kern_c, blur_kern_n, blur_kern_d;
+	int sharpen_kern_c, sharpen_kern_n, sharpen_kern_d;
+	int adjust_contrast_min_luma, adjust_contrast_max_luma;
+	double auto_contrast_threshold;
 
-	QString windowStyle;
+	SubtitleAutoLoadEnum sub_autoload;
+	SubtitleAutoSelectEnum sub_autoselect;
+	OsdStyle sub_style;
+	QString sub_enc, sub_ext;
+	QStringList sub_priority;
+	int ms_per_char;
+	int seek_step1, seek_step2, seek_step3, speed_step;
+	int volume_step, sync_delay_step, amp_step, sub_pos_step;
+	int brightness_step, saturation_step, contrast_step, hue_step;
+	int hide_delay, sub_enc_confidence;
+	ClickActionMap double_click_map, middle_click_map;
+	WheelActionMap wheel_scroll_map;
+
+	QString window_style;
 	QLocale locale;
 
 	void save() const;
 	void load();
 	class Dialog;
+	class MacDialog;
+	class Widget;
 private:
 	Pref() {load();}
 	static Pref &ref();

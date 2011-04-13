@@ -18,46 +18,55 @@ void Pref::save() const {
 	QSettings set;
 	set.beginGroup("preference");
 
-	SAVE(rememberStopped);
-	SAVE(askWhenRecordFound);
-	SAVE(pauseMinimized);
-	SAVE(pauseVideoOnly);
-	SAVE(hideCursor);
-	SAVE(hideDelay);
-	SAVE(enableSystemTray);
-	SAVE(hideClosed);
-	SAVE(singleApplication);
-	SAVE(disableScreensaver);
-	SAVE(subtitleEncoding);
-	SAVE(subtitlePriority);
-	SAVE(useSubtitleEncodingAutoDetection);
-	SAVE(subtitleEncodingConfidence);
-	SAVE(msPerChar);
-	SAVE(seekingStep1);
-	SAVE(seekingStep2);
-	SAVE(seekingStep3);
-	SAVE(speedStep);
-	SAVE(volumeStep);
-	SAVE(ampStep);
-	SAVE(subtitlePosStep);
-	SAVE(volumeStep);
-	SAVE(syncDelayStep);
-	SAVE(brightnessStep);
-	SAVE(saturationStep);
-	SAVE(contrastStep);
-	SAVE(hueStep);
+	SAVE(remember_stopped);
+	SAVE(ask_record_found);
+	SAVE(pause_minimized);
+	SAVE(pause_video_only);
+	SAVE(hide_cursor);
+	SAVE(hide_delay);
+	SAVE(enable_system_tray);
+	SAVE(hide_rather_close);
+	SAVE(single_app);
+	SAVE(disable_screensaver);
+	SAVE(sub_enc);
+	SAVE(sub_priority);
+	SAVE(sub_enc_autodetection);
+	SAVE(sub_enc_confidence);
+	SAVE(ms_per_char);
+	SAVE(seek_step1);
+	SAVE(seek_step2);
+	SAVE(seek_step3);
+	SAVE(speed_step);
+	SAVE(volume_step);
+	SAVE(amp_step);
+	SAVE(sub_pos_step);
+	SAVE(volume_step);
+	SAVE(sync_delay_step);
+	SAVE(brightness_step);
+	SAVE(saturation_step);
+	SAVE(contrast_step);
+	SAVE(hue_step);
 	SAVE(locale);
-	SAVE(windowStyle);
-	SAVE(subtitleExtension);
+	SAVE(window_style);
+	SAVE(sub_ext);
+	SAVE(blur_kern_c);
+	SAVE(blur_kern_n);
+	SAVE(blur_kern_d);
+	SAVE(sharpen_kern_c);
+	SAVE(sharpen_kern_n);
+	SAVE(sharpen_kern_d);
+	SAVE(adjust_contrast_min_luma);
+	SAVE(adjust_contrast_max_luma);
+	SAVE(auto_contrast_threshold);
 
-	SAVE_ENUM(autoAddFiles);
-	SAVE_ENUM(subtitleAutoLoad);
-	SAVE_ENUM(subtitleAutoSelect);
+	SAVE_ENUM(auto_add_files);
+	SAVE_ENUM(sub_autoload);
+	SAVE_ENUM(sub_autoselect);
 
-	subtitleStyle.save(&set, "SubtitleStyle");
-	saveMouse(set, "DoubleClickAction", doubleClickMap);
-	saveMouse(set, "MiddleClickAction", middleClickMap);
-	saveMouse(set, "WheelScrollAction", wheelScrollMap);
+	sub_style.save(&set, "sub_style");
+	saveMouse(set, "DoubleClickAction", double_click_map);
+	saveMouse(set, "MiddleClickAction", middle_click_map);
+	saveMouse(set, "WheelScrollAction", wheel_scroll_map);
 
 	set.endGroup();
 }
@@ -66,72 +75,82 @@ void Pref::load() {
 	QSettings set;
 	set.beginGroup("preference");
 
-	LOAD(rememberStopped, true, toBool);
-	LOAD(askWhenRecordFound, true, toBool);
-	LOAD(pauseMinimized, true, toBool);
-	LOAD(pauseVideoOnly, true, toBool);
-	LOAD(hideCursor, true, toBool);
-	LOAD(hideDelay, 3000, toInt);
-	LOAD(enableSystemTray, true, toBool);
-	LOAD(hideClosed, true, toBool);
-	LOAD(singleApplication, true, toBool);
-	LOAD(disableScreensaver, true, toBool);
+	LOAD(remember_stopped, true, toBool);
+	LOAD(ask_record_found, true, toBool);
+	LOAD(pause_minimized, true, toBool);
+	LOAD(pause_video_only, true, toBool);
+	LOAD(hide_cursor, true, toBool);
+	LOAD(hide_delay, 3000, toInt);
+	LOAD(blur_kern_c, 1, toInt);
+	LOAD(blur_kern_n, 2, toInt);
+	LOAD(blur_kern_d, 1, toInt);
+	LOAD(sharpen_kern_c, 5, toInt);
+	LOAD(sharpen_kern_n, -1, toInt);
+	LOAD(sharpen_kern_d, 0, toInt);
+	LOAD(adjust_contrast_min_luma, 16, toInt);
+	LOAD(adjust_contrast_max_luma, 235, toInt);
+	LOAD(auto_contrast_threshold, 0.5, toDouble);
+
+	LOAD(enable_system_tray, true, toBool);
+	LOAD(hide_rather_close, true, toBool);
+	LOAD(single_app, true, toBool);
+	LOAD(disable_screensaver, true, toBool);
 	LOAD(locale, QLocale::system(), toLocale);
 	if (this->locale.language() == QLocale::Korean)
-		LOAD(subtitleEncoding, "CP949", toString);
+		LOAD(sub_enc, "CP949", toString);
 	else
-		LOAD(subtitleEncoding, "UTF-8", toString);
-	LOAD(useSubtitleEncodingAutoDetection, true, toBool);
-	LOAD(subtitleEncodingConfidence, 70, toInt);
-	LOAD(msPerChar, 500, toInt);
-	LOAD(subtitlePriority, QStringList(), toStringList);
-	LOAD(seekingStep1, DefaultSeekingStep1, toInt);
-	LOAD(seekingStep2, DefaultSeekingStep2, toInt);
-	LOAD(seekingStep3, DefaultSeekingStep3, toInt);
-	LOAD(speedStep, DefaultSpeedStep, toInt);
-	LOAD(volumeStep, DefaultVolumeStep, toInt);
-	LOAD(ampStep, DefaultAmpStep, toInt);
-	LOAD(subtitlePosStep, DefaultSubPosStep, toInt);
-	LOAD(syncDelayStep, DefaultSyncDelayStep, toInt);
-	LOAD(brightnessStep, DefaultColorPropStep, toInt);
-	LOAD(saturationStep, DefaultColorPropStep, toInt);
-	LOAD(contrastStep, DefaultColorPropStep, toInt);
-	LOAD(hueStep, DefaultColorPropStep, toInt);
-	LOAD(windowStyle, QString(), toString);
-	LOAD(subtitleExtension, QString(), toString);
+		LOAD(sub_enc, "UTF-8", toString);
+	LOAD(sub_enc_autodetection, true, toBool);
+	LOAD(sub_enc_confidence, 70, toInt);
+	LOAD(ms_per_char, 500, toInt);
+	LOAD(sub_priority, QStringList(), toStringList);
+	LOAD(seek_step1, DefaultSeekingStep1, toInt);
+	LOAD(seek_step2, DefaultSeekingStep2, toInt);
+	LOAD(seek_step3, DefaultSeekingStep3, toInt);
+	LOAD(speed_step, DefaultSpeedStep, toInt);
+	LOAD(volume_step, DefaultVolumeStep, toInt);
+	LOAD(amp_step, DefaultAmpStep, toInt);
+	LOAD(sub_pos_step, DefaultSubPosStep, toInt);
+	LOAD(sync_delay_step, DefaultSyncDelayStep, toInt);
+	LOAD(brightness_step, DefaultColorPropStep, toInt);
+	LOAD(saturation_step, DefaultColorPropStep, toInt);
+	LOAD(contrast_step, DefaultColorPropStep, toInt);
+	LOAD(hue_step, DefaultColorPropStep, toInt);
+	LOAD(window_style, QString(), toString);
+	LOAD(sub_ext, QString(), toString);
 
-	LOAD_ENUM(autoAddFiles, AllFiles);
-	LOAD_ENUM(subtitleAutoLoad, Contain);
-	LOAD_ENUM(subtitleAutoSelect, SameName);
+	LOAD_ENUM(auto_add_files, AllFiles);
+	LOAD_ENUM(sub_autoload, Contain);
+	LOAD_ENUM(sub_autoselect, SameName);
 
-	subtitleStyle.alignment = Qt::AlignHCenter | Qt::AlignBottom;
-	subtitleStyle.borderWidth = 0.045;
-	subtitleStyle.textSize = 0.035;
-	subtitleStyle.font.setBold(true);
-	subtitleStyle.load(&set, "SubtitleStyle");
-	loadMouse(set, "DoubleClickAction", doubleClickMap
+	sub_style.alignment = Qt::AlignHCenter | Qt::AlignBottom;
+	sub_style.border_width = 0.045;
+	sub_style.text_scale = 0.035;
+	sub_style.font.setBold(true);
+	sub_style.load(&set, "SubtitleStyle");
+	loadMouse(set, "DoubleClickAction", double_click_map
 			, Qt::NoModifier, ClickActionPair(true, ToggleFullScreen));
-	loadMouse(set, "DoubleClickAction", doubleClickMap
+	loadMouse(set, "DoubleClickAction", double_click_map
 			, Qt::AltModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "DoubleClickAction", doubleClickMap
+	loadMouse(set, "DoubleClickAction", double_click_map
 			, Qt::ControlModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "DoubleClickAction", doubleClickMap
+	loadMouse(set, "DoubleClickAction", double_click_map
 			, Qt::ShiftModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "MiddleClickAction", middleClickMap
+	loadMouse(set, "MiddleClickAction", middle_click_map
 			, Qt::NoModifier, ClickActionPair(true, TogglePlayPause));
-	loadMouse(set, "MiddleClickAction", middleClickMap
+	loadMouse(set, "MiddleClickAction", middle_click_map
 			, Qt::AltModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "MiddleClickAction", middleClickMap
+	loadMouse(set, "MiddleClickAction", middle_click_map
 			, Qt::ControlModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "MiddleClickAction", middleClickMap
+	loadMouse(set, "MiddleClickAction", middle_click_map
 			, Qt::ShiftModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "WheelScrollAction", wheelScrollMap
+	loadMouse(set, "WheelScrollAction", wheel_scroll_map
 			, Qt::NoModifier, WheelActionPair(true, VolumeUpDown));
-	loadMouse(set, "WheelScrollAction", wheelScrollMap
+	loadMouse(set, "WheelScrollAction", wheel_scroll_map
 			, Qt::AltModifier, WheelActionPair(false, VolumeUpDown));
-	loadMouse(set, "WheelScrollAction", wheelScrollMap
+	loadMouse(set, "WheelScrollAction", wheel_scroll_map
 			, Qt::ControlModifier, WheelActionPair(true, AmpUpDown));
-	loadMouse(set, "WheelScrollAction", wheelScrollMap
+	loadMouse(set, "WheelScrollAction", wheel_scroll_map
 			, Qt::ShiftModifier, WheelActionPair(false, VolumeUpDown));
 	set.endGroup();
 }

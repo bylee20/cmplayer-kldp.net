@@ -6,6 +6,7 @@
 #include "libvlc.hpp"
 #include "videorenderer.hpp"
 #include "videoframe.hpp"
+#include "pref.hpp"
 #include "logodrawer.hpp"
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -69,15 +70,16 @@ struct VideoRenderer::Data {
 		}
 		if ((hasKernel = effects & KernelEffects)) {
 			idx = i420ToRgbKernel;
+			const Pref &p = Pref::get();
 			if (effects & Blur) {
-				kern_c += 1.0; // center
-				kern_n += 2.0; // neighbor
-				kern_d += 1.0; // diagonal
+				kern_c += p.blur_kern_c;
+				kern_n += p.blur_kern_n;
+				kern_d += p.blur_kern_d;
 			}
 			if (effects & Sharpen) {
-				kern_c += 5.0;
-				kern_n += -1.0;
-				kern_d += 0.0;
+				kern_c += p.sharpen_kern_c;
+				kern_n += p.sharpen_kern_n;
+				kern_d += p.sharpen_kern_d;
 			}
 			const double den = 1.0/(kern_c + kern_n*4.0 + kern_d*4.0);
 			kern_c *= den;
@@ -193,17 +195,17 @@ void VideoRenderer::render(void **planes) {
 	int min = 0;
 	int max = 255;
 	if (d->effects & RemapLuma) {
-		min = 16;
-		max = 235;
+		min = Pref::get().adjust_contrast_min_luma;
+		max = Pref::get().adjust_contrast_max_luma;
 	}
 	if (d->effects & AutoContrast) {
 		int his_y[256] = {0};
 		uchar *y1, *y2;
 		y1 = (uchar*)planes[0];
-		y2 = y1 + d->format.planes[0].dataPitch;
-		const int lines = d->format.planes[1].frameLines;
-		const int pitch = d->format.planes[1].framePitch;
-		const int dy = (d->format.planes[0].dataPitch << 1) - d->format.planes[0].framePitch;
+		y2 = y1 + d->format.planes[0].data_pitch;
+		const int lines = d->format.planes[1].frame_lines;
+		const int pitch = d->format.planes[1].frame_pitch;
+		const int dy = (d->format.planes[0].data_pitch << 1) - d->format.planes[0].frame_pitch;
 		for (int j=0; j<lines; ++j) {
 			for (int i=0; i<pitch; ++i) {
 				++his_y[*y1++];		++his_y[*y1++];
@@ -211,19 +213,19 @@ void VideoRenderer::render(void **planes) {
 			}
 			y1 += dy;	y2 += dy;
 		}
-		const double threshold = 0.5/100.0;
+		const double th = Pref::get().auto_contrast_threshold/100.0;
 		int acc = 0;
 		const double r_count = 1.0/(double)((lines*pitch) << 2);
 		for (int i=min; i<256; ++i) {
 			acc += his_y[i];
-			if ((double)acc*r_count > threshold)
+			if ((double)acc*r_count > th)
 				break;
 			min = i;
 		}
 		acc = 0;
 		for (int i=max; i>min; --i) {
 			acc += his_y[i];
-			if ((double)acc*r_count > threshold)
+			if ((double)acc*r_count > th)
 				break;
 			max = i;
 		}
@@ -645,9 +647,3 @@ void VideoRenderer::setEffects(Effects effects) {
 		update();
 	}
 }
-
-//void VideoRenderer::setFilters(Filters filter) {
-//	if (d->filters != filter) {
-//		d->filters = filter;
-//	}
-//}

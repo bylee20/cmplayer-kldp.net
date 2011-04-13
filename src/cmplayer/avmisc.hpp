@@ -23,12 +23,12 @@ struct AudioUtil {
 	void *af;
 	AudioBuffer *(*allocBuffer)(void *af, int size);
 	void (*freeBuffer)(void *af, AudioBuffer *buffer);
-	int scaletempoEnabled;
+	int scaletempo_enabled;
 };
 
 struct AudioFormat {
 	int channels;
-	int sampleRate;
+	int sample_rate;
 };
 
 #define VIDEO_FRAME_MAX_PLANE_COUNT (3)
@@ -41,9 +41,9 @@ struct VideoUtil {
 };
 
 struct FramePlane {
-	int dataPitch, dataLines;
-	int framePitch, frameLines;
-	FramePlane(): dataPitch(0), dataLines(0), framePitch(0), frameLines(0) {}
+	int data_pitch, data_lines;
+	int frame_pitch, frame_lines;
+	FramePlane(): data_pitch(0), data_lines(0), frame_pitch(0), frame_lines(0) {}
 };
 
 struct VideoFormat {
@@ -52,13 +52,13 @@ struct VideoFormat {
 	int width;
 	int height;
 	FramePlane planes[VIDEO_FRAME_MAX_PLANE_COUNT];
-	int planeCount;
+	int plane_count;
 	double sar;
 	double fps;
 	VideoFormat() {}
 	VideoFormat(const VideoFormat &rhs)
 	: source(rhs.source), output(rhs.output), width(rhs.width)
-	, height(rhs.height), planeCount(rhs.planeCount)
+	, height(rhs.height), plane_count(rhs.plane_count)
 	, sar(rhs.sar), fps(rhs.fps) {
 		planes[0] = rhs.planes[0];
 		planes[1] = rhs.planes[1];
@@ -73,7 +73,7 @@ struct VideoFormat {
 			planes[0] = rhs.planes[0];
 			planes[1] = rhs.planes[1];
 			planes[2] = rhs.planes[2];
-			planeCount = rhs.planeCount;
+			plane_count = rhs.plane_count;
 			sar = rhs.sar;
 			fps = rhs.fps;
 		}
