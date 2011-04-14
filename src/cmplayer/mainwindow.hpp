@@ -7,7 +7,7 @@
 
 class Mrl;		class PlayEngine;
 class Track;		class ControlWidget;
-class MainWindowData;
+class MainWindowData;	class VideoFormat;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
@@ -19,6 +19,7 @@ public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
 private slots:
+	void updateVideoFormat(const VideoFormat &format);
 	void setEffect(QAction *action);
 //	void setFilter(QAction *action);
 	void about();

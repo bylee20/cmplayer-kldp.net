@@ -13,6 +13,7 @@ struct Pref::Dialog::Data {
 Pref::Dialog::Dialog(QWidget *parent)
  : QDialog(parent), d(new Data) {
 	QToolBar *tb = new QToolBar(this);
+	tb->setIconSize(QSize(48, 48));
 	d->widget = new Widget(this);
 	QVBoxLayout *vbox = new QVBoxLayout;
 	vbox->setContentsMargins(0, 0, 0, 0);
@@ -48,7 +49,6 @@ void Pref::Dialog::setCurrentPage(QAction *action) {
 		return;
 	d->widget->setCurrentPage(action->data().toInt());
 }
-
 
 void Pref::Dialog::accept() {
 	d->widget->apply();

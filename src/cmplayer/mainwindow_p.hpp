@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_P_HPP
 #define MAINWINDOW_P_HPP
 
+#include "avmisc.hpp"
 #include "timelineosdrenderer.hpp"
+#include "playinfoview.hpp"
 #include "colorproperty.hpp"
 #include "playlistview.hpp"
 #include "historyview.hpp"
@@ -42,7 +44,7 @@ class MainWindowData {
 	PlayEngine *engine;		VideoRenderer *video;
 	SubtitleRenderer *subtitle;	AudioController *audio;
 	TimeLineOsdRenderer *timeLine;	TextOsdRenderer *message;
-//	Subtitle subLoaded;		QList<int> subSelected;
+	PlayInfoView *playInfo;
 	QPoint prevPos;			QTimer *hider;
 	RecentInfo *recent;		ABRepeater *ab;
 	PlaylistView *playlist;		HistoryView *history;

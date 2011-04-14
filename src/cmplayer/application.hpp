@@ -23,11 +23,16 @@ public:
 #ifdef Q_WS_MAC
 	QMenuBar *globalMenuBar() const;
 #endif
+	void getProcInfo();
+signals:
+	void gotProcInfo(double cpu, int rss, double mem);
 private slots:
+	void readProcInfo();
 	void initialize();
 	void open(const QString &url);
 	void parseMessage(const QString &message);
 private:
+	static void messageHandler(QtMsgType type, const char *msg);
 	bool event(QEvent *event);
 	struct Data;
 	Data *d;

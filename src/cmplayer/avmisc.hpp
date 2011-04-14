@@ -3,6 +3,7 @@
 
 #include <QtCore/QtGlobal>
 #include <QtCore/QSize>
+#include <QtCore/QString>
 
 #if (Q_BYTE_ORDER == Q_BIG_ENDIAN)
 #define FOURCC(a, b, c, d) \
@@ -47,8 +48,10 @@ struct FramePlane {
 };
 
 struct VideoFormat {
-	quint32 source; // fourcc
-	quint32 output; // fourcc
+	quint32 source_fourcc;
+	quint32 output_fourcc;
+	int source_bpp;
+	int output_bpp;
 	int width;
 	int height;
 	FramePlane planes[VIDEO_FRAME_MAX_PLANE_COUNT];
@@ -57,8 +60,9 @@ struct VideoFormat {
 	double fps;
 	VideoFormat() {}
 	VideoFormat(const VideoFormat &rhs)
-	: source(rhs.source), output(rhs.output), width(rhs.width)
-	, height(rhs.height), plane_count(rhs.plane_count)
+	: source_fourcc(rhs.source_fourcc), output_fourcc(rhs.output_fourcc)
+	, source_bpp(rhs.source_bpp), output_bpp(rhs.output_bpp)
+	, width(rhs.width), height(rhs.height), plane_count(rhs.plane_count)
 	, sar(rhs.sar), fps(rhs.fps) {
 		planes[0] = rhs.planes[0];
 		planes[1] = rhs.planes[1];
@@ -66,8 +70,10 @@ struct VideoFormat {
 	}
 	VideoFormat &operator = (const VideoFormat &rhs) {
 		if (this != &rhs) {
-			source = rhs.source;
-			output = rhs.output;
+			source_fourcc = rhs.source_fourcc;
+			output_fourcc = rhs.output_fourcc;
+			source_bpp = rhs.source_bpp;
+			output_bpp = rhs.output_bpp;
 			width = rhs.width;
 			height = rhs.height;
 			planes[0] = rhs.planes[0];
@@ -96,6 +102,10 @@ struct VideoFormat {
 		default:
 			return Unknown;
 		}
+	}
+	static inline QString fourccToString(quint32 fcc) {
+		char str[5] = {0};	memcpy(str, &fcc, 4);
+		return QString::fromAscii(str);
 	}
 };
 

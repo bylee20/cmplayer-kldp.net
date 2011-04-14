@@ -10,8 +10,6 @@
 
 class VideoFrame {
 public:
-	typedef FramePlane Plane;
-	static QString fourccToString(quint32 fourcc);
 	VideoFrame();
 	VideoFrame(const VideoFormat &format);
 	~VideoFrame();

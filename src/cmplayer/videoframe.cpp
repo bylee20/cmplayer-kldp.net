@@ -1,12 +1,6 @@
 #include "videoframe.hpp"
 #include <stdlib.h>
 
-QString VideoFrame::fourccToString(quint32 fcc) {
-	char str[5] = {0};
-	memcpy(str, &fcc, 4);
-	return QString::fromAscii(str);
-}
-
 VideoFrame::VideoFrame(): m_data(0), m_length(0) {}
 
 VideoFrame::VideoFrame(const VideoFormat &format)

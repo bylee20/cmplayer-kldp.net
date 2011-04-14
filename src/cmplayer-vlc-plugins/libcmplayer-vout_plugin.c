@@ -15,8 +15,10 @@ typedef struct _Plane {
 } Plane;
 
 typedef struct _VideoFormat {
-	uint32_t source;
-	uint32_t fourcc;
+	uint32_t source_fourcc;
+	uint32_t output_fourcc;
+	int source_bpp;
+	int output_bpp;
 	int width;
 	int height;
 	Plane planes[3];
@@ -198,8 +200,10 @@ static int ctor(vlc_object_t *object) {
 	const double sar = (double)vd->source.i_sar_num/(double)vd->source.i_sar_den;
 
 	VideoFormat format;
-	format.source = vd->source.i_chroma;
-	format.fourcc = fmt.i_chroma;
+	format.source_fourcc = vd->source.i_chroma;
+	format.output_fourcc = fmt.i_chroma;
+	format.source_bpp = vd->source.i_bits_per_pixel;
+	format.output_bpp = fmt.i_bits_per_pixel;
 	format.width = fmt.i_width;
 	format.height = fmt.i_height;
 	format.planeCount = picture->i_planes;
@@ -277,7 +281,7 @@ static int lock(picture_t *picture) {
 
 	void **planes[PICTURE_PLANE_MAX];
 	for (int i=0; i<picture->i_planes; ++i)
-		planes[i] = &picture->p[i].p_pixels;
+		planes[i] = (void**)&picture->p[i].p_pixels;
 	pd->id = d->lock(d->opaque, planes);
 	return VLC_SUCCESS;
 }

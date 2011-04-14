@@ -1,5 +1,6 @@
 #include "application.hpp"
 #include <QtGui/QMessageBox>
+#include <unistd.h>
 #include <QtGui/QFileOpenEvent>
 #include "events.hpp"
 #include "translator.hpp"
@@ -11,6 +12,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
+#include <QtCore/QProcess>
 #include <QtCore/QUrl>
 #include <QtGui/QMenuBar>
 #include <QtOpenGL/QGLFormat>
@@ -26,12 +28,35 @@ struct Application::Data {
 	QString defStyle;
 	QMenuBar *mb;
 	QUrl url;
+	QProcess *cpu;
 #if defined(Q_WS_MAC)
 	ApplicationMac helper;
 #elif defined(Q_WS_X11)
 	ApplicationX11 helper;
 #endif
 };
+
+void Application::messageHandler(QtMsgType type, const char *msg) {
+	FILE *output = stdout;
+	switch (type) {
+	case QtDebugMsg:
+		fprintf(output, "%s\n", msg);
+		break;
+	case QtWarningMsg:
+		fprintf(output, "Warning: %s\n", msg);
+		break;
+	case QtCriticalMsg:
+		fprintf(output, "Critical: %s\n", msg);
+		break;
+	case QtFatalMsg:
+		fprintf(output, "Fatal: %s\n", msg);
+		abort();
+	default:
+		return;
+	}
+	fflush(output);
+}
+
 
 Application::Application(int &argc, char **argv)
 : QtSingleApplication("net.xylosper.CMPlayer", argc, argv), d(new Data) {
@@ -48,12 +73,18 @@ Application::Application(int &argc, char **argv)
 	d->mb = new QMenuBar;
 #endif
 	setQuitOnLastWindowClosed(false);
+	qInstallMsgHandler(messageHandler);
 	QTimer::singleShot(1, this, SLOT(initialize()));
+	d->cpu = new QProcess(this);
+	connect(d->cpu, SIGNAL(readyReadStandardOutput()), this, SLOT(readProcInfo()));
 }
 
 Application::~Application() {
+	if (d->cpu->state() != QProcess::NotRunning)
+	    d->cpu->kill();
 	delete d->mb;
 	delete d->main;
+	qInstallMsgHandler(0);
 	delete d;
 }
 
@@ -85,6 +116,41 @@ QString Application::test() {
 #else
 	return QString();
 #endif
+}
+
+void Application::getProcInfo() {
+	d->cpu->start("ps", QStringList() << "-v" << QString::number(getpid()), QProcess::ReadOnly);
+}
+
+static QByteArray parseProcInfo(const QByteArray &output, const int br, const char *column) {
+	const int pc = output.indexOf(column);
+	int idx = br + pc + qstrlen(column);
+	if (idx < 0 || idx >= output.size())
+		return QByteArray();
+	QByteArray temp;
+	temp.reserve(6);
+	while (idx >= 0) {
+		const char c = output[idx];
+		if (isspace(c))
+			break;
+		temp += c;
+		--idx;
+	}
+	QByteArray value;
+	value.reserve(temp.size()+1);
+	for (int i = temp.size()-1; i >= 0; --i)
+		value += temp[i];
+	return value;
+}
+
+
+void Application::readProcInfo() {
+	const QByteArray output = d->cpu->readAllStandardOutput();
+	const int br = qMax(output.indexOf('\n'), output.indexOf('\r'));
+	const QByteArray cpu = parseProcInfo(output, br, "%CPU");
+	const QByteArray rss = parseProcInfo(output, br, "RSS");
+	const QByteArray mem = parseProcInfo(output, br, "%MEM");
+	emit gotProcInfo(cpu.toDouble(), rss.toInt(), mem.toDouble());
 }
 
 void Application::setScreensaverDisabled(bool disabled) {

@@ -110,7 +110,8 @@ HEADERS += playengine.hpp \
     shader/i420_to_rgb_filter.hpp \
     shader/i420_to_rgb_kernel.hpp \
     mainwindow_p.hpp \
-    pref_widget.hpp
+    pref_widget.hpp \
+    playinfoview.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -171,7 +172,8 @@ SOURCES += main.cpp \
     listmodel.cpp \
     fragmentprogram.cpp \
     mainwindow_p.cpp \
-    pref_widget.cpp
+    pref_widget.cpp \
+    playinfoview.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts

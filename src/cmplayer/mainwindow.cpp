@@ -16,6 +16,7 @@ MainWindow::MainWindow() {
 	d->subtitle = new SubtitleRenderer;
 	d->subtitle->setOsd(new TextOsdRenderer);
 	d->timeLine = new TimeLineOsdRenderer;
+	d->playInfo = new PlayInfoView;
 	d->message = new TextOsdRenderer(Qt::AlignTop | Qt::AlignLeft);
 	d->ab = new ABRepeater(d->engine, d->subtitle);
 	d->control = createControlWidget();
@@ -29,9 +30,11 @@ MainWindow::MainWindow() {
 #endif
 
 	d->hider->setSingleShot(true);
+	d->video->addOsd(d->playInfo->osd());
 	d->video->addOsd(d->subtitle->osd());
 	d->video->addOsd(d->timeLine);
 	d->video->addOsd(d->message);
+	d->playInfo->setVideo(d->video);
 
 	setMouseTracking(true);
 	setCentralWidget(d->center);
@@ -109,7 +112,7 @@ MainWindow::MainWindow() {
 	CONNECT(d->engine, stateChanged(MediaState,MediaState), this, updateState(MediaState,MediaState));
 	CONNECT(d->engine, tick(int), d->subtitle, render(int));
 	CONNECT(d->video, customContextMenuRequested(const QPoint&), this, showContextMenu(const QPoint&));
-	CONNECT(d->video, frameRateChanged(double), d->subtitle, setFrameRate(double));
+	CONNECT(d->video, formatChanged(VideoFormat), this, updateVideoFormat(VideoFormat));
 	CONNECT(d->audio, mutedChanged(bool), audio["mute"], setChecked(bool));
 	CONNECT(d->audio, volumeNormalizedChanged(bool), audio["volnorm"], setChecked(bool));
 
@@ -149,8 +152,13 @@ MainWindow::~MainWindow() {
 	d->recent->save();
 	saveState();
 	delete d->subtitle;
+	delete d->playInfo;
 	LibVLC::release();
 	delete d;
+}
+
+void MainWindow::updateVideoFormat(const VideoFormat &format) {
+	d->subtitle->setFrameRate(format.fps);
 }
 
 void MainWindow::checkPlayMenu() {

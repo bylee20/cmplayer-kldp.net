@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'pref_widget.ui'
 **
-** Created: Wed Apr 13 23:51:18 2011
+** Created: Thu Apr 14 16:32:51 2011
 **      by: Qt User Interface Compiler version 4.7.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -1151,18 +1151,18 @@ public:
 #endif // QT_NO_TOOLTIP
         tabWidget_2->setTabText(tabWidget_2->indexOf(play), QApplication::translate("Pref_Widget", "Play", 0, QApplication::UnicodeUTF8));
         label_30->setText(QApplication::translate("Pref_Widget", "Blur Kernel:", 0, QApplication::UnicodeUTF8));
-        label_31->setText(QApplication::translate("Pref_Widget", "Center:", 0, QApplication::UnicodeUTF8));
-        label_32->setText(QApplication::translate("Pref_Widget", "Neighbor:", 0, QApplication::UnicodeUTF8));
-        label_33->setText(QApplication::translate("Pref_Widget", "Diagonal:", 0, QApplication::UnicodeUTF8));
+        label_31->setText(QApplication::translate("Pref_Widget", "Center", 0, QApplication::UnicodeUTF8));
+        label_32->setText(QApplication::translate("Pref_Widget", "Neighbor", 0, QApplication::UnicodeUTF8));
+        label_33->setText(QApplication::translate("Pref_Widget", "Diagonal", 0, QApplication::UnicodeUTF8));
         label_34->setText(QApplication::translate("Pref_Widget", "Sharpen Kernel:", 0, QApplication::UnicodeUTF8));
-        label_35->setText(QApplication::translate("Pref_Widget", "Center:", 0, QApplication::UnicodeUTF8));
-        label_36->setText(QApplication::translate("Pref_Widget", "Neighbor:", 0, QApplication::UnicodeUTF8));
-        label_37->setText(QApplication::translate("Pref_Widget", "Diagonal:", 0, QApplication::UnicodeUTF8));
+        label_35->setText(QApplication::translate("Pref_Widget", "Center", 0, QApplication::UnicodeUTF8));
+        label_36->setText(QApplication::translate("Pref_Widget", "Neighbor", 0, QApplication::UnicodeUTF8));
+        label_37->setText(QApplication::translate("Pref_Widget", "Diagonal", 0, QApplication::UnicodeUTF8));
         label_27->setText(QApplication::translate("Pref_Widget", "Adjust Contrast:", 0, QApplication::UnicodeUTF8));
-        label_28->setText(QApplication::translate("Pref_Widget", "Min. Luma:", 0, QApplication::UnicodeUTF8));
-        label_29->setText(QApplication::translate("Pref_Widget", "Max. Luma:", 0, QApplication::UnicodeUTF8));
+        label_28->setText(QApplication::translate("Pref_Widget", "Min. Luma", 0, QApplication::UnicodeUTF8));
+        label_29->setText(QApplication::translate("Pref_Widget", "Max. Luma", 0, QApplication::UnicodeUTF8));
         label_25->setText(QApplication::translate("Pref_Widget", "Auto Contrast:", 0, QApplication::UnicodeUTF8));
-        label_26->setText(QApplication::translate("Pref_Widget", "Threshold for auto contrast:", 0, QApplication::UnicodeUTF8));
+        label_26->setText(QApplication::translate("Pref_Widget", "Threshold for auto contrast", 0, QApplication::UnicodeUTF8));
         tabWidget_2->setTabText(tabWidget_2->indexOf(video), QApplication::translate("Pref_Widget", "Video", 0, QApplication::UnicodeUTF8));
         subtitle->setProperty("name", QVariant(QApplication::translate("Pref_Widget", "Subtitle", 0, QApplication::UnicodeUTF8)));
         aLabel_2->setText(QApplication::translate("Pref_Widget", "Auto-load:", 0, QApplication::UnicodeUTF8));
@@ -1203,9 +1203,9 @@ public:
         tabs->setTabText(tabs->indexOf(widget_4), QApplication::translate("Pref_Widget", "Unified/Multi-Subtitle", 0, QApplication::UnicodeUTF8));
         ui->setProperty("name", QVariant(QApplication::translate("Pref_Widget", "UI", 0, QApplication::UnicodeUTF8)));
         singleApp->setText(QApplication::translate("Pref_Widget", "Run only single CMPlayer application at the same time", 0, QApplication::UnicodeUTF8));
-        localeLabel->setText(QApplication::translate("Pref_Widget", "Locale", 0, QApplication::UnicodeUTF8));
-        wLabel->setText(QApplication::translate("Pref_Widget", "Window Style", 0, QApplication::UnicodeUTF8));
-        aLabel->setText(QApplication::translate("Pref_Widget", "System Tray", 0, QApplication::UnicodeUTF8));
+        localeLabel->setText(QApplication::translate("Pref_Widget", "Locale:", 0, QApplication::UnicodeUTF8));
+        wLabel->setText(QApplication::translate("Pref_Widget", "Window Style:", 0, QApplication::UnicodeUTF8));
+        aLabel->setText(QApplication::translate("Pref_Widget", "System Tray:", 0, QApplication::UnicodeUTF8));
         tray->setText(QApplication::translate("Pref_Widget", "Enable system tray icon", 0, QApplication::UnicodeUTF8));
         hideWhenClosed->setText(QApplication::translate("Pref_Widget", "Hide window rather than quit when closed ", 0, QApplication::UnicodeUTF8));
         label_43->setText(QApplication::translate("Pref_Widget", "(Linux Only)", 0, QApplication::UnicodeUTF8));
@@ -1223,7 +1223,7 @@ public:
         shortcut4->setText(QApplication::translate("Pref_Widget", "Shortcut4", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(widget_5), QApplication::translate("Pref_Widget", "Shortcut", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(mouseWidget), QApplication::translate("Pref_Widget", "Mouse", 0, QApplication::UnicodeUTF8));
-        aLabel_5->setText(QApplication::translate("Pref_Widget", "Seek Step1:", 0, QApplication::UnicodeUTF8));
+        aLabel_5->setText(QApplication::translate("Pref_Widget", "Seek Step 1:", 0, QApplication::UnicodeUTF8));
         seek1->setSuffix(QApplication::translate("Pref_Widget", "sec", 0, QApplication::UnicodeUTF8));
         label_16->setText(QApplication::translate("Pref_Widget", "Seek Step 2:", 0, QApplication::UnicodeUTF8));
         seek2->setSuffix(QApplication::translate("Pref_Widget", "sec", 0, QApplication::UnicodeUTF8));
@@ -1243,9 +1243,9 @@ public:
         label_20->setText(QApplication::translate("Pref_Widget", "Hue Step:", 0, QApplication::UnicodeUTF8));
         spinBox_2->setSuffix(QApplication::translate("Pref_Widget", "%", 0, QApplication::UnicodeUTF8));
         spinBox_4->setSuffix(QApplication::translate("Pref_Widget", "%", 0, QApplication::UnicodeUTF8));
-        label_10->setText(QApplication::translate("Pref_Widget", "Position Step:", 0, QApplication::UnicodeUTF8));
+        label_10->setText(QApplication::translate("Pref_Widget", "Subtitle Position Step:", 0, QApplication::UnicodeUTF8));
         subPos->setSuffix(QApplication::translate("Pref_Widget", "%", 0, QApplication::UnicodeUTF8));
-        label_11->setText(QApplication::translate("Pref_Widget", "Sync Delay Step:", 0, QApplication::UnicodeUTF8));
+        label_11->setText(QApplication::translate("Pref_Widget", "Subtitle Sync Delay Step:", 0, QApplication::UnicodeUTF8));
         sync->setSuffix(QApplication::translate("Pref_Widget", "sec", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(widget_7), QApplication::translate("Pref_Widget", "Control Step", 0, QApplication::UnicodeUTF8));
     } // retranslateUi

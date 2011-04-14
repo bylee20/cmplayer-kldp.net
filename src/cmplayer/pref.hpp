@@ -12,8 +12,6 @@
 
 class QLocale;
 
-namespace Core {class OsdStyle;}
-
 class Pref {
 public:
 	static const Pref &get() {return ref();}

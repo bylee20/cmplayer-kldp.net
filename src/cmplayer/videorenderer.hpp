@@ -19,6 +19,7 @@ public:
 		Sharpen			= 1 << 5,
 		RemapLuma		= 1 << 6,
 		AutoContrast		= 1 << 7,
+		IgnoreEffect		= 1 << 8
 	};
 	Q_DECLARE_FLAGS(Effects, Effect)
 private:
@@ -32,7 +33,7 @@ public:
 	QSize sizeHint() const;
 	bool hasFrame() const;
 	QImage frameImage() const;
-	double frameRate() const;
+	const VideoFormat &format() const;
 	double aspectRatio() const;
 	double cropRatio() const;
 	double targetAspectRatio() const;
@@ -45,11 +46,13 @@ public:
 	void clearEffects();
 	void setEffect(Effect effect, bool on);
 	void setEffects(Effects effect);
+	void setInfoVisible(bool visible);
+	double outputFrameRate(bool reset = true) const;
 public slots:
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
 signals:
-	void frameRateChanged(double frameRate);
+	void formatChanged(const VideoFormat &format);
 protected:
 	void mouseMoveEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event);

@@ -199,7 +199,7 @@
                <item>
                 <widget class="QLabel" name="label_31">
                  <property name="text">
-                  <string>Center:</string>
+                  <string>Center</string>
                  </property>
                 </widget>
                </item>
@@ -213,7 +213,7 @@
                <item>
                 <widget class="QLabel" name="label_32">
                  <property name="text">
-                  <string>Neighbor:</string>
+                  <string>Neighbor</string>
                  </property>
                 </widget>
                </item>
@@ -227,7 +227,7 @@
                <item>
                 <widget class="QLabel" name="label_33">
                  <property name="text">
-                  <string>Diagonal:</string>
+                  <string>Diagonal</string>
                  </property>
                 </widget>
                </item>
@@ -252,7 +252,7 @@
                <item>
                 <widget class="QLabel" name="label_35">
                  <property name="text">
-                  <string>Center:</string>
+                  <string>Center</string>
                  </property>
                 </widget>
                </item>
@@ -266,7 +266,7 @@
                <item>
                 <widget class="QLabel" name="label_36">
                  <property name="text">
-                  <string>Neighbor:</string>
+                  <string>Neighbor</string>
                  </property>
                 </widget>
                </item>
@@ -280,7 +280,7 @@
                <item>
                 <widget class="QLabel" name="label_37">
                  <property name="text">
-                  <string>Diagonal:</string>
+                  <string>Diagonal</string>
                  </property>
                 </widget>
                </item>
@@ -305,7 +305,7 @@
                <item>
                 <widget class="QLabel" name="label_28">
                  <property name="text">
-                  <string>Min. Luma:</string>
+                  <string>Min. Luma</string>
                  </property>
                 </widget>
                </item>
@@ -322,7 +322,7 @@
                <item>
                 <widget class="QLabel" name="label_29">
                  <property name="text">
-                  <string>Max. Luma:</string>
+                  <string>Max. Luma</string>
                  </property>
                 </widget>
                </item>
@@ -353,7 +353,7 @@
                <item>
                 <widget class="QLabel" name="label_26">
                  <property name="text">
-                  <string>Threshold for auto contrast:</string>
+                  <string>Threshold for auto contrast</string>
                  </property>
                 </widget>
                </item>
@@ -893,7 +893,7 @@ e.g.: English, Korean</string>
              <item row="3" column="0">
               <widget class="QLabel" name="localeLabel">
                <property name="text">
-                <string>Locale</string>
+                <string>Locale:</string>
                </property>
               </widget>
              </item>
@@ -910,7 +910,7 @@ e.g.: English, Korean</string>
              <item row="4" column="0">
               <widget class="QLabel" name="wLabel">
                <property name="text">
-                <string>Window Style</string>
+                <string>Window Style:</string>
                </property>
               </widget>
              </item>
@@ -920,7 +920,7 @@ e.g.: English, Korean</string>
              <item row="6" column="0">
               <widget class="QLabel" name="aLabel">
                <property name="text">
-                <string>System Tray</string>
+                <string>System Tray:</string>
                </property>
               </widget>
              </item>
@@ -1099,7 +1099,7 @@ e.g.: English, Korean</string>
              <item row="0" column="0">
               <widget class="QLabel" name="aLabel_5">
                <property name="text">
-                <string>Seek Step1:</string>
+                <string>Seek Step 1:</string>
                </property>
               </widget>
              </item>
@@ -1353,7 +1353,7 @@ e.g.: English, Korean</string>
              <item row="7" column="0">
               <widget class="QLabel" name="label_10">
                <property name="text">
-                <string>Position Step:</string>
+                <string>Subtitle Position Step:</string>
                </property>
               </widget>
              </item>
@@ -1373,7 +1373,7 @@ e.g.: English, Korean</string>
              <item row="8" column="0">
               <widget class="QLabel" name="label_11">
                <property name="text">
-                <string>Sync Delay Step:</string>
+                <string>Subtitle Sync Delay Step:</string>
                </property>
               </widget>
              </item>

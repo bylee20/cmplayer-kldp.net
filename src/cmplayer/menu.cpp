@@ -162,7 +162,8 @@ Menu &Menu::create(QWidget *parent) {
 	effect->addSeparator();
 	effect->addActionToGroup("gray", true)->setData((int)VideoRenderer::Grayscale);
 	effect->addActionToGroup("invert", true)->setData((int)VideoRenderer::InvertColor);
-
+	effect->addSeparator();
+	effect->addActionToGroup("ignore", true)->setData((int)VideoRenderer::IgnoreEffect);
 	video->addSeparator();
 
 	QAction *creset = video->addActionToGroup("reset", false, "color");
@@ -407,6 +408,7 @@ void Menu::updatePref() {
 	effect["invert"]->setText(tr("Invert Color"));
 	effect["remap"]->setText(tr("Adjust Constrast for PC"));
 	effect["auto-contrast"]->setText(tr("Auto Contrast (Massive)"));
+	effect["ignore"]->setText(tr("Ignore All Filters"));
 
 	video["reset"]->setText(tr("Reset"));
 	setVideoPropStep(video, "brightness", ColorProperty::Brightness
