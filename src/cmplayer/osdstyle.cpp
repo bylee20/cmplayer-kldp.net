@@ -5,6 +5,18 @@
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
+OsdStyle::OsdStyle()
+	: color_bg(Qt::black), color_fg(Qt::white), shadow_color(Qt::black) {
+//	alignment = Qt::AlignCenter;
+	border_width = 0.05;
+	text_scale = 0.03;
+	auto_size = FitToDiagonal;
+	has_shadow = false;
+	shadow_offset = QPointF(0, 0);
+	wrap_mode = QTextOption::WrapAtWordBoundaryOrAnywhere;
+	shadow_blur = 3;
+}
+
 void OsdStyle::save(QSettings *set, const QString &group) const {
 	set->beginGroup(group);
 	set->setValue("font", font);
@@ -12,13 +24,17 @@ void OsdStyle::save(QSettings *set, const QString &group) const {
 	set->setValue("color_fg", color_fg);
 	set->setValue("border_width", border_width);
 	set->setValue("text_scale", text_scale);
-	set->setValue("alignment", int(alignment));
+//	set->setValue("alignment", int(alignment));
 	if (auto_size == FitToWidth)
 		set->setValue("auto_size", "FitToWidth");
 	else if (auto_size == FitToHeight)
 		set->setValue("auto_size", "FitToHeight");
 	else
 		set->setValue("auto_size", "FitToDiagonal");
+	set->setValue("has_shadow", has_shadow);
+	set->setValue("shadow_color", shadow_color);
+	set->setValue("shadow_offset", shadow_offset);
+	set->setValue("shadow_blur", shadow_blur);
 	set->endGroup();
 }
 
@@ -29,7 +45,7 @@ void OsdStyle::load(QSettings *set, const QString &group) {
 	color_fg = set->value("color_fg", color_fg).value<QColor>();
 	border_width = set->value("border_width", border_width).toDouble();
 	text_scale = set->value("text_scale", text_scale).toDouble();
-	alignment = Qt::Alignment(set->value("alignment", int(alignment)).toInt());
+//	alignment = Qt::Alignment(set->value("alignment", int(alignment)).toInt());
 	const QString size = set->value("auto_size", "FitToDiagonal").toString();
 	if (size == "FitToWidth")
 		auto_size = FitToWidth;
@@ -37,6 +53,10 @@ void OsdStyle::load(QSettings *set, const QString &group) {
 		auto_size = FitToHeight;
 	else
 		auto_size = FitToDiagonal;
+	has_shadow = set->value("has_shadow", has_shadow).toBool();
+	shadow_color = set->value("shadow_color", shadow_color).value<QColor>();
+	shadow_offset = set->value("shadow_offset", shadow_offset).toPointF();
+	shadow_blur = set->value("shadow_blur", shadow_blur).toInt();
 	set->endGroup();
 }
 

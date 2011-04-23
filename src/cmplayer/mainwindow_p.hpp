@@ -86,6 +86,8 @@ class MainWindowData {
 		menu("video")("aspect").g()->trigger(as[AppState::AspectRatio]);
 		menu("video")("crop").g()->trigger(as[AppState::Crop]);
 		menu("window").g("sot")->trigger(StaysOnTopEnum::value(as[AppState::StaysOnTop].toString()));
+		menu("subtitle").g("display")->trigger((int)as[AppState::SubLetterbox].toBool());
+		menu("subtitle").g("align")->trigger((int)as[AppState::SubAlignTop].toBool());
 
 		audio->setVolume(as[AppState::Volume].toInt());
 		audio->setMuted(as[AppState::Muted].toBool());
@@ -95,7 +97,6 @@ class MainWindowData {
 		engine->setSpeed(as[AppState::PlaySpeed].toDouble());
 		subtitle->setPos(as[AppState::SubPos].toDouble());
 		subtitle->setDelay(as[AppState::SubSync].toInt());
-
 		dontShowMsg = false;
 	}
 
@@ -111,6 +112,8 @@ class MainWindowData {
 		as[AppState::SubPos] = subtitle->pos();
 		as[AppState::SubSync] = subtitle->delay();
 		as[AppState::StaysOnTop] = StaysOnTopEnum::name(stay_on_top_mode());
+		as[AppState::SubLetterbox] = subtitle->osd()->letterboxHint();
+		as[AppState::SubAlignTop] = subtitle->isTopAligned();
 		as.save();
 	}
 

@@ -141,7 +141,11 @@ void PlayEngine::updateState(MediaState state) {
 	if (d->state != state) {
 		const MediaState old = d->state;
 		d->state = state;
+//		qDebug() << libvlc_media_player_get_length(d->mp);
+//		qDebug() << libvlc_media_player_get_time(d->mp);
+//		qDebug() << libvlc_media_player_get_position(d->mp);
 		if (d->state == PlayingState && old != PausedState) {
+
 			//
 		}
 		emit stateChanged(d->state, old);

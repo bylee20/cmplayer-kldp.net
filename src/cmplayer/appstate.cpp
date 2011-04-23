@@ -24,6 +24,8 @@ AppState::Data::Data()
 	keys[AppState::StaysOnTop] = "StaysOnTop";
 	values[AppState::StaysOnTop] = StaysOnTopEnum::name(OnTopPlaying);
 //	INIT(StayOnTop, OnTopPlaying)
+	INIT(SubLetterbox, true);
+	INIT(SubAlignTop, false);
 #undef INIT
 }
 

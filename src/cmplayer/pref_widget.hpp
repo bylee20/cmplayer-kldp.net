@@ -20,6 +20,7 @@ public:
 signals:
 
 public slots:
+	void fill();
 	void apply();
 	void setCurrentPage(int idx) const;
 private slots:
@@ -27,10 +28,7 @@ private slots:
 	void slotCurrentItemChanged(QTreeWidgetItem *current);
 	void slotMediaItemClicked(QTreeWidgetItem *item, int column);
 	void checkSubtitleSelect(int index);
-	void setSubFont();
-	void setSubColor();
 private:
-	void setColorLabel(QLabel *label, const QColor &color);
 	static QString toString(const QLocale &locale);
 	static QVariant currentComboData(QComboBox *combo);
 	static void setComboIndex(QComboBox *combo, const QVariant &value);

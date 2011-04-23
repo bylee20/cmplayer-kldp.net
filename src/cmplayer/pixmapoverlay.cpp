@@ -7,7 +7,7 @@
 #include <QtCore/QMap>
 
 struct PixmapOverlay::Data {
-	QRect area;
+	QRect bg;
 	QMap<OsdRenderer*, QPixmap> caches;
 	bool pending;
 };
@@ -15,7 +15,6 @@ struct PixmapOverlay::Data {
 
 PixmapOverlay::PixmapOverlay(QGLWidget *video)
 : Overlay(video), d(new Data) {
-	setArea(video->rect());
 }
 
 PixmapOverlay::~PixmapOverlay() {
@@ -34,12 +33,13 @@ qint64 PixmapOverlay::addOsd(OsdRenderer *osd) {
 	return (qint64)osd;
 }
 
-void PixmapOverlay::setArea(const QRect &area) {
-	if (d->area == area)
+void PixmapOverlay::setArea(const QRect &bg, const QRectF &video) {
+	if (d->bg == bg)
 		return;
+	d->bg = bg;
 	QMap<OsdRenderer*, QPixmap>::iterator it = d->caches.begin();
 	for (; it != d->caches.end(); ++it)
-		it.key()->setBackgroundSize(area.size());
+		it.key()->setBackgroundSize(d->bg.size(), video.size());
 }
 
 void PixmapOverlay::cache() {
@@ -62,9 +62,9 @@ void PixmapOverlay::render(QPainter *painter) {
 	QMap<OsdRenderer*, QPixmap>::const_iterator it = d->caches.begin();
 	for (; it != d->caches.end(); ++it) {
 		if (!it->isNull()) {
-			QPointF pos = d->area.topLeft() + it.key()->posHint();
-			if (pos.y() < d->area.top())
-				pos.setY(d->area.top());
+			QPointF pos = d->bg.topLeft() + it.key()->posHint();
+			if (pos.y() < d->bg.top())
+				pos.setY(d->bg.top());
 			painter->drawPixmap(pos, *it);
 		}
 	}

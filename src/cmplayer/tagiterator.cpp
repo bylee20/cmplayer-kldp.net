@@ -1,10 +1,10 @@
 #include "tagiterator.hpp"
 
 TagIterator::TagIterator(const QStringRef &target, int pos)
-: m_text(target), m_pos(pos), m_open(false) {}
+: m_text(target), m_pos(pos), m_begin(-1), m_open(false) {}
 
 TagIterator::TagIterator(const QString &target, int pos)
-: m_text(target.midRef(0)), m_pos(pos), m_open(false) {}
+: m_text(target.midRef(0)), m_pos(pos), m_begin(-1), m_open(false) {}
 
 bool TagIterator::opEq(const QStringRef &lhs, const char *rhs) {
 	const int len = qstrlen(rhs);
@@ -18,20 +18,21 @@ bool TagIterator::opEq(const QStringRef &lhs, const char *rhs) {
 }
 
 int TagIterator::next() {
+	m_begin = -1;
 	m_attr.clear();
 	m_elem.clear();
 	for (; !atEnd() && (ucs() != '<'); ++m_pos) ;
 	if (atEnd())
-		return -1;
+		return m_begin;
 	Q_ASSERT(ucs(m_pos) == '<');
 	m_open = true;
-	const int ret = m_pos;
+	m_begin = m_pos;
 	++m_pos;
 	if (skipSeperator())
-		return ret;
+		return m_begin;
 	if (checkRightBracket()) {
 		++m_pos;
-		return ret;
+		return m_begin;
 	}
 
 	int count = 0;
@@ -41,9 +42,9 @@ int TagIterator::next() {
 
 	if (!m_open) {
 		++m_pos;
-		return ret;
+		return m_begin;
 	} else if (skipSeperator())
-		return ret;
+		return m_begin;
 
 	bool equal = false;
 	int attrIdx = -1;
@@ -101,7 +102,7 @@ int TagIterator::next() {
 	}
 	if (!m_open)
 		++m_pos;
-	return ret;
+	return m_begin;
 }
 
 QString &TagIterator::appendTo(QString &text) const {

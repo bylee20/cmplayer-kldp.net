@@ -2,6 +2,8 @@
 #define OSDSTYLE_HPP
 
 #include <QtGui/QWidget>
+#include <QtGui/QTextOption>
+#include <QtCore/QPointF>
 
 class QSettings;
 
@@ -9,19 +11,18 @@ class OsdStyle {
 public:
 	class Widget;
 	enum AutoSize {FitToWidth, FitToHeight, FitToDiagonal};
-	OsdStyle(): color_bg(Qt::black), color_fg(Qt::white) {
-		alignment = Qt::AlignCenter;
-		border_width = 0.05;
-		text_scale = 0.03;
-		auto_size = FitToDiagonal;
-	}
+	OsdStyle();
 	void save(QSettings *set, const QString &group) const;
 	void load(QSettings *set, const QString &group);
 	QFont font;
-	QColor color_bg, color_fg;
+	QColor color_bg, color_fg, shadow_color;
 	double border_width, text_scale;
-	Qt::Alignment alignment;
+//	Qt::Alignment alignment;
+	QTextOption::WrapMode wrap_mode;
 	AutoSize auto_size;
+	bool has_shadow;
+	QPointF shadow_offset;
+	int shadow_blur;
 };
 
 class QLabel;

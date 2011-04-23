@@ -23,6 +23,8 @@ public:
 		TrayFirst,
 		VolNorm,
 		StaysOnTop,
+		SubLetterbox,
+		SubAlignTop,
 		TypeMax
 	};
 	const QString &key(Type type) const {return d.keys[type];}

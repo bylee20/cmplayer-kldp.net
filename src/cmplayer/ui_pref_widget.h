@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'pref_widget.ui'
 **
-** Created: Thu Apr 14 16:32:51 2011
+** Created: Tue Apr 19 13:14:54 2011
 **      by: Qt User Interface Compiler version 4.7.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -17,6 +17,7 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QComboBox>
 #include <QtGui/QDoubleSpinBox>
+#include <QtGui/QFontComboBox>
 #include <QtGui/QFormLayout>
 #include <QtGui/QFrame>
 #include <QtGui/QHBoxLayout>
@@ -32,6 +33,7 @@
 #include <QtGui/QWidget>
 #include "controls.hpp"
 #include "simplelistwidget.hpp"
+#include "widgets.hpp"
 
 QT_BEGIN_NAMESPACE
 
@@ -89,7 +91,7 @@ public:
     QLabel *label_26;
     QDoubleSpinBox *auto_contrast_th;
     QWidget *subtitle;
-    QHBoxLayout *horizontalLayout_7;
+    QHBoxLayout *horizontalLayout_15;
     QTabWidget *tabs;
     QWidget *widget_3;
     QHBoxLayout *horizontalLayout_5;
@@ -110,27 +112,33 @@ public:
     QSpacerItem *horizontalSpacer_11;
     QLabel *label_4;
     QWidget *widget_2;
-    QHBoxLayout *horizontalLayout_24;
+    QHBoxLayout *horizontalLayout_14;
     QFormLayout *formLayout_3;
     QLabel *label_2;
-    QHBoxLayout *horizontalLayout_19;
-    QLabel *sub_font_label;
-    QPushButton *sub_font_button;
+    QFontComboBox *sub_font_family;
+    FontOptionWidget *sub_font_option;
     QLabel *label_3;
-    QHBoxLayout *horizontalLayout_20;
-    QLabel *sub_color_fg_label;
-    QPushButton *sub_color_fg_button;
+    ColorSelectWidget *sub_color_fg;
     QLabel *label_5;
-    QHBoxLayout *horizontalLayout_18;
-    QLabel *sub_color_bg_label;
-    QPushButton *sub_color_bg_button;
+    ColorSelectWidget *sub_color_bg;
     QLabel *label_21;
     QComboBox *sub_auto_size;
     QLabel *label_22;
     QDoubleSpinBox *sub_size_scale;
+    QLabel *label_6;
+    QCheckBox *sub_has_shadow;
+    ColorSelectWidget *sub_shadow_color;
+    QHBoxLayout *horizontalLayout_10;
+    QLabel *label_8;
+    QDoubleSpinBox *sub_shadow_offset_x;
+    QLabel *label_15;
+    QDoubleSpinBox *sub_shadow_offset_y;
     QFrame *line_10;
     QLabel *aLabel_6;
     QSpinBox *msPerChar;
+    QHBoxLayout *horizontalLayout_7;
+    QLabel *label_24;
+    QSpinBox *sub_shadow_blur;
     QWidget *widget_4;
     QVBoxLayout *verticalLayout_13;
     QLabel *label_7;
@@ -202,7 +210,7 @@ public:
     {
         if (Pref_Widget->objectName().isEmpty())
             Pref_Widget->setObjectName(QString::fromUtf8("Pref_Widget"));
-        Pref_Widget->resize(567, 317);
+        Pref_Widget->resize(556, 404);
         verticalLayout_14 = new QVBoxLayout(Pref_Widget);
         verticalLayout_14->setContentsMargins(0, 0, 0, 0);
         verticalLayout_14->setObjectName(QString::fromUtf8("verticalLayout_14"));
@@ -477,8 +485,8 @@ public:
         QIcon icon1;
         icon1.addFile(QString::fromUtf8(":/img/subtitle.png"), QSize(), QIcon::Normal, QIcon::Off);
         subtitle->setProperty("icon", QVariant(icon1));
-        horizontalLayout_7 = new QHBoxLayout(subtitle);
-        horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
+        horizontalLayout_15 = new QHBoxLayout(subtitle);
+        horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
         tabs = new QTabWidget(subtitle);
         tabs->setObjectName(QString::fromUtf8("tabs"));
         widget_3 = new QWidget();
@@ -583,8 +591,8 @@ public:
         tabs->addTab(widget_3, QString());
         widget_2 = new QWidget();
         widget_2->setObjectName(QString::fromUtf8("widget_2"));
-        horizontalLayout_24 = new QHBoxLayout(widget_2);
-        horizontalLayout_24->setObjectName(QString::fromUtf8("horizontalLayout_24"));
+        horizontalLayout_14 = new QHBoxLayout(widget_2);
+        horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
         formLayout_3 = new QFormLayout();
         formLayout_3->setObjectName(QString::fromUtf8("formLayout_3"));
         formLayout_3->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
@@ -593,127 +601,127 @@ public:
 
         formLayout_3->setWidget(0, QFormLayout::LabelRole, label_2);
 
-        horizontalLayout_19 = new QHBoxLayout();
-        horizontalLayout_19->setObjectName(QString::fromUtf8("horizontalLayout_19"));
-        horizontalLayout_19->setContentsMargins(-1, 0, -1, 0);
-        sub_font_label = new QLabel(widget_2);
-        sub_font_label->setObjectName(QString::fromUtf8("sub_font_label"));
-        QSizePolicy sizePolicy1(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(sub_font_label->sizePolicy().hasHeightForWidth());
-        sub_font_label->setSizePolicy(sizePolicy1);
-        sub_font_label->setMinimumSize(QSize(150, 0));
-        sub_font_label->setFrameShape(QFrame::StyledPanel);
-        sub_font_label->setFrameShadow(QFrame::Sunken);
-        sub_font_label->setText(QString::fromUtf8(""));
-        sub_font_label->setAlignment(Qt::AlignCenter);
+        sub_font_family = new QFontComboBox(widget_2);
+        sub_font_family->setObjectName(QString::fromUtf8("sub_font_family"));
 
-        horizontalLayout_19->addWidget(sub_font_label);
+        formLayout_3->setWidget(0, QFormLayout::FieldRole, sub_font_family);
 
-        sub_font_button = new QPushButton(widget_2);
-        sub_font_button->setObjectName(QString::fromUtf8("sub_font_button"));
+        sub_font_option = new FontOptionWidget(widget_2);
+        sub_font_option->setObjectName(QString::fromUtf8("sub_font_option"));
 
-        horizontalLayout_19->addWidget(sub_font_button);
-
-
-        formLayout_3->setLayout(0, QFormLayout::FieldRole, horizontalLayout_19);
+        formLayout_3->setWidget(1, QFormLayout::FieldRole, sub_font_option);
 
         label_3 = new QLabel(widget_2);
         label_3->setObjectName(QString::fromUtf8("label_3"));
 
-        formLayout_3->setWidget(1, QFormLayout::LabelRole, label_3);
+        formLayout_3->setWidget(2, QFormLayout::LabelRole, label_3);
 
-        horizontalLayout_20 = new QHBoxLayout();
-        horizontalLayout_20->setObjectName(QString::fromUtf8("horizontalLayout_20"));
-        horizontalLayout_20->setContentsMargins(-1, 0, -1, 0);
-        sub_color_fg_label = new QLabel(widget_2);
-        sub_color_fg_label->setObjectName(QString::fromUtf8("sub_color_fg_label"));
-        QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Preferred);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(sub_color_fg_label->sizePolicy().hasHeightForWidth());
-        sub_color_fg_label->setSizePolicy(sizePolicy2);
-        sub_color_fg_label->setMinimumSize(QSize(150, 0));
-        sub_color_fg_label->setAutoFillBackground(true);
-        sub_color_fg_label->setFrameShape(QFrame::StyledPanel);
-        sub_color_fg_label->setFrameShadow(QFrame::Sunken);
-        sub_color_fg_label->setAlignment(Qt::AlignCenter);
+        sub_color_fg = new ColorSelectWidget(widget_2);
+        sub_color_fg->setObjectName(QString::fromUtf8("sub_color_fg"));
 
-        horizontalLayout_20->addWidget(sub_color_fg_label);
-
-        sub_color_fg_button = new QPushButton(widget_2);
-        sub_color_fg_button->setObjectName(QString::fromUtf8("sub_color_fg_button"));
-
-        horizontalLayout_20->addWidget(sub_color_fg_button);
-
-
-        formLayout_3->setLayout(1, QFormLayout::FieldRole, horizontalLayout_20);
+        formLayout_3->setWidget(2, QFormLayout::FieldRole, sub_color_fg);
 
         label_5 = new QLabel(widget_2);
         label_5->setObjectName(QString::fromUtf8("label_5"));
 
-        formLayout_3->setWidget(2, QFormLayout::LabelRole, label_5);
+        formLayout_3->setWidget(3, QFormLayout::LabelRole, label_5);
 
-        horizontalLayout_18 = new QHBoxLayout();
-        horizontalLayout_18->setObjectName(QString::fromUtf8("horizontalLayout_18"));
-        sub_color_bg_label = new QLabel(widget_2);
-        sub_color_bg_label->setObjectName(QString::fromUtf8("sub_color_bg_label"));
-        sizePolicy2.setHeightForWidth(sub_color_bg_label->sizePolicy().hasHeightForWidth());
-        sub_color_bg_label->setSizePolicy(sizePolicy2);
-        sub_color_bg_label->setMinimumSize(QSize(150, 0));
-        sub_color_bg_label->setAutoFillBackground(true);
-        sub_color_bg_label->setFrameShape(QFrame::StyledPanel);
-        sub_color_bg_label->setFrameShadow(QFrame::Sunken);
-        sub_color_bg_label->setAlignment(Qt::AlignCenter);
+        sub_color_bg = new ColorSelectWidget(widget_2);
+        sub_color_bg->setObjectName(QString::fromUtf8("sub_color_bg"));
 
-        horizontalLayout_18->addWidget(sub_color_bg_label);
-
-        sub_color_bg_button = new QPushButton(widget_2);
-        sub_color_bg_button->setObjectName(QString::fromUtf8("sub_color_bg_button"));
-
-        horizontalLayout_18->addWidget(sub_color_bg_button);
-
-
-        formLayout_3->setLayout(2, QFormLayout::FieldRole, horizontalLayout_18);
+        formLayout_3->setWidget(3, QFormLayout::FieldRole, sub_color_bg);
 
         label_21 = new QLabel(widget_2);
         label_21->setObjectName(QString::fromUtf8("label_21"));
 
-        formLayout_3->setWidget(3, QFormLayout::LabelRole, label_21);
+        formLayout_3->setWidget(4, QFormLayout::LabelRole, label_21);
 
         sub_auto_size = new QComboBox(widget_2);
         sub_auto_size->setObjectName(QString::fromUtf8("sub_auto_size"));
         sub_auto_size->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-        formLayout_3->setWidget(3, QFormLayout::FieldRole, sub_auto_size);
+        formLayout_3->setWidget(4, QFormLayout::FieldRole, sub_auto_size);
 
         label_22 = new QLabel(widget_2);
         label_22->setObjectName(QString::fromUtf8("label_22"));
 
-        formLayout_3->setWidget(4, QFormLayout::LabelRole, label_22);
+        formLayout_3->setWidget(5, QFormLayout::LabelRole, label_22);
 
         sub_size_scale = new QDoubleSpinBox(widget_2);
         sub_size_scale->setObjectName(QString::fromUtf8("sub_size_scale"));
         sub_size_scale->setAccelerated(true);
+        sub_size_scale->setSuffix(QString::fromUtf8("%"));
         sub_size_scale->setDecimals(1);
         sub_size_scale->setMaximum(99);
         sub_size_scale->setSingleStep(0.5);
         sub_size_scale->setValue(10);
 
-        formLayout_3->setWidget(4, QFormLayout::FieldRole, sub_size_scale);
+        formLayout_3->setWidget(5, QFormLayout::FieldRole, sub_size_scale);
+
+        label_6 = new QLabel(widget_2);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+
+        formLayout_3->setWidget(6, QFormLayout::LabelRole, label_6);
+
+        sub_has_shadow = new QCheckBox(widget_2);
+        sub_has_shadow->setObjectName(QString::fromUtf8("sub_has_shadow"));
+
+        formLayout_3->setWidget(6, QFormLayout::FieldRole, sub_has_shadow);
+
+        sub_shadow_color = new ColorSelectWidget(widget_2);
+        sub_shadow_color->setObjectName(QString::fromUtf8("sub_shadow_color"));
+        sub_shadow_color->setEnabled(false);
+        sub_shadow_color->setMinimumSize(QSize(10, 10));
+
+        formLayout_3->setWidget(7, QFormLayout::FieldRole, sub_shadow_color);
+
+        horizontalLayout_10 = new QHBoxLayout();
+        horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
+        label_8 = new QLabel(widget_2);
+        label_8->setObjectName(QString::fromUtf8("label_8"));
+
+        horizontalLayout_10->addWidget(label_8);
+
+        sub_shadow_offset_x = new QDoubleSpinBox(widget_2);
+        sub_shadow_offset_x->setObjectName(QString::fromUtf8("sub_shadow_offset_x"));
+        sub_shadow_offset_x->setEnabled(false);
+        sub_shadow_offset_x->setSuffix(QString::fromUtf8("px"));
+        sub_shadow_offset_x->setDecimals(1);
+        sub_shadow_offset_x->setMinimum(-99.9);
+        sub_shadow_offset_x->setMaximum(99.9);
+
+        horizontalLayout_10->addWidget(sub_shadow_offset_x);
+
+        label_15 = new QLabel(widget_2);
+        label_15->setObjectName(QString::fromUtf8("label_15"));
+
+        horizontalLayout_10->addWidget(label_15);
+
+        sub_shadow_offset_y = new QDoubleSpinBox(widget_2);
+        sub_shadow_offset_y->setObjectName(QString::fromUtf8("sub_shadow_offset_y"));
+        sub_shadow_offset_y->setEnabled(false);
+        sub_shadow_offset_y->setSuffix(QString::fromUtf8("px"));
+        sub_shadow_offset_y->setDecimals(1);
+        sub_shadow_offset_y->setMinimum(-99.9);
+        sub_shadow_offset_y->setMaximum(99.9);
+        sub_shadow_offset_y->setSingleStep(0.5);
+
+        horizontalLayout_10->addWidget(sub_shadow_offset_y);
+
+
+        formLayout_3->setLayout(8, QFormLayout::FieldRole, horizontalLayout_10);
 
         line_10 = new QFrame(widget_2);
         line_10->setObjectName(QString::fromUtf8("line_10"));
         line_10->setFrameShadow(QFrame::Plain);
         line_10->setFrameShape(QFrame::HLine);
 
-        formLayout_3->setWidget(5, QFormLayout::SpanningRole, line_10);
+        formLayout_3->setWidget(10, QFormLayout::SpanningRole, line_10);
 
         aLabel_6 = new QLabel(widget_2);
         aLabel_6->setObjectName(QString::fromUtf8("aLabel_6"));
 
-        formLayout_3->setWidget(6, QFormLayout::LabelRole, aLabel_6);
+        formLayout_3->setWidget(12, QFormLayout::LabelRole, aLabel_6);
 
         msPerChar = new QSpinBox(widget_2);
         msPerChar->setObjectName(QString::fromUtf8("msPerChar"));
@@ -723,10 +731,26 @@ public:
         msPerChar->setSingleStep(100);
         msPerChar->setValue(500);
 
-        formLayout_3->setWidget(6, QFormLayout::FieldRole, msPerChar);
+        formLayout_3->setWidget(12, QFormLayout::FieldRole, msPerChar);
+
+        horizontalLayout_7 = new QHBoxLayout();
+        horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
+        label_24 = new QLabel(widget_2);
+        label_24->setObjectName(QString::fromUtf8("label_24"));
+
+        horizontalLayout_7->addWidget(label_24);
+
+        sub_shadow_blur = new QSpinBox(widget_2);
+        sub_shadow_blur->setObjectName(QString::fromUtf8("sub_shadow_blur"));
+        sub_shadow_blur->setSuffix(QString::fromUtf8("px"));
+
+        horizontalLayout_7->addWidget(sub_shadow_blur);
 
 
-        horizontalLayout_24->addLayout(formLayout_3);
+        formLayout_3->setLayout(9, QFormLayout::FieldRole, horizontalLayout_7);
+
+
+        horizontalLayout_14->addLayout(formLayout_3);
 
         tabs->addTab(widget_2, QString());
         widget_4 = new QWidget();
@@ -750,7 +774,7 @@ public:
 
         tabs->addTab(widget_4, QString());
 
-        horizontalLayout_7->addWidget(tabs);
+        horizontalLayout_15->addWidget(tabs);
 
         stack->addWidget(subtitle);
         ui = new QWidget();
@@ -849,11 +873,11 @@ public:
         _3->setObjectName(QString::fromUtf8("_3"));
         label = new QLabel(widget_5);
         label->setObjectName(QString::fromUtf8("label"));
-        QSizePolicy sizePolicy3(QSizePolicy::Minimum, QSizePolicy::Preferred);
-        sizePolicy3.setHorizontalStretch(0);
-        sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
-        label->setSizePolicy(sizePolicy3);
+        QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
+        label->setSizePolicy(sizePolicy1);
 
         _3->addWidget(label);
 
@@ -1124,6 +1148,10 @@ public:
         QObject::connect(startStopped, SIGNAL(toggled(bool)), askWhenRecordFound, SLOT(setEnabled(bool)));
         QObject::connect(pauseMinimized, SIGNAL(toggled(bool)), pauseVideoOnly, SLOT(setEnabled(bool)));
         QObject::connect(tray, SIGNAL(toggled(bool)), hideWhenClosed, SLOT(setEnabled(bool)));
+        QObject::connect(sub_has_shadow, SIGNAL(toggled(bool)), sub_shadow_color, SLOT(setEnabled(bool)));
+        QObject::connect(sub_has_shadow, SIGNAL(toggled(bool)), sub_shadow_offset_x, SLOT(setEnabled(bool)));
+        QObject::connect(sub_has_shadow, SIGNAL(toggled(bool)), sub_shadow_offset_y, SLOT(setEnabled(bool)));
+        QObject::connect(sub_has_shadow, SIGNAL(toggled(bool)), sub_shadow_blur, SLOT(setEnabled(bool)));
 
         stack->setCurrentIndex(0);
         tabWidget_2->setCurrentIndex(0);
@@ -1180,22 +1208,22 @@ public:
         label_4->setText(QApplication::translate("Pref_Widget", "Auto-dectection:", 0, QApplication::UnicodeUTF8));
         tabs->setTabText(tabs->indexOf(widget_3), QApplication::translate("Pref_Widget", "Load", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("Pref_Widget", "Font:", 0, QApplication::UnicodeUTF8));
-        sub_font_button->setText(QApplication::translate("Pref_Widget", "Change", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("Pref_Widget", "Foreground Color:", 0, QApplication::UnicodeUTF8));
-        sub_color_fg_label->setText(QString());
-        sub_color_fg_button->setText(QApplication::translate("Pref_Widget", "Change", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("Pref_Widget", "Background Color:", 0, QApplication::UnicodeUTF8));
-        sub_color_bg_label->setText(QString());
-        sub_color_bg_button->setText(QApplication::translate("Pref_Widget", "Change", 0, QApplication::UnicodeUTF8));
         label_21->setText(QApplication::translate("Pref_Widget", "Auto Size:", 0, QApplication::UnicodeUTF8));
         label_22->setText(QApplication::translate("Pref_Widget", "Size Scale:", 0, QApplication::UnicodeUTF8));
-        sub_size_scale->setSuffix(QApplication::translate("Pref_Widget", "%", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("Pref_Widget", "Shadow:", 0, QApplication::UnicodeUTF8));
+        sub_has_shadow->setText(QApplication::translate("Pref_Widget", "Display", 0, QApplication::UnicodeUTF8));
+        label_8->setText(QApplication::translate("Pref_Widget", "X-Offset", 0, QApplication::UnicodeUTF8));
+        label_15->setText(QApplication::translate("Pref_Widget", "Y-Offset", 0, QApplication::UnicodeUTF8));
         aLabel_6->setText(QApplication::translate("Pref_Widget", "Display Time:", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         msPerChar->setToolTip(QApplication::translate("Pref_Widget", "Next value will be used to calculate the end time of a subtitle line when it is not specified by subtitle file.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         msPerChar->setSuffix(QApplication::translate("Pref_Widget", "msec/character", 0, QApplication::UnicodeUTF8));
         msPerChar->setPrefix(QString());
+        label_24->setText(QApplication::translate("Pref_Widget", "Blur", 0, QApplication::UnicodeUTF8));
+        sub_shadow_blur->setSpecialValueText(QApplication::translate("Pref_Widget", "Off", 0, QApplication::UnicodeUTF8));
         tabs->setTabText(tabs->indexOf(widget_2), QApplication::translate("Pref_Widget", "Display", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("Pref_Widget", "You can specify the order of unified(mulit) subtitles with the 'Name' property in subtitle file.\n"
 "If not specified, They will be displayed in selected order.\n"

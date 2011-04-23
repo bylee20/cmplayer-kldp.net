@@ -34,8 +34,9 @@ public:
 	inline bool isOpen() const {return m_open;}
 	inline bool isComment() const {return elementIs("!--");}
 	inline int pos() const {return m_pos;}
+	inline int begin() const {return m_begin;}
 	int next();
-	void setPos(int pos) {if (m_pos != pos) m_pos = pos;}
+	void setPos(int pos) {if (m_pos != pos) {m_pos = pos; m_begin = -1;}}
 private:
 	inline QStringRef midRef(int from, int count = -1) const {
 		return RichString::midRef(m_text, from, count);
@@ -51,7 +52,7 @@ private:
 	inline bool skipSeperator() {return RichString::skipSeperator(m_pos, m_text);}
 
 	QStringRef m_text;
-	int m_pos;
+	int m_pos, m_begin;
 	QStringRef m_elem;
 	QVector<Attr> m_attr;
 	bool m_open;

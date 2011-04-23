@@ -19,5 +19,9 @@
         <file>img/cmplayer512.png</file>
         <file>gpl.html</file>
         <file>img/speaker-off.png</file>
+        <file>img/format-text-bold.png</file>
+        <file>img/format-text-italic.png</file>
+        <file>img/format-text-strikethrough.png</file>
+        <file>img/format-text-underline.png</file>
     </qresource>
 </RCC>

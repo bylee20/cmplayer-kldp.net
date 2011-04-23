@@ -14,7 +14,6 @@ MainWindow::MainWindow() {
 	d->audio = LibVLC::audio();
 	d->video = LibVLC::video();
 	d->subtitle = new SubtitleRenderer;
-	d->subtitle->setOsd(new TextOsdRenderer);
 	d->timeLine = new TimeLineOsdRenderer;
 	d->playInfo = new PlayInfoView;
 	d->message = new TextOsdRenderer(Qt::AlignTop | Qt::AlignLeft);
@@ -84,6 +83,8 @@ MainWindow::MainWindow() {
 	CONNECT(sub("list")["clear"], triggered(), this, clearSubtitles());
 	CONNECT(sub("list").g(), triggered(QAction*), this, updateSubtitle(QAction*));
 	CONNECT(sub("spu").g(), triggered(QAction*), this, setSPU(QAction*));
+	CONNECT(sub.g("display"), triggered(int), this, setSubtitleDisplay(int));
+	CONNECT(sub.g("align"), triggered(int), this, setSubtitleAlign(int));
 	CONNECT(sub.g("pos"), triggered(int), this, moveSubtitle(int));
 	CONNECT(sub.g("sync"), triggered(int), this, setSyncDelay(int));
 
@@ -91,7 +92,7 @@ MainWindow::MainWindow() {
 	CONNECT(tool["history"], triggered(), d->history, toggle());
 	CONNECT(tool["subtitle"], triggered(), d->subtitle->view(), toggle());
 	CONNECT(tool["pref"], triggered(), this, setPref());
-
+	CONNECT(tool["playinfo"], toggled(bool), d->playInfo, setVisible(bool));
 	CONNECT(win.g("sot"), triggered(int), this, updateStaysOnTop());
 	CONNECT(win.g("size"), triggered(double), this, setVideoSize(double));
 
@@ -150,7 +151,7 @@ MainWindow::~MainWindow() {
 	d->recent->setLastPlaylist(d->playlist->playlist());
 	d->recent->setLastMrl(d->engine->mrl());
 	d->recent->save();
-	saveState();
+	d->save_state();
 	delete d->subtitle;
 	delete d->playInfo;
 	LibVLC::release();
@@ -656,9 +657,16 @@ void MainWindow::setSyncDelay(int diff) {
 }
 
 void MainWindow::setPref() {
-	Pref::Dialog dlg(this);
-	if (dlg.exec())
-		d->apply_pref();
+	static Pref::Dialog *dlg = 0;
+	if (!dlg) {
+		dlg = new Pref::Dialog(this);
+		connect(dlg, SIGNAL(needToApplyPref()), this, SLOT(applyPref()));
+	}
+	dlg->show();
+}
+
+void MainWindow::applyPref() {
+	d->apply_pref();
 }
 
 void MainWindow::showEvent(QShowEvent *event) {
@@ -811,14 +819,10 @@ void MainWindow::setEffect(QAction *act) {
 	d->video->setEffects(effects);
 }
 
-//void MainWindow::setFilter(QAction *act) {
-//	if (!act)
-//		return;
-//	const QList<QAction*> acts = d->menu("video")("filter").actions();
-//	VideoRenderer::Filters filters = 0;
-//	for (int i=0; i<acts.size(); ++i) {
-//		if (acts[i]->isChecked())
-//			filters |= static_cast<VideoRenderer::Filter>(acts[i]->data().toInt());
-//	}
-//	d->video->setFilters(filters);
-//}
+void MainWindow::setSubtitleAlign(int data) {
+	d->subtitle->setTopAlignment(data);
+}
+
+void MainWindow::setSubtitleDisplay(int data) {
+	d->subtitle->osd()->setLetterboxHint(data);
+}

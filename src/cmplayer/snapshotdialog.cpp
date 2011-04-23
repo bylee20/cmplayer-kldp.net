@@ -83,7 +83,7 @@ void SnapshotDialog::updateSnapshot(bool sub) {
 		painter.setRenderHint(QPainter::SmoothPixmapTransform);
 		painter.drawImage(d->rect, d->frame);
 		if (sub) {
-			d->osd->setBackgroundSize(pixmap.size());
+			d->osd->setBackgroundSize(pixmap.size(), pixmap.size());
 			d->osd->showText(d->text);
 			d->osd->render(&painter, d->osd->posHint());
 		}

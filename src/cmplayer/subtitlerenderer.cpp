@@ -24,7 +24,7 @@ struct SubtitleRenderer::Data {
 	double fps;
 	int delay, ms;
 	double pos;
-	bool visible, empty;
+	bool visible, empty, top;
 	QList<Loaded> loaded;
 	RenderList order;
 	bool selecting;
@@ -61,9 +61,10 @@ struct SubtitleRenderer::Data {
 };
 
 SubtitleRenderer::SubtitleRenderer(): d(new Data) {
-	d->selecting = false;
+	d->top = d->selecting = false;
 	d->empty = d->visible = true;
-	d->osd = 0;
+	d->osd = new TextOsdRenderer(Qt::AlignBottom | Qt::AlignCenter);
+//	d->osd->setLetterboxHint(true);
 	d->fps = 30;
 	d->ms = d->delay = 0;
 	d->pos = 1.0;
@@ -87,10 +88,6 @@ TextOsdRenderer *SubtitleRenderer::osd() const {
 	return d->osd;
 }
 
-void SubtitleRenderer::setOsd(TextOsdRenderer *osd) {
-	d->osd = osd;
-}
-
 void SubtitleRenderer::setFrameRate(double fps) {
 	if (d->fps != fps) {
 		d->fps = fps;
@@ -100,7 +97,7 @@ void SubtitleRenderer::setFrameRate(double fps) {
 
 void SubtitleRenderer::render(int ms) {
 	d->ms = ms;
-	if (!d->visible || d->empty || ms == 0 || !d->osd)
+	if (!d->visible || d->empty || ms == 0)
 		return;
 	bool changed = false;
 	RenderList::const_iterator o = d->order.begin();
@@ -137,13 +134,8 @@ void SubtitleRenderer::setVisible(bool visible) {
 
 void SubtitleRenderer::clear() {
 	d->reset_prev();
-	if (d->osd)
-		d->osd->clear();
+	d->osd->clear();
 }
-
-//const Subtitle &SubtitleRenderer::subtitle() const {
-//	return d->sub;
-//}
 
 double SubtitleRenderer::frameRate() const {
 	return d->fps;
@@ -340,10 +332,30 @@ bool SubtitleRenderer::hasSubtitle() const {
 void SubtitleRenderer::setPos(double pos) {
 	if (!qFuzzyCompare(pos, d->pos)) {
 		d->pos = qBound(0.0, pos, 1.0);
-		d->osd->setMargin(0, 1.0 - d->pos, 0, 0);
+		if (d->top)
+			d->osd->setMargin(d->pos, 0, 0, 0);
+		else
+			d->osd->setMargin(0, 1.0 - d->pos, 0, 0);
 	}
 }
 
 double SubtitleRenderer::pos() const {
 	return d->pos;
+}
+
+void SubtitleRenderer::setTopAlignment(bool top) {
+	if (d->top != top) {
+		d->top = top;
+		Qt::Alignment alignment = Qt::AlignHCenter;
+		if (d->top)
+			alignment |= Qt::AlignTop;
+		else
+			alignment |= Qt::AlignBottom;
+		d->osd->setAlignment(alignment);
+		setPos(1.0 - d->pos);
+	}
+}
+
+bool SubtitleRenderer::isTopAligned() const {
+	return d->top;
 }

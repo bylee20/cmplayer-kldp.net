@@ -8,7 +8,7 @@ class FramebufferObjectOverlay : public Overlay {
 public:
 	FramebufferObjectOverlay(QGLWidget *video);
 	~FramebufferObjectOverlay();
-	void setArea(const QRect &area);
+	void setArea(const QRect &bg, const QRectF &video);
 	qint64 addOsd(OsdRenderer *osd);
 	void render(QPainter *painter);
 	Type type() const {return FramebufferObject;}

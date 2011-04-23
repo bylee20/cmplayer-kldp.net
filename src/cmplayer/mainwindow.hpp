@@ -19,8 +19,11 @@ public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
 private slots:
+	void applyPref();
 	void updateVideoFormat(const VideoFormat &format);
 	void setEffect(QAction *action);
+	void setSubtitleAlign(int data);
+	void setSubtitleDisplay(int data);
 //	void setFilter(QAction *action);
 	void about();
 	void setVolumeNormalized(bool norm);

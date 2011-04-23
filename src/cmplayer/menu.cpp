@@ -113,7 +113,13 @@ Menu &Menu::create(QWidget *parent) {
 	sList->addAction("hide")->setCheckable(true);
 
 	subtitle->addSeparator();
-
+	subtitle->addActionToGroup("in-video", true, "display")->setData(0);
+	subtitle->addActionToGroup("on-letterbox", true, "display")->setData(1);
+	subtitle->addSeparator();
+	subtitle->addActionToGroup("align-top", true, "align")->setData(1);
+	subtitle->addActionToGroup("align-bottom", true, "align")->setData(0);
+	subtitle->addSeparator();
+//	subtitle->addAction();
 	subtitle->addActionToGroup("pos-up", false, "pos")->setShortcut(Qt::Key_W);
 	subtitle->addActionToGroup("pos-down", false, "pos")->setShortcut(Qt::Key_S);
 
@@ -203,9 +209,14 @@ Menu &Menu::create(QWidget *parent) {
 	tool->addAction("favorites")->setVisible(false);
 	tool->addAction("history")->setShortcut(Qt::Key_C);
 	tool->addAction("subtitle")->setShortcut(Qt::Key_V);
+	tool->addSeparator();
 	QAction *pref = tool->addAction("pref");
 	pref->setShortcut(Qt::Key_P);
 	pref->setMenuRole(QAction::PreferencesRole);
+	tool->addSeparator();
+	QAction *playInfo = tool->addAction("playinfo");
+	playInfo->setCheckable(true);
+	playInfo->setShortcut(Qt::Key_Tab);
 
 	Menu *window = root->addMenu("window");
 	// sot == Stay On Top
@@ -368,6 +379,12 @@ void Menu::updatePref() {
 	list["clear"]->setText(tr("Clear"));
 	list["hide"]->setText(tr("Hide"));
 	sub("spu").setTitle(tr("Subtitle Track"));
+
+	sub["on-letterbox"]->setText(tr("Display on Letterbox"));
+	sub["in-video"]->setText(tr("Display in Video"));
+	sub["align-top"]->setText(tr("Top Alignment"));
+	sub["align-bottom"]->setText(tr("Bottom Alignment"));
+
 	setActionAttr(sub["pos-up"], -p.sub_pos_step
 			, tr("Up %1%"), p.sub_pos_step, false);
 	setActionAttr(sub["pos-down"], p.sub_pos_step
@@ -406,8 +423,8 @@ void Menu::updatePref() {
 	effect["sharpen"]->setText(tr("Sharpen"));
 	effect["gray"]->setText(tr("Grayscale"));
 	effect["invert"]->setText(tr("Invert Color"));
-	effect["remap"]->setText(tr("Adjust Constrast for PC"));
-	effect["auto-contrast"]->setText(tr("Auto Contrast (Massive)"));
+	effect["remap"]->setText(tr("Adjust Constrast"));
+	effect["auto-contrast"]->setText(tr("Auto Contrast"));
 	effect["ignore"]->setText(tr("Ignore All Filters"));
 
 	video["reset"]->setText(tr("Reset"));
@@ -438,6 +455,7 @@ void Menu::updatePref() {
 	tool["history"]->setText(tr("Play History"));
 	tool["subtitle"]->setText(tr("Subtitle View"));
 	tool["pref"]->setText(tr("Preferences"));
+	tool["playinfo"]->setText(tr("Play Information"));
 
 	Menu &window = root("window");
 	window.setTitle(tr("Window"));

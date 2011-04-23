@@ -69,8 +69,8 @@ private:
 		set.beginGroup(group);
 		for (typename T::const_iterator it = t.begin(); it != t.end(); ++it) {
 			set.beginGroup(it.key().name());
-			set.setValue("Enabled", it.value().first);
-			set.setValue("Action", it.value().second.name());
+			set.setValue("enabled", it.value().first);
+			set.setValue("action", it.value().second.name());
 			set.endGroup();
 		}
 		set.endGroup();
@@ -81,8 +81,8 @@ private:
 		set.beginGroup(group);
 		set.beginGroup(key.name());
 		typename T::mapped_type value;
-		value.first = set.value("Enabled", def.first).toBool();
-		value.second = T::mapped_type::second_type::value(set.value("Action"
+		value.first = set.value("enabled", def.first).toBool();
+		value.second = T::mapped_type::second_type::value(set.value("action"
 				, def.second.name()).toString(), def.second);
 		t[key] = value;
 		set.endGroup();

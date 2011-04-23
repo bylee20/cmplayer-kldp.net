@@ -3,7 +3,8 @@
 #include <QtOpenGL/QGLFramebufferObject>
 
 struct FramebufferObjectOverlay::Data {
-	QRect area;
+	QRect bg;
+	QRectF video;
 	QList<OsdRenderer*> osds;
 	QGLFramebufferObject *fbo;
 	bool pending;
@@ -13,7 +14,6 @@ FramebufferObjectOverlay::FramebufferObjectOverlay(QGLWidget *video)
 : Overlay(video), d(new Data) {
 	d->pending = false;
 	d->fbo = 0;
-	setArea(video->rect());
 }
 
 FramebufferObjectOverlay::~FramebufferObjectOverlay() {
@@ -32,31 +32,26 @@ qint64 FramebufferObjectOverlay::addOsd(OsdRenderer *osd) {
 	return d->osds.size() - 1;
 }
 
-void FramebufferObjectOverlay::setArea(const QRect &area) {
-	if (area == d->area)
+void FramebufferObjectOverlay::setArea(const QRect &bg, const QRectF &video) {
+	if (bg == d->bg && d->video == video)
 		return;
 	d->pending = true;
-	d->area = area;
-	const QSize newSize = OsdRenderer::cachedSize(d->area.size());
+	d->bg = bg;
+	d->video = video;
+	const QSize newSize = OsdRenderer::cachedSize(d->bg.size());
 	if (!d->fbo || d->fbo->size() != newSize) {
 		delete d->fbo;
-		video()->makeCurrent();
+		this->video()->makeCurrent();
 		d->fbo = new QGLFramebufferObject(newSize);
 	}
-	double w, h;
-	w = h = 0.0;
-	for (int i=0; i<d->osds.size(); ++i) {
-		d->osds[i]->setBackgroundSize(d->area.size());
-		w = qMax(w, d->osds[i]->size().width());
-		h = qMax(h, d->osds[i]->size().height());
-	}
-
+	for (int i=0; i<d->osds.size(); ++i)
+		d->osds[i]->setBackgroundSize(d->bg.size(), d->video.size());
 	d->pending = false;
 	cache();
 }
 
 void FramebufferObjectOverlay::cache() {
-	if (d->pending)
+	if (d->pending || !d->fbo)
 		return;
 	video()->makeCurrent();
 
@@ -67,17 +62,17 @@ void FramebufferObjectOverlay::cache() {
 
 	QPainter painter(d->fbo);
 	for (int i=0; i<d->osds.size(); ++i) {
-		QPointF pos = d->osds[i]->posHint();
-		if (pos.y() < d->area.top())
-			pos.setY(d->area.top());
-		d->osds[i]->render(&painter, pos);
+		OsdRenderer *osd = d->osds[i];
+		const QPointF pos = osd->posHint() + (osd->letterboxHint() ? d->bg : d->video).topLeft();
+		osd->render(&painter, pos);
 	}
 	painter.end();
 	video()->update();
 }
 
 void FramebufferObjectOverlay::render(QPainter */*painter*/) {
-	video()->drawTexture(QRectF(d->area.topLeft(), d->fbo->size()), d->fbo->texture());
+	if (d->fbo)
+		video()->drawTexture(QRectF(d->bg.topLeft(), d->fbo->size()), d->fbo->texture());
 }
 
 

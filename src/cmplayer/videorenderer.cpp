@@ -402,7 +402,7 @@ QSize VideoRenderer::renderableSize() const {
 
 void VideoRenderer::updateSize() {
 	const QSize size = renderableSize();
-	d->overlay->setArea(QRect(QPoint(0, 0), size));
+	d->overlay->setArea(QRect(QPoint(0, 0), size), d->vtx);
 }
 
 void VideoRenderer::resizeEvent(QResizeEvent *event) {
@@ -488,7 +488,8 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		const double hMargin = (widget.width() - letter.width())*0.5;
 		const double vMargin = (widget.height() - letter.height())*0.5;
 		const QRectF vtx(x, y, frame.width(), frame.height());
-		d->vtx = vtx;
+		if (d->vtx != vtx)
+			d->overlay->setArea(QRect(QPoint(0, 0), widget.toSize()), d->vtx = vtx);
 		double top = 0.0, left = 0.0;
 		double bottom = (double)(d->frame->frameLines(0)-1)/(double)d->frame->dataLines(0);
 		double right = (double)(d->frame->framePitch(0)-1)/(double)d->frame->dataPitch(0);

@@ -111,7 +111,10 @@ HEADERS += playengine.hpp \
     shader/i420_to_rgb_kernel.hpp \
     mainwindow_p.hpp \
     pref_widget.hpp \
-    playinfoview.hpp
+    playinfoview.hpp \
+    widgets.hpp \
+    qtcolorpicker.hpp \
+    richtext.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -173,7 +176,10 @@ SOURCES += main.cpp \
     fragmentprogram.cpp \
     mainwindow_p.cpp \
     pref_widget.cpp \
-    playinfoview.cpp
+    playinfoview.cpp \
+    widgets.cpp \
+    qtcolorpicker.cpp \
+    richtext.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts

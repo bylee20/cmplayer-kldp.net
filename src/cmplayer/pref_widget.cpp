@@ -190,50 +190,23 @@ Pref::Widget::Widget(QWidget *parent)
 			, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*))
 			, this, SLOT(slotCurrentItemChanged(QTreeWidgetItem*)));
 
-	const Pref &p = Pref::get();
-
 	const LocaleList &locale = Translator::availableLocales();
 	for (int i=0; i<locale.size(); ++i)
 		d->ui.locale->addItem(toString(locale[i]), locale[i]);
-	setComboIndex(d->ui.locale, p.locale);
 
 	d->ui.autoAdd->addItem(tr("All files in the same path"), AllFiles);
 	d->ui.autoAdd->addItem(tr("Files have similar name"), SimilarFiles);
 	d->ui.autoAdd->addItem(tr("Do not add any other files"), DoNotAddFiles);
-	setComboIndex(d->ui.autoAdd, p.auto_add_files.value());
 
 	const QStringList subExt = Info::subtitleExt();
 	d->ui.subSelectExt->addItem(tr("All"), QString());
 	for (int i=0; i<subExt.size(); ++i)
 		d->ui.subSelectExt->addItem(subExt[i], subExt[i]);
-	setComboIndex(d->ui.subSelectExt, p.sub_ext);
-
-	d->ui.pauseMinimized->setChecked(p.pause_minimized);
-	d->ui.askWhenRecordFound->setChecked(p.ask_record_found);
-	d->ui.pauseVideoOnly->setChecked(p.pause_video_only);
-	d->ui.startStopped->setChecked(p.remember_stopped);
-	d->ui.hideCursor->setChecked(p.hide_cursor);
-	d->ui.hideDelay->setValue(p.hide_delay/1000);
-	d->ui.tray->setChecked(p.enable_system_tray);
-	d->ui.hideWhenClosed->setChecked(p.hide_rather_close);
-	d->ui.singleApp->setChecked(p.single_app);
-	d->ui.disableSS->setChecked(p.disable_screensaver);
-
-	d->ui.blur_c->setValue(p.blur_kern_c);
-	d->ui.blur_n->setValue(p.blur_kern_n);
-	d->ui.blur_d->setValue(p.blur_kern_d);
-	d->ui.sharpen_c->setValue(p.sharpen_kern_c);
-	d->ui.sharpen_n->setValue(p.sharpen_kern_n);
-	d->ui.sharpen_d->setValue(p.sharpen_kern_d);
-	d->ui.min_luma->setValue(p.adjust_contrast_min_luma);
-	d->ui.max_luma->setValue(p.adjust_contrast_max_luma);
-	d->ui.auto_contrast_th->setValue(p.auto_contrast_threshold);
 
 	const QStringList styles = QStyleFactory::keys();
 	d->ui.winStyle->addItem(tr("Default Style"), QString());
 	for (int i = 0; i<styles.size(); ++i)
 		d->ui.winStyle->addItem(styles[i], styles[i]);
-	setComboIndex(d->ui.winStyle, p.window_style);
 
 	QList<QAction *> acts = Menu::get().actions();
 	for (int i=0; i<acts.size(); ++i)
@@ -257,52 +230,26 @@ Pref::Widget::Widget(QWidget *parent)
 			<< ItemPair(tr("Amp. Up/Down"), AmpUpDown);
 	d->whl->addItems(items);
 
-	d->dbl->setValues(p.double_click_map);
-	d->mdl->setValues(p.middle_click_map);
-	d->whl->setValues(p.wheel_scroll_map);
-
-	d->ui.seek1->setValue(p.seek_step1/1000);
-	d->ui.seek2->setValue(p.seek_step2/1000);
-	d->ui.seek3->setValue(p.seek_step3/1000);
-	d->ui.speed->setValue(p.speed_step);
-	d->ui.volume->setValue(p.volume_step);
-	d->ui.amp->setValue(p.amp_step);
-	d->ui.subPos->setValue(p.sub_pos_step);
-	d->ui.sync->setValue(p.sync_delay_step*0.001);
-
 	d->ui.autoLoad->addItem(tr("Subtitle whose name is matched the playing file name"), Matched);
 	d->ui.autoLoad->addItem(tr("Subtitles whose names contain the playing file name"), Contain);
 	d->ui.autoLoad->addItem(tr("Subtitles located in the path of the playing file"), SamePath);
 	d->ui.autoLoad->addItem(tr("Do not load any subtitles automatically"), NoAutoLoad);
-	setComboIndex(d->ui.autoLoad, p.sub_autoload.value());
+
 	d->ui.autoSelect->addItem(tr("First subtitle of loaded ones"), FirstFile);
 	d->ui.autoSelect->addItem(tr("Subtitle which has the same name as the playing file"), SameName);
 	d->ui.autoSelect->addItem(tr("All loaded subtitles"), AllLoaded);
 	d->ui.autoSelect->addItem(tr("Each language subtitle"), EachLanguage);
-	setComboIndex(d->ui.autoSelect, p.sub_autoselect.value());
-	d->ui.encoding->setEncoding(p.sub_enc);
-	d->ui.priority->setValues(p.sub_priority);
-	d->ui.priority->setAddingAndErasingEnabled(true);
-	d->ui.subEncAutoDet->setChecked(p.sub_enc_autodetection);
-	d->ui.subConf->setValue(p.sub_enc_confidence);
-	d->ui.msPerChar->setValue(p.ms_per_char);
 
-	d->ui.sub_font_label->setFont(p.sub_style.font);
-	d->ui.sub_font_label->setText(p.sub_style.font.family());
-	setColorLabel(d->ui.sub_color_fg_label, p.sub_style.color_fg);
-	setColorLabel(d->ui.sub_color_bg_label, p.sub_style.color_bg);
+	d->ui.priority->setAddingAndErasingEnabled(true);
+
 	d->ui.sub_auto_size->addItem(tr("Fit to Diagonal"), OsdStyle::FitToDiagonal);
 	d->ui.sub_auto_size->addItem(tr("Fit to Height"), OsdStyle::FitToHeight);
 	d->ui.sub_auto_size->addItem(tr("Fit to Width"), OsdStyle::FitToWidth);
-	setComboIndex(d->ui.sub_auto_size, p.sub_style.auto_size);
-	d->ui.sub_size_scale->setValue(p.sub_style.text_scale*100.);
-
-	connect(d->ui.sub_font_button, SIGNAL(clicked()), this, SLOT(setSubFont()));
-	connect(d->ui.sub_color_fg_button, SIGNAL(clicked()), this, SLOT(setSubColor()));
-	connect(d->ui.sub_color_bg_button, SIGNAL(clicked()), this, SLOT(setSubColor()));
 
 	connect(d->ui.autoSelect, SIGNAL(currentIndexChanged(int)), this, SLOT(checkSubtitleSelect(int)));
 	checkSubtitleSelect(d->ui.autoSelect->currentIndex());
+
+	fill();
 }
 
 Pref::Widget::~Widget() {
@@ -319,54 +266,6 @@ QSize Pref::Widget::sizeHint() const {
 	}
 	return QSize(width, height);
 }
-
-void Pref::Widget::setColorLabel(QLabel *label, const QColor &color) {
-	QPalette p = label->palette();
-	p.setColor(QPalette::Window, color);
-	p.setColor(QPalette::Button, color);
-#define INVERT(value) (255 - value)
-	const QColor inverted(INVERT(color.red()), INVERT(color.green()), INVERT(color.blue()));
-#undef INVERT
-	p.setColor(QPalette::WindowText, inverted);
-	p.setColor(QPalette::ButtonText, inverted);
-	label->setPalette(p);
-	label->setText(color.name());
-}
-
-void Pref::Widget::setSubColor() {
-	QLabel *label = 0;
-	if (sender() == d->ui.sub_color_fg_button)
-		label = d->ui.sub_color_fg_label;
-	else if (sender() == d->ui.sub_color_bg_button)
-		label = d->ui.sub_color_bg_label;
-	else
-		return;
-	const QColor before = label->palette().color(QPalette::Window);
-	const QColor color = QColorDialog::getColor(before, this);
-	if (color.isValid())
-		setColorLabel(label, color);
-}
-
-void Pref::Widget::setSubFont() {
-	bool ok = false;
-	const QFont before = d->ui.sub_font_label->font();
-	QFont font = QFontDialog::getFont(&ok, before, this, QString(), QFontDialog::DontUseNativeDialog);
-	if (ok) {
-		font.setPointSize(before.pointSize());
-		font.setPixelSize(before.pixelSize());
-		d->ui.sub_font_label->setFont(font);
-		d->ui.sub_font_label->setText(font.family());
-	}
-}
-
-//const OsdStyle &OsdStyle::Widget::style() const {
-//	const int scale = d->ui.scale->currentIndex();
-//	if (scale != -1)
-//		d->style.scale = (OsdStyle::AutoSize)(d->ui.scale->itemData(scale).toInt());
-//	d->style.text_scale = d->ui.size->value()/100.;
-//	return d->style;
-//}
-
 
 void Pref::Widget::slotCurrentItemChanged(QTreeWidgetItem *it) {
 	MenuTreeItem *item = (MenuTreeItem*)it;
@@ -392,6 +291,73 @@ void Pref::Widget::setComboIndex(QComboBox *combo, const QVariant &value) {
 
 QVariant Pref::Widget::currentComboData(QComboBox *combo) {
 	return combo->itemData(combo->currentIndex());
+}
+
+void Pref::Widget::fill() {
+	const Pref &p = Pref::get();
+
+	setComboIndex(d->ui.locale, p.locale);
+
+	setComboIndex(d->ui.autoAdd, p.auto_add_files.value());
+
+	setComboIndex(d->ui.subSelectExt, p.sub_ext);
+
+	d->ui.pauseMinimized->setChecked(p.pause_minimized);
+	d->ui.askWhenRecordFound->setChecked(p.ask_record_found);
+	d->ui.pauseVideoOnly->setChecked(p.pause_video_only);
+	d->ui.startStopped->setChecked(p.remember_stopped);
+	d->ui.hideCursor->setChecked(p.hide_cursor);
+	d->ui.hideDelay->setValue(p.hide_delay/1000);
+	d->ui.tray->setChecked(p.enable_system_tray);
+	d->ui.hideWhenClosed->setChecked(p.hide_rather_close);
+	d->ui.singleApp->setChecked(p.single_app);
+	d->ui.disableSS->setChecked(p.disable_screensaver);
+
+	d->ui.blur_c->setValue(p.blur_kern_c);
+	d->ui.blur_n->setValue(p.blur_kern_n);
+	d->ui.blur_d->setValue(p.blur_kern_d);
+	d->ui.sharpen_c->setValue(p.sharpen_kern_c);
+	d->ui.sharpen_n->setValue(p.sharpen_kern_n);
+	d->ui.sharpen_d->setValue(p.sharpen_kern_d);
+	d->ui.min_luma->setValue(p.adjust_contrast_min_luma);
+	d->ui.max_luma->setValue(p.adjust_contrast_max_luma);
+	d->ui.auto_contrast_th->setValue(p.auto_contrast_threshold);
+
+	setComboIndex(d->ui.winStyle, p.window_style);
+
+	d->dbl->setValues(p.double_click_map);
+	d->mdl->setValues(p.middle_click_map);
+	d->whl->setValues(p.wheel_scroll_map);
+
+	d->ui.seek1->setValue(p.seek_step1/1000);
+	d->ui.seek2->setValue(p.seek_step2/1000);
+	d->ui.seek3->setValue(p.seek_step3/1000);
+	d->ui.speed->setValue(p.speed_step);
+	d->ui.volume->setValue(p.volume_step);
+	d->ui.amp->setValue(p.amp_step);
+	d->ui.subPos->setValue(p.sub_pos_step);
+	d->ui.sync->setValue(p.sync_delay_step*0.001);
+
+	setComboIndex(d->ui.autoLoad, p.sub_autoload.value());
+	setComboIndex(d->ui.autoSelect, p.sub_autoselect.value());
+	d->ui.encoding->setEncoding(p.sub_enc);
+	d->ui.priority->setValues(p.sub_priority);
+	d->ui.subEncAutoDet->setChecked(p.sub_enc_autodetection);
+	d->ui.subConf->setValue(p.sub_enc_confidence);
+	d->ui.msPerChar->setValue(p.ms_per_char);
+
+	const QFont sf = p.sub_style.font;
+	d->ui.sub_font_family->setCurrentFont(sf);
+	d->ui.sub_font_option->set(sf.bold(), sf.italic(), sf.underline(), sf.strikeOut());
+	d->ui.sub_color_fg->setColor(p.sub_style.color_fg, false);
+	d->ui.sub_color_bg->setColor(p.sub_style.color_bg, true);
+	setComboIndex(d->ui.sub_auto_size, p.sub_style.auto_size);
+	d->ui.sub_size_scale->setValue(p.sub_style.text_scale*100.);
+	d->ui.sub_has_shadow->setChecked(p.sub_style.has_shadow);
+	d->ui.sub_shadow_color->setColor(p.sub_style.shadow_color, true);
+	d->ui.sub_shadow_offset_x->setValue(p.sub_style.shadow_offset.x());
+	d->ui.sub_shadow_offset_y->setValue(p.sub_style.shadow_offset.y());
+	d->ui.sub_shadow_blur->setValue(p.sub_style.shadow_blur);
 }
 
 void Pref::Widget::apply() {
@@ -442,11 +408,20 @@ void Pref::Widget::apply() {
 	p.sub_autoselect = (SubtitleAutoSelect)currentComboData(d->ui.autoSelect).toInt();
 	p.sub_enc = d->ui.encoding->encoding();
 
-	p.sub_style.font = d->ui.sub_font_label->font();
-	p.sub_style.color_fg = d->ui.sub_color_fg_label->palette().color(QPalette::Window);
-	p.sub_style.color_bg = d->ui.sub_color_bg_label->palette().color(QPalette::Window);
+	p.sub_style.font = d->ui.sub_font_family->currentFont();
+	p.sub_style.font.setBold(d->ui.sub_font_option->bold());
+	p.sub_style.font.setItalic(d->ui.sub_font_option->italic());
+	p.sub_style.font.setUnderline(d->ui.sub_font_option->underline());
+	p.sub_style.font.setStrikeOut(d->ui.sub_font_option->strikeOut());
+	p.sub_style.color_fg = d->ui.sub_color_fg->color();
+	p.sub_style.color_bg = d->ui.sub_color_bg->color();
 	p.sub_style.auto_size = (OsdStyle::AutoSize)currentComboData(d->ui.sub_auto_size).toInt();
 	p.sub_style.text_scale = d->ui.sub_size_scale->value()/100.0;
+	p.sub_style.has_shadow = d->ui.sub_has_shadow->isChecked();
+	p.sub_style.shadow_color = d->ui.sub_shadow_color->color();
+	p.sub_style.shadow_offset.rx() = d->ui.sub_shadow_offset_x->value();
+	p.sub_style.shadow_offset.ry() = d->ui.sub_shadow_offset_y->value();
+	p.sub_style.shadow_blur = d->ui.sub_shadow_blur->value();
 
 	p.sub_priority = d->ui.priority->values();
 	p.sub_enc_autodetection = d->ui.subEncAutoDet->isChecked();

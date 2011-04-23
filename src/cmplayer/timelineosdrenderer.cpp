@@ -10,7 +10,7 @@ struct TimeLineOsdRenderer::Data {
 	int time, duration;
 	QTimer clearer;
 	QSizeF size;
-	QSize bg;
+	QSizeF bg;
 };
 
 TimeLineOsdRenderer::TimeLineOsdRenderer(): d(new Data) {
@@ -36,7 +36,7 @@ const OsdStyle &TimeLineOsdRenderer::style() const {
 	return d->style;
 }
 
-void TimeLineOsdRenderer::setBackgroundSize(const QSize &bg) {
+void TimeLineOsdRenderer::updateBackgroundSize(const QSizeF &bg) {
 	if (d->bg == bg)
 		return;
 	d->bg = bg;

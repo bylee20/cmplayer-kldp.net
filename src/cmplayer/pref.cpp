@@ -64,9 +64,9 @@ void Pref::save() const {
 	SAVE_ENUM(sub_autoselect);
 
 	sub_style.save(&set, "sub_style");
-	saveMouse(set, "DoubleClickAction", double_click_map);
-	saveMouse(set, "MiddleClickAction", middle_click_map);
-	saveMouse(set, "WheelScrollAction", wheel_scroll_map);
+	saveMouse(set, "double_click_map", double_click_map);
+	saveMouse(set, "middle_click_map", middle_click_map);
+	saveMouse(set, "wheel_scroll_map", wheel_scroll_map);
 
 	set.endGroup();
 }
@@ -123,34 +123,38 @@ void Pref::load() {
 	LOAD_ENUM(sub_autoload, Contain);
 	LOAD_ENUM(sub_autoselect, SameName);
 
-	sub_style.alignment = Qt::AlignHCenter | Qt::AlignBottom;
+//	sub_style.alignment = Qt::AlignHCenter | Qt::AlignBottom;
 	sub_style.border_width = 0.045;
 	sub_style.text_scale = 0.035;
+	sub_style.has_shadow = true;
+	sub_style.shadow_color = Qt::black;
+	sub_style.shadow_offset = QPointF(0, 0);
+	sub_style.shadow_blur = 3;
 	sub_style.font.setBold(true);
-	sub_style.load(&set, "SubtitleStyle");
-	loadMouse(set, "DoubleClickAction", double_click_map
+	sub_style.load(&set, "sub_style");
+	loadMouse(set, "double_click_map", double_click_map
 			, Qt::NoModifier, ClickActionPair(true, ToggleFullScreen));
-	loadMouse(set, "DoubleClickAction", double_click_map
+	loadMouse(set, "double_click_map", double_click_map
 			, Qt::AltModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "DoubleClickAction", double_click_map
+	loadMouse(set, "double_click_map", double_click_map
 			, Qt::ControlModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "DoubleClickAction", double_click_map
+	loadMouse(set, "double_click_map", double_click_map
 			, Qt::ShiftModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "MiddleClickAction", middle_click_map
+	loadMouse(set, "middle_click_map", middle_click_map
 			, Qt::NoModifier, ClickActionPair(true, TogglePlayPause));
-	loadMouse(set, "MiddleClickAction", middle_click_map
+	loadMouse(set, "middle_click_map", middle_click_map
 			, Qt::AltModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "MiddleClickAction", middle_click_map
+	loadMouse(set, "middle_click_map", middle_click_map
 			, Qt::ControlModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "MiddleClickAction", middle_click_map
+	loadMouse(set, "middle_click_map", middle_click_map
 			, Qt::ShiftModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "WheelScrollAction", wheel_scroll_map
+	loadMouse(set, "wheel_scroll_map", wheel_scroll_map
 			, Qt::NoModifier, WheelActionPair(true, VolumeUpDown));
-	loadMouse(set, "WheelScrollAction", wheel_scroll_map
+	loadMouse(set, "wheel_scroll_map", wheel_scroll_map
 			, Qt::AltModifier, WheelActionPair(false, VolumeUpDown));
-	loadMouse(set, "WheelScrollAction", wheel_scroll_map
+	loadMouse(set, "wheel_scroll_map", wheel_scroll_map
 			, Qt::ControlModifier, WheelActionPair(true, AmpUpDown));
-	loadMouse(set, "WheelScrollAction", wheel_scroll_map
+	loadMouse(set, "wheel_scroll_map", wheel_scroll_map
 			, Qt::ShiftModifier, WheelActionPair(false, VolumeUpDown));
 	set.endGroup();
 }

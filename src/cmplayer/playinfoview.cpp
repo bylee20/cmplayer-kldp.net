@@ -6,14 +6,13 @@
 #include "textosdrenderer.hpp"
 #include "application.hpp"
 #include <QtCore/QTimer>
+#include <QtCore/QDebug>
 
 struct PlayInfoView::Data {
 	QTimer *timer;
 	VideoFormat vfmt;
 	const VideoRenderer *video;
 	QString vfps, cpu, mem;
-//	double vfps, cpu, mem;
-//	int rss;
 	TextOsdRenderer *osd;
 	bool visible;
 	QString vinput, voutput;

@@ -17,8 +17,8 @@ Overlay *Overlay::create(QGLWidget *video, Type type) {
 	switch (type) {
 	case FramebufferObject:
 		return new FramebufferObjectOverlay(video);
-	case PixelBuffer:
-		return new PixelBufferOverlay(video);
+//	case PixelBuffer:
+//		return new PixelBufferOverlay(video);
 	case Pixmap:
 		return new PixmapOverlay(video);
 	default:

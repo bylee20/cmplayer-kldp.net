@@ -28,7 +28,6 @@ public:
 
 	SubtitleRenderer();
 	~SubtitleRenderer();
-	void setOsd(TextOsdRenderer *osd);
 	TextOsdRenderer *osd() const;
 	double frameRate() const;
 	int delay() const;
@@ -45,12 +44,14 @@ public:
 	void select(const QList<int> &idx, bool selected = true);
 	const QList<Loaded> &loaded() const;
 	bool load(const QString &fileName, const QString &enc, bool select);
+	bool isTopAligned() const;
 public slots:
 	void clear();
 	void setFrameRate(double frameRate);
 	void render(int ms);
 	void setVisible(bool visible);
 	void setHidden(bool hidden) {setVisible(!hidden);}
+	void setTopAlignment(bool top);
 private:
 	QList<int> autoselection(const Mrl &mrl, const QList<SubtitleRenderer::Loaded> &loaded);
 	void applySelection();

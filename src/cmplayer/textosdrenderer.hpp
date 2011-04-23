@@ -14,19 +14,15 @@ public:
 	void render(QPainter *painter, const QPointF &pos);
 	QPointF posHint() const;
 	QSizeF size() const;
-	void setBackgroundSize(const QSize &size);
 	void setStyle(const OsdStyle &style);
+	void setAlignment(Qt::Alignment alignment);
 	const OsdStyle &style() const;
 	void renderDirectly(QPainter *painter, const QPointF &pos);
 public slots:
 	void clear();
 private:
-	QPointF getOrigin() const;
-	class SineCosine;
-	void updateSize();
-	QString bgHtml() const;
-	QString fgHtml() const;
-	void cache();
+	void updateBackgroundSize(const QSizeF &size);
+//	class SineCosine;
 	void updateFont();
 	struct Data;
 	Data *d;

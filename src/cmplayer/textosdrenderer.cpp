@@ -11,62 +11,365 @@
 #include <QtCore/QMutex>
 #include <QtGui/QImage>
 
-class TextOsdRenderer::SineCosine {
+class SineCosine {
 public:
-	SineCosine(int count = 12): m_count(count) {
-		m_sine = new double[m_count];
-		m_cosine = new double[m_count];
-		const double factor = M_PI*2.0/double(m_count);
-		for (int i=0; i<m_count; ++i) {
-			const double theta = double(i)*factor;
-			m_sine[i] = qSin(theta);
-			m_cosine[i] = qCos(theta);
+	static void init() {
+		static bool init = false;
+		if (!init) {
+			static double Sine[count];
+			static double Cosine[count];
+			const double factor = M_PI*2.0/double(count);
+			for (int i=0; i<count; ++i) {
+				const double theta = double(i)*factor;
+				Sine[i] = qSin(theta);
+				Cosine[i] = qCos(theta);
+			}
+			sine = Sine;
+			cosine = Cosine;
 		}
 	}
-	~SineCosine() {
-		delete [] m_sine;
-		delete [] m_cosine;
+	static const double *sine;
+	static const double *cosine;
+	static const int count = 12;
+};
+
+const double *SineCosine::sine = 0;
+const double *SineCosine::cosine = 0;
+
+struct TextDrawer {
+	enum Type {Pixmap, Image};
+	TextDrawer(Type type, const OsdStyle *style, QTextDocument *doc)
+	: m_type(type), m_style(style), m_doc(doc), m_border(-1) {}
+	QSizeF size() const {return m_size;}
+	void update(double border, double width, const RichString &text) {
+		if (!qFuzzyCompare(m_border, border)) {
+			m_border = border;
+			m_points.resize(SineCosine::count);
+			for (int i=0; i<SineCosine::count; ++i) {
+				m_points[i].setX(m_border*SineCosine::sine[i]);
+				m_points[i].setY(m_border*SineCosine::cosine[i]);
+			}
+		}
+		m_text = text;
+		m_doc->setHtml(text.toString());
+		double w = m_border*2.0;
+		double h = m_border*2.0;
+		if (m_style->has_shadow) {
+			const double ax = qAbs(m_style->shadow_offset.x());
+			w += ax + m_style->shadow_blur;
+			if (ax < m_style->shadow_blur)
+				w += m_style->shadow_blur - ax;
+			const double ay = qAbs(m_style->shadow_offset.y());
+			w += ay + m_style->shadow_blur;
+			if (ay < m_style->shadow_blur)
+				w += m_style->shadow_blur - ay;
+		}
+		m_doc->setTextWidth(width - w);
+		if (width > 0.0) {
+			m_size.setWidth(m_doc->idealWidth() + w);
+			m_size.setHeight(m_doc->size().height() + h);
+		} else
+			m_size = QSizeF();
+		postUpdate();
 	}
-	double cosine(int i) const {return m_cosine[i];}
-	double sine(int i) const {return m_sine[i];}
-	int count() const {return m_count;}
+	virtual ~TextDrawer() {}
+	virtual void draw(QPainter *painter, const QPointF &pos) = 0;
+	Type type() const {return m_type;}
+protected:
+	Type m_type;
+	virtual void postUpdate() {}
+	QVector<QPointF> m_points;
+	void drawTextTo(QPainter *painter, const QPointF &origin, const QColor &color, bool overwrite = true) {
+		painter->save();
+		painter->translate(origin);
+		m_doc->setHtml(coloredHtml(color, overwrite));
+		m_doc->drawContents(painter);
+		painter->restore();
+	}
+	void drawThickTo(QPaintDevice *dev, QPixmap &buffer
+			, const QPointF &origin, const QPointF &offset, const QColor &color) {
+		buffer.fill(Qt::transparent);
+		QPainter painter(&buffer);
+		drawTextTo(&painter, origin, color);
+		painter.end();
+		painter.begin(dev);
+		painter.translate(offset);
+		for (int i=0; i<m_points.size(); ++i)
+			painter.drawPixmap(m_points[i], buffer);
+	}
+	void drawThickTo(QPaintDevice *dev, QImage &buffer
+			, const QPointF &origin, const QPointF &offset, const QColor &color) {
+		buffer.fill(0x0);
+		QPainter painter(&buffer);
+		drawTextTo(&painter, origin, color);
+		painter.end();
+		painter.begin(dev);
+		painter.translate(offset);
+		for (int i=0; i<m_points.size(); ++i)
+			painter.drawImage(m_points[i], buffer);
+	}
+	QString coloredHtml(const QColor &color, bool overwrite) const {
+		QString html = QString("<font color='%1'>").arg(color.name());
+		if (overwrite) {
+			static const QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
+			html += QString(m_text.toString()).remove(rxColor);
+		} else
+			html += m_text.toString();
+		html += "</font>";
+		return html;
+	}
+	QPointF origin() const {
+		double x = 0.0;
+		const Qt::Alignment alignment = m_doc->defaultTextOption().alignment();
+		if (alignment & Qt::AlignLeft) {
+			x += m_border;
+			if (m_style->has_shadow) {
+				if (m_style->shadow_offset.x() < 0)
+					x += -m_style->shadow_offset.x() + m_style->shadow_blur;
+				else if (m_style->shadow_blur > m_style->shadow_offset.x())
+					x += m_style->shadow_blur - m_style->shadow_offset.x();
+			}
+		} else if (alignment & Qt::AlignRight) {
+			x -= m_border;
+			if (m_style->has_shadow) {
+				if (m_style->shadow_offset.x() > 0)
+					x -= m_style->shadow_offset.x() + m_style->shadow_blur;
+				else if (m_style->shadow_blur > -m_style->shadow_offset.x())
+					x -= m_style->shadow_blur - -m_style->shadow_offset.x();
+			}
+			x -= (m_doc->textWidth() - m_doc->idealWidth());
+		} else
+			x -= (m_doc->textWidth() - m_doc->idealWidth())*0.5;
+		double y = m_border;
+		if (m_style->has_shadow) {
+			if (m_style->shadow_offset.y() < 0)
+				y += -m_style->shadow_offset.y() + m_style->shadow_blur;
+			else if (m_style->shadow_blur > m_style->shadow_offset.y())
+				y += m_style->shadow_blur - m_style->shadow_offset.y();
+		}
+		return QPointF(x, y);
+	}
+	const OsdStyle *m_style;
+	QTextDocument *m_doc;
+	double m_border;
+	QSizeF m_size;
+	RichString m_text;
+};
+
+struct CachedTextDrawer : public TextDrawer {
+	CachedTextDrawer(Type type, const OsdStyle *style, QTextDocument *doc)
+	: TextDrawer(type, style, doc) {}
+	void draw(QPainter *painter, const QPointF &pos) {
+		painter->drawPixmap(pos, m_cached);
+	}
+protected:
+	virtual void cache() = 0;
+	QPixmap m_cached;
+	void postUpdate() {
+		const QSize size = OsdRenderer::cachedSize(m_size);
+		if (size != m_cached.size())
+			m_cached = QPixmap(size);
+		cache();
+	}
+};
+
+struct PixmapTextDrawer : public CachedTextDrawer { // no blur
+	PixmapTextDrawer(const OsdStyle *style, QTextDocument *doc)
+	: CachedTextDrawer(Pixmap, style, doc) {}
 private:
-	double *m_sine;
-	double *m_cosine;
-	const int m_count;
+	QPixmap m_interm1, m_interm2;
+	void drawThick(const QPointF &origin, const QPointF &offset, const QColor &color) {
+		m_interm1.fill(Qt::transparent);
+		drawThickTo(&m_interm1, m_interm2, origin, offset, color);
+		QPainter painter(&m_cached);
+		painter.setOpacity(color.alphaF());
+		painter.drawPixmap(QPointF(0, 0), m_interm1);
+	}
+	void cache() {
+		m_cached.fill(Qt::transparent);
+		if (m_cached.isNull() || m_size.isEmpty() || m_text.isEmpty())
+			return;
+		if (m_interm1.size() != m_cached.size())
+			m_interm2 = m_interm1 = QPixmap(m_cached.size());
+		const QPointF origin = this->origin();
+		if (m_style->has_shadow)
+			drawThick(origin, m_style->shadow_offset, m_style->shadow_color);
+		drawThick(origin, QPointF(0, 0), m_style->color_bg);
+		QPainter painter(&m_cached);
+		drawTextTo(&painter, origin, m_style->color_fg, false);
+	}
+};
+
+struct ImageTextDrawer : public CachedTextDrawer {
+	ImageTextDrawer(const OsdStyle *style, QTextDocument *doc)
+	: CachedTextDrawer(Image, style, doc) {}
+private:
+	class FastAlphaBlur {
+	public:
+		FastAlphaBlur(): radius(-1) {}
+		// copied from openframeworks superfast blur and modified
+		void applyTo(QImage &mask, const QColor &color, int radius) {
+			Q_ASSERT(mask.format() == QImage::Format_ARGB32_Premultiplied);
+			if (radius < 1 || mask.isNull())
+				return;
+			setSize(mask.size());
+			setRadius(radius);
+			const int w = s.width();
+			const int h = s.height();
+
+			uchar *a = valpha.data();
+			const uchar *inv = vinv.constData();
+			int *min = vmin.data();
+			int *max = vmax.data();
+
+			const int xmax = mask.width()-1;
+			for (int x=0; x<w; ++x) {
+				min[x] = qMin(x + radius + 1, xmax);
+				max[x] = qMax(x - radius, 0);
+			}
+
+			const uchar *c_bits = mask.constBits()+3;
+			uchar *it = a;
+			for (int y=0; y<h; ++y, c_bits += (mask.width() << 2)) {
+				int sum = 0;
+				for(int i=-radius; i<=radius; ++i)
+					sum += c_bits[qBound(0, i, xmax) << 2];
+				for (int x=0; x<w; ++x, ++it) {
+					sum += c_bits[min[x] << 2];
+					sum -= c_bits[max[x] << 2];
+					*it = inv[sum];
+				}
+			}
+
+			const int ymax = mask.height()-1;
+			for (int y=0; y<h; ++y){
+				min[y] = qMin(y + radius + 1, ymax)*w;
+				max[y] = qMax(y - radius, 0)*w;
+			}
+
+			uchar *bits = mask.bits();
+			const double r = color.redF();
+			const double g = color.greenF();
+			const double b = color.blueF();
+			const uchar *c_it = a;
+			for (int x=0; x<w; ++x, ++c_it){
+				int sum = 0;
+				int yp = -radius*w;
+				for(int i=-radius; i<=radius; ++i, yp += w)
+					sum += c_it[qMax(0, yp)];
+				uchar *p = bits + (x << 2) - 1;
+				for (int y=0; y<h; ++y, p += (xmax << 2)){
+					const uchar a = inv[sum];
+					*(++p) = a*b;
+					*(++p) = a*g;
+					*(++p) = a*r;
+					*(++p) = a;
+					sum += c_it[min[y]];
+					sum -= c_it[max[y]];
+				}
+			}
+		}
+
+	private:
+		void setSize(const QSize &size) {
+			if (size != s) {
+				s = size;
+				if (!s.isEmpty()) {
+					vmin.resize(qMax(s.width(), s.height()));
+					vmax.resize(vmin.size());
+					valpha.resize(s.width()*s.height());
+				}
+			}
+		}
+		void setRadius(const int radius) {
+			if (this->radius != radius) {
+				this->radius = radius;
+				if (radius > 0) {
+					const int range = (radius << 1) + 1;
+					vinv.resize(range << 8);
+					for (int i=0; i<vinv.size(); ++i)
+						vinv[i] = i/range;
+				}
+			}
+		}
+		QSize s;
+		QVector<int> vmin, vmax;
+		QVector<uchar> valpha, vinv;
+		int radius;
+	};
+	FastAlphaBlur blur;
+	QImage m_interm1, m_interm2;
+	void drawThick(const QPointF &origin, const QPointF &offset, const QColor &color) {
+		m_interm1.fill(Qt::transparent);
+		drawThickTo(&m_interm1, m_interm2, origin, offset, color);
+		QPainter painter(&m_cached);
+		painter.setOpacity(color.alphaF());
+		painter.drawImage(QPointF(0, 0), m_interm1);
+	}
+	void cache() {
+		m_cached.fill(Qt::transparent);
+		if (m_cached.isNull() || m_size.isEmpty() || m_text.isEmpty())
+			return;
+		if (m_interm1.size() != m_cached.size())
+			m_interm2 = m_interm1 = QImage(m_cached.size(), QImage::Format_ARGB32_Premultiplied);
+		const QPointF origin = this->origin();
+		m_interm1.fill(0x0);
+		drawThickTo(&m_interm1, m_interm2, origin, QPointF(0, 0), m_style->color_bg);
+		QPainter painter(&m_cached);
+		if (m_style->has_shadow) {
+			m_interm2 = m_interm1;
+			blur.applyTo(m_interm2, m_style->shadow_color, m_style->shadow_blur);
+			painter.setOpacity(m_style->shadow_color.alphaF());
+			painter.drawImage(m_style->shadow_offset, m_interm2);
+		}
+		painter.setOpacity(m_style->color_bg.alphaF());
+		painter.drawImage(QPointF(0, 0), m_interm1);
+		drawTextTo(&painter, origin, m_style->color_fg, false);
+	}
 };
 
 
 struct TextOsdRenderer::Data {
-	static SineCosine sc;
+	Qt::Alignment alignment;
 	OsdStyle style;
 	QTextDocument doc;
 	RichString text;
-	QVector<QPointF> points;
 	double bw, top, bottom, left, right;
 	QTimer clearer;
-	QSize bg;
-	QSizeF size;
-	QPixmap cached, interm;
+	QSizeF bg;
+	TextDrawer *drawer;
+	void update_drawer() {drawer->update(bw, bg.width() - left - right, text);}
 };
 
-TextOsdRenderer::SineCosine TextOsdRenderer::Data::sc;
-
 TextOsdRenderer::TextOsdRenderer(Qt::Alignment align): d(new Data) {
+	SineCosine::init();
+	QTextOption option = d->doc.defaultTextOption();
+	option.setUseDesignMetrics(true);
+	d->doc.setDefaultTextOption(option);
+	d->alignment = 0;
+	d->drawer = new PixmapTextDrawer(&d->style, &d->doc);
 	d->bw = 1.0;
 	d->top = d->bottom = d->left = d->right = 0.0;
-	d->points.resize(d->sc.count());
 	OsdStyle style = this->style();
-	style.alignment = align;
-	style.color_bg.setAlphaF(0.7);
 	style.auto_size = OsdStyle::FitToWidth;
 	setStyle(style);
+	setAlignment(align);
 	d->clearer.setSingleShot(true);
 	connect(&d->clearer, SIGNAL(timeout()), this, SLOT(clear()));
 }
 
 TextOsdRenderer::~TextOsdRenderer() {
+	delete d->drawer;
 	delete d;
+}
+
+void TextOsdRenderer::setAlignment(Qt::Alignment alignment) {
+	if (alignment != d->alignment) {
+		QTextOption option = d->doc.defaultTextOption();
+		option.setAlignment(d->alignment = alignment);
+		d->doc.setDefaultTextOption(option);
+		emit needToRerender();
+	}
 }
 
 const OsdStyle &TextOsdRenderer::style() const {
@@ -75,115 +378,33 @@ const OsdStyle &TextOsdRenderer::style() const {
 
 void TextOsdRenderer::setStyle(const OsdStyle &style) {
 	d->style = style;
-	const Qt::Alignment align = style.alignment;
-	QTextOption option(align);
-	option.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
-	option.setUseDesignMetrics(true);
+	QTextOption option = d->doc.defaultTextOption();
+	option.setWrapMode(style.wrap_mode);
 	d->doc.setDefaultTextOption(option);
 	updateFont();
-	updateSize();
-	cache();
-	emit sizeChanged(d->size);
+	if (d->style.has_shadow && d->style.shadow_blur > 0) {
+		if (d->drawer->type() != TextDrawer::Image) {
+			delete d->drawer;
+			d->drawer = new ImageTextDrawer(&d->style, &d->doc);
+		}
+	} else if (d->drawer->type() != TextDrawer::Pixmap) {
+		delete d->drawer;
+		d->drawer = new PixmapTextDrawer(&d->style, &d->doc);
+	}
+	d->update_drawer();
+	emit sizeChanged(d->drawer->size());
 	emit styleChanged(d->style);
 }
 
-QString TextOsdRenderer::bgHtml() const {
-	static const QRegExp rxColor("\\s+[cC][oO][lL][oO][rR]\\s*=\\s*[^>\\s\\t]+");
-	QString html = QString("<font color='%1'>").arg(style().color_bg.name());
-	html += QString(text().toString()).remove(rxColor);
-	html += "</font>";
-	return html;
-}
-
-QString TextOsdRenderer::fgHtml() const {
-	QString html = QString("<font color='%1'>").arg(style().color_fg.name());
-	html += text().toString();
-	html += "</font>";
-	return html;
-}
-
-QPointF TextOsdRenderer::getOrigin() const {
-	const Qt::Alignment align = style().alignment;
-	double x = 0.0;
-	if (align & Qt::AlignHCenter)
-		x = -(d->doc.textWidth() - d->doc.idealWidth())*0.5;
-	else if (align & Qt::AlignRight)
-		x = -(d->doc.textWidth() - d->doc.idealWidth());
-	return QPointF(x, 0);
-}
-
-void TextOsdRenderer::cache() {
-	const QSize size = cachedSize(this->size());
-	if (size != d->cached.size()) {
-		d->cached = QPixmap(size);
-		d->interm = QPixmap(size);
-	}
-	d->cached.fill(Qt::transparent);
-	d->interm.fill(Qt::transparent);
-	if (d->cached.isNull() || d->bg.isEmpty() || d->text.isEmpty())
-		return;
-#define CMPLAYER_USE_INTERM_PIXMAP
-#ifdef CMPLAYER_USE_INTERM_PIXMAP
-	const QPointF origin = getOrigin();
-	QPainter painter(&d->interm);
-	d->doc.setHtml(bgHtml());
-	painter.setOpacity(d->style.color_bg.alphaF());
-	painter.translate(origin);
-	d->doc.drawContents(&painter);
-	painter.end();
-
-	painter.begin(&d->cached);
-	for (int i=0; i<d->points.size(); ++i) {
-		painter.drawPixmap(d->points[i], d->interm);
-	}
-	painter.end();
-
-	d->interm.fill(Qt::transparent);
-	painter.begin(&d->interm);
-	d->doc.setHtml(fgHtml());
-	painter.setOpacity(d->style.color_fg.alphaF());
-	painter.translate(origin);
-	d->doc.drawContents(&painter);
-	painter.end();
-
-	painter.begin(&d->cached);
-	painter.drawPixmap(QPointF(d->bw, d->bw), d->interm);
-	painter.end();
-#else
-	QPainter painter(&d->cached);
-	renderDirectly(&painter, QPointF(0.0, 0.0));
-#endif
-}
-
-void TextOsdRenderer::renderDirectly(QPainter *painter, const QPointF &pos) {
-	painter->save();
-	const QPointF origin = getOrigin() + pos;
-	painter->setOpacity(style().color_bg.alphaF());
-	d->doc.setHtml(bgHtml());
-	for (int i=0; i<d->points.size(); ++i) {
-		painter->save();
-		painter->translate(origin + d->points[i]);
-		d->doc.drawContents(painter);
-		painter->restore();
-	}
-
-	painter->setOpacity(style().color_fg.alphaF());
-	d->doc.setHtml(fgHtml());
-	painter->translate(origin + QPointF(d->bw, d->bw));
-	d->doc.drawContents(painter);
-	painter->restore();
-}
-
 void TextOsdRenderer::render(QPainter *painter, const QPointF &pos) {
-	painter->drawPixmap(pos, d->cached);
+	d->drawer->draw(painter, pos);
 }
 
 void TextOsdRenderer::showText(const RichString &text, int last) {
 	d->clearer.stop();
 	d->text = text;
-	updateSize();
-	cache();
-	emit sizeChanged(size());
+	d->update_drawer();
+	emit sizeChanged(d->drawer->size());
 	if (last >= 0)
 		d->clearer.start(last);
 }
@@ -194,33 +415,28 @@ RichString TextOsdRenderer::text() const {
 
 QPointF TextOsdRenderer::posHint() const {
 	const QSizeF s = size();
-	Qt::Alignment align = style().alignment;
 	double x = 0.0;
 	double y = 0.0;
-	if (align & Qt::AlignBottom)
-		y = d->bg.height()*(1.0 - d->bottom) - s.height();
-	else if (align & Qt::AlignVCenter)
-		y += (d->bg.height() - s.height())*0.5;
-	else
-		y += d->bg.height()*d->top;
-	if (align & Qt::AlignHCenter)
-		x += (d->bg.width() - s.width())*0.5;
-	else if (align & Qt::AlignRight)
+	if (d->alignment & Qt::AlignBottom) {
+		y = qMax(0.0, d->bg.height()*(1.0 - d->bottom) - s.height());
+	} else if (d->alignment & Qt::AlignVCenter)
+		y = (d->bg.height() - s.height())*0.5;
+	else {
+		y = d->bg.height()*d->top;
+		if (y + s.height() > d->bg.height())
+			y = d->bg.height() - s.height();
+	}
+	if (d->alignment & Qt::AlignHCenter)
+		x = (d->bg.width() - s.width())*0.5;
+	else if (d->alignment & Qt::AlignRight)
 		x = d->bg.width()*(1.0 - d->right) - s.width();
 	else
-		x += d->bg.width()*d->left;
+		x = d->bg.width()*d->left;
 	return QPointF(x, y);
 }
 
-void TextOsdRenderer::updateSize() {
-	d->doc.setHtml(d->text.toString());
-	d->doc.setTextWidth(d->bg.width() - 2.0*d->bw - d->left - d->right);
-	d->size.setWidth(d->doc.idealWidth() + 2.0*d->bw);
-	d->size.setHeight(d->doc.size().height() + 2.0*d->bw);
-}
-
 QSizeF TextOsdRenderer::size() const {
-	return d->size;
+	return d->drawer->size();
 }
 
 void TextOsdRenderer::updateFont() {
@@ -234,23 +450,18 @@ void TextOsdRenderer::updateFont() {
 		px = qRound(d->bg.height()*style().text_scale);
 	px = qMax(1, px);
 	d->bw = qMax(style().border_width*px, 1.0);
-	for (int i=0; i<d->sc.count(); ++i) {
-		d->points[i].setX(d->bw*(1 + d->sc.sine(i)));
-		d->points[i].setY(d->bw*(1 + d->sc.cosine(i)));
-	}
 	QFont font = style().font;
 	font.setPixelSize(px);
 	d->doc.setDefaultFont(font);
 }
 
-void TextOsdRenderer::setBackgroundSize(const QSize &bg) {
-	if (d->bg == bg)
-		return;
-	d->bg = bg;
-	updateFont();
-	updateSize();
-	cache();
-	emit sizeChanged(d->size);
+void TextOsdRenderer::updateBackgroundSize(const QSizeF &size) {
+	if (d->bg != size) {
+		d->bg = size;
+		updateFont();
+		d->update_drawer();
+		emit sizeChanged(d->drawer->size());
+	}
 }
 
 void TextOsdRenderer::clear() {
@@ -260,9 +471,11 @@ void TextOsdRenderer::clear() {
 void TextOsdRenderer::setMargin(double top, double bottom, double right, double left) {
 	d->top = top;
 	d->bottom = bottom;
-	d->right = right;
-	d->left = left;
-	updateSize();
-	cache();
-	emit sizeChanged(d->size);
+	if (d->right != right || d->left != left) {
+		d->right = right;
+		d->left = left;
+		d->update_drawer();
+		emit sizeChanged(d->drawer->size());
+	} else
+		emit needToRerender();
 }
