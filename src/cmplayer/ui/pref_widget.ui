@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>594</width>
-    <height>598</height>
+    <width>556</width>
+    <height>317</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -556,7 +556,7 @@
           <attribute name="title">
            <string>Display</string>
           </attribute>
-          <layout class="QHBoxLayout" name="horizontalLayout_17">
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
            <item>
             <layout class="QFormLayout" name="formLayout_3">
              <property name="fieldGrowthPolicy">
@@ -578,7 +578,7 @@
              <item row="2" column="0">
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>Text Color:</string>
+                <string>Color:</string>
                </property>
               </widget>
              </item>
@@ -609,54 +609,51 @@
              <item row="3" column="0">
               <widget class="QLabel" name="label_21">
                <property name="text">
-                <string>Auto Size:</string>
+                <string>Size:</string>
                </property>
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QComboBox" name="sub_auto_size">
-               <property name="sizeAdjustPolicy">
-                <enum>QComboBox::AdjustToContents</enum>
-               </property>
-              </widget>
+              <layout class="QHBoxLayout" name="horizontalLayout_17">
+               <item>
+                <widget class="QComboBox" name="sub_auto_size">
+                 <property name="sizeAdjustPolicy">
+                  <enum>QComboBox::AdjustToContents</enum>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QDoubleSpinBox" name="sub_size_scale">
+                 <property name="accelerated">
+                  <bool>true</bool>
+                 </property>
+                 <property name="suffix">
+                  <string notr="true">%</string>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <double>99.000000000000000</double>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.500000000000000</double>
+                 </property>
+                 <property name="value">
+                  <double>10.000000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
              <item row="4" column="0">
-              <widget class="QLabel" name="label_22">
-               <property name="text">
-                <string>Size Scale:</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QDoubleSpinBox" name="sub_size_scale">
-               <property name="accelerated">
-                <bool>true</bool>
-               </property>
-               <property name="suffix">
-                <string notr="true">%</string>
-               </property>
-               <property name="decimals">
-                <number>1</number>
-               </property>
-               <property name="maximum">
-                <double>99.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.500000000000000</double>
-               </property>
-               <property name="value">
-                <double>10.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
               <widget class="QLabel" name="label_6">
                <property name="text">
                 <string>Shadow:</string>
                </property>
               </widget>
              </item>
-             <item row="6" column="1">
+             <item row="5" column="1">
               <layout class="QHBoxLayout" name="horizontalLayout_10">
                <item>
                 <widget class="QLabel" name="label_8">
@@ -718,28 +715,7 @@
                </item>
               </layout>
              </item>
-             <item row="7" column="1">
-              <layout class="QHBoxLayout" name="horizontalLayout_7">
-               <item>
-                <widget class="QLabel" name="label_24">
-                 <property name="text">
-                  <string>Blur</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QSpinBox" name="sub_shadow_blur">
-                 <property name="specialValueText">
-                  <string>Off</string>
-                 </property>
-                 <property name="suffix">
-                  <string notr="true">px</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item row="8" column="0" colspan="2">
+             <item row="6" column="0" colspan="2">
               <widget class="Line" name="line_10">
                <property name="frameShadow">
                 <enum>QFrame::Plain</enum>
@@ -749,14 +725,14 @@
                </property>
               </widget>
              </item>
-             <item row="10" column="0">
+             <item row="8" column="0">
               <widget class="QLabel" name="aLabel_6">
                <property name="text">
                 <string>Display Time:</string>
                </property>
               </widget>
              </item>
-             <item row="10" column="1">
+             <item row="8" column="1">
               <widget class="QSpinBox" name="msPerChar">
                <property name="toolTip">
                 <string>Next value will be used to calculate the end time of a subtitle line when it is not specified by subtitle file.</string>
@@ -784,7 +760,7 @@
                </property>
               </widget>
              </item>
-             <item row="5" column="1">
+             <item row="4" column="1">
               <layout class="QHBoxLayout" name="horizontalLayout_16">
                <item>
                 <widget class="QCheckBox" name="sub_has_shadow">
@@ -803,6 +779,23 @@
                    <width>10</width>
                    <height>10</height>
                   </size>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_24">
+                 <property name="text">
+                  <string>Blur</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSpinBox" name="sub_shadow_blur">
+                 <property name="specialValueText">
+                  <string>Off</string>
+                 </property>
+                 <property name="suffix">
+                  <string notr="true">px</string>
                  </property>
                 </widget>
                </item>

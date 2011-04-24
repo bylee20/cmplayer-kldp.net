@@ -4,12 +4,15 @@
 
 cflags_vlc_plugins := -I. -std=gnu99 -lvlc -lvlccore -shared -pthread
 ifeq ($(shell uname -m),x86_64)
-	cflags_vlc_plugins = $(cflags_vlc_plugins) -fPIC	
+	cflags_vlc_plugins = ${cflags_vlc_plugins} -fPIC	
 endif
 
 plugins: libcmplayer-vout_plugin libcmplayer-afilter_plugin
 
 libcmplayer-vout_plugin:
+	gcc $(cflags_vlc_plugins) $@.c -o $@.so
+
+libcmplayer-vfilter_plugin:
 	gcc $(cflags_vlc_plugins) $@.c -o $@.so
 
 libcmplayer-afilter_plugin:
