@@ -703,7 +703,7 @@ void MainWindow::handleTray(QSystemTrayIcon::ActivationReason reason) {
 
 void MainWindow::closeEvent(QCloseEvent *event) {
 #ifndef Q_WS_MAC
-	if (d->pref.enableSystemTray && d->pref.hideClosed) {
+	if (d->pref.enable_system_tray && d->pref.hide_rather_close) {
 		hide();
 		AppState as;
 		if (as[AppState::TrayFirst].toBool()) {
