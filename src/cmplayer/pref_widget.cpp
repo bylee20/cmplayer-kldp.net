@@ -350,7 +350,7 @@ void Pref::Widget::fill() {
 	d->ui.sub_font_family->setCurrentFont(sf);
 	d->ui.sub_font_option->set(sf.bold(), sf.italic(), sf.underline(), sf.strikeOut());
 	d->ui.sub_color_fg->setColor(p.sub_style.color_fg, false);
-	d->ui.sub_color_bg->setColor(p.sub_style.color_bg, true);
+	d->ui.sub_color_bg->setColor(p.sub_style.color_bg, false);
 	setComboIndex(d->ui.sub_auto_size, p.sub_style.auto_size);
 	d->ui.sub_size_scale->setValue(p.sub_style.text_scale*100.);
 	d->ui.sub_has_shadow->setChecked(p.sub_style.has_shadow);

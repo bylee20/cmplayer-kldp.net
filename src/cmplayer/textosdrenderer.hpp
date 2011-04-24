@@ -16,6 +16,7 @@ public:
 	QSizeF size() const;
 	void setStyle(const OsdStyle &style);
 	void setAlignment(Qt::Alignment alignment);
+	Qt::Alignment alignment() const;
 	const OsdStyle &style() const;
 	void renderDirectly(QPainter *painter, const QPointF &pos);
 public slots:

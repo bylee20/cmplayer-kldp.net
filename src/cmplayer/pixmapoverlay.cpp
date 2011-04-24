@@ -8,6 +8,7 @@
 
 struct PixmapOverlay::Data {
 	QRect bg;
+	QRectF video;
 	QMap<OsdRenderer*, QPixmap> caches;
 	bool pending;
 };
@@ -34,9 +35,10 @@ qint64 PixmapOverlay::addOsd(OsdRenderer *osd) {
 }
 
 void PixmapOverlay::setArea(const QRect &bg, const QRectF &video) {
-	if (d->bg == bg)
+	if (d->bg == bg && d->video == video)
 		return;
 	d->bg = bg;
+	d->video = video;
 	QMap<OsdRenderer*, QPixmap>::iterator it = d->caches.begin();
 	for (; it != d->caches.end(); ++it)
 		it.key()->setBackgroundSize(d->bg.size(), video.size());
@@ -62,9 +64,8 @@ void PixmapOverlay::render(QPainter *painter) {
 	QMap<OsdRenderer*, QPixmap>::const_iterator it = d->caches.begin();
 	for (; it != d->caches.end(); ++it) {
 		if (!it->isNull()) {
-			QPointF pos = d->bg.topLeft() + it.key()->posHint();
-			if (pos.y() < d->bg.top())
-				pos.setY(d->bg.top());
+			const OsdRenderer *osd = it.key();
+			const QPointF pos = osd->posHint() + (osd->letterboxHint() ? d->bg : d->video).topLeft();
 			painter->drawPixmap(pos, *it);
 		}
 	}

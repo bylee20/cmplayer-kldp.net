@@ -2,6 +2,7 @@
 #include "tagiterator.hpp"
 #include "global.hpp"
 #include <QtCore/QDebug>
+#include <list>
 
 //class Block {
 //public:
@@ -256,6 +257,7 @@ void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 		QString klass = tag.value("class").toString();
 		QString text, plain;
 		int brIdx = -1;
+		std::list<QStringRef> pair;
 		for (;;) {
 			int a = tag.pos();
 			const bool br = tag.elementIs("br");
@@ -269,6 +271,17 @@ void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 			} else {
 				brIdx = -1;
 				appendTo(text, tag);
+				if (tag.elementIs("p") || tag.elementIs("sync") || tag.elementIs("span") || tag.elementIs("font"))
+					pair.push_back(tag.element());
+				else if (!tag.element().isEmpty() && tag.element().at(0) == '/') {
+					std::list<QStringRef>::reverse_iterator it;
+					for (it=pair.rbegin(); it != pair.rend(); ++it) {
+						if (it->compare(RichString::midRef(tag.element(), 1), Qt::CaseInsensitive) == 0) {
+							pair.erase(--it.base());
+							break;
+						}
+					}
+				}
 			}
 			const int idx = tag.next();
 			const int count = idx < 0 ? -1 : idx - a;
@@ -302,6 +315,12 @@ void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 		plain.chop(chop);
 		if (brIdx != -1)
 			text.chop(text.size() - brIdx);
+		std::list<QStringRef>::const_reverse_iterator rit = pair.rbegin();
+		for (; rit!=pair.rend(); ++rit) {
+			text += QLatin1String("</");
+			text += *rit;
+			text += QLatin1Char('>');
+		}
 
 		Node node;
 		node.text = RichString(text, plain);

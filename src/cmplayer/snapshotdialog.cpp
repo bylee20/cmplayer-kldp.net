@@ -98,6 +98,7 @@ void SnapshotDialog::take() {
 	d->text = d->subtitle->osd()->text();
 	d->frame = d->video->frameImage();
 	d->osd->setStyle(d->subtitle->osd()->style());
+	d->osd->setAlignment(d->subtitle->osd()->alignment());
 	const double aspect = d->video->targetAspectRatio();
 	QSizeF size(aspect, 1.0);
 	size.scale(d->frame.size(), Qt::KeepAspectRatioByExpanding);

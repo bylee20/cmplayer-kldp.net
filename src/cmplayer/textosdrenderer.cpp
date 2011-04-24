@@ -159,11 +159,18 @@ protected:
 struct CachedTextDrawer : public TextDrawer {
 	CachedTextDrawer(Type type, const OsdStyle *style, QTextDocument *doc)
 	: TextDrawer(type, style, doc) {}
+protected:
+//	virtual void cache() = 0;
+
+};
+
+struct PixmapTextDrawer : public CachedTextDrawer { // no blur
+	PixmapTextDrawer(const OsdStyle *style, QTextDocument *doc)
+	: CachedTextDrawer(Pixmap, style, doc) {}
 	void draw(QPainter *painter, const QPointF &pos) {
 		painter->drawPixmap(pos, m_cached);
 	}
-protected:
-	virtual void cache() = 0;
+private:
 	QPixmap m_cached;
 	void postUpdate() {
 		const QSize size = OsdRenderer::cachedSize(m_size);
@@ -171,12 +178,6 @@ protected:
 			m_cached = QPixmap(size);
 		cache();
 	}
-};
-
-struct PixmapTextDrawer : public CachedTextDrawer { // no blur
-	PixmapTextDrawer(const OsdStyle *style, QTextDocument *doc)
-	: CachedTextDrawer(Pixmap, style, doc) {}
-private:
 	QPixmap m_interm1, m_interm2;
 	void drawThick(const QPointF &origin, const QPointF &offset, const QColor &color) {
 		m_interm1.fill(Qt::transparent);
@@ -203,6 +204,9 @@ private:
 struct ImageTextDrawer : public CachedTextDrawer {
 	ImageTextDrawer(const OsdStyle *style, QTextDocument *doc)
 	: CachedTextDrawer(Image, style, doc) {}
+	void draw(QPainter *painter, const QPointF &pos) {
+		painter->drawImage(pos, m_cached);
+	}
 private:
 	class FastAlphaBlur {
 	public:
@@ -251,6 +255,7 @@ private:
 			const double r = color.redF();
 			const double g = color.greenF();
 			const double b = color.blueF();
+			const double coef = color.alphaF();
 			const uchar *c_it = a;
 			for (int x=0; x<w; ++x, ++c_it){
 				int sum = 0;
@@ -260,10 +265,10 @@ private:
 				uchar *p = bits + (x << 2) - 1;
 				for (int y=0; y<h; ++y, p += (xmax << 2)){
 					const uchar a = inv[sum];
-					*(++p) = a*b;
-					*(++p) = a*g;
-					*(++p) = a*r;
-					*(++p) = a;
+					*(++p) = a*b*coef;
+					*(++p) = a*g*coef;
+					*(++p) = a*r*coef;
+					*(++p) = a*coef;
 					sum += c_it[min[y]];
 					sum -= c_it[max[y]];
 				}
@@ -298,32 +303,28 @@ private:
 		int radius;
 	};
 	FastAlphaBlur blur;
-	QImage m_interm1, m_interm2;
-	void drawThick(const QPointF &origin, const QPointF &offset, const QColor &color) {
-		m_interm1.fill(Qt::transparent);
-		drawThickTo(&m_interm1, m_interm2, origin, offset, color);
-		QPainter painter(&m_cached);
-		painter.setOpacity(color.alphaF());
-		painter.drawImage(QPointF(0, 0), m_interm1);
+	QImage m_interm;
+	QImage m_cached;
+	void postUpdate() {
+		const QSize size = OsdRenderer::cachedSize(m_size);
+		if (size != m_cached.size()) {
+			m_cached = QImage(size, QImage::Format_ARGB32_Premultiplied);
+			m_interm = QImage(size, QImage::Format_ARGB32_Premultiplied);
+		}
+		cache();
 	}
 	void cache() {
-		m_cached.fill(Qt::transparent);
+		m_cached.fill(0x0);
 		if (m_cached.isNull() || m_size.isEmpty() || m_text.isEmpty())
 			return;
-		if (m_interm1.size() != m_cached.size())
-			m_interm2 = m_interm1 = QImage(m_cached.size(), QImage::Format_ARGB32_Premultiplied);
 		const QPointF origin = this->origin();
-		m_interm1.fill(0x0);
-		drawThickTo(&m_interm1, m_interm2, origin, QPointF(0, 0), m_style->color_bg);
+		drawThickTo(&m_cached, m_interm, origin, QPointF(0, 0), m_style->color_bg);
 		QPainter painter(&m_cached);
 		if (m_style->has_shadow) {
-			m_interm2 = m_interm1;
-			blur.applyTo(m_interm2, m_style->shadow_color, m_style->shadow_blur);
-			painter.setOpacity(m_style->shadow_color.alphaF());
-			painter.drawImage(m_style->shadow_offset, m_interm2);
+			m_interm = m_cached;
+			blur.applyTo(m_cached, m_style->shadow_color, m_style->shadow_blur);
+			painter.drawImage(m_style->shadow_offset, m_interm);
 		}
-		painter.setOpacity(m_style->color_bg.alphaF());
-		painter.drawImage(QPointF(0, 0), m_interm1);
 		drawTextTo(&painter, origin, m_style->color_fg, false);
 	}
 };
@@ -343,9 +344,7 @@ struct TextOsdRenderer::Data {
 
 TextOsdRenderer::TextOsdRenderer(Qt::Alignment align): d(new Data) {
 	SineCosine::init();
-	QTextOption option = d->doc.defaultTextOption();
-	option.setUseDesignMetrics(true);
-	d->doc.setDefaultTextOption(option);
+	d->doc.setUseDesignMetrics(true);
 	d->alignment = 0;
 	d->drawer = new PixmapTextDrawer(&d->style, &d->doc);
 	d->bw = 1.0;
@@ -361,6 +360,10 @@ TextOsdRenderer::TextOsdRenderer(Qt::Alignment align): d(new Data) {
 TextOsdRenderer::~TextOsdRenderer() {
 	delete d->drawer;
 	delete d;
+}
+
+Qt::Alignment TextOsdRenderer::alignment() const {
+	return d->alignment;
 }
 
 void TextOsdRenderer::setAlignment(Qt::Alignment alignment) {
