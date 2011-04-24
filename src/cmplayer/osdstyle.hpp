@@ -9,7 +9,7 @@ class QSettings;
 
 class OsdStyle {
 public:
-	class Widget;
+//	class Widget;
 	enum AutoSize {FitToWidth, FitToHeight, FitToDiagonal};
 	OsdStyle();
 	void save(QSettings *set, const QString &group) const;
@@ -25,24 +25,24 @@ public:
 	int shadow_blur;
 };
 
-class QLabel;
+//class QLabel;
 
-class OsdStyle::Widget : public QWidget {
-	Q_OBJECT
-public:
-	Widget(QWidget *parent = 0);
-	~Widget();
-	void setStyle(const OsdStyle &style);
-	const OsdStyle &style() const;
-private slots:
-	void updateFont(const QFont &font);
-	static void setColor(QLabel *label, const QColor &color);
-	void slotFont();
-	void slotColor();
-private:
-	struct Data;
-	Data *d;
+//class OsdStyle::Widget : public QWidget {
+//	Q_OBJECT
+//public:
+//	Widget(QWidget *parent = 0);
+//	~Widget();
+//	void setStyle(const OsdStyle &style);
+//	const OsdStyle &style() const;
+//private slots:
+//	void updateFont(const QFont &font);
+//	static void setColor(QLabel *label, const QColor &color);
+//	void slotFont();
+//	void slotColor();
+//private:
+//	struct Data;
+//	Data *d;
 
-};
+//};
 
 #endif // OSDSTYLE_HPP
