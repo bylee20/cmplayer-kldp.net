@@ -513,7 +513,7 @@
                   <bool>true</bool>
                  </property>
                  <property name="suffix">
-                  <string>%</string>
+                  <string notr="true">%</string>
                  </property>
                  <property name="minimum">
                   <number>1</number>
@@ -732,9 +732,6 @@
                </property>
                <property name="suffix">
                 <string>msec/character</string>
-               </property>
-               <property name="prefix">
-                <string/>
                </property>
                <property name="minimum">
                 <number>1</number>
@@ -1193,7 +1190,7 @@ e.g.: English, Korean</string>
              <item row="6" column="0">
               <widget class="QLabel" name="label_18">
                <property name="text">
-                <string>Volum Step:</string>
+                <string>Volume Step:</string>
                </property>
                <property name="alignment">
                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

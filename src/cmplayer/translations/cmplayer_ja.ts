@@ -1390,12 +1390,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../menu.cpp" line="426"/>
         <source>Adjust Constrast</source>
-        <translation>明暗調整</translation>
+        <translation>コントラスト調整</translation>
     </message>
     <message>
         <location filename="../menu.cpp" line="427"/>
         <source>Auto Contrast</source>
-        <translation>自動明暗</translation>
+        <translation>自動コントラスト</translation>
     </message>
     <message>
         <location filename="../menu.cpp" line="439"/>
@@ -1635,24 +1635,20 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>OsdStyle::Widget</name>
     <message>
-        <location filename="../osdstyle.cpp" line="73"/>
         <source>Fit to Diagonal</source>
-        <translation>対角に合わせる</translation>
+        <translation type="obsolete">対角に合わせる</translation>
     </message>
     <message>
-        <location filename="../osdstyle.cpp" line="74"/>
         <source>Fit to Height</source>
-        <translation>縦の長さに合わせる</translation>
+        <translation type="obsolete">縦の長さに合わせる</translation>
     </message>
     <message>
-        <location filename="../osdstyle.cpp" line="75"/>
         <source>Fit to Width</source>
-        <translation>横の長さに合わせる</translation>
+        <translation type="obsolete">横の長さに合わせる</translation>
     </message>
     <message>
-        <location filename="../osdstyle.cpp" line="107"/>
         <source>Select Font</source>
-        <translation>フォントを選択</translation>
+        <translation type="obsolete">フォントを選択</translation>
     </message>
 </context>
 <context>
@@ -3187,26 +3183,26 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../ui/pref_widget.ui" line="109"/>
         <source>Generate Playlist:</source>
-        <translation type="unfinished"></translation>
+        <translation>プレイリスト生成:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="128"/>
         <source>Hide cursor when it doesn&apos;t move during </source>
-        <translation type="unfinished"></translation>
+        <translation>次の時間以上カーソルが動かないと、カーソルを隠す</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="141"/>
-        <location filename="../ui/pref_widget.ui" line="1094"/>
-        <location filename="../ui/pref_widget.ui" line="1120"/>
-        <location filename="../ui/pref_widget.ui" line="1285"/>
-        <location filename="../ui/pref_widget.ui" line="1368"/>
+        <location filename="../ui/pref_widget.ui" line="1091"/>
+        <location filename="../ui/pref_widget.ui" line="1117"/>
+        <location filename="../ui/pref_widget.ui" line="1282"/>
+        <location filename="../ui/pref_widget.ui" line="1365"/>
         <source>sec</source>
-        <translation type="unfinished">秒</translation>
+        <translation>秒</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="156"/>
         <source>Disable screensaver while playing</source>
-        <translation type="unfinished">再生中にはスクリーンセーバーを動作させない</translation>
+        <translation>再生中にはスクリーンセーバーを動作させない</translation>
     </message>
     <message>
         <source>Add next files to playlist when a file is open</source>
@@ -3215,85 +3211,85 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../ui/pref_widget.ui" line="182"/>
         <source>Video</source>
-        <translation type="unfinished">ビデオ</translation>
+        <translation>ビデオ</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="193"/>
         <source>Blur Kernel:</source>
-        <translation type="unfinished"></translation>
+        <translation>ブラーカーネル:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="246"/>
         <source>Sharpen Kernel:</source>
-        <translation type="unfinished"></translation>
+        <translation>シャープンカーネル:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="299"/>
         <source>Adjust Contrast:</source>
-        <translation type="unfinished"></translation>
+        <translation>コントラスト調整:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="347"/>
         <source>Auto Contrast:</source>
-        <translation type="unfinished"></translation>
+        <translation>自動コントラスト:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="202"/>
         <location filename="../ui/pref_widget.ui" line="255"/>
         <source>Center</source>
-        <translation type="unfinished"></translation>
+        <translation>中央</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="82"/>
         <source>Remember and start from stopped time when replay</source>
-        <translation type="unfinished"></translation>
+        <translation>中断された時間を記憶し、次回はそこから再生する</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="172"/>
         <source>Add next files to playlist when opening a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルを開くとき、次のファイルをプレイリストに追加します。</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="216"/>
         <location filename="../ui/pref_widget.ui" line="269"/>
         <source>Neighbor</source>
-        <translation type="unfinished"></translation>
+        <translation>隣接</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="230"/>
         <location filename="../ui/pref_widget.ui" line="283"/>
         <source>Diagonal</source>
-        <translation type="unfinished"></translation>
+        <translation>対角</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="308"/>
         <source>Min. Luma</source>
-        <translation type="unfinished"></translation>
+        <translation>最小値</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="325"/>
         <source>Max. Luma</source>
-        <translation type="unfinished"></translation>
+        <translation>最大値</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="356"/>
         <source>Threshold for auto contrast</source>
-        <translation type="unfinished"></translation>
+        <translation>自動明暗のしきい値</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="388"/>
         <source>Subtitle</source>
-        <translation type="unfinished">字幕</translation>
+        <translation>字幕</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="402"/>
         <source>Load</source>
-        <translation type="unfinished">ロード</translation>
+        <translation>読み込み</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="413"/>
         <source>Auto-load:</source>
-        <translation type="unfinished"></translation>
+        <translation>自動読み込み:</translation>
     </message>
     <message>
         <source>Load next subtitles when a file to play is open</source>
@@ -3302,17 +3298,17 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../ui/pref_widget.ui" line="430"/>
         <source>Auto-select:</source>
-        <translation type="unfinished"></translation>
+        <translation>自動選択:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="450"/>
         <source>Extension:</source>
-        <translation type="unfinished"></translation>
+        <translation>拡張子:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="474"/>
         <source>Encoding:</source>
-        <translation type="unfinished"></translation>
+        <translation>エンコーディング:</translation>
     </message>
     <message>
         <source>Open subtitle file with next encoding</source>
@@ -3321,50 +3317,49 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../ui/pref_widget.ui" line="503"/>
         <source>Enable when the accuracy is over</source>
-        <translation type="unfinished"></translation>
+        <translation>正確度が次の値以上のとき適用</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="516"/>
-        <location filename="../ui/pref_widget.ui" line="1153"/>
-        <location filename="../ui/pref_widget.ui" line="1173"/>
-        <location filename="../ui/pref_widget.ui" line="1206"/>
-        <location filename="../ui/pref_widget.ui" line="1232"/>
-        <location filename="../ui/pref_widget.ui" line="1265"/>
-        <location filename="../ui/pref_widget.ui" line="1315"/>
-        <location filename="../ui/pref_widget.ui" line="1328"/>
-        <location filename="../ui/pref_widget.ui" line="1348"/>
+        <location filename="../ui/pref_widget.ui" line="1150"/>
+        <location filename="../ui/pref_widget.ui" line="1170"/>
+        <location filename="../ui/pref_widget.ui" line="1203"/>
+        <location filename="../ui/pref_widget.ui" line="1229"/>
+        <location filename="../ui/pref_widget.ui" line="1262"/>
+        <location filename="../ui/pref_widget.ui" line="1312"/>
+        <location filename="../ui/pref_widget.ui" line="1325"/>
+        <location filename="../ui/pref_widget.ui" line="1345"/>
         <source>%</source>
-        <translation type="unfinished">%</translation>
+        <translation>%</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="494"/>
         <source>Auto-dectection:</source>
-        <translation type="unfinished"></translation>
+        <translation>自動探知:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="420"/>
         <source>Load next subtitles when starting to play a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイルの再生を始めるとき、次の字幕を読み込みます。</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="437"/>
         <source>Select next subtitles in automatically loaded subtitles.</source>
-        <translation type="unfinished"></translation>
+        <translation>自動に読み込まれた字幕の中で次の字幕を選択します。</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="481"/>
         <source>Open subtitle file with selected encoding.</source>
-        <translation type="unfinished"></translation>
+        <translation>選択されたエンコーディングで字幕ファイを開きます。</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="547"/>
         <source>Display</source>
-        <translation type="unfinished">表示</translation>
+        <translation>表示</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="558"/>
         <source>Font:</source>
-        <translation type="unfinished">フォント:</translation>
+        <translation>フォント:</translation>
     </message>
     <message>
         <source>Change</source>
@@ -3373,7 +3368,7 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../ui/pref_widget.ui" line="721"/>
         <source>Display Time:</source>
-        <translation type="unfinished"></translation>
+        <translation>表示時間:</translation>
     </message>
     <message>
         <source>Next value will be used to calculate the end time of a subtitle line when it is not specified by subtitle file.</source>
@@ -3382,66 +3377,71 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../ui/pref_widget.ui" line="734"/>
         <source>msec/character</source>
-        <translation type="unfinished"></translation>
+        <translation>ミリ秒/文字</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="800"/>
+        <location filename="../ui/pref_widget.ui" line="797"/>
         <source>Unified/Multi-Subtitle</source>
-        <translation type="unfinished">統合・多重字幕</translation>
+        <translation>統合・マルチ字幕</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="806"/>
+        <location filename="../ui/pref_widget.ui" line="803"/>
         <source>You can specify the order of unified(mulit) subtitles with the &apos;Name&apos; property in subtitle file.
 If not specified, They will be displayed in selected order.
 e.g.: English, Korean</source>
-        <translation type="unfinished">字幕ファイルで指定された&apos;Name&apos;属性で統合(多重)字幕の表示順序を指定できます。
+        <translation>字幕ファイルで指定された&apos;Name&apos;属性で統合(多重)字幕の表示順序を指定できます。
 指定されない場合、選択された順番で表示されます。
 例: English, Japanese</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="839"/>
+        <location filename="../ui/pref_widget.ui" line="836"/>
         <source>UI</source>
-        <translation type="unfinished">UI</translation>
+        <translation>UI</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="853"/>
+        <location filename="../ui/pref_widget.ui" line="850"/>
         <source>Application</source>
-        <translation type="unfinished">アプリケーション</translation>
+        <translation>アプリケーション</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="864"/>
+        <location filename="../ui/pref_widget.ui" line="861"/>
         <source>Run only single CMPlayer application at the same time</source>
-        <translation type="unfinished">CMPlayerアプリケーションを同時に1つだけ実行させる</translation>
+        <translation>CMPlayerアプリケーションを同時に1つだけ実行させる</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="881"/>
+        <location filename="../ui/pref_widget.ui" line="878"/>
         <source>Locale:</source>
-        <translation type="unfinished"></translation>
+        <translation>ロケール:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="898"/>
+        <location filename="../ui/pref_widget.ui" line="895"/>
         <source>Window Style:</source>
-        <translation type="unfinished"></translation>
+        <translation>ウィンドウスタイル:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="908"/>
+        <location filename="../ui/pref_widget.ui" line="905"/>
         <source>System Tray:</source>
-        <translation type="unfinished"></translation>
+        <translation>システムトレイ:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1087"/>
+        <location filename="../ui/pref_widget.ui" line="1084"/>
         <source>Seek Step 1:</source>
-        <translation type="unfinished">シークステップ1 {1:?}</translation>
+        <translation>1段階探索:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1341"/>
+        <location filename="../ui/pref_widget.ui" line="1193"/>
+        <source>Volume Step:</source>
+        <translation>音量ステップ:</translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_widget.ui" line="1338"/>
         <source>Subtitle Position Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕の位置ステップ:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1361"/>
+        <location filename="../ui/pref_widget.ui" line="1358"/>
         <source>Subtitle Sync Delay Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕シンク遅延ステップ:</translation>
     </message>
     <message>
         <source>Locale</source>
@@ -3454,161 +3454,160 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../ui/pref_widget.ui" line="571"/>
         <source>Color:</source>
-        <translation type="unfinished"></translation>
+        <translation>色:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="580"/>
         <source>Foreground</source>
-        <translation type="unfinished"></translation>
+        <translation>前景色</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="590"/>
         <source>Background</source>
-        <translation type="unfinished"></translation>
+        <translation>背景色</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="602"/>
         <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>サイズ:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="642"/>
         <source>Shadow:</source>
-        <translation type="unfinished"></translation>
+        <translation>影:</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="651"/>
         <source>X-Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>X-オフセット</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="680"/>
         <source>Y-Offset</source>
-        <translation type="unfinished"></translation>
+        <translation>Y-オフセット</translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="728"/>
         <source>When display time is not specifid in subtitle, caculate interval wih this value.</source>
-        <translation type="unfinished"></translation>
+        <translation>字幕ファイルに字幕の終り時間が指定されていないとき、次の値を以って表示時間を計算します。</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="778"/>
+        <location filename="../ui/pref_widget.ui" line="775"/>
         <source>Blur</source>
-        <translation type="unfinished">ブラー</translation>
+        <translation>ブラー</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="785"/>
+        <location filename="../ui/pref_widget.ui" line="782"/>
         <source>Off</source>
-        <translation type="unfinished">オフ</translation>
+        <translation>オフ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="915"/>
+        <location filename="../ui/pref_widget.ui" line="912"/>
         <source>Enable system tray icon</source>
-        <translation type="unfinished">システムトレイアイコンを表示する</translation>
+        <translation>システムトレイアイコンを表示する</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="935"/>
+        <location filename="../ui/pref_widget.ui" line="932"/>
         <source>Hide window rather than quit when closed </source>
-        <translation type="unfinished">ウィンドウが閉じられたとき、終了せずにウィンドウを隠す</translation>
+        <translation>ウィンドウを閉じたとき、終了せずにウィンドウを隠す</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="942"/>
+        <location filename="../ui/pref_widget.ui" line="939"/>
         <source>(Linux Only)</source>
-        <translation type="unfinished"></translation>
+        <translation>(リナックス専用)</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="952"/>
+        <location filename="../ui/pref_widget.ui" line="949"/>
         <source>Shortcut</source>
-        <translation type="unfinished">ショートカット</translation>
+        <translation>ショートカット</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="962"/>
+        <location filename="../ui/pref_widget.ui" line="959"/>
         <source>Menu</source>
-        <translation type="unfinished">メニュー</translation>
+        <translation>メニュー</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="967"/>
-        <location filename="../ui/pref_widget.ui" line="1011"/>
+        <location filename="../ui/pref_widget.ui" line="964"/>
+        <location filename="../ui/pref_widget.ui" line="1008"/>
         <source>Shortcut1</source>
-        <translation type="unfinished">ショートカット1</translation>
+        <translation>ショートカット1</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="972"/>
-        <location filename="../ui/pref_widget.ui" line="1024"/>
+        <location filename="../ui/pref_widget.ui" line="969"/>
+        <location filename="../ui/pref_widget.ui" line="1021"/>
         <source>Shortcut2</source>
-        <translation type="unfinished">ショートカット2</translation>
+        <translation>ショートカット2</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="977"/>
-        <location filename="../ui/pref_widget.ui" line="1037"/>
+        <location filename="../ui/pref_widget.ui" line="974"/>
+        <location filename="../ui/pref_widget.ui" line="1034"/>
         <source>Shortcut3</source>
-        <translation type="unfinished">ショートカット3</translation>
+        <translation>ショートカット3</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="982"/>
-        <location filename="../ui/pref_widget.ui" line="1050"/>
+        <location filename="../ui/pref_widget.ui" line="979"/>
+        <location filename="../ui/pref_widget.ui" line="1047"/>
         <source>Shortcut4</source>
-        <translation type="unfinished">ショートカット4</translation>
+        <translation>ショートカット4</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="998"/>
+        <location filename="../ui/pref_widget.ui" line="995"/>
         <source>Change:</source>
-        <translation type="unfinished">変更:</translation>
+        <translation>変更:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1060"/>
+        <location filename="../ui/pref_widget.ui" line="1057"/>
         <source>Mouse</source>
-        <translation type="unfinished">マウス</translation>
+        <translation>マウス</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1070"/>
+        <location filename="../ui/pref_widget.ui" line="1067"/>
         <source>Control Step</source>
-        <translation type="unfinished">操作ステップ</translation>
+        <translation>操作ステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1110"/>
+        <location filename="../ui/pref_widget.ui" line="1107"/>
         <source>Seek Step 2:</source>
-        <translation type="unfinished">シークステップ1 {2:?}</translation>
+        <translation>2段階探索:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1146"/>
+        <location filename="../ui/pref_widget.ui" line="1143"/>
         <source>Brightness Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>明度ステップ:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1166"/>
+        <location filename="../ui/pref_widget.ui" line="1163"/>
         <source>Contrast Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>コントラストステップ:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1196"/>
         <source>Volum Step:</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">音量ステップ</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1222"/>
+        <location filename="../ui/pref_widget.ui" line="1219"/>
         <source>Amp. Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>アンプステップ:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1258"/>
+        <location filename="../ui/pref_widget.ui" line="1255"/>
         <source>Speed Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>速度ステップ:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1278"/>
+        <location filename="../ui/pref_widget.ui" line="1275"/>
         <source>Seek Step 3:</source>
-        <translation type="unfinished">シークステップ1 {3:?}</translation>
+        <translation>3段階探索:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1301"/>
+        <location filename="../ui/pref_widget.ui" line="1298"/>
         <source>Saturation Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>彩度ステップ:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1308"/>
+        <location filename="../ui/pref_widget.ui" line="1305"/>
         <source>Hue Step:</source>
-        <translation type="unfinished"></translation>
+        <translation>色相ステップ:</translation>
     </message>
     <message>
         <source>Auto Pausing</source>
@@ -3732,7 +3731,7 @@ e.g.: English, Korean</source>
     <message>
         <location filename="../qtcolorpicker.cpp" line="788"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translation>カスタム</translation>
     </message>
 </context>
 <context>
@@ -3742,108 +3741,108 @@ e.g.: English, Korean</source>
         <location filename="../qtcolorpicker.cpp" line="299"/>
         <location filename="../qtcolorpicker.cpp" line="402"/>
         <source>Black</source>
-        <translation type="unfinished"></translation>
+        <translation>ブラック</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="300"/>
         <location filename="../qtcolorpicker.cpp" line="403"/>
         <source>White</source>
-        <translation type="unfinished"></translation>
+        <translation>ホワイト</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="301"/>
         <location filename="../qtcolorpicker.cpp" line="404"/>
         <source>Red</source>
-        <translation type="unfinished"></translation>
+        <translation>レッド</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="302"/>
         <location filename="../qtcolorpicker.cpp" line="405"/>
         <source>Dark red</source>
-        <translation type="unfinished"></translation>
+        <translation>ダークレッド</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="303"/>
         <location filename="../qtcolorpicker.cpp" line="406"/>
         <source>Green</source>
-        <translation type="unfinished"></translation>
+        <translation>グリーン</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="304"/>
         <location filename="../qtcolorpicker.cpp" line="407"/>
         <source>Dark green</source>
-        <translation type="unfinished"></translation>
+        <translation>ダークグリーン</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="305"/>
         <location filename="../qtcolorpicker.cpp" line="408"/>
         <source>Blue</source>
-        <translation type="unfinished"></translation>
+        <translation>ブルー</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="306"/>
         <location filename="../qtcolorpicker.cpp" line="409"/>
         <source>Dark blue</source>
-        <translation type="unfinished"></translation>
+        <translation>ダークブルー</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="307"/>
         <location filename="../qtcolorpicker.cpp" line="410"/>
         <source>Cyan</source>
-        <translation type="unfinished"></translation>
+        <translation>シアン</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="308"/>
         <location filename="../qtcolorpicker.cpp" line="411"/>
         <source>Dark cyan</source>
-        <translation type="unfinished"></translation>
+        <translation>ダークシアン</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="309"/>
         <location filename="../qtcolorpicker.cpp" line="412"/>
         <source>Magenta</source>
-        <translation type="unfinished"></translation>
+        <translation>マゼンタ</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="310"/>
         <location filename="../qtcolorpicker.cpp" line="413"/>
         <source>Dark magenta</source>
-        <translation type="unfinished"></translation>
+        <translation>ダークマゼンタ</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="311"/>
         <location filename="../qtcolorpicker.cpp" line="414"/>
         <source>Yellow</source>
-        <translation type="unfinished"></translation>
+        <translation>イェロー</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="312"/>
         <location filename="../qtcolorpicker.cpp" line="415"/>
         <source>Dark yellow</source>
-        <translation type="unfinished"></translation>
+        <translation>ダークイェロー</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="313"/>
         <location filename="../qtcolorpicker.cpp" line="416"/>
         <source>Gray</source>
-        <translation type="unfinished"></translation>
+        <translation>グレー</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="314"/>
         <location filename="../qtcolorpicker.cpp" line="417"/>
         <source>Dark gray</source>
-        <translation type="unfinished"></translation>
+        <translation>ダークグレー</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="315"/>
         <location filename="../qtcolorpicker.cpp" line="418"/>
         <source>Light gray</source>
-        <translation type="unfinished"></translation>
+        <translation>ライトグレー</translation>
     </message>
     <message>
         <location filename="../qtcolorpicker.cpp" line="333"/>
         <source>Custom</source>
-        <translation type="unfinished"></translation>
+        <translation>カスタム</translation>
     </message>
 </context>
 <context>

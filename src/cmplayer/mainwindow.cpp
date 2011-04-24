@@ -744,7 +744,7 @@ void MainWindow::setTempoScaled(bool scaled) {
 void MainWindow::setColorProperty(QAction *action) {
 	const QList<QVariant> data = action->data().toList();
 	const ColorProperty::Value prop = ColorProperty::Value(data[0].toInt());
-	if (prop == -1) {
+	if ((int)prop == -1) {
 		d->video->setColorProperty(ColorProperty());
 		showMessage("Reset brightness, contrast, saturation and hue");
 	} else {

@@ -1633,24 +1633,20 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>OsdStyle::Widget</name>
     <message>
-        <location filename="../osdstyle.cpp" line="73"/>
         <source>Fit to Diagonal</source>
-        <translation>대각선 길이에 맞추기</translation>
+        <translation type="obsolete">대각선 길이에 맞추기</translation>
     </message>
     <message>
-        <location filename="../osdstyle.cpp" line="74"/>
         <source>Fit to Height</source>
-        <translation>세로 길이에 맞추기</translation>
+        <translation type="obsolete">세로 길이에 맞추기</translation>
     </message>
     <message>
-        <location filename="../osdstyle.cpp" line="75"/>
         <source>Fit to Width</source>
-        <translation>가로 길이에 맞추기</translation>
+        <translation type="obsolete">가로 길이에 맞추기</translation>
     </message>
     <message>
-        <location filename="../osdstyle.cpp" line="107"/>
         <source>Select Font</source>
-        <translation>글꼴 선택</translation>
+        <translation type="obsolete">글꼴 선택</translation>
     </message>
 </context>
 <context>
@@ -3254,10 +3250,10 @@ e.g.: English, Korean</source>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="141"/>
-        <location filename="../ui/pref_widget.ui" line="1094"/>
-        <location filename="../ui/pref_widget.ui" line="1120"/>
-        <location filename="../ui/pref_widget.ui" line="1285"/>
-        <location filename="../ui/pref_widget.ui" line="1368"/>
+        <location filename="../ui/pref_widget.ui" line="1091"/>
+        <location filename="../ui/pref_widget.ui" line="1117"/>
+        <location filename="../ui/pref_widget.ui" line="1282"/>
+        <location filename="../ui/pref_widget.ui" line="1365"/>
         <source>sec</source>
         <translation>초</translation>
     </message>
@@ -3396,15 +3392,14 @@ e.g.: English, Korean</source>
         <translation>정확도가 다음수치 이상일 때 적용</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="516"/>
-        <location filename="../ui/pref_widget.ui" line="1153"/>
-        <location filename="../ui/pref_widget.ui" line="1173"/>
-        <location filename="../ui/pref_widget.ui" line="1206"/>
-        <location filename="../ui/pref_widget.ui" line="1232"/>
-        <location filename="../ui/pref_widget.ui" line="1265"/>
-        <location filename="../ui/pref_widget.ui" line="1315"/>
-        <location filename="../ui/pref_widget.ui" line="1328"/>
-        <location filename="../ui/pref_widget.ui" line="1348"/>
+        <location filename="../ui/pref_widget.ui" line="1150"/>
+        <location filename="../ui/pref_widget.ui" line="1170"/>
+        <location filename="../ui/pref_widget.ui" line="1203"/>
+        <location filename="../ui/pref_widget.ui" line="1229"/>
+        <location filename="../ui/pref_widget.ui" line="1262"/>
+        <location filename="../ui/pref_widget.ui" line="1312"/>
+        <location filename="../ui/pref_widget.ui" line="1325"/>
+        <location filename="../ui/pref_widget.ui" line="1345"/>
         <source>%</source>
         <translation>%</translation>
     </message>
@@ -3503,12 +3498,12 @@ e.g.: English, Korean</source>
         <translation>자막내에 표시시간이 지정되어있지 않은 경우, 이 값을 이용하여 간격을 계산합니다.</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="778"/>
+        <location filename="../ui/pref_widget.ui" line="775"/>
         <source>Blur</source>
         <translation>부드럽게</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="785"/>
+        <location filename="../ui/pref_widget.ui" line="782"/>
         <source>Off</source>
         <translation>끄기</translation>
     </message>
@@ -3537,12 +3532,12 @@ e.g.: English, Korean</source>
         <translation>밀리초/글자</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="800"/>
+        <location filename="../ui/pref_widget.ui" line="797"/>
         <source>Unified/Multi-Subtitle</source>
         <translation>통합/다중 자막</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="806"/>
+        <location filename="../ui/pref_widget.ui" line="803"/>
         <source>You can specify the order of unified(mulit) subtitles with the &apos;Name&apos; property in subtitle file.
 If not specified, They will be displayed in selected order.
 e.g.: English, Korean</source>
@@ -3551,47 +3546,52 @@ e.g.: English, Korean</source>
 예: English, 영어, Korean, 한국어</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="839"/>
+        <location filename="../ui/pref_widget.ui" line="836"/>
         <source>UI</source>
         <translation>UI</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="853"/>
+        <location filename="../ui/pref_widget.ui" line="850"/>
         <source>Application</source>
         <translation>어플리케이션</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="864"/>
+        <location filename="../ui/pref_widget.ui" line="861"/>
         <source>Run only single CMPlayer application at the same time</source>
         <translation>동시에 하나의 CMPlayer 어플리케이션만 실행</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="881"/>
+        <location filename="../ui/pref_widget.ui" line="878"/>
         <source>Locale:</source>
         <translation>로케일:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="898"/>
+        <location filename="../ui/pref_widget.ui" line="895"/>
         <source>Window Style:</source>
         <translation>창 스타일:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="908"/>
+        <location filename="../ui/pref_widget.ui" line="905"/>
         <source>System Tray:</source>
         <translation>시스템 트레이:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1087"/>
+        <location filename="../ui/pref_widget.ui" line="1084"/>
         <source>Seek Step 1:</source>
         <translation>1단계 탐색:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1341"/>
+        <location filename="../ui/pref_widget.ui" line="1193"/>
+        <source>Volume Step:</source>
+        <translation>볼륨 단계:</translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_widget.ui" line="1338"/>
         <source>Subtitle Position Step:</source>
         <translation>자막 위치 단계:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1361"/>
+        <location filename="../ui/pref_widget.ui" line="1358"/>
         <source>Subtitle Sync Delay Step:</source>
         <translation>자막 싱크 지연 단계:</translation>
     </message>
@@ -3608,66 +3608,66 @@ e.g.: English, Korean</source>
         <translation type="obsolete">시스템 트레이</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="915"/>
+        <location filename="../ui/pref_widget.ui" line="912"/>
         <source>Enable system tray icon</source>
         <translation>시스템 트레이 아이콘 활성화</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="935"/>
+        <location filename="../ui/pref_widget.ui" line="932"/>
         <source>Hide window rather than quit when closed </source>
         <translation>창이 닫힐때 종료하는 대신 창을 숨기기</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="942"/>
+        <location filename="../ui/pref_widget.ui" line="939"/>
         <source>(Linux Only)</source>
         <translation>(리눅스 전용)</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="952"/>
+        <location filename="../ui/pref_widget.ui" line="949"/>
         <source>Shortcut</source>
         <translation>단축키</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="962"/>
+        <location filename="../ui/pref_widget.ui" line="959"/>
         <source>Menu</source>
         <translation>메뉴</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="967"/>
-        <location filename="../ui/pref_widget.ui" line="1011"/>
+        <location filename="../ui/pref_widget.ui" line="964"/>
+        <location filename="../ui/pref_widget.ui" line="1008"/>
         <source>Shortcut1</source>
         <translation>단축키1</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="972"/>
-        <location filename="../ui/pref_widget.ui" line="1024"/>
+        <location filename="../ui/pref_widget.ui" line="969"/>
+        <location filename="../ui/pref_widget.ui" line="1021"/>
         <source>Shortcut2</source>
         <translation>단축키2</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="977"/>
-        <location filename="../ui/pref_widget.ui" line="1037"/>
+        <location filename="../ui/pref_widget.ui" line="974"/>
+        <location filename="../ui/pref_widget.ui" line="1034"/>
         <source>Shortcut3</source>
         <translation>단축키3</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="982"/>
-        <location filename="../ui/pref_widget.ui" line="1050"/>
+        <location filename="../ui/pref_widget.ui" line="979"/>
+        <location filename="../ui/pref_widget.ui" line="1047"/>
         <source>Shortcut4</source>
         <translation>단축키4</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="998"/>
+        <location filename="../ui/pref_widget.ui" line="995"/>
         <source>Change:</source>
         <translation>변경:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1060"/>
+        <location filename="../ui/pref_widget.ui" line="1057"/>
         <source>Mouse</source>
         <translation>마우스</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1070"/>
+        <location filename="../ui/pref_widget.ui" line="1067"/>
         <source>Control Step</source>
         <translation>조작 단계</translation>
     </message>
@@ -3676,47 +3676,46 @@ e.g.: English, Korean</source>
         <translation type="obsolete">1단계 탐색:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1110"/>
+        <location filename="../ui/pref_widget.ui" line="1107"/>
         <source>Seek Step 2:</source>
         <translation>2단계 탐색:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1146"/>
+        <location filename="../ui/pref_widget.ui" line="1143"/>
         <source>Brightness Step:</source>
         <translation>밝기 단계:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1166"/>
+        <location filename="../ui/pref_widget.ui" line="1163"/>
         <source>Contrast Step:</source>
         <translation>대비 단계:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1196"/>
         <source>Volum Step:</source>
-        <translation>볼륨 단계:</translation>
+        <translation type="obsolete">볼륨 단계:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1222"/>
+        <location filename="../ui/pref_widget.ui" line="1219"/>
         <source>Amp. Step:</source>
         <translation>앰프 단계:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1258"/>
+        <location filename="../ui/pref_widget.ui" line="1255"/>
         <source>Speed Step:</source>
         <translation>속도 단계:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1278"/>
+        <location filename="../ui/pref_widget.ui" line="1275"/>
         <source>Seek Step 3:</source>
         <translation>3단계 탐색:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1301"/>
+        <location filename="../ui/pref_widget.ui" line="1298"/>
         <source>Saturation Step:</source>
         <translation>채도 단계:</translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1308"/>
+        <location filename="../ui/pref_widget.ui" line="1305"/>
         <source>Hue Step:</source>
         <translation>색조 단계:</translation>
     </message>
