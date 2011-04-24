@@ -194,7 +194,7 @@ Pref::Widget::Widget(QWidget *parent)
 	for (int i=0; i<locale.size(); ++i)
 		d->ui.locale->addItem(toString(locale[i]), locale[i]);
 
-	d->ui.autoAdd->addItem(tr("All files in the same path"), AllFiles);
+	d->ui.autoAdd->addItem(tr("All files in the same folder"), AllFiles);
 	d->ui.autoAdd->addItem(tr("Files have similar name"), SimilarFiles);
 	d->ui.autoAdd->addItem(tr("Do not add any other files"), DoNotAddFiles);
 
@@ -222,21 +222,21 @@ Pref::Widget::Widget(QWidget *parent)
 	d->dbl->addItems(items);
 	d->mdl->addItems(items);
 	items.clear();
-	items << ItemPair(tr("Seek 1 Step"), Seek1)
-			<< ItemPair(tr("Seek 2 Step"), Seek2)
-			<< ItemPair(tr("Seek 3 Step"), Seek3)
+	items << ItemPair(tr("Seek Step 1"), Seek1)
+			<< ItemPair(tr("Seek Step 2"), Seek2)
+			<< ItemPair(tr("Seek Step 3"), Seek3)
 			<< ItemPair(tr("Play Next/Previous"), NextPrevious)
 			<< ItemPair(tr("Volum Up/Down"), VolumeUpDown)
 			<< ItemPair(tr("Amp. Up/Down"), AmpUpDown);
 	d->whl->addItems(items);
 
-	d->ui.autoLoad->addItem(tr("Subtitle whose name is matched the playing file name"), Matched);
-	d->ui.autoLoad->addItem(tr("Subtitles whose names contain the playing file name"), Contain);
-	d->ui.autoLoad->addItem(tr("Subtitles located in the path of the playing file"), SamePath);
+	d->ui.autoLoad->addItem(tr("Subtitle which has the same name as that of playing file"), Matched);
+	d->ui.autoLoad->addItem(tr("Subtitles whose names contain the name of playing file"), Contain);
+	d->ui.autoLoad->addItem(tr("Subtitles in the folder where the playing file is located"), SamePath);
 	d->ui.autoLoad->addItem(tr("Do not load any subtitles automatically"), NoAutoLoad);
 
 	d->ui.autoSelect->addItem(tr("First subtitle of loaded ones"), FirstFile);
-	d->ui.autoSelect->addItem(tr("Subtitle which has the same name as the playing file"), SameName);
+	d->ui.autoSelect->addItem(tr("Subtitle which has the same name as that of playing file"), SameName);
 	d->ui.autoSelect->addItem(tr("All loaded subtitles"), AllLoaded);
 	d->ui.autoSelect->addItem(tr("Each language subtitle"), EachLanguage);
 

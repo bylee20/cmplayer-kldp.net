@@ -184,7 +184,6 @@ TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts
 FORMS += \
-    ui/osdstyle_widget.ui \
     ui/aboutdialog.ui \
     ui/opendvddialog.ui \
     ui/snapshotdialog.ui \

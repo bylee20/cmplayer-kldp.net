@@ -51,7 +51,7 @@ Pref::Dialog::Dialog(QWidget *parent)
 	list->setIconSize(QSize(48, 48));
 	list->setViewMode(QListView::IconMode);
 	list->setMovement(QListView::Static);
-	list->setFixedWidth(85);
+	list->setFixedWidth(90);
 	list->setGridSize(QSize(80, 80));
 //	font.setPixelSize(40);
 	for (int i=0; i<d->widget->pageCount(); ++i) {
@@ -79,6 +79,7 @@ void Pref::Dialog::showEvent(QShowEvent *event) {
 	QDialog::showEvent(event);
 #endif
 	d->widget->fill();
+	setWindowTitle(QLatin1String("CMPlayer - ") + tr("Preferences"));
 }
 
 void Pref::Dialog::setCurrentPage(QAction *action) {

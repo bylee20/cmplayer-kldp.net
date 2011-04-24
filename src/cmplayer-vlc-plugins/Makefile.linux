@@ -7,7 +7,7 @@ ifeq ($(shell uname -m),x86_64)
 	cflags_vlc_plugins := $(cflags_vlc_plugins) -fPIC	
 endif
 
-plugins: libcmplayer-vout_plugin libcmplayer-afilter_plugin
+plugins: libcmplayer-vout_plugin libcmplayer-vfilter_plugin libcmplayer-afilter_plugin
 
 libcmplayer-vout_plugin:
 	gcc $(cflags_vlc_plugins) $@.c -o $@.so

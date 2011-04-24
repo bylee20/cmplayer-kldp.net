@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'pref_widget.ui'
 **
-** Created: Sun Apr 24 18:55:04 2011
+** Created: Sun Apr 24 23:49:52 2011
 **      by: Qt User Interface Compiler version 4.7.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -98,7 +98,6 @@ public:
     QFormLayout *formLayout_2;
     QLabel *aLabel_2;
     QComboBox *autoLoad;
-    QFrame *line_9;
     QLabel *aLabel_3;
     QComboBox *autoSelect;
     QLabel *subExtLabel;
@@ -106,11 +105,11 @@ public:
     QFrame *line_11;
     QLabel *aLabel_4;
     EncodingComboBox *encoding;
+    QLabel *label_4;
     QHBoxLayout *horizontalLayout_8;
     QCheckBox *subEncAutoDet;
     QSpinBox *subConf;
     QSpacerItem *horizontalSpacer_11;
-    QLabel *label_4;
     QWidget *widget_2;
     QHBoxLayout *horizontalLayout_7;
     QFormLayout *formLayout_3;
@@ -509,55 +508,52 @@ public:
 
         formLayout_2->setWidget(0, QFormLayout::FieldRole, autoLoad);
 
-        line_9 = new QFrame(widget_3);
-        line_9->setObjectName(QString::fromUtf8("line_9"));
-        line_9->setFrameShadow(QFrame::Plain);
-        line_9->setLineWidth(1);
-        line_9->setFrameShape(QFrame::HLine);
-
-        formLayout_2->setWidget(1, QFormLayout::SpanningRole, line_9);
-
         aLabel_3 = new QLabel(widget_3);
         aLabel_3->setObjectName(QString::fromUtf8("aLabel_3"));
 
-        formLayout_2->setWidget(2, QFormLayout::LabelRole, aLabel_3);
+        formLayout_2->setWidget(1, QFormLayout::LabelRole, aLabel_3);
 
         autoSelect = new QComboBox(widget_3);
         autoSelect->setObjectName(QString::fromUtf8("autoSelect"));
         autoSelect->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-        formLayout_2->setWidget(2, QFormLayout::FieldRole, autoSelect);
+        formLayout_2->setWidget(1, QFormLayout::FieldRole, autoSelect);
 
         subExtLabel = new QLabel(widget_3);
         subExtLabel->setObjectName(QString::fromUtf8("subExtLabel"));
         subExtLabel->setEnabled(false);
 
-        formLayout_2->setWidget(3, QFormLayout::LabelRole, subExtLabel);
+        formLayout_2->setWidget(2, QFormLayout::LabelRole, subExtLabel);
 
         subSelectExt = new QComboBox(widget_3);
         subSelectExt->setObjectName(QString::fromUtf8("subSelectExt"));
         subSelectExt->setEnabled(false);
 
-        formLayout_2->setWidget(3, QFormLayout::FieldRole, subSelectExt);
+        formLayout_2->setWidget(2, QFormLayout::FieldRole, subSelectExt);
 
         line_11 = new QFrame(widget_3);
         line_11->setObjectName(QString::fromUtf8("line_11"));
         line_11->setFrameShadow(QFrame::Plain);
         line_11->setFrameShape(QFrame::HLine);
 
-        formLayout_2->setWidget(4, QFormLayout::SpanningRole, line_11);
+        formLayout_2->setWidget(3, QFormLayout::SpanningRole, line_11);
 
         aLabel_4 = new QLabel(widget_3);
         aLabel_4->setObjectName(QString::fromUtf8("aLabel_4"));
 
-        formLayout_2->setWidget(5, QFormLayout::LabelRole, aLabel_4);
+        formLayout_2->setWidget(4, QFormLayout::LabelRole, aLabel_4);
 
         encoding = new EncodingComboBox(widget_3);
         encoding->setObjectName(QString::fromUtf8("encoding"));
         encoding->setEditable(true);
         encoding->setSizeAdjustPolicy(QComboBox::AdjustToContentsOnFirstShow);
 
-        formLayout_2->setWidget(5, QFormLayout::FieldRole, encoding);
+        formLayout_2->setWidget(4, QFormLayout::FieldRole, encoding);
+
+        label_4 = new QLabel(widget_3);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+
+        formLayout_2->setWidget(5, QFormLayout::LabelRole, label_4);
 
         horizontalLayout_8 = new QHBoxLayout();
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
@@ -580,12 +576,7 @@ public:
         horizontalLayout_8->addItem(horizontalSpacer_11);
 
 
-        formLayout_2->setLayout(6, QFormLayout::FieldRole, horizontalLayout_8);
-
-        label_4 = new QLabel(widget_3);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
-
-        formLayout_2->setWidget(6, QFormLayout::LabelRole, label_4);
+        formLayout_2->setLayout(5, QFormLayout::FieldRole, horizontalLayout_8);
 
 
         horizontalLayout_5->addLayout(formLayout_2);
@@ -1181,14 +1172,14 @@ public:
         general->setProperty("name", QVariant(QApplication::translate("Pref_Widget", "Play", 0, QApplication::UnicodeUTF8)));
         pauseMinimized->setText(QApplication::translate("Pref_Widget", "Pause when minimized", 0, QApplication::UnicodeUTF8));
         pauseVideoOnly->setText(QApplication::translate("Pref_Widget", "Apply on video only", 0, QApplication::UnicodeUTF8));
-        startStopped->setText(QApplication::translate("Pref_Widget", "When a file is stopped, play it from there next time", 0, QApplication::UnicodeUTF8));
+        startStopped->setText(QApplication::translate("Pref_Widget", "Remember and start from stopped time when replay", 0, QApplication::UnicodeUTF8));
         askWhenRecordFound->setText(QApplication::translate("Pref_Widget", "Ask when stopped record found", 0, QApplication::UnicodeUTF8));
         label_23->setText(QApplication::translate("Pref_Widget", "Generate Playlist:", 0, QApplication::UnicodeUTF8));
         hideCursor->setText(QApplication::translate("Pref_Widget", "Hide cursor when it doesn't move during ", 0, QApplication::UnicodeUTF8));
         hideDelay->setSuffix(QApplication::translate("Pref_Widget", "sec", 0, QApplication::UnicodeUTF8));
         disableSS->setText(QApplication::translate("Pref_Widget", "Disable screensaver while playing", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        autoAdd->setToolTip(QApplication::translate("Pref_Widget", "Add next files to playlist when a file is open", 0, QApplication::UnicodeUTF8));
+        autoAdd->setToolTip(QApplication::translate("Pref_Widget", "Add next files to playlist when opening a file.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         tabWidget_2->setTabText(tabWidget_2->indexOf(play), QApplication::translate("Pref_Widget", "Play", 0, QApplication::UnicodeUTF8));
         label_30->setText(QApplication::translate("Pref_Widget", "Blur Kernel:", 0, QApplication::UnicodeUTF8));
@@ -1208,17 +1199,20 @@ public:
         subtitle->setProperty("name", QVariant(QApplication::translate("Pref_Widget", "Subtitle", 0, QApplication::UnicodeUTF8)));
         aLabel_2->setText(QApplication::translate("Pref_Widget", "Auto-load:", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        autoLoad->setToolTip(QApplication::translate("Pref_Widget", "Load next subtitles when a file to play is open", 0, QApplication::UnicodeUTF8));
+        autoLoad->setToolTip(QApplication::translate("Pref_Widget", "Load next subtitles when starting to play a file.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         aLabel_3->setText(QApplication::translate("Pref_Widget", "Auto-select:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        autoSelect->setToolTip(QApplication::translate("Pref_Widget", "Select next subtitles in automatically loaded subtitles.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         subExtLabel->setText(QApplication::translate("Pref_Widget", "Extension:", 0, QApplication::UnicodeUTF8));
         aLabel_4->setText(QApplication::translate("Pref_Widget", "Encoding:", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        encoding->setToolTip(QApplication::translate("Pref_Widget", "Open subtitle file with next encoding", 0, QApplication::UnicodeUTF8));
+        encoding->setToolTip(QApplication::translate("Pref_Widget", "Open subtitle file with selected encoding.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        label_4->setText(QApplication::translate("Pref_Widget", "Auto-dectection:", 0, QApplication::UnicodeUTF8));
         subEncAutoDet->setText(QApplication::translate("Pref_Widget", "Enable when the accuracy is over", 0, QApplication::UnicodeUTF8));
         subConf->setSuffix(QApplication::translate("Pref_Widget", "%", 0, QApplication::UnicodeUTF8));
-        label_4->setText(QApplication::translate("Pref_Widget", "Auto-dectection:", 0, QApplication::UnicodeUTF8));
         tabs->setTabText(tabs->indexOf(widget_3), QApplication::translate("Pref_Widget", "Load", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("Pref_Widget", "Font:", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("Pref_Widget", "Color:", 0, QApplication::UnicodeUTF8));
@@ -1230,7 +1224,7 @@ public:
         label_15->setText(QApplication::translate("Pref_Widget", "Y-Offset", 0, QApplication::UnicodeUTF8));
         aLabel_6->setText(QApplication::translate("Pref_Widget", "Display Time:", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        msPerChar->setToolTip(QApplication::translate("Pref_Widget", "Next value will be used to calculate the end time of a subtitle line when it is not specified by subtitle file.", 0, QApplication::UnicodeUTF8));
+        msPerChar->setToolTip(QApplication::translate("Pref_Widget", "When display time is not specifid in subtitle, caculate interval wih this value.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         msPerChar->setSuffix(QApplication::translate("Pref_Widget", "msec/character", 0, QApplication::UnicodeUTF8));
         msPerChar->setPrefix(QString());

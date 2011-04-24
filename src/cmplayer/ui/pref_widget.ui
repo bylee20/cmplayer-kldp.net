@@ -79,7 +79,7 @@
              <item row="3" column="1">
               <widget class="QCheckBox" name="startStopped">
                <property name="text">
-                <string>When a file is stopped, play it from there next time</string>
+                <string>Remember and start from stopped time when replay</string>
                </property>
               </widget>
              </item>
@@ -169,7 +169,7 @@
                 <enum>Qt::TabFocus</enum>
                </property>
                <property name="toolTip">
-                <string>Add next files to playlist when a file is open</string>
+                <string>Add next files to playlist when opening a file.</string>
                </property>
               </widget>
              </item>
@@ -417,41 +417,31 @@
              <item row="0" column="1">
               <widget class="QComboBox" name="autoLoad">
                <property name="toolTip">
-                <string>Load next subtitles when a file to play is open</string>
+                <string>Load next subtitles when starting to play a file.</string>
                </property>
                <property name="sizeAdjustPolicy">
                 <enum>QComboBox::AdjustToContents</enum>
                </property>
               </widget>
              </item>
-             <item row="1" column="0" colspan="2">
-              <widget class="Line" name="line_9">
-               <property name="frameShadow">
-                <enum>QFrame::Plain</enum>
-               </property>
-               <property name="lineWidth">
-                <number>1</number>
-               </property>
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="0">
+             <item row="1" column="0">
               <widget class="QLabel" name="aLabel_3">
                <property name="text">
                 <string>Auto-select:</string>
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
+             <item row="1" column="1">
               <widget class="QComboBox" name="autoSelect">
+               <property name="toolTip">
+                <string>Select next subtitles in automatically loaded subtitles.</string>
+               </property>
                <property name="sizeAdjustPolicy">
                 <enum>QComboBox::AdjustToContents</enum>
                </property>
               </widget>
              </item>
-             <item row="3" column="0">
+             <item row="2" column="0">
               <widget class="QLabel" name="subExtLabel">
                <property name="enabled">
                 <bool>false</bool>
@@ -461,14 +451,14 @@
                </property>
               </widget>
              </item>
-             <item row="3" column="1">
+             <item row="2" column="1">
               <widget class="QComboBox" name="subSelectExt">
                <property name="enabled">
                 <bool>false</bool>
                </property>
               </widget>
              </item>
-             <item row="4" column="0" colspan="2">
+             <item row="3" column="0" colspan="2">
               <widget class="Line" name="line_11">
                <property name="frameShadow">
                 <enum>QFrame::Plain</enum>
@@ -478,17 +468,17 @@
                </property>
               </widget>
              </item>
-             <item row="5" column="0">
+             <item row="4" column="0">
               <widget class="QLabel" name="aLabel_4">
                <property name="text">
                 <string>Encoding:</string>
                </property>
               </widget>
              </item>
-             <item row="5" column="1">
+             <item row="4" column="1">
               <widget class="EncodingComboBox" name="encoding">
                <property name="toolTip">
-                <string>Open subtitle file with next encoding</string>
+                <string>Open subtitle file with selected encoding.</string>
                </property>
                <property name="editable">
                 <bool>true</bool>
@@ -498,7 +488,14 @@
                </property>
               </widget>
              </item>
-             <item row="6" column="1">
+             <item row="5" column="0">
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Auto-dectection:</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="1">
               <layout class="QHBoxLayout" name="horizontalLayout_8">
                <item>
                 <widget class="QCheckBox" name="subEncAutoDet">
@@ -540,13 +537,6 @@
                 </spacer>
                </item>
               </layout>
-             </item>
-             <item row="6" column="0">
-              <widget class="QLabel" name="label_4">
-               <property name="text">
-                <string>Auto-dectection:</string>
-               </property>
-              </widget>
              </item>
             </layout>
            </item>
@@ -735,7 +725,7 @@
              <item row="8" column="1">
               <widget class="QSpinBox" name="msPerChar">
                <property name="toolTip">
-                <string>Next value will be used to calculate the end time of a subtitle line when it is not specified by subtitle file.</string>
+                <string>When display time is not specifid in subtitle, caculate interval wih this value.</string>
                </property>
                <property name="accelerated">
                 <bool>true</bool>

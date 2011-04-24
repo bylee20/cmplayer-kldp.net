@@ -22,7 +22,7 @@
         <location filename="../ui/aboutdialog.ui" line="137"/>
         <source>Developer&apos;s blog: %1
 Developer&apos;s E-mail: %2
-CMPlayer project homepage: %3</source>
+Project homepage: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1007,46 +1007,6 @@ CMPlayer project homepage: %3</source>
     </message>
 </context>
 <context>
-    <name>OsdStyle_Widget</name>
-    <message>
-        <location filename="../ui/osdstyle_widget.ui" line="20"/>
-        <source>Font:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/osdstyle_widget.ui" line="57"/>
-        <location filename="../ui/osdstyle_widget.ui" line="103"/>
-        <location filename="../ui/osdstyle_widget.ui" line="149"/>
-        <source>Change</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/osdstyle_widget.ui" line="66"/>
-        <source>Foreground Color:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/osdstyle_widget.ui" line="112"/>
-        <source>Background Color:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/osdstyle_widget.ui" line="158"/>
-        <source>Auto Size:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/osdstyle_widget.ui" line="172"/>
-        <source>Size Scale:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/osdstyle_widget.ui" line="182"/>
-        <source>%</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>PlayEngine</name>
     <message>
         <location filename="../playengine.cpp" line="201"/>
@@ -1066,32 +1026,32 @@ Do you want to start from where it&apos;s stopped?
 <context>
     <name>PlayInfoView</name>
     <message>
-        <location filename="../playinfoview.cpp" line="96"/>
+        <location filename="../playinfoview.cpp" line="102"/>
         <source>CPU Usage: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../playinfoview.cpp" line="97"/>
+        <location filename="../playinfoview.cpp" line="103"/>
         <source>Memory Usage: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../playinfoview.cpp" line="99"/>
+        <location filename="../playinfoview.cpp" line="105"/>
         <source>Video Information</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../playinfoview.cpp" line="100"/>
+        <location filename="../playinfoview.cpp" line="106"/>
         <source>Pixel Size: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../playinfoview.cpp" line="101"/>
+        <location filename="../playinfoview.cpp" line="107"/>
         <source>Input: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../playinfoview.cpp" line="102"/>
+        <location filename="../playinfoview.cpp" line="108"/>
         <source>Output: </source>
         <translation type="unfinished"></translation>
     </message>
@@ -1171,6 +1131,14 @@ Do you want to start from where it&apos;s stopped?
     </message>
 </context>
 <context>
+    <name>Pref::Dialog</name>
+    <message>
+        <location filename="../pref_dialog.cpp" line="82"/>
+        <source>Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Pref::Widget</name>
     <message>
         <location filename="../pref_widget.cpp" line="170"/>
@@ -1189,7 +1157,7 @@ Do you want to start from where it&apos;s stopped?
     </message>
     <message>
         <location filename="../pref_widget.cpp" line="197"/>
-        <source>All files in the same path</source>
+        <source>All files in the same folder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1234,17 +1202,17 @@ Do you want to start from where it&apos;s stopped?
     </message>
     <message>
         <location filename="../pref_widget.cpp" line="225"/>
-        <source>Seek 1 Step</source>
+        <source>Seek Step 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../pref_widget.cpp" line="226"/>
-        <source>Seek 2 Step</source>
+        <source>Seek Step 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../pref_widget.cpp" line="227"/>
-        <source>Seek 3 Step</source>
+        <source>Seek Step 3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1264,17 +1232,18 @@ Do you want to start from where it&apos;s stopped?
     </message>
     <message>
         <location filename="../pref_widget.cpp" line="233"/>
-        <source>Subtitle whose name is matched the playing file name</source>
+        <location filename="../pref_widget.cpp" line="239"/>
+        <source>Subtitle which has the same name as that of playing file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../pref_widget.cpp" line="234"/>
-        <source>Subtitles whose names contain the playing file name</source>
+        <source>Subtitles whose names contain the name of playing file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../pref_widget.cpp" line="235"/>
-        <source>Subtitles located in the path of the playing file</source>
+        <source>Subtitles in the folder where the playing file is located</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1285,11 +1254,6 @@ Do you want to start from where it&apos;s stopped?
     <message>
         <location filename="../pref_widget.cpp" line="238"/>
         <source>First subtitle of loaded ones</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../pref_widget.cpp" line="239"/>
-        <source>Subtitle which has the same name as the playing file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1370,11 +1334,6 @@ Do you want to start from where it&apos;s stopped?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="82"/>
-        <source>When a file is stopped, play it from there next time</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../ui/pref_widget.ui" line="92"/>
         <source>Ask when stopped record found</source>
         <translation type="unfinished"></translation>
@@ -1391,21 +1350,16 @@ Do you want to start from where it&apos;s stopped?
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="141"/>
-        <location filename="../ui/pref_widget.ui" line="1108"/>
-        <location filename="../ui/pref_widget.ui" line="1134"/>
-        <location filename="../ui/pref_widget.ui" line="1299"/>
-        <location filename="../ui/pref_widget.ui" line="1382"/>
+        <location filename="../ui/pref_widget.ui" line="1094"/>
+        <location filename="../ui/pref_widget.ui" line="1120"/>
+        <location filename="../ui/pref_widget.ui" line="1285"/>
+        <location filename="../ui/pref_widget.ui" line="1368"/>
         <source>sec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../ui/pref_widget.ui" line="156"/>
         <source>Disable screensaver while playing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_widget.ui" line="172"/>
-        <source>Add next files to playlist when a file is open</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1482,291 +1436,301 @@ Do you want to start from where it&apos;s stopped?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="420"/>
-        <source>Load next subtitles when a file to play is open</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_widget.ui" line="443"/>
+        <location filename="../ui/pref_widget.ui" line="430"/>
         <source>Auto-select:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="460"/>
+        <location filename="../ui/pref_widget.ui" line="450"/>
         <source>Extension:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="484"/>
+        <location filename="../ui/pref_widget.ui" line="474"/>
         <source>Encoding:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="491"/>
-        <source>Open subtitle file with next encoding</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_widget.ui" line="506"/>
+        <location filename="../ui/pref_widget.ui" line="503"/>
         <source>Enable when the accuracy is over</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="519"/>
-        <location filename="../ui/pref_widget.ui" line="1167"/>
-        <location filename="../ui/pref_widget.ui" line="1187"/>
-        <location filename="../ui/pref_widget.ui" line="1220"/>
-        <location filename="../ui/pref_widget.ui" line="1246"/>
-        <location filename="../ui/pref_widget.ui" line="1279"/>
-        <location filename="../ui/pref_widget.ui" line="1329"/>
-        <location filename="../ui/pref_widget.ui" line="1342"/>
-        <location filename="../ui/pref_widget.ui" line="1362"/>
+        <location filename="../ui/pref_widget.ui" line="516"/>
+        <location filename="../ui/pref_widget.ui" line="1153"/>
+        <location filename="../ui/pref_widget.ui" line="1173"/>
+        <location filename="../ui/pref_widget.ui" line="1206"/>
+        <location filename="../ui/pref_widget.ui" line="1232"/>
+        <location filename="../ui/pref_widget.ui" line="1265"/>
+        <location filename="../ui/pref_widget.ui" line="1315"/>
+        <location filename="../ui/pref_widget.ui" line="1328"/>
+        <location filename="../ui/pref_widget.ui" line="1348"/>
         <source>%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="547"/>
+        <location filename="../ui/pref_widget.ui" line="494"/>
         <source>Auto-dectection:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="557"/>
+        <location filename="../ui/pref_widget.ui" line="547"/>
         <source>Display</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="568"/>
+        <location filename="../ui/pref_widget.ui" line="558"/>
         <source>Font:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="612"/>
-        <source>Auto Size:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_widget.ui" line="626"/>
-        <source>Size Scale:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_widget.ui" line="752"/>
+        <location filename="../ui/pref_widget.ui" line="721"/>
         <source>Display Time:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="759"/>
-        <source>Next value will be used to calculate the end time of a subtitle line when it is not specified by subtitle file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/pref_widget.ui" line="765"/>
+        <location filename="../ui/pref_widget.ui" line="734"/>
         <source>msec/character</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="814"/>
+        <location filename="../ui/pref_widget.ui" line="800"/>
         <source>Unified/Multi-Subtitle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="820"/>
+        <location filename="../ui/pref_widget.ui" line="806"/>
         <source>You can specify the order of unified(mulit) subtitles with the &apos;Name&apos; property in subtitle file.
 If not specified, They will be displayed in selected order.
 e.g.: English, Korean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="853"/>
+        <location filename="../ui/pref_widget.ui" line="839"/>
         <source>UI</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="867"/>
+        <location filename="../ui/pref_widget.ui" line="853"/>
         <source>Application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="878"/>
+        <location filename="../ui/pref_widget.ui" line="864"/>
         <source>Run only single CMPlayer application at the same time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="895"/>
+        <location filename="../ui/pref_widget.ui" line="881"/>
         <source>Locale:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="912"/>
+        <location filename="../ui/pref_widget.ui" line="898"/>
         <source>Window Style:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="922"/>
+        <location filename="../ui/pref_widget.ui" line="908"/>
         <source>System Tray:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1101"/>
+        <location filename="../ui/pref_widget.ui" line="1087"/>
         <source>Seek Step 1:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1355"/>
+        <location filename="../ui/pref_widget.ui" line="1341"/>
         <source>Subtitle Position Step:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1375"/>
+        <location filename="../ui/pref_widget.ui" line="1361"/>
         <source>Subtitle Sync Delay Step:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="929"/>
+        <location filename="../ui/pref_widget.ui" line="915"/>
         <source>Enable system tray icon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="581"/>
-        <source>Text Color:</source>
+        <location filename="../ui/pref_widget.ui" line="82"/>
+        <source>Remember and start from stopped time when replay</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="590"/>
+        <location filename="../ui/pref_widget.ui" line="172"/>
+        <source>Add next files to playlist when opening a file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_widget.ui" line="420"/>
+        <source>Load next subtitles when starting to play a file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_widget.ui" line="437"/>
+        <source>Select next subtitles in automatically loaded subtitles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_widget.ui" line="481"/>
+        <source>Open subtitle file with selected encoding.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_widget.ui" line="571"/>
+        <source>Color:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_widget.ui" line="580"/>
         <source>Foreground</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="600"/>
+        <location filename="../ui/pref_widget.ui" line="590"/>
         <source>Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="655"/>
+        <location filename="../ui/pref_widget.ui" line="602"/>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_widget.ui" line="642"/>
         <source>Shadow:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="664"/>
+        <location filename="../ui/pref_widget.ui" line="651"/>
         <source>X-Offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="690"/>
+        <location filename="../ui/pref_widget.ui" line="680"/>
         <source>Y-Offset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="723"/>
+        <location filename="../ui/pref_widget.ui" line="728"/>
+        <source>When display time is not specifid in subtitle, caculate interval wih this value.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../ui/pref_widget.ui" line="778"/>
         <source>Blur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="730"/>
+        <location filename="../ui/pref_widget.ui" line="785"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="949"/>
+        <location filename="../ui/pref_widget.ui" line="935"/>
         <source>Hide window rather than quit when closed </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="956"/>
+        <location filename="../ui/pref_widget.ui" line="942"/>
         <source>(Linux Only)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="966"/>
+        <location filename="../ui/pref_widget.ui" line="952"/>
         <source>Shortcut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="976"/>
+        <location filename="../ui/pref_widget.ui" line="962"/>
         <source>Menu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="981"/>
-        <location filename="../ui/pref_widget.ui" line="1025"/>
+        <location filename="../ui/pref_widget.ui" line="967"/>
+        <location filename="../ui/pref_widget.ui" line="1011"/>
         <source>Shortcut1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="986"/>
-        <location filename="../ui/pref_widget.ui" line="1038"/>
+        <location filename="../ui/pref_widget.ui" line="972"/>
+        <location filename="../ui/pref_widget.ui" line="1024"/>
         <source>Shortcut2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="991"/>
-        <location filename="../ui/pref_widget.ui" line="1051"/>
+        <location filename="../ui/pref_widget.ui" line="977"/>
+        <location filename="../ui/pref_widget.ui" line="1037"/>
         <source>Shortcut3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="996"/>
-        <location filename="../ui/pref_widget.ui" line="1064"/>
+        <location filename="../ui/pref_widget.ui" line="982"/>
+        <location filename="../ui/pref_widget.ui" line="1050"/>
         <source>Shortcut4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1012"/>
+        <location filename="../ui/pref_widget.ui" line="998"/>
         <source>Change:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1074"/>
+        <location filename="../ui/pref_widget.ui" line="1060"/>
         <source>Mouse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1084"/>
+        <location filename="../ui/pref_widget.ui" line="1070"/>
         <source>Control Step</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1124"/>
+        <location filename="../ui/pref_widget.ui" line="1110"/>
         <source>Seek Step 2:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1160"/>
+        <location filename="../ui/pref_widget.ui" line="1146"/>
         <source>Brightness Step:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1180"/>
+        <location filename="../ui/pref_widget.ui" line="1166"/>
         <source>Contrast Step:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1210"/>
+        <location filename="../ui/pref_widget.ui" line="1196"/>
         <source>Volum Step:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1236"/>
+        <location filename="../ui/pref_widget.ui" line="1222"/>
         <source>Amp. Step:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1272"/>
+        <location filename="../ui/pref_widget.ui" line="1258"/>
         <source>Speed Step:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1292"/>
+        <location filename="../ui/pref_widget.ui" line="1278"/>
         <source>Seek Step 3:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1315"/>
+        <location filename="../ui/pref_widget.ui" line="1301"/>
         <source>Saturation Step:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../ui/pref_widget.ui" line="1322"/>
+        <location filename="../ui/pref_widget.ui" line="1308"/>
         <source>Hue Step:</source>
         <translation type="unfinished"></translation>
     </message>
