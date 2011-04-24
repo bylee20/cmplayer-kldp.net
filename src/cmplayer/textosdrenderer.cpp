@@ -319,12 +319,14 @@ private:
 			return;
 		const QPointF origin = this->origin();
 		drawThickTo(&m_cached, m_interm, origin, QPointF(0, 0), m_style->color_bg);
-		QPainter painter(&m_cached);
+		QPainter painter;
 		if (m_style->has_shadow) {
 			m_interm = m_cached;
 			blur.applyTo(m_cached, m_style->shadow_color, m_style->shadow_blur);
+			painter.begin(&m_cached);
 			painter.drawImage(m_style->shadow_offset, m_interm);
-		}
+		} else
+			painter.begin(&m_cached);
 		drawTextTo(&painter, origin, m_style->color_fg, false);
 	}
 };
