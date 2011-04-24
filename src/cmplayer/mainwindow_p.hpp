@@ -138,7 +138,7 @@ class MainWindowData {
 		subtitle->osd()->setStyle(pref.sub_style);
 		menu.updatePref();
 	#ifndef Q_WS_MAC
-		tray->setVisible(pref.enableSystemTray);
+		tray->setVisible(pref.enable_system_tray);
 	#endif
 		control->setState(engine->state());
 	}

@@ -5,6 +5,7 @@
 #include "videorenderer.hpp"
 #include "textosdrenderer.hpp"
 #include "application.hpp"
+#include <stdio.h>
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 
@@ -18,6 +19,11 @@ struct PlayInfoView::Data {
 	QString vinput, voutput;
 	QString size;
 };
+
+static inline QString toString(double value, int n = 1) {
+	char fmt[10];	sprintf(fmt, "%%.%df", n);
+	return value > 0 ? QString().sprintf(fmt, value) : QLatin1String("--");
+}
 
 PlayInfoView::PlayInfoView(QObject *parent)
 : QObject(parent), d(new Data) {
