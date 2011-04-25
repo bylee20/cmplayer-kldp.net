@@ -155,7 +155,7 @@ Menu &Menu::create(QWidget *parent) {
 
 	video->addSeparator();
 
-	Menu *effect = video->addMenu("effect");
+	Menu *effect = video->addMenu("filter");
 	effect->g()->setExclusive(false);
 	effect->addActionToGroup("flip-v", true)->setData((int)VideoRenderer::FlipVertically);
 	effect->addActionToGroup("flip-h", true)->setData((int)VideoRenderer::FlipHorizontally);
@@ -415,7 +415,7 @@ void Menu::updatePref() {
 	crop["1.85:1"]->setText(tr("1.85:1 (Wide Vision)"));
 	crop["2.35:1"]->setText(tr("2.35:1 (CinemaScope)"));
 
-	Menu &effect = video("effect");
+	Menu &effect = video("filter");
 	effect.setTitle(tr("Filter"));
 	effect["flip-v"]->setText(tr("Flip Vertically"));
 	effect["flip-h"]->setText(tr("Flip Horizontally"));
