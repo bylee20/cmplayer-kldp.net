@@ -54,7 +54,7 @@ static int ctor(vlc_object_t *obj) {
 	}
 	Data *d = malloc(sizeof(Data));
 	vf->p_sys = d;
-	const char *str = var_CreateGetString(vf->p_parent, MODULE_STRING"-cb-process");
+	char *str = var_CreateGetString(vf->p_parent, MODULE_STRING"-cb-process");
 	d->process = (void (*)(void *, void **))(intptr_t)atoll(str);
 	free(str);
 	str = var_CreateGetString(vf->p_parent, MODULE_STRING"-data");
