@@ -125,7 +125,8 @@ void Pref::load() {
 
 //	sub_style.alignment = Qt::AlignHCenter | Qt::AlignBottom;
 	sub_style.border_width = 0.045;
-	sub_style.text_scale = 0.035;
+	sub_style.text_scale = 0.040;
+	sub_style.auto_size = OsdStyle::FitToWidth;
 	sub_style.has_shadow = true;
 	sub_style.shadow_color = Qt::black;
 	sub_style.shadow_offset = QPointF(0, 0);

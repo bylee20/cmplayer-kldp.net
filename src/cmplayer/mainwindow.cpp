@@ -746,7 +746,7 @@ void MainWindow::setColorProperty(QAction *action) {
 	const ColorProperty::Value prop = ColorProperty::Value(data[0].toInt());
 	if ((int)prop == -1) {
 		d->video->setColorProperty(ColorProperty());
-		showMessage("Reset brightness, contrast, saturation and hue");
+		showMessage(tr("Reset brightness, contrast, saturation and hue"));
 	} else {
 		ColorProperty color = d->video->colorProperty();
 		color.setValue(prop, color.value(prop) + data[1].toInt()*0.01);
