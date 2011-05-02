@@ -149,7 +149,7 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	d->cpu = -1.0;
 	d->frame = &d->buf[0];	d->temp = &d->buf[1];	d->buffer = &d->buf[2];
 	d->frameIsSet = d->logoOn = d->binding = d->hasKernel = d->prepared = false;
-	d->overlay = Overlay::create(this);
+	d->overlay = Overlay::create(this, Overlay::Pixmap);
 	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
 
 	setMinimumSize(QSize(200, 100));
