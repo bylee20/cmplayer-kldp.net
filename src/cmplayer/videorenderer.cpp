@@ -401,12 +401,25 @@ QSize VideoRenderer::renderableSize() const {
 }
 
 void VideoRenderer::updateSize() {
-	const QSize size = renderableSize();
-	d->overlay->setArea(QRect(QPoint(0, 0), size), d->vtx);
+	const QSizeF widget = renderableSize();
+	QRectF vtx(QPointF(0, 0), widget);
+	if (!d->logoOn && d->hasPrograms && d->frameIsSet && d->prepared) {
+		const double aspect = targetAspectRatio();
+		QSizeF frame(aspect, 1.0);
+		QSizeF letter(targetCropRatio(aspect), 1.0);
+		letter.scale(widget, Qt::KeepAspectRatio);
+		frame.scale(letter, Qt::KeepAspectRatioByExpanding);
+		vtx.setLeft((widget.width() - frame.width())*0.5);
+		vtx.setTop((widget.height() - frame.height())*0.5);
+		vtx.setSize(frame);
+	}
+	if (d->vtx != vtx)
+		d->overlay->setArea(QRect(QPoint(0, 0), widget.toSize()), (d->vtx = vtx).toRect());
 }
 
 void VideoRenderer::resizeEvent(QResizeEvent *event) {
 	QGLWidget::resizeEvent(event);
+	qDebug() << event->size();
 	updateSize();
 }
 
@@ -478,18 +491,10 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 	const QSizeF widget = renderableSize();
 	if (!d->logoOn && d->hasPrograms && d->frameIsSet && d->prepared) {
 		const double aspect = targetAspectRatio();
-		QSizeF frame(aspect, 1.0);
 		QSizeF letter(targetCropRatio(aspect), 1.0);
 		letter.scale(widget, Qt::KeepAspectRatio);
-		frame.scale(letter, Qt::KeepAspectRatioByExpanding);
-
-		const double x = (widget.width() - frame.width())*0.5;
-		const double y = (widget.height() - frame.height())*0.5;
 		const double hMargin = (widget.width() - letter.width())*0.5;
 		const double vMargin = (widget.height() - letter.height())*0.5;
-		const QRectF vtx(x, y, frame.width(), frame.height());
-		if (d->vtx != vtx)
-			d->overlay->setArea(QRect(QPoint(0, 0), widget.toSize()), d->vtx = vtx);
 		double top = 0.0, left = 0.0;
 		double bottom = (double)(d->frame->frameLines(0)-1)/(double)d->frame->dataLines(0);
 		double right = (double)(d->frame->framePitch(0)-1)/(double)d->frame->dataPitch(0);
@@ -528,10 +533,10 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 			left,	bottom, d->brightness
 		};
 		const float vertexCoords[] = {
-			vtx.left(),	vtx.top(),
-			vtx.right(),	vtx.top(),
-			vtx.right(),	vtx.bottom(),
-			vtx.left(),	vtx.bottom()
+			d->vtx.left(),	d->vtx.top(),
+			d->vtx.right(),	d->vtx.top(),
+			d->vtx.right(),	d->vtx.bottom(),
+			d->vtx.left(),	d->vtx.bottom()
 		};
 
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -623,3 +628,4 @@ void VideoRenderer::setEffects(Effects effects) {
 		update();
 	}
 }
+

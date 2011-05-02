@@ -7,12 +7,10 @@
 #include <QtCore/QMap>
 
 struct PixmapOverlay::Data {
-	QRect bg;
-	QRectF video;
+	QRect bg, video;
 	QMap<OsdRenderer*, QPixmap> caches;
 	bool pending;
 };
-
 
 PixmapOverlay::PixmapOverlay(QGLWidget *video)
 : Overlay(video), d(new Data) {
@@ -34,7 +32,7 @@ qint64 PixmapOverlay::addOsd(OsdRenderer *osd) {
 	return (qint64)osd;
 }
 
-void PixmapOverlay::setArea(const QRect &bg, const QRectF &video) {
+void PixmapOverlay::setArea(const QRect &bg, const QRect &video) {
 	if (d->bg == bg && d->video == video)
 		return;
 	d->bg = bg;
@@ -48,25 +46,31 @@ void PixmapOverlay::cache() {
 	OsdRenderer *osd = qobject_cast<OsdRenderer*>(sender());
 	if (!osd)
 		return;
-	const int w = osd->width() + 0.5;
-	const int h = osd->height() + 0.5;
 	QPixmap &pix = d->caches[osd];
-	if (pix.width() != w || pix.height() != h)
-		pix = QPixmap(w, h);
-	pix.fill(Qt::transparent);
-	QPainter painter(&pix);
-	painter.fillRect(pix.rect(), Qt::transparent);
-	osd->render(&painter, QPointF(0.0, 0.0));
-	painter.end();
+	if (osd->hasCached()) {
+		pix = QPixmap();
+	} else {
+		const QSize newSize = cachedSize(osd->size().toSize());
+		if (pix.size() != newSize)
+			pix = QPixmap(newSize);
+		if (!pix.isNull()) {
+			pix.fill(Qt::transparent);
+			QPainter painter(&pix);
+			painter.fillRect(pix.rect(), Qt::transparent);
+			osd->render(&painter, QPointF(0.0, 0.0));
+			painter.end();
+		}
+	}
 }
 
 void PixmapOverlay::render(QPainter *painter) {
 	QMap<OsdRenderer*, QPixmap>::const_iterator it = d->caches.begin();
 	for (; it != d->caches.end(); ++it) {
-		if (!it->isNull()) {
-			const OsdRenderer *osd = it.key();
-			const QPointF pos = osd->posHint() + (osd->letterboxHint() ? d->bg : d->video).topLeft();
+		const OsdRenderer *osd = it.key();
+		const QPointF pos = osd->posHint() + (osd->letterboxHint() ? d->bg : d->video).topLeft();
+		if (it->isNull())
+			it.key()->render(painter, pos);
+		else
 			painter->drawPixmap(pos, *it);
-		}
 	}
 }

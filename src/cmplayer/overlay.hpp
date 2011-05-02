@@ -10,11 +10,11 @@ class QGLWidget;
 class Overlay : public QObject {
 	Q_OBJECT
 public:
-	enum Type {Auto, FramebufferObject, PixelBuffer, Pixmap};
+	enum Type {Auto, FramebufferObject, /*PixelBuffer, */Pixmap};
 	Overlay(QGLWidget *video): m_video(video) {}
 	~Overlay() {}
 	QGLWidget *video() const {return m_video;}
-	virtual void setArea(const QRect &bg, const QRectF &video) = 0;
+	virtual void setArea(const QRect &bg, const QRect &video) = 0;
 	virtual qint64 addOsd(OsdRenderer *osd) = 0;
 	virtual void render(QPainter *painter) = 0;
 	virtual Type type() const = 0;

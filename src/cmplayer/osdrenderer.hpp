@@ -3,6 +3,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QRectF>
+#include <QtGui/QPixmap>
 
 class RichString;	class OsdStyle;
 class QPainter;
@@ -31,6 +32,7 @@ public:
 	void setLetterboxHint(bool letterbox);
 	bool letterboxHint() const {return m_letterbox;}
 	QSizeF backgroundSize() const {return m_letterbox ? m_screen : m_video;}
+	virtual bool hasCached() const {return false;}
 public slots:
 	virtual void setStyle(const OsdStyle &style) = 0;
 signals:

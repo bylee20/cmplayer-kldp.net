@@ -7,12 +7,13 @@
 
 Overlay *Overlay::create(QGLWidget *video, Type type) {
 	if (type == Auto) {
+		type = Pixmap;
+#ifdef Q_WS_MAC
 		if (QGLFramebufferObject::hasOpenGLFramebufferObjects())
 			type = FramebufferObject;
 //		else if (QGLPixelBuffer::hasOpenGLPbuffers())
 //			type = PixelBuffer;
-		else
-			type = Pixmap;
+#endif
 	}
 	switch (type) {
 	case FramebufferObject:
@@ -30,8 +31,8 @@ QString Overlay::typeToString(Type type) {
 	switch (type) {
 	case FramebufferObject:
 		return QString("FramebufferObject");
-	case PixelBuffer:
-		return QString("PixelBuffer");
+//	case PixelBuffer:
+//		return QString("PixelBuffer");
 	case Pixmap:
 		return QString("Pixmap");
 	default:

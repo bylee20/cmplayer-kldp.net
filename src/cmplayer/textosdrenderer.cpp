@@ -170,6 +170,7 @@ struct PixmapTextDrawer : public CachedTextDrawer { // no blur
 	void draw(QPainter *painter, const QPointF &pos) {
 		painter->drawPixmap(pos, m_cached);
 	}
+	const QPixmap &cached() const {return m_cached;}
 private:
 	QPixmap m_cached;
 	void postUpdate() {
@@ -340,7 +341,7 @@ struct TextOsdRenderer::Data {
 	double bw, top, bottom, left, right;
 	QTimer clearer;
 	QSizeF bg;
-	TextDrawer *drawer;
+	CachedTextDrawer *drawer;
 	void update_drawer() {drawer->update(bw, bg.width() - left - right, text);}
 };
 

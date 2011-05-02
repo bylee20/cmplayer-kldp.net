@@ -19,6 +19,7 @@ public:
 	Qt::Alignment alignment() const;
 	const OsdStyle &style() const;
 	void renderDirectly(QPainter *painter, const QPointF &pos);
+	bool hasCached() const {return true;}
 public slots:
 	void clear();
 private:

@@ -124,8 +124,8 @@ LibVLC::LibVLC(): d(new Data) {
 #define PTR_TO_ARG(ptr) (QByteArray().setNum((qint64)(qptrdiff)(void*)(ptr)))
 	QList<QByteArray> args;
 	args << "-I" << "dummy" << "--ignore-config" << "--extraintf=logger"
-//		<< "--quiet"
-		<< "--verbose=2"
+		<< "--quiet"
+//		<< "--verbose=2"
 #ifndef Q_WS_X11
 		<< "--no-xlib"
 #endif

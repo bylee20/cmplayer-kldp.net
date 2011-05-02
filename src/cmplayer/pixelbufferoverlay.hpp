@@ -8,7 +8,7 @@
 //public:
 //	PixelBufferOverlay(QGLWidget *video);
 //	~PixelBufferOverlay();
-//	void setArea(const QRect &area);
+//	void setArea(const QRect &bg, const QRect &video);
 //	qint64 addOsd(OsdRenderer *osd);
 //	void render(QPainter *painter);
 //	Type type() const {return PixelBuffer;}
