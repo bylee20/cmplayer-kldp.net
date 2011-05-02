@@ -119,7 +119,7 @@ QString Application::test() {
 }
 
 void Application::getProcInfo() {
-	d->cpu->start("ps", QStringList() << "-v" << QString::number(getpid()), QProcess::ReadOnly);
+	d->cpu->start("ps", QStringList() << "-p" << QString::number(getpid()) << "-o" << "pcpu,rss,pmem", QProcess::ReadOnly);
 }
 
 static QByteArray parseProcInfo(const QByteArray &output, const int br, const char *column) {
@@ -147,10 +147,17 @@ static QByteArray parseProcInfo(const QByteArray &output, const int br, const ch
 void Application::readProcInfo() {
 	const QByteArray output = d->cpu->readAllStandardOutput();
 	const int br = qMax(output.indexOf('\n'), output.indexOf('\r'));
-	const QByteArray cpu = parseProcInfo(output, br, "%CPU");
-	const QByteArray rss = parseProcInfo(output, br, "RSS");
-	const QByteArray mem = parseProcInfo(output, br, "%MEM");
-	emit gotProcInfo(cpu.toDouble(), rss.toInt(), mem.toDouble());
+	QList<QByteArray> cols;
+	cols.append(QByteArray());
+	for (int i=br; i<output.size(); ++i) {
+		if (isspace(output[i])) {
+			if (!cols.last().isEmpty())
+				cols.append(QByteArray());
+		} else
+			cols.last() += output[i];
+	}
+	if (cols.size() >= 3)
+		emit gotProcInfo(cols[0].toDouble(), cols[1].toInt(), cols[2].toDouble());
 }
 
 void Application::setScreensaverDisabled(bool disabled) {

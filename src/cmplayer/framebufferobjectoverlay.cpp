@@ -37,15 +37,9 @@ void FramebufferObjectOverlay::setArea(const QRect &bg, const QRect &video) {
 	if (bg == d->bg && d->video == video)
 		return;
 	const QSize newSize = OsdRenderer::cachedSize(bg.size());
-	qDebug() << bg << video;
-	qDebug() << d->bg << d->video;
-	QTime t;
-	t.start();
 	d->pending = true;
 	d->bg = bg;
 	d->video = video;
-
-
 	if (!d->fbo || d->fbo->size() != newSize) {
 		delete d->fbo;
 		this->video()->makeCurrent();
@@ -54,10 +48,7 @@ void FramebufferObjectOverlay::setArea(const QRect &bg, const QRect &video) {
 	for (int i=0; i<d->osds.size(); ++i)
 		d->osds[i]->setBackgroundSize(d->bg.size(), d->video.size());
 	d->pending = false;
-	const int t1 = t.restart();
 	cache();
-	const int t2 = t.restart();
-	qDebug() << "setArea" << newSize << t1 << t2;
 }
 
 void FramebufferObjectOverlay::cache() {

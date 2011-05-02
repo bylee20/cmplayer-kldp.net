@@ -403,7 +403,7 @@ QSize VideoRenderer::renderableSize() const {
 void VideoRenderer::updateSize() {
 	const QSizeF widget = renderableSize();
 	QRectF vtx(QPointF(0, 0), widget);
-	if (!d->logoOn && d->hasPrograms && d->frameIsSet && d->prepared) {
+	if (!d->logoOn && d->hasPrograms && d->prepared) {
 		const double aspect = targetAspectRatio();
 		QSizeF frame(aspect, 1.0);
 		QSizeF letter(targetCropRatio(aspect), 1.0);
@@ -478,9 +478,8 @@ bool VideoRenderer::event(QEvent *event) {
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}
 		d->prepared = true;
-		qDebug() << "source" << VideoFormat::fourccToString(d->format.source_fourcc)
-			 << "output" << VideoFormat::fourccToString(d->format.output_fourcc);
 		d->fps.reset();
+		updateSize();
 		return true;
 	} else
 		return QGLWidget::event(event);
