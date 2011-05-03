@@ -422,7 +422,6 @@ void VideoRenderer::updateSize() {
 
 void VideoRenderer::resizeEvent(QResizeEvent *event) {
 	QGLWidget::resizeEvent(event);
-	qDebug() << event->size();
 	updateSize();
 }
 

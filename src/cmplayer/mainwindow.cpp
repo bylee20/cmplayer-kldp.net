@@ -405,7 +405,7 @@ void MainWindow::showMessage(const QString &cmd, double value, const QString &un
 }
 
 void MainWindow::showMessage(const QString &cmd, const QString &description, int last) {
-	showMessage(cmd + " : " + description, last);
+	showMessage(cmd + ": " + description, last);
 }
 
 void MainWindow::showMessage(const QString &message, int last) {
