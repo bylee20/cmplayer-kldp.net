@@ -17,7 +17,6 @@ public:
 	QFont font;
 	QColor color_bg, color_fg, shadow_color;
 	double border_width, text_scale;
-//	Qt::Alignment alignment;
 	QTextOption::WrapMode wrap_mode;
 	AutoSize auto_size;
 	bool has_shadow;

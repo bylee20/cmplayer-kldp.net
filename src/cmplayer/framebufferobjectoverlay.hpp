@@ -12,6 +12,7 @@ public:
 	qint64 addOsd(OsdRenderer *osd);
 	void render(QPainter *painter);
 	Type type() const {return FramebufferObject;}
+	QList<OsdRenderer*> takeOsds();
 private slots:
 	void cache();
 private:

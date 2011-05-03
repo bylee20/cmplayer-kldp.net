@@ -38,6 +38,7 @@ public:
 	int blur_kern_c, blur_kern_n, blur_kern_d;
 	int sharpen_kern_c, sharpen_kern_n, sharpen_kern_d;
 	int adjust_contrast_min_luma, adjust_contrast_max_luma;
+	int normalizer_gain, normalizer_smoothness;
 	double auto_contrast_threshold;
 
 	SubtitleAutoLoadEnum sub_autoload;

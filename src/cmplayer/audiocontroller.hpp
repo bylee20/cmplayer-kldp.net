@@ -17,12 +17,18 @@ public:
 	double preAmp() const;
 	bool isVolumeNormalized() const;
 	bool isTempoScaled() const;
+	double gain(int ch) const;
+	double gain() const;
+	double targetGain() const;
+	void setTargetGain(double gain);
+	void setNormalizerSmoothness(int smooth);
 public slots:
 	void setVolumeNormalized(bool norm);
 	void setVolume(int volume);
 	void setTempoScaled(bool scaled);
 	void setMuted(bool muted);
 signals:
+	void formatChanged(const AudioFormat &format);
 	void volumeChanged(int volume);
 	void mutedChanged(bool muted);
 	void volumeNormalizedChanged(bool norm);

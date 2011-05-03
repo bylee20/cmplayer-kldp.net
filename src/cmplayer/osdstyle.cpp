@@ -7,10 +7,9 @@
 
 OsdStyle::OsdStyle()
 	: color_bg(Qt::black), color_fg(Qt::white), shadow_color(Qt::black) {
-//	alignment = Qt::AlignCenter;
 	border_width = 0.05;
 	text_scale = 0.03;
-	auto_size = FitToDiagonal;
+	auto_size = FitToWidth;
 	has_shadow = false;
 	shadow_offset = QPointF(0, 0);
 	wrap_mode = QTextOption::WrapAtWordBoundaryOrAnywhere;
@@ -24,7 +23,6 @@ void OsdStyle::save(QSettings *set, const QString &group) const {
 	set->setValue("color_fg", color_fg);
 	set->setValue("border_width", border_width);
 	set->setValue("text_scale", text_scale);
-//	set->setValue("alignment", int(alignment));
 	if (auto_size == FitToWidth)
 		set->setValue("auto_size", "FitToWidth");
 	else if (auto_size == FitToHeight)

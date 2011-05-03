@@ -19,7 +19,7 @@ cmplayer: cmplayer-vlc-plugins translations libchardet
 	install -d $(cmplayer_exec_path)/plugins
 	cp -r $(VLC_LIB_PATH)/*.dylib* $(cmplayer_exec_path)/lib
 	cp -r $(VLC_PLUGINS_PATH)/*.dylib $(cmplayer_exec_path)/plugins
-	$(install_file) bin/libcmplayer-*_plugin.dylib $(cmplayer_exec_path)/plugins
+	$(install_file) bin/plugins/libcmplayer-*_plugin.dylib $(cmplayer_exec_path)/plugins
 	macdeployqt bin/$(cmplayer_exec).app
 
 bin_dir:
@@ -30,7 +30,8 @@ libchardet:
 
 cmplayer-vlc-plugins: bin_dir
 	cd src/cmplayer-vlc-plugins && make -f Makefile.osx
-	mv src/cmplayer-vlc-plugins/libcmplayer-*_plugin.dylib bin
+	install -d bin/plugins
+	mv src/cmplayer-vlc-plugins/libcmplayer-*_plugin.dylib bin/plugins
 
 translations:
 	cd src/cmplayer/translations && $(LRELEASE) cmplayer_ko.ts -qm cmplayer_ko

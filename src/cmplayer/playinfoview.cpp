@@ -1,6 +1,7 @@
 #include "playinfoview.hpp"
 #include "osdstyle.hpp"
 #include "richstring.hpp"
+#include "audiocontroller.hpp"
 #include "avmisc.hpp"
 #include "videorenderer.hpp"
 #include "textosdrenderer.hpp"
@@ -12,7 +13,9 @@
 struct PlayInfoView::Data {
 	QTimer *timer;
 	VideoFormat vfmt;
+	AudioFormat afmt;
 	const VideoRenderer *video;
+	const AudioController *audio;
 	QString vfps, cpu, mem;
 	TextOsdRenderer *osd;
 	bool visible;
@@ -38,6 +41,7 @@ PlayInfoView::PlayInfoView(QObject *parent)
 	d->timer->setInterval(500);
 	d->video = 0;
 	d->vinput = d->voutput = "--";
+	d->audio = 0;
 	connect(app(), SIGNAL(gotProcInfo(double,int,double)), this, SLOT(setProcInfo(double,int,double)));
 	connect(d->timer, SIGNAL(timeout()), this, SLOT(update()));
 }
@@ -96,16 +100,31 @@ void PlayInfoView::setVisible(bool visible) {
 
 void PlayInfoView::update() {
 	static const QString br("<br>");
+	static const QString colon(": ");
 	if (d->visible) {
 		app()->getProcInfo();
 		QString text;
-		text += tr("CPU Usage: "); text += d->cpu; text += br;
-		text += tr("Memory Usage: "); text += d->mem; text += br;
+		text += tr("CPU Usage"); text += colon; text += d->cpu; text += br;
+		text += tr("Memory Usage"); text += colon; text += d->mem; text += br;
 		text += br;
 		text += tr("Video Information"); text += br;
-		text += tr("Pixel Size: "); text += d->size; text += br;
-		text += tr("Input: "); text += d->vinput; text += br;
-		text += tr("Output: "); text += d->voutput.arg(toString(d->video->outputFrameRate(), 2));
+		text += tr("Pixel Size"); text += colon; text += d->size; text += br;
+		text += tr("Input"); text += colon; text += d->vinput; text += br;
+		text += tr("Output"); text += colon;
+		text += d->voutput.arg(toString(d->video->outputFrameRate(), 2)); text += br;
+		text += br;
+		text += tr("Audio Information"); text += br;
+		text += tr("Normalizer"); text += colon;
+		text += toString(d->audio->gain()*100.0, 1); text += QLatin1String("%<br>");
 		d->osd->showText(RichString(text, text));
 	}
+}
+
+void PlayInfoView::setAudio(const AudioController *audio) {
+	d->audio = audio;
+	connect(d->audio, SIGNAL(formatChanged(AudioFormat)), this, SLOT(setAudioFormat(AudioFormat)));
+}
+
+void PlayInfoView::setAudioFormat(const AudioFormat &afmt) {
+	d->afmt = afmt;
 }

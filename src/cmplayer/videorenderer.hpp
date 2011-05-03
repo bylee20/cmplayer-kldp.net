@@ -51,6 +51,7 @@ public:
 public slots:
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
+	void setOverlayType(int type);
 signals:
 	void formatChanged(const VideoFormat &format);
 protected:

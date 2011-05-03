@@ -149,8 +149,7 @@ VideoRenderer::VideoRenderer(QWidget *parent)
 	d->cpu = -1.0;
 	d->frame = &d->buf[0];	d->temp = &d->buf[1];	d->buffer = &d->buf[2];
 	d->frameIsSet = d->logoOn = d->binding = d->hasKernel = d->prepared = false;
-	d->overlay = Overlay::create(this, Overlay::Pixmap);
-	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
+	d->overlay = 0;
 
 	setMinimumSize(QSize(200, 100));
 	setAutoFillBackground(false);
@@ -317,7 +316,8 @@ void VideoRenderer::prepare(const VideoFormat *format) {
 }
 
 void VideoRenderer::addOsd(OsdRenderer *osd) {
-	d->overlay->addOsd(osd);
+	if (d->overlay)
+		d->overlay->addOsd(osd);
 }
 
 double VideoRenderer::targetAspectRatio() const {
@@ -413,8 +413,11 @@ void VideoRenderer::updateSize() {
 		vtx.setTop((widget.height() - frame.height())*0.5);
 		vtx.setSize(frame);
 	}
-	if (d->vtx != vtx)
-		d->overlay->setArea(QRect(QPoint(0, 0), widget.toSize()), (d->vtx = vtx).toRect());
+	if (d->vtx != vtx) {
+		d->vtx = vtx;
+		if (d->overlay)
+			d->overlay->setArea(QRect(QPoint(0, 0), widget.toSize()), d->vtx.toRect());
+	}
 }
 
 void VideoRenderer::resizeEvent(QResizeEvent *event) {
@@ -565,7 +568,8 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		d->fps.frameDrawn(d->frameId);
 	} else
 		d->logo.draw(&painter, QRectF(QPointF(0, 0), widget));
-	d->overlay->render(&painter);
+	if (d->overlay)
+		d->overlay->render(&painter);
 }
 
 int VideoRenderer::translateButton(Qt::MouseButton qbutton) {
@@ -628,3 +632,18 @@ void VideoRenderer::setEffects(Effects effects) {
 	}
 }
 
+void VideoRenderer::setOverlayType(int hint) {
+	const Overlay::Type type = Overlay::guessType(hint);
+	if (d->overlay && d->overlay->type() == type)
+		return;
+	QList<OsdRenderer*> osds;
+	if (d->overlay) {
+		osds = d->overlay->takeOsds();
+		delete d->overlay;
+	}
+	d->overlay = Overlay::create(this, type);
+	for (int i=0; i<osds.size(); ++i)
+		d->overlay->addOsd(osds[i]);
+	d->overlay->setArea(QRect(QPoint(0, 0), renderableSize()), d->vtx.toRect());
+	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
+}

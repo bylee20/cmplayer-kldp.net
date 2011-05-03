@@ -58,6 +58,8 @@ void Pref::save() const {
 	SAVE(adjust_contrast_min_luma);
 	SAVE(adjust_contrast_max_luma);
 	SAVE(auto_contrast_threshold);
+	SAVE(normalizer_gain);
+	SAVE(normalizer_smoothness);
 
 	SAVE_ENUM(auto_add_files);
 	SAVE_ENUM(sub_autoload);
@@ -118,12 +120,13 @@ void Pref::load() {
 	LOAD(hue_step, DefaultColorPropStep, toInt);
 	LOAD(window_style, QString(), toString);
 	LOAD(sub_ext, QString(), toString);
+	LOAD(normalizer_gain, 20, toInt);
+	LOAD(normalizer_smoothness, 100, toInt);
 
 	LOAD_ENUM(auto_add_files, AllFiles);
 	LOAD_ENUM(sub_autoload, Contain);
 	LOAD_ENUM(sub_autoselect, SameName);
 
-//	sub_style.alignment = Qt::AlignHCenter | Qt::AlignBottom;
 	sub_style.border_width = 0.045;
 	sub_style.text_scale = 0.040;
 	sub_style.auto_size = OsdStyle::FitToWidth;

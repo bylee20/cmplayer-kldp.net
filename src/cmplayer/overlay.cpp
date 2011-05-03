@@ -5,26 +5,22 @@
 #include <QtOpenGL/QGLFramebufferObject>
 #include <QtOpenGL/QGLPixelBuffer>
 
-Overlay *Overlay::create(QGLWidget *video, Type type) {
-	if (type == Auto) {
-		type = Pixmap;
+Overlay::Type Overlay::guessType(int hint) {
+	if (hint == FramebufferObject)
+		return FramebufferObject;
+	if (hint == Pixmap)
+		return Pixmap;
 #ifdef Q_WS_MAC
-		if (QGLFramebufferObject::hasOpenGLFramebufferObjects())
-			type = FramebufferObject;
-//		else if (QGLPixelBuffer::hasOpenGLPbuffers())
-//			type = PixelBuffer;
+	if (QGLFramebufferObject::hasOpenGLFramebufferObjects())
+		return FramebufferObject;
 #endif
-	}
-	switch (type) {
-	case FramebufferObject:
+	return Pixmap;
+}
+
+Overlay *Overlay::create(QGLWidget *video, Type type) {
+	if (type == FramebufferObject)
 		return new FramebufferObjectOverlay(video);
-//	case PixelBuffer:
-//		return new PixelBufferOverlay(video);
-	case Pixmap:
-		return new PixmapOverlay(video);
-	default:
-		return 0;
-	}
+	return new PixmapOverlay(video);
 }
 
 QString Overlay::typeToString(Type type) {

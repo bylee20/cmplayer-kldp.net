@@ -359,3 +359,64 @@ void SubtitleRenderer::setTopAlignment(bool top) {
 bool SubtitleRenderer::isTopAligned() const {
 	return d->top;
 }
+
+int SubtitleRenderer::current() const {
+	RenderList::const_iterator o = d->order.begin();
+	int time = -1;
+	for (; o != d->order.end(); ++o) {
+		Render &render = **o;
+		if (render.prev == render.comp->end() || !render.prev->text.hasWords())
+			continue;
+		if (time < 0)
+			time = render.prev.key();
+		else if (render.prev.key() > time)
+			time = render.prev.key();
+	}
+	return time;
+}
+
+int SubtitleRenderer::previous() const {
+	RenderList::const_iterator o = d->order.begin();
+	int time = -1;
+	QList<CompIt> its;
+	its.reserve(d->order.size());
+	for (; o != d->order.end(); ++o) {
+		Render &r = **o;
+		if (r.prev == r.comp->end())
+			continue;
+		CompIt it = r.prev;
+		while (it != r.comp->begin()) {
+			if ((--it)->text.hasWords()) {
+				if (time < 0)
+					time = it.key();
+				else if (it.key() > time)
+					time = it.key();
+				break;
+			}
+		}
+	}
+	return time;
+}
+
+int SubtitleRenderer::next() const {
+	RenderList::const_iterator o = d->order.begin();
+	int time = -1;
+	QList<CompIt> its;
+	its.reserve(d->order.size());
+	for (; o != d->order.end(); ++o) {
+		Render &r = **o;
+		if (r.prev == r.comp->end())
+			continue;
+		CompIt it = r.prev;
+		while (++it != r.comp->end()) {
+			if (it->text.hasWords()) {
+				if (time < 0)
+					time = it.key();
+				else if (it.key() < time)
+					time = it.key();
+				break;
+			}
+		}
+	}
+	return time;
+}

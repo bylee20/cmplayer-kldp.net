@@ -1,4 +1,5 @@
 #include "menu.hpp"
+#include "overlay.hpp"
 #include "videorenderer.hpp"
 #include "pref.hpp"
 #include "colorproperty.hpp"
@@ -87,18 +88,29 @@ Menu &Menu::create(QWidget *parent) {
 	play->addSeparator();
 
 	Menu *seek = play->addMenu("seek");
-	QAction *forward1 = seek->addActionToGroup("forward1", false);
-	QAction *forward2 = seek->addActionToGroup("forward2", false);
-	QAction *forward3 = seek->addActionToGroup("forward3", false);
-	QAction *backward1 = seek->addActionToGroup("backward1", false);
-	QAction *backward2 = seek->addActionToGroup("backward2", false);
-	QAction *backward3 = seek->addActionToGroup("backward3", false);
+	QAction *forward1 = seek->addActionToGroup("forward1", false, "relative");
+	QAction *forward2 = seek->addActionToGroup("forward2", false, "relative");
+	QAction *forward3 = seek->addActionToGroup("forward3", false, "relative");
+	QAction *backward1 = seek->addActionToGroup("backward1", false, "relative");
+	QAction *backward2 = seek->addActionToGroup("backward2", false, "relative");
+	QAction *backward3 = seek->addActionToGroup("backward3", false, "relative");
 	forward1->setShortcut(Qt::Key_Right);
 	forward2->setShortcut(Qt::Key_PageDown);
 	forward3->setShortcut(Qt::Key_End);
 	backward1->setShortcut(Qt::Key_Left);
 	backward2->setShortcut(Qt::Key_PageUp);
 	backward3->setShortcut(Qt::Key_Home);
+
+	seek->addSeparator();
+	QAction *prevSub = seek->addActionToGroup("prev-subtitle", false, "subtitle");
+	QAction *curSub = seek->addActionToGroup("current-subtitle", false, "subtitle");
+	QAction *nextSub = seek->addActionToGroup("next-subtitle", false, "subtitle");
+	prevSub->setData(-1);
+	prevSub->setShortcut(Qt::Key_Comma);
+	curSub->setData(0);
+	curSub->setShortcut(Qt::Key_Period);
+	nextSub->setData(1);
+	nextSub->setShortcut(Qt::Key_Slash);
 
 	play->addMenu("title")->setEnabled(false);
 	play->addMenu("chapter")->setEnabled(false);
@@ -183,6 +195,12 @@ Menu &Menu::create(QWidget *parent) {
 	video->addActionToGroup("saturation-", false, "color")->setShortcut(Qt::Key_J);
 	video->addActionToGroup("hue+", false, "color")->setShortcut(Qt::Key_I);
 	video->addActionToGroup("hue-", false, "color")->setShortcut(Qt::Key_K);
+
+	video->addSeparator();
+	Menu *overlay = video->addMenu("overlay");
+	overlay->addActionToGroup("auto", true)->setData((int)Overlay::Auto);
+	overlay->addActionToGroup("fbo", true)->setData((int)Overlay::FramebufferObject);
+	overlay->addActionToGroup("pixmap", true)->setData((int)Overlay::Pixmap);
 
 	Menu *audio = root->addMenu("audio");
 	audio->addMenu("track")->setEnabled(false);
@@ -368,6 +386,10 @@ void Menu::updatePref() {
 	setActionAttr(seek["backward3"], -p.seek_step3
 			, backward, p.seek_step3*0.001, false);
 
+	seek["prev-subtitle"]->setText(tr("To Previous Subtitle"));
+	seek["current-subtitle"]->setText(tr("To Beginning of Current Subtitle"));
+	seek["next-subtitle"]->setText(tr("To Next Subtitle"));
+
 	play("title").setTitle(tr("Title"));
 	play("chapter").setTitle(tr("Chapter"));
 
@@ -437,6 +459,12 @@ void Menu::updatePref() {
 	setVideoPropStep(video, "hue", ColorProperty::Hue
 			, tr("Hue %1%"), p.brightness_step);
 	video["snapshot"]->setText(tr("Take Snapshot"));
+
+	Menu &overlay = video("overlay");
+	overlay.setTitle(tr("Overlay"));
+	overlay["auto"]->setText(tr("Auto"));
+	overlay["fbo"]->setText(tr("Framebuffer Object"));
+	overlay["pixmap"]->setText(tr("Pixmap"));
 
 	Menu &audio = root("audio");
 	audio.setTitle(tr("Audio"));

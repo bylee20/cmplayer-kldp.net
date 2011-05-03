@@ -323,6 +323,9 @@ void Pref::Widget::fill() {
 	d->ui.max_luma->setValue(p.adjust_contrast_max_luma);
 	d->ui.auto_contrast_th->setValue(p.auto_contrast_threshold);
 
+	d->ui.normalizer_gain->setValue(p.normalizer_gain);
+	d->ui.normalizer_smoothness->setValue(p.normalizer_smoothness);
+
 	setComboIndex(d->ui.winStyle, p.window_style);
 
 	d->dbl->setValues(p.double_click_map);
@@ -380,6 +383,9 @@ void Pref::Widget::apply() {
 	p.adjust_contrast_min_luma = d->ui.min_luma->value();
 	p.adjust_contrast_max_luma = d->ui.max_luma->value();
 	p.auto_contrast_threshold = d->ui.auto_contrast_th->value();
+
+	p.normalizer_gain = d->ui.normalizer_gain->value();
+	p.normalizer_smoothness = d->ui.normalizer_smoothness->value();
 
 	p.enable_system_tray = d->ui.tray->isChecked();
 	p.hide_rather_close = d->ui.hideWhenClosed->isChecked();

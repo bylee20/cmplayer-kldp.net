@@ -36,6 +36,9 @@ public:
 	void setDelay(int delay);
 	bool hasSubtitle() const;
 	double pos() const;
+	int previous() const;
+	int next() const;
+	int current() const;
 	void setPos(double pos);
 	QWidget *view(QWidget *parent = 0) const;
 	void unload();

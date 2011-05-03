@@ -1,83 +1,99 @@
 #include "audiocontroller.hpp"
+#include <QtCore/QMetaType>
+#include <QtCore/QVector>
 #include "avmisc.hpp"
-#include <math.h>
+#include <cmath>
 #include <QtCore/QDebug>
 
 class AudioController::Volume {
 public:
 	Volume() {
-		m_size = 20;
-		m_maxLevel = 2.0f;
-		m_sum = m_gain = m_last = 0;
-		m_channels = 0;
+		m_smoothness = 50;
 		m_volume = 100;
 		m_amp = 1.0;
 		m_muted = false;
 		m_normalized = false;
+		m_targetGain = 0.75f;
+		m_gainAvg = 0.0f;
 	}
-	~Volume() {delete [] m_last;}
+	~Volume() {}
+	struct PrevInfo {
+		PrevInfo(): value(0), samples(0) {}
+		float value;
+		int samples;
+	};
+
+	struct Channel {
+		Channel(): gain(1.0f), last(0) {}
+		float gain;
+		QVector<PrevInfo> prev;
+		int last;
+	};
+	static const float silence = 1e-4;
 	void init(const AudioFormat &format) {
-		if (m_last)
-			delete [] m_last;
-		/* We need to store (nb_buffers+1)*nb_channels floats */
-		m_channels = format.channels;
-		m_last = new float[m_channels*(m_size + 2)];
-		m_sum = new float[m_channels];
-		m_gain = new float[m_channels];
+		m_channels = QVector<Channel>(format.channels);
 	}
-	void setMaxLevel(float lv) {m_maxLevel = qMax(0.01f, lv);}
+	void calculateGain(AudioBuffer *in) {
+		const int samples = in->samples;
+		const int channels = m_channels.size();
+		float gainAvg = 0.0f;
+		for (int c=0; c<channels; ++c) {
+			Channel &ch = m_channels[c];
+			if (m_smoothness != ch.prev.size()) {
+				ch.prev = QVector<PrevInfo>(m_smoothness);
+				ch.last = 0;
+			}
+			float max = 0.0;
+			int total = 0;
+			for (int i=0; i<ch.prev.size(); ++i) {
+				const PrevInfo &info = ch.prev[i];
+				max += info.value*info.samples;
+				total += info.samples;
+			}
+			max /= (float)total;
+			ch.gain = 1.0f;
+			if (max > silence)
+				ch.gain = qBound(0.f, m_targetGain/max, 5.f);
+			gainAvg += ch.gain;
+
+			max = 0.0;
+			float *buffer = ((float*)in->data) + c;
+			for (int s=0; s<samples; ++s) {
+				const float v = std::fabs(*buffer);
+				if (v > max)
+					max = v;
+				buffer += channels;
+			}
+			ch.prev[ch.last].value = max;
+			ch.prev[ch.last].samples = samples;
+			ch.last = (ch.last + 1)%ch.prev.size();
+		}
+		m_gainAvg = gainAvg/(float)channels;
+	}
 	AudioBuffer *process(AudioBuffer *in) {
 		float *buffer = (float*)in->data;
 		const int samples = in->samples;
 		const float coef = coefficient();
+		const int channels = m_channels.size();
 		if (m_muted || !m_normalized) {
 			for(int i=0; i<samples; ++i) {
-				for(int ch=0; ch<m_channels; ++ch)
-					buffer[ch] *= coef;
-				buffer += m_channels;
+				for(int c=0; c<channels; ++c)
+					buffer[c] *= coef;
+				buffer += channels;
 			}
 		} else {
-			// copied from vlc volnorm
-			float avg = 0;
-			/* Calculate the average power level on this buffer */
-			for(int i=0; i<samples; ++i) {
-				for(int ch=0; ch<m_channels; ++ch) {
-					float f_sample = buffer[ch];
-					float f_square = pow(f_sample, 2 );
-					m_sum[ch] += f_square;
+			calculateGain(in);
+			for(int s=0; s<samples; ++s) {
+				for(int c=0; c<channels; ++c) {
+					buffer[c] *= m_channels[c].gain;
+					buffer[c] *= coef;
 				}
-				buffer += m_channels;
-			}
-			buffer = (float*)in->data;
-
-			/* sum now contains for each channel the sigma(value²) */
-			for(int ch=0; ch<m_channels; ++ch) {
-				/* Shift our lastbuff */
-				memmove(&m_last[ch*m_size]
-					, &m_last[ch*m_size + 1], (m_size-1)*sizeof(float));
-				/* Insert the new average : sqrt(sigma(value²)) */
-				m_last[ch*m_size + m_size - 1] = sqrt(m_sum[ch]);
-				m_sum[ch] = 0;
-				/* Get the average power on the lastbuff */
-				avg = 0;
-				for(int i=0; i<m_size ; ++i)
-					avg += m_last[ch*m_size + i];
-				avg = avg/m_size;
-				//fprintf(stderr,"Average %f, max %f\n", f_average, d->f_max );
-				m_gain[ch] = (avg>m_maxLevel) ? avg/m_maxLevel : 1.0f;
-			}
-
-			/* Apply gain */
-			for(int i=0; i<samples; ++i) {
-				for(int ch=0; ch<m_channels; ++ch) {
-					buffer[ch] /= m_gain[ch];
-					buffer[ch] *= coef;
-				}
-				buffer += m_channels;
+				buffer += channels;
 			}
 		}
 		return 0;
 	}
+	float gain() const {return m_gainAvg;}
 	void setMuted(bool muted) {m_muted = muted;}
 	void setVolume(int volume) {m_volume = volume;}
 	void setAmp(double amp) {m_amp = amp;}
@@ -86,15 +102,19 @@ public:
 	double amp() const {return m_amp;}
 	void setNormalized(bool norm) {m_normalized = norm;}
 	bool isNormalized() const {return m_normalized;}
+	void setTargetGain(float gain) {m_targetGain = gain;}
+	float targetGain() const {return m_targetGain;}
+	float gain(int ch) const {return (0 <= ch && ch < m_channels.size()) ? m_channels[ch].gain : 0.f;}
+	void setSmoothness(int smooth) {m_smoothness = smooth;}
 private:
 	float coefficient() const {return m_muted ? .0 : (m_amp*m_volume)/100.;}
+	QVector<Channel> m_channels;
 	int m_volume;
 	double m_amp;
 	bool m_muted;
-	float *m_last, *m_sum, *m_gain;
-	float m_maxLevel;
-	int m_size, m_channels;
 	bool m_normalized;
+	float m_targetGain, m_gainAvg;
+	int m_smoothness;
 };
 
 struct AudioController::Data {
@@ -110,6 +130,7 @@ void AudioController::setUtil(AudioUtil *util) {
 void AudioController::prepare(const AudioFormat *format) {
 	d->format = *format;
 	d->volume.init(d->format);
+	emit formatChanged(d->format);
 }
 
 AudioBuffer *AudioController::process(AudioBuffer *in) {
@@ -117,6 +138,7 @@ AudioBuffer *AudioController::process(AudioBuffer *in) {
 }
 
 AudioController::AudioController(/*PlayEngine *engine*/): d(new Data) {
+	qRegisterMetaType<AudioFormat>("AudioFormat");
 }
 
 AudioController::~AudioController() {
@@ -174,4 +196,24 @@ void AudioController::setTempoScaled(bool scaled) {
 
 bool AudioController::isTempoScaled() const {
 	return d->util->scaletempo_enabled != 0;
+}
+
+double AudioController::gain(int ch) const {
+	return d->volume.gain(ch);
+}
+
+double AudioController::gain() const {
+	return d->volume.gain();
+}
+
+double AudioController::targetGain() const {
+	return d->volume.targetGain();
+}
+
+void AudioController::setTargetGain(double gain) {
+	d->volume.setTargetGain(gain);
+}
+
+void AudioController::setNormalizerSmoothness(int smooth) {
+	d->volume.setSmoothness(smooth);
 }

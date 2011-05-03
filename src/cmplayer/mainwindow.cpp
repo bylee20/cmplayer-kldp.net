@@ -29,11 +29,8 @@ MainWindow::MainWindow() {
 #endif
 
 	d->hider->setSingleShot(true);
-	d->video->addOsd(d->playInfo->osd());
-	d->video->addOsd(d->subtitle->osd());
-	d->video->addOsd(d->timeLine);
-	d->video->addOsd(d->message);
 	d->playInfo->setVideo(d->video);
+	d->playInfo->setAudio(d->audio);
 
 	setMouseTracking(true);
 	setCentralWidget(d->center);
@@ -61,7 +58,8 @@ MainWindow::MainWindow() {
 	CONNECT(play("repeat").g(), triggered(int), this, doRepeat(int));
 	CONNECT(play["prev"], triggered(), d->playlist, playPrevious());
 	CONNECT(play["next"], triggered(), d->playlist, playNext());
-	CONNECT(play("seek").g(), triggered(int), this, seek(int));
+	CONNECT(play("seek").g("relative"), triggered(int), this, seek(int));
+	CONNECT(play("seek").g("subtitle"), triggered(int), this, seekToSubtitle(int));
 	CONNECT(play("title").g(), triggered(QAction*), this, setTitle(QAction*));
 	CONNECT(play("chapter").g(), triggered(QAction*), this, setChapter(QAction*));
 
@@ -71,7 +69,7 @@ MainWindow::MainWindow() {
 	CONNECT(video["snapshot"], triggered(), this, takeSnapshot());
 	CONNECT(video.g("color"), triggered(QAction*), this, setColorProperty(QAction*));
 	CONNECT(&video("filter"), triggered(QAction*), this, setEffect(QAction*));
-
+	CONNECT(video("overlay").g(), triggered(int), d->video, setOverlayType(int));
 	CONNECT(audio("track").g(), triggered(QAction*), this, setAudioTrack(QAction*));
 	CONNECT(audio.g("volume"), triggered(int), this, setVolume(int));
 	CONNECT(audio["mute"], toggled(bool), this, setMuted(bool));
@@ -144,6 +142,10 @@ MainWindow::MainWindow() {
 	mb->addMenu(&win);
 	mb->addMenu(&help);
 #endif
+	d->video->addOsd(d->playInfo->osd());
+	d->video->addOsd(d->subtitle->osd());
+	d->video->addOsd(d->timeLine);
+	d->video->addOsd(d->message);
 }
 
 MainWindow::~MainWindow() {
@@ -825,4 +827,16 @@ void MainWindow::setSubtitleAlign(int data) {
 
 void MainWindow::setSubtitleDisplay(int data) {
 	d->subtitle->osd()->setLetterboxHint(data);
+}
+
+void MainWindow::seekToSubtitle(int key) {
+	int time = -1;
+	if (key < 0)
+		time = d->subtitle->previous();
+	else if (key > 0)
+		time = d->subtitle->next();
+	else
+		time = d->subtitle->current();
+	if (time >= 0)
+		d->engine->seek(time-100);
 }

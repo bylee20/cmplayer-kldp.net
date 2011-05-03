@@ -76,4 +76,8 @@ void FramebufferObjectOverlay::render(QPainter */*painter*/) {
 		video()->drawTexture(QRectF(d->bg.topLeft(), d->fbo->size()), d->fbo->texture());
 }
 
-
+QList<OsdRenderer*> FramebufferObjectOverlay::takeOsds() {
+	QList<OsdRenderer*> osds = d->osds;
+	d->osds.clear();
+	return osds;
+}

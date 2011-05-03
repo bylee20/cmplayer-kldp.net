@@ -85,6 +85,7 @@ class MainWindowData {
 
 		menu("video")("aspect").g()->trigger(as[AppState::AspectRatio]);
 		menu("video")("crop").g()->trigger(as[AppState::Crop]);
+		menu("video")("overlay").g()->trigger(as[AppState::OverlayType]);
 		menu("window").g("sot")->trigger(StaysOnTopEnum::value(as[AppState::StaysOnTop].toString()));
 		menu("subtitle").g("display")->trigger((int)as[AppState::SubLetterbox].toBool());
 		menu("subtitle").g("align")->trigger((int)as[AppState::SubAlignTop].toBool());
@@ -114,6 +115,9 @@ class MainWindowData {
 		as[AppState::StaysOnTop] = StaysOnTopEnum::name(stay_on_top_mode());
 		as[AppState::SubLetterbox] = subtitle->osd()->letterboxHint();
 		as[AppState::SubAlignTop] = subtitle->isTopAligned();
+		QAction *act = menu("video")("overlay").g()->checkedAction();
+		if (act)
+			as[AppState::OverlayType] = act->data().toInt();
 		as.save();
 	}
 
@@ -136,6 +140,8 @@ class MainWindowData {
 		Translator::load(pref.locale);
 		app()->setStyle(pref.window_style);
 		subtitle->osd()->setStyle(pref.sub_style);
+		audio->setTargetGain((double)pref.normalizer_gain/100.0);
+		audio->setNormalizerSmoothness(pref.normalizer_smoothness);
 		menu.updatePref();
 	#ifndef Q_WS_MAC
 		tray->setVisible(pref.enable_system_tray);

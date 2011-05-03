@@ -25,6 +25,7 @@ public:
 		StaysOnTop,
 		SubLetterbox,
 		SubAlignTop,
+		OverlayType,
 		TypeMax
 	};
 	const QString &key(Type type) const {return d.keys[type];}

@@ -1,4 +1,5 @@
 #include "appstate.hpp"
+#include "overlay.hpp"
 #include "global.hpp"
 #include <QtCore/QSize>
 #include <QtCore/QRect>
@@ -26,6 +27,7 @@ AppState::Data::Data()
 //	INIT(StayOnTop, OnTopPlaying)
 	INIT(SubLetterbox, true);
 	INIT(SubAlignTop, false);
+	INIT(OverlayType, (int)Overlay::Auto);
 #undef INIT
 }
 

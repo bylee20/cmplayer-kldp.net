@@ -74,3 +74,13 @@ void PixmapOverlay::render(QPainter *painter) {
 			painter->drawPixmap(pos, *it);
 	}
 }
+
+QList<OsdRenderer*> PixmapOverlay::takeOsds() {
+	QList<OsdRenderer*> ret;
+	QMap<OsdRenderer*, QPixmap>::const_iterator it = d->caches.begin();
+	for (; it != d->caches.end(); ++it) {
+		ret.append(it.key());
+	}
+	d->caches.clear();
+	return ret;
+}

@@ -23,5 +23,7 @@
         <file>img/format-text-italic.png</file>
         <file>img/format-text-strikethrough.png</file>
         <file>img/format-text-underline.png</file>
+        <file>img/applications-multimedia.png</file>
+        <file>img/speaker-large.png</file>
     </qresource>
 </RCC>

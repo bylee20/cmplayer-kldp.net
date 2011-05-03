@@ -25,6 +25,7 @@ private slots:
 	void setSubtitleAlign(int data);
 	void setSubtitleDisplay(int data);
 //	void setFilter(QAction *action);
+	void seekToSubtitle(int key);
 	void about();
 	void setVolumeNormalized(bool norm);
 	void setTempoScaled(bool scaled);
