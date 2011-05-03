@@ -12,7 +12,9 @@ depends=('qt>=4.6' 'vlc>=1.1')
 #md5sums=('29caaed75294d5ab3773a6fe6dbcc824')
 
 build() {
-	cd "$srcdir/$pkgname-$pkgver"
+	cd $srcdir
+	svn export http://anonsvn:anonsvn@kldp.net/svn/$pkgname/trunk $pkgname-$pkgver
+	cd $pkgname-$pkgver
 	make PREFIX=/usr CMPLAYER_PLUGIN_PATH=/usr/lib/cmplayer/plugins -f Makefile.linux cmplayer || return 1
 }
 
