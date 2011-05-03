@@ -1,8 +1,8 @@
 # Maintainer: xylosper <darklin20@gmail.com>
 
 pkgname=('cmplayer')
-pkgver=0.5.2
-pkgrel=2
+pkgver=0.5.3
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://kldp.net/projects/cmplayer/"
 license=('GPL')
