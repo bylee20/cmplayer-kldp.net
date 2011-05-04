@@ -1,4 +1,9 @@
 #include "application.hpp"
+#include "recentinfo.hpp"
+#include "videorenderer.hpp"
+#include "audiocontroller.hpp"
+#include "playengine.hpp"
+#include "menu.hpp"
 #include <QtGui/QMessageBox>
 #include <unistd.h>
 #include <QtGui/QFileOpenEvent>
@@ -16,6 +21,8 @@
 #include <QtCore/QUrl>
 #include <QtGui/QMenuBar>
 #include <QtOpenGL/QGLFormat>
+#include "appstate.hpp"
+#include "libvlc.hpp"
 
 #if defined(Q_WS_MAC)
 #include "application_mac.hpp"
@@ -24,11 +31,11 @@
 #endif
 
 struct Application::Data {
-	MainWindow *main;
 	QString defStyle;
 	QMenuBar *mb;
 	QUrl url;
 	QProcess *cpu;
+	MainWindow *main;
 #if defined(Q_WS_MAC)
 	ApplicationMac helper;
 #elif defined(Q_WS_X11)
@@ -63,6 +70,8 @@ Application::Application(int &argc, char **argv)
 	setOrganizationName("xylosper");
 	setOrganizationDomain("xylosper.net");
 	setApplicationName("CMPlayer");
+
+	Pref::init();
 	setWindowIcon(defaultIcon());
 
 	d->defStyle = style()->objectName();
@@ -73,19 +82,41 @@ Application::Application(int &argc, char **argv)
 	d->mb = new QMenuBar;
 #endif
 	setQuitOnLastWindowClosed(false);
-	qInstallMsgHandler(messageHandler);
+//	qInstallMsgHandler(messageHandler);
 	QTimer::singleShot(1, this, SLOT(initialize()));
 	d->cpu = new QProcess(this);
 	connect(d->cpu, SIGNAL(readyReadStandardOutput()), this, SLOT(readProcInfo()));
 }
 
+void Application::initStaticObjects() {
+	RecentInfo::init();
+	PlayEngine::init();
+	VideoRenderer::init();
+	AudioController::init();
+	LibVLC::init();
+	AppState::init();
+	Menu::init();
+	MainWindow::init();
+	d->main = &MainWindow::get();
+}
+
 Application::~Application() {
+	MainWindow::fin();
 	if (d->cpu->state() != QProcess::NotRunning)
 	    d->cpu->kill();
 	delete d->mb;
-	delete d->main;
-	qInstallMsgHandler(0);
+	d->main = 0;
 	delete d;
+
+	Menu::fin();
+	AppState::fin();
+	PlayEngine::fin();
+	VideoRenderer::fin();
+	AudioController::fin();
+	LibVLC::fin();
+	RecentInfo::fin();
+
+	Pref::fin();
 }
 
 QIcon Application::defaultIcon() {
@@ -121,28 +152,6 @@ QString Application::test() {
 void Application::getProcInfo() {
 	d->cpu->start("ps", QStringList() << "-p" << QString::number(getpid()) << "-o" << "pcpu,rss,pmem", QProcess::ReadOnly);
 }
-
-static QByteArray parseProcInfo(const QByteArray &output, const int br, const char *column) {
-	const int pc = output.indexOf(column);
-	int idx = br + pc + qstrlen(column);
-	if (idx < 0 || idx >= output.size())
-		return QByteArray();
-	QByteArray temp;
-	temp.reserve(6);
-	while (idx >= 0) {
-		const char c = output[idx];
-		if (isspace(c))
-			break;
-		temp += c;
-		--idx;
-	}
-	QByteArray value;
-	value.reserve(temp.size()+1);
-	for (int i = temp.size()-1; i >= 0; --i)
-		value += temp[i];
-	return value;
-}
-
 
 void Application::readProcInfo() {
 	const QByteArray output = d->cpu->readAllStandardOutput();
@@ -185,10 +194,6 @@ bool Application::event(QEvent *event) {
 
 QStringList Application::devices() const {
 	return d->helper.devices();
-}
-
-MainWindow *Application::mainWindow() const {
-	return d->main;
 }
 
 void Application::initialize() {
@@ -250,7 +255,7 @@ void Application::initialize() {
 				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #333, stop:1 #bbb);\
 			}"
 		);
-		d->main = new MainWindow;
+		initStaticObjects();
 		d->main->show();
 		if (!mrl.isEmpty())
 			d->main->openMrl(mrl);

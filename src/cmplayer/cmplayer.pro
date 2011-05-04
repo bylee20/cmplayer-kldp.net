@@ -106,15 +106,17 @@ HEADERS += playengine.hpp \
     events.hpp \
     listmodel.hpp \
     fragmentprogram.hpp \
-    shader/i420_to_rgb_simple.hpp \
-    shader/i420_to_rgb_filter.hpp \
-    shader/i420_to_rgb_kernel.hpp \
+    i420_to_rgb_simple.hpp \
+    i420_to_rgb_filter.hpp \
+    i420_to_rgb_kernel.hpp \
     mainwindow_p.hpp \
     pref_widget.hpp \
     playinfoview.hpp \
     widgets.hpp \
     qtcolorpicker.hpp \
-    richtext.hpp
+    richtext.hpp \
+    enums.hpp \
+    actiongroup.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -179,7 +181,9 @@ SOURCES += main.cpp \
     playinfoview.cpp \
     widgets.cpp \
     qtcolorpicker.cpp \
-    richtext.cpp
+    richtext.cpp \
+    enums.cpp \
+    actiongroup.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts

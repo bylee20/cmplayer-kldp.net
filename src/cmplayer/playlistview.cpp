@@ -149,12 +149,12 @@ void PlaylistView::showContextMenu(const QPoint &/*pos*/) {
 }
 
 Playlist PlaylistView::generatePlaylist(const Mrl &mrl) {
-	const AutoAddFiles mode = Pref::get().auto_add_files;
-	if (!mrl.isLocalFile() || mode == DoNotAddFiles)
+	const Enum::GeneratePlaylist mode = Pref::get().generate_playlist;
+	if (!mrl.isLocalFile() || mode == Enum::GeneratePlaylist::None)
 		return Playlist(mrl);
 	const QFileInfo file(mrl.toLocalFile());
 	const QDir dir = file.dir();
-	if (mode == AllFiles)
+	if (mode == Enum::GeneratePlaylist::Folder)
 		return Playlist().loadAll(dir);
 	const QStringList filter = Info::mediaNameFilter();
 	const QFileInfoList files = dir.entryInfoList(filter, QDir::Files, QDir::Name);

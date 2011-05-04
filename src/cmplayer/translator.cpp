@@ -17,19 +17,6 @@ static inline uint qHash(const QLocale &key) {
 	return qHash(key.name());
 }
 
-QSet<QLocale> getLocales(const QString &path, const QString &filter, const QString &regExp) {
-	const QDir dir(path);
-	const QStringList file = dir.entryList(QStringList(filter));
-	QRegExp rx("^cmplayer_" + regExp + "$");
-	QSet<QLocale> set;
-	for (int i=0; i<file.size(); ++i) {
-		if (rx.indexIn(file[i]) == -1)
-			continue;
-		set.insert(QLocale(rx.cap(1)));
-	}
-	return set;
-}
-
 Translator::Translator()
 : d(new Data) {
 	d->def = ":/translations";
@@ -44,12 +31,25 @@ Translator::~Translator() {
 	delete d;
 }
 
+QSet<QLocale> Translator::getLocales(const QString &path, const QString &filter, const QString &exp) {
+	const QDir dir(path);
+	const QStringList file = dir.entryList(QStringList(filter));
+	QRegExp rx("^cmplayer_" + exp + "$");
+	QSet<QLocale> set;
+	for (int i=0; i<file.size(); ++i) {
+		if (rx.indexIn(file[i]) == -1)
+			continue;
+		set.insert(QLocale(rx.cap(1)));
+	}
+	return set;
+}
+
 Translator &Translator::get() {
 	static Translator self;
 	return self;
 }
 
-LocaleList Translator::availableLocales() {
+QList<QLocale> Translator::availableLocales() {
 	QList<QLocale> list = get().d->locale.toList();
 	list.prepend(QLocale::c());
 	return list;

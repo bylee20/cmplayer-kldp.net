@@ -39,6 +39,7 @@ public:
 	void setScreensaverDisabled(bool disabled);
 	QString test();
 private:
+	static void mac_install_event_handler(QObject *app) {new ApplicationMac(app);}
 	bool eventFilter( QObject *o, QEvent *e );
 	ApplicationMacData *d;
 };

@@ -26,7 +26,6 @@ private:
 	static const int FilterEffects = InvertColor | RemapLuma | AutoContrast;
 	static const int KernelEffects = Blur | Sharpen;
 public:
-	VideoRenderer(QWidget *parent = 0);
 	~VideoRenderer();
 	// takes ownership
 	void addOsd(OsdRenderer *osd);
@@ -48,6 +47,9 @@ public:
 	void setEffects(Effects effect);
 	void setInfoVisible(bool visible);
 	double outputFrameRate(bool reset = true) const;
+	static void init();
+	static void fin();
+	static VideoRenderer &get() {Q_ASSERT(obj != 0); return *obj;}
 public slots:
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
@@ -59,7 +61,10 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 private:
+	static VideoRenderer *obj;
+	VideoRenderer();
 	double widgetRatio() const {return (double)width()/(double)height();}
+	static bool isSameRatio(double r1, double r2) {return (r1<0. && r2<0.) || qFuzzyCompare(r1, r2);}
 	static int translateButton(Qt::MouseButton qbutton);
 	void setUtil(VideoUtil *util);
 	void *lock(void ***planes);

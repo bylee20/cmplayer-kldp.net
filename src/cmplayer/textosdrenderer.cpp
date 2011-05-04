@@ -353,7 +353,7 @@ TextOsdRenderer::TextOsdRenderer(Qt::Alignment align): d(new Data) {
 	d->bw = 1.0;
 	d->top = d->bottom = d->left = d->right = 0.0;
 	OsdStyle style = this->style();
-	style.auto_size = OsdStyle::FitToWidth;
+	style.auto_size = OsdStyle::AutoSize::Width;
 	setStyle(style);
 	setAlignment(align);
 	d->clearer.setSingleShot(true);
@@ -448,9 +448,9 @@ QSizeF TextOsdRenderer::size() const {
 void TextOsdRenderer::updateFont() {
 	int px = 0;
 	const OsdStyle::AutoSize size = style().auto_size;
-	if (size == OsdStyle::FitToDiagonal)
+	if (size == OsdStyle::AutoSize::Diagonal)
 		px = qRound(qSqrt(d->bg.height()*d->bg.height() + d->bg.width()*d->bg.width()) * style().text_scale);
-	else if (size == OsdStyle::FitToWidth)
+	else if (size == OsdStyle::AutoSize::Width)
 		px = qRound(d->bg.width()*style().text_scale);
 	else
 		px = qRound(d->bg.height()*style().text_scale);

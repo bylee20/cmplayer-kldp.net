@@ -25,18 +25,16 @@ public slots:
 	void setCurrentPage(int idx) const;
 private slots:
 	void getShortcut(int id);
-	void slotCurrentItemChanged(QTreeWidgetItem *current);
-	void slotMediaItemClicked(QTreeWidgetItem *item, int column);
-	void checkSubtitleSelect(int index);
+	void checkCurrentMenu(QTreeWidgetItem *current);
+	void checkSubAutoselect(const QVariant &data);
 private:
+	void retranslate();
+	void changeEvent(QEvent *event);
 	static QString toString(const QLocale &locale);
-	static QVariant currentComboData(QComboBox *combo);
-	static void setComboIndex(QComboBox *combo, const QVariant &value);
+//	static QVariant currentComboData(QComboBox *combo);
+//	static void setComboIndex(QComboBox *combo, const QVariant &value);
 	struct Data;
 	class MenuTreeItem;
-	class MediaTreeItem;
-	class MouseGroup;
-	struct Data;
 	Data *d;
 };
 

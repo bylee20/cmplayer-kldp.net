@@ -229,11 +229,11 @@ QList<int> SubtitleRenderer::autoselection(const Mrl &mrl, const QList<Loaded> &
 	const QString base = QFileInfo(mrl.toLocalFile()).completeBaseName();
 	for (int i=0; i<loaded.size(); ++i) {
 		bool select = false;
-		if (p.sub_autoselect == SameName) {
+		if (p.sub_autoselect == Enum::SubtitleAutoselect::Matched) {
 			select = QFileInfo(loaded[i].m_comp.fileName()).completeBaseName() == base;
-		} else if (p.sub_autoselect == AllLoaded) {
+		} else if (p.sub_autoselect == Enum::SubtitleAutoselect::All) {
 			select = true;
-		} else if (p.sub_autoselect == EachLanguage) {
+		} else if (p.sub_autoselect == Enum::SubtitleAutoselect::EachLanguage) {
 			const QString lang = loaded[i].m_comp.language().id();
 			if ((select = (!langSet.contains(lang))))
 				langSet.insert(lang);
@@ -241,7 +241,7 @@ QList<int> SubtitleRenderer::autoselection(const Mrl &mrl, const QList<Loaded> &
 		if (select)
 			selected.append(i);
 	}
-	if (p.sub_autoselect == SameName
+	if (p.sub_autoselect == Enum::SubtitleAutoselect::Matched
 			&& !selected.isEmpty() && !p.sub_ext.isEmpty()) {
 		for (int i=0; i<selected.size(); ++i) {
 			const QString fileName = loaded[selected[i]].m_comp.fileName();
@@ -260,15 +260,15 @@ QList<int> SubtitleRenderer::autoselection(const Mrl &mrl, const QList<Loaded> &
 int SubtitleRenderer::autoload(const Mrl &mrl, bool autoselect) {
 	unload();
 	const Pref &pref = Pref::get();
-	if (pref.sub_autoload == NoAutoLoad)
+	if (pref.sub_autoload == Enum::SubtitleAutoload::None)
 		return 0;
 	const QStringList filter = Info::subtitleNameFilter();
 	const QFileInfo fileInfo(mrl.toLocalFile());
 	const QFileInfoList all = fileInfo.dir().entryInfoList(filter, QDir::Files, QDir::Name);
 	const QString base = fileInfo.completeBaseName();
 	for (int i=0; i<all.size(); ++i) {
-		if (pref.sub_autoload != SamePath) {
-			if (pref.sub_autoload == Matched) {
+		if (pref.sub_autoload != Enum::SubtitleAutoload::Folder) {
+			if (pref.sub_autoload == Enum::SubtitleAutoload::Matched) {
 				if (base != all[i].completeBaseName())
 					continue;
 			} else if (!all[i].fileName().contains(base))

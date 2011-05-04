@@ -16,9 +16,21 @@
 #include <QtCore/QCoreApplication>
 #include <math.h>
 
-#include "shader/i420_to_rgb_simple.hpp"
-#include "shader/i420_to_rgb_filter.hpp"
-#include "shader/i420_to_rgb_kernel.hpp"
+#include "i420_to_rgb_simple.hpp"
+#include "i420_to_rgb_filter.hpp"
+#include "i420_to_rgb_kernel.hpp"
+
+VideoRenderer *VideoRenderer::obj = 0;
+
+void VideoRenderer::init() {
+	Q_ASSERT(obj == 0);
+	obj = new VideoRenderer;
+}
+
+void VideoRenderer::fin() {
+	delete obj;
+	obj = 0;
+}
 
 class FrameRateMeasure {
 public:
@@ -129,8 +141,9 @@ QGLFormat VideoRenderer::makeFormat() {
 	return format;
 }
 
-VideoRenderer::VideoRenderer(QWidget *parent)
-: QGLWidget(makeFormat(), parent), d(new Data) {
+VideoRenderer::VideoRenderer()
+: QGLWidget(makeFormat()), d(new Data) {
+	Q_ASSERT(obj == 0);
 	makeCurrent();
 	glGenTextures(3, d->texture);
 #define GET_PROC_ADDRESS(func) func = (_##func)context()->getProcAddress(QLatin1String(#func))
@@ -345,10 +358,6 @@ QSize VideoRenderer::sizeHint() const {
 	QSizeF crop(targetCropRatio(aspect), 1.0);
 	crop.scale(size, Qt::KeepAspectRatio);
 	return crop.toSize();
-}
-
-static bool isSameRatio(double r1, double r2) {
-	return (r1 < 0.0 && r2 < 0.0) || qFuzzyCompare(r1, r2);
 }
 
 void VideoRenderer::setAspectRatio(double ratio) {

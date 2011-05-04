@@ -8,6 +8,8 @@
 #include <QtCore/QTime>
 #include <QtCore/QThread>
 #include <QtCore/QTimer>
+#include <QtGui/QDialogButtonBox>
+#include <QtGui/QDialog>
 
 namespace Global {
 
@@ -66,5 +68,14 @@ QString getOpenFileName(QWidget *p, const QString &t, const QString &dir, const 
 QString getSaveFileName(QWidget *p, const QString &t, const QString &dir, const QString &f) {
 	return QFileDialog::getSaveFileName(p, t, dir, f, 0, QFileDialog::DontUseNativeDialog);
 }
+
+QDialogButtonBox *makeButtonBox(QDialog *dlg) {
+	QDialogButtonBox *dbb = new QDialogButtonBox(
+		QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, dlg);
+	dlg->connect(dbb, SIGNAL(accepted()), SLOT(accept()));
+	dlg->connect(dbb, SIGNAL(rejected()), SLOT(reject()));
+	return dbb;
+}
+
 
 }

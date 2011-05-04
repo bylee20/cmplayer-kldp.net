@@ -34,21 +34,21 @@ QString CharsetDetector::encoding() const {
 	return QString();
 }
 
-double CharsetDetector::confidence() const {
+double CharsetDetector::accuracy() const {
 	return d->detected ? d->obj->confidence : 0.0;
 }
 
 
-QString CharsetDetector::detect(const QByteArray &data, double confidence) {
+QString CharsetDetector::detect(const QByteArray &data, double accuracy) {
 	CharsetDetector chardet(data);
-	if (chardet.isDetected() && chardet.confidence() > confidence)
+	if (chardet.isDetected() && chardet.accuracy() > accuracy)
 		return chardet.encoding();
 	return QString();
 }
 
-QString CharsetDetector::detect(const QString &fileName, double confidence, int size) {
+QString CharsetDetector::detect(const QString &fileName, double accuracy, int size) {
 	QFile file(fileName);
 	if (!file.open(QFile::ReadOnly))
 		return QString();
-	return detect(file.read(size), confidence);
+	return detect(file.read(size), accuracy);
 }

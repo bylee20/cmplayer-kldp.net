@@ -4,13 +4,14 @@
 #include <QtGui/QWidget>
 #include <QtGui/QTextOption>
 #include <QtCore/QPointF>
+#include "enums.hpp"
 
 class QSettings;
 
 class OsdStyle {
 public:
+	typedef Enum::OsdAutoSize AutoSize;
 //	class Widget;
-	enum AutoSize {FitToWidth, FitToHeight, FitToDiagonal};
 	OsdStyle();
 	void save(QSettings *set, const QString &group) const;
 	void load(QSettings *set, const QString &group);

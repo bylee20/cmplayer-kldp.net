@@ -9,7 +9,7 @@ class AudioBuffer;		class AudioUtil;
 class AudioController : public QObject {
 	Q_OBJECT
 public:
-	AudioController(/*PlayEngine *engine*/);
+	AudioController();
 	~AudioController();
 	int volume() const;
 	bool isMuted() const;
@@ -22,6 +22,9 @@ public:
 	double targetGain() const;
 	void setTargetGain(double gain);
 	void setNormalizerSmoothness(int smooth);
+	static void init();
+	static void fin();
+	static AudioController &get() {Q_ASSERT(obj != 0); return *obj;}
 public slots:
 	void setVolumeNormalized(bool norm);
 	void setVolume(int volume);
@@ -41,6 +44,7 @@ private:
 	friend class LibVLC;
 	struct Data;
 	Data *d;
+	static AudioController *obj;
 };
 
 #endif // AUDIOCONTROLLER_HPP

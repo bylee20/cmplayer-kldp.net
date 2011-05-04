@@ -37,14 +37,14 @@
           <enum>QFormLayout::FieldsStayAtSizeHint</enum>
          </property>
          <item row="0" column="1">
-          <widget class="QCheckBox" name="pauseMinimized">
+          <widget class="QCheckBox" name="pause_minimized">
            <property name="text">
             <string>Pause when minimized</string>
            </property>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QCheckBox" name="pauseVideoOnly">
+          <widget class="QCheckBox" name="pause_video_only">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -67,14 +67,14 @@
           </widget>
          </item>
          <item row="3" column="1">
-          <widget class="QCheckBox" name="startStopped">
+          <widget class="QCheckBox" name="remember_stopped">
            <property name="text">
             <string>Remember and start from stopped time when replay</string>
            </property>
           </widget>
          </item>
          <item row="4" column="1">
-          <widget class="QCheckBox" name="askWhenRecordFound">
+          <widget class="QCheckBox" name="ask_record_found">
            <property name="enabled">
             <bool>false</bool>
            </property>
@@ -113,14 +113,14 @@
          <item row="9" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
-            <widget class="QCheckBox" name="hideCursor">
+            <widget class="QCheckBox" name="hide_cursor">
              <property name="text">
               <string>Hide cursor when it doesn't move during </string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="hideDelay">
+            <widget class="QSpinBox" name="hide_delay">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -141,14 +141,14 @@
           </layout>
          </item>
          <item row="10" column="1">
-          <widget class="QCheckBox" name="disableSS">
+          <widget class="QCheckBox" name="disable_screensaver">
            <property name="text">
             <string>Disable screensaver while playing</string>
            </property>
           </widget>
          </item>
          <item row="6" column="1">
-          <widget class="QComboBox" name="autoAdd">
+          <widget class="GeneratePlaylistComboBox" name="generate_playlist">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -198,7 +198,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="blur_c">
+            <widget class="QSpinBox" name="blur_kern_c">
              <property name="minimum">
               <number>-99</number>
              </property>
@@ -212,7 +212,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="blur_n">
+            <widget class="QSpinBox" name="blur_kern_n">
              <property name="minimum">
               <number>-99</number>
              </property>
@@ -226,7 +226,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="blur_d">
+            <widget class="QSpinBox" name="blur_kern_d">
              <property name="minimum">
               <number>-99</number>
              </property>
@@ -251,7 +251,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="sharpen_c">
+            <widget class="QSpinBox" name="sharpen_kern_c">
              <property name="minimum">
               <number>-99</number>
              </property>
@@ -265,7 +265,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="sharpen_n">
+            <widget class="QSpinBox" name="sharpen_kern_n">
              <property name="minimum">
               <number>-99</number>
              </property>
@@ -279,7 +279,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QSpinBox" name="sharpen_d">
+            <widget class="QSpinBox" name="sharpen_kern_d">
              <property name="minimum">
               <number>-99</number>
              </property>
@@ -352,7 +352,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QDoubleSpinBox" name="auto_contrast_th">
+            <widget class="QDoubleSpinBox" name="auto_contrast_threshold">
              <property name="accelerated">
               <bool>true</bool>
              </property>
@@ -468,7 +468,7 @@
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QComboBox" name="autoLoad">
+              <widget class="SubtitleAutoloadComboBox" name="sub_autoload">
                <property name="toolTip">
                 <string>Load next subtitles when starting to play a file.</string>
                </property>
@@ -485,7 +485,7 @@
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QComboBox" name="autoSelect">
+              <widget class="SubtitleAutoselectComboBox" name="sub_autoselect">
                <property name="toolTip">
                 <string>Select next subtitles in automatically loaded subtitles.</string>
                </property>
@@ -495,7 +495,7 @@
               </widget>
              </item>
              <item row="2" column="0">
-              <widget class="QLabel" name="subExtLabel">
+              <widget class="QLabel" name="sub_ext_label">
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -505,7 +505,7 @@
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QComboBox" name="subSelectExt">
+              <widget class="DataComboBox" name="sub_ext">
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -529,7 +529,7 @@
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="EncodingComboBox" name="encoding">
+              <widget class="EncodingComboBox" name="sub_enc">
                <property name="toolTip">
                 <string>Open subtitle file with selected encoding.</string>
                </property>
@@ -551,14 +551,14 @@
              <item row="5" column="1">
               <layout class="QHBoxLayout" name="horizontalLayout_8">
                <item>
-                <widget class="QCheckBox" name="subEncAutoDet">
+                <widget class="QCheckBox" name="sub_enc_autodetection">
                  <property name="text">
                   <string>Enable when the accuracy is over</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QSpinBox" name="subConf">
+                <widget class="QSpinBox" name="sub_enc_accuracy">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
@@ -659,7 +659,7 @@
              <item row="3" column="1">
               <layout class="QHBoxLayout" name="horizontalLayout_17">
                <item>
-                <widget class="QComboBox" name="sub_auto_size">
+                <widget class="OsdAutoSizeComboBox" name="sub_auto_size">
                  <property name="sizeAdjustPolicy">
                   <enum>QComboBox::AdjustToContents</enum>
                  </property>
@@ -776,7 +776,7 @@
               </widget>
              </item>
              <item row="8" column="1">
-              <widget class="QSpinBox" name="msPerChar">
+              <widget class="QSpinBox" name="ms_per_char">
                <property name="toolTip">
                 <string>When display time is not specifid in subtitle, caculate interval wih this value.</string>
                </property>
@@ -863,7 +863,7 @@ e.g.: English, Korean</string>
             </widget>
            </item>
            <item>
-            <widget class="SimpleListWidget" name="priority" native="true"/>
+            <widget class="SimpleListWidget" name="sub_priority" native="true"/>
            </item>
            <item>
             <spacer name="spacer_2">
@@ -909,7 +909,7 @@ e.g.: English, Korean</string>
               <enum>QFormLayout::FieldsStayAtSizeHint</enum>
              </property>
              <item row="1" column="1">
-              <widget class="QCheckBox" name="singleApp">
+              <widget class="QCheckBox" name="single_app">
                <property name="text">
                 <string>Run only single CMPlayer application at the same time</string>
                </property>
@@ -933,7 +933,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QComboBox" name="locale">
+              <widget class="DataComboBox" name="locale">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -950,7 +950,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QComboBox" name="winStyle"/>
+              <widget class="DataComboBox" name="window_style"/>
              </item>
              <item row="6" column="0">
               <widget class="QLabel" name="aLabel">
@@ -960,7 +960,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="6" column="1">
-              <widget class="QCheckBox" name="tray">
+              <widget class="QCheckBox" name="enable_system_tray">
                <property name="text">
                 <string>Enable system tray icon</string>
                </property>
@@ -977,7 +977,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="7" column="1">
-              <widget class="QCheckBox" name="hideWhenClosed">
+              <widget class="QCheckBox" name="hide_rather_close">
                <property name="enabled">
                 <bool>false</bool>
                </property>
@@ -1003,7 +1003,7 @@ e.g.: English, Korean</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QTreeWidget" name="shortcutTree">
+            <widget class="QTreeWidget" name="shortcut_tree">
              <property name="alternatingRowColors">
               <bool>true</bool>
              </property>
@@ -1051,6 +1051,9 @@ e.g.: English, Korean</string>
              </item>
              <item>
               <widget class="QPushButton" name="shortcut1">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1064,6 +1067,9 @@ e.g.: English, Korean</string>
              </item>
              <item>
               <widget class="QPushButton" name="shortcut2">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1077,6 +1083,9 @@ e.g.: English, Korean</string>
              </item>
              <item>
               <widget class="QPushButton" name="shortcut3">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1090,6 +1099,9 @@ e.g.: English, Korean</string>
              </item>
              <item>
               <widget class="QPushButton" name="shortcut4">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1139,7 +1151,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="0" column="1">
-              <widget class="QSpinBox" name="seek1">
+              <widget class="QSpinBox" name="seek_step1">
                <property name="suffix">
                 <string>sec</string>
                </property>
@@ -1165,7 +1177,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QSpinBox" name="seek2">
+              <widget class="QSpinBox" name="seek_step2">
                <property name="suffix">
                 <string>sec</string>
                </property>
@@ -1198,7 +1210,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="3" column="1">
-              <widget class="QSpinBox" name="spinBox">
+              <widget class="QSpinBox" name="brightness_step">
                <property name="suffix">
                 <string>%</string>
                </property>
@@ -1218,7 +1230,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QSpinBox" name="spinBox_3">
+              <widget class="QSpinBox" name="contrast_step">
                <property name="suffix">
                 <string>%</string>
                </property>
@@ -1251,7 +1263,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="6" column="1">
-              <widget class="QSpinBox" name="volume">
+              <widget class="QSpinBox" name="volume_step">
                <property name="suffix">
                 <string>%</string>
                </property>
@@ -1277,7 +1289,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="7" column="1">
-              <widget class="QSpinBox" name="amp">
+              <widget class="QSpinBox" name="amp_step">
                <property name="suffix">
                 <string>%</string>
                </property>
@@ -1310,7 +1322,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="2" column="1">
-              <widget class="QSpinBox" name="speed">
+              <widget class="QSpinBox" name="speed_step">
                <property name="suffix">
                 <string>%</string>
                </property>
@@ -1330,7 +1342,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="1" column="1">
-              <widget class="QSpinBox" name="seek3">
+              <widget class="QSpinBox" name="seek_step3">
                <property name="suffix">
                 <string>sec</string>
                </property>
@@ -1360,7 +1372,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="4" column="1">
-              <widget class="QSpinBox" name="spinBox_2">
+              <widget class="QSpinBox" name="saturation_step">
                <property name="suffix">
                 <string>%</string>
                </property>
@@ -1373,7 +1385,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="5" column="1">
-              <widget class="QSpinBox" name="spinBox_4">
+              <widget class="QSpinBox" name="hue_step">
                <property name="suffix">
                 <string>%</string>
                </property>
@@ -1393,7 +1405,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="7" column="1">
-              <widget class="QSpinBox" name="subPos">
+              <widget class="QSpinBox" name="sub_pos_step">
                <property name="suffix">
                 <string>%</string>
                </property>
@@ -1413,7 +1425,7 @@ e.g.: English, Korean</string>
               </widget>
              </item>
              <item row="8" column="1">
-              <widget class="QDoubleSpinBox" name="sync">
+              <widget class="QDoubleSpinBox" name="sync_delay_step">
                <property name="suffix">
                 <string>sec</string>
                </property>
@@ -1484,15 +1496,40 @@ e.g.: English, Korean</string>
    <header>widgets.hpp</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>GeneratePlaylistComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>SubtitleAutoloadComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>SubtitleAutoselectComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>OsdAutoSizeComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.hpp</header>
+  </customwidget>
+  <customwidget>
+   <class>DataComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets.hpp</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>pauseMinimized</tabstop>
-  <tabstop>pauseVideoOnly</tabstop>
-  <tabstop>startStopped</tabstop>
-  <tabstop>askWhenRecordFound</tabstop>
-  <tabstop>hideDelay</tabstop>
-  <tabstop>subConf</tabstop>
-  <tabstop>shortcutTree</tabstop>
+  <tabstop>pause_minimized</tabstop>
+  <tabstop>pause_video_only</tabstop>
+  <tabstop>remember_stopped</tabstop>
+  <tabstop>ask_record_found</tabstop>
+  <tabstop>hide_delay</tabstop>
+  <tabstop>sub_enc_accuracy</tabstop>
+  <tabstop>shortcut_tree</tabstop>
   <tabstop>shortcut1</tabstop>
   <tabstop>shortcut2</tabstop>
   <tabstop>shortcut3</tabstop>
@@ -1503,73 +1540,73 @@ e.g.: English, Korean</string>
  </resources>
  <connections>
   <connection>
-   <sender>subEncAutoDet</sender>
+   <sender>sub_enc_autodetection</sender>
    <signal>toggled(bool)</signal>
-   <receiver>subConf</receiver>
+   <receiver>sub_enc_accuracy</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>134</x>
-     <y>73</y>
+     <x>265</x>
+     <y>205</y>
     </hint>
     <hint type="destinationlabel">
-     <x>134</x>
-     <y>73</y>
+     <x>446</x>
+     <y>207</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>hideCursor</sender>
+   <sender>hide_cursor</sender>
    <signal>toggled(bool)</signal>
-   <receiver>hideDelay</receiver>
+   <receiver>hide_delay</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>438</x>
-     <y>247</y>
+     <x>415</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel">
-     <x>504</x>
-     <y>249</y>
+     <x>481</x>
+     <y>217</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>startStopped</sender>
+   <sender>remember_stopped</sender>
    <signal>toggled(bool)</signal>
-   <receiver>askWhenRecordFound</receiver>
+   <receiver>ask_record_found</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>497</x>
-     <y>122</y>
+     <x>483</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
-     <x>377</x>
-     <y>145</y>
+     <x>354</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>pauseMinimized</sender>
+   <sender>pause_minimized</sender>
    <signal>toggled(bool)</signal>
-   <receiver>pauseVideoOnly</receiver>
+   <receiver>pause_video_only</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>320</x>
-     <y>61</y>
+     <x>297</x>
+     <y>29</y>
     </hint>
     <hint type="destinationlabel">
-     <x>300</x>
-     <y>84</y>
+     <x>277</x>
+     <y>52</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>tray</sender>
+   <sender>enable_system_tray</sender>
    <signal>toggled(bool)</signal>
-   <receiver>hideWhenClosed</receiver>
+   <receiver>hide_rather_close</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1589,12 +1626,12 @@ e.g.: English, Korean</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>184</x>
-     <y>208</y>
+     <x>148</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>167</x>
-     <y>233</y>
+     <x>159</x>
+     <y>181</y>
     </hint>
    </hints>
   </connection>
@@ -1605,12 +1642,12 @@ e.g.: English, Korean</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>220</x>
-     <y>211</y>
+     <x>148</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>250</x>
-     <y>257</y>
+     <x>273</x>
+     <y>221</y>
     </hint>
    </hints>
   </connection>
@@ -1621,12 +1658,12 @@ e.g.: English, Korean</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>204</y>
+     <x>148</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>394</x>
-     <y>262</y>
+     <x>426</x>
+     <y>221</y>
     </hint>
    </hints>
   </connection>
@@ -1637,12 +1674,12 @@ e.g.: English, Korean</string>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>214</x>
-     <y>206</y>
+     <x>148</x>
+     <y>178</y>
     </hint>
     <hint type="destinationlabel">
-     <x>216</x>
-     <y>291</y>
+     <x>264</x>
+     <y>181</y>
     </hint>
    </hints>
   </connection>

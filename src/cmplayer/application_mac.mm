@@ -91,10 +91,6 @@ ApplicationMac::~ApplicationMac() {
 	delete d;
 }
 
-static void mac_install_event_handler(QObject *app) {
-	new ApplicationMac( app );
-}
-
 bool ApplicationMac::eventFilter( QObject *o, QEvent *e ) {
 	// Load here because cocoa NSApplication overides events
 	if(!d->eventsLoaded && o == qApp && e->type() == QEvent::ApplicationActivate) {
@@ -166,63 +162,63 @@ void ApplicationMac::setScreensaverDisabled(bool disabled) {
 }
 
 QString ApplicationMac::test() {
-	int i; // Loop counter.
+//	int i; // Loop counter.
 
-	// Create the File Open Dialog class.
-	NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+//	// Create the File Open Dialog class.
+//	NSOpenPanel* openDlg = [NSOpenPanel openPanel];
 
-	// Enable the selection of files in the dialog.
-	[openDlg setCanChooseFiles:YES];
+//	// Enable the selection of files in the dialog.
+//	[openDlg setCanChooseFiles:YES];
 
-	// Enable the selection of directories in the dialog.
-	[openDlg setCanChooseDirectories:YES];
+//	// Enable the selection of directories in the dialog.
+//	[openDlg setCanChooseDirectories:YES];
 
-	// Display the dialog.  If the OK button was pressed,
-	// process the files.
-	int ret = [openDlg runModalForDirectory:nil file:nil];
-	QAbstractEventDispatcher::instance()->interrupt();
-	if (ret== NSOKButton )
-	{
-	    // Get an array containing the full filenames of all
-	    // files and directories selected.
-	    NSArray* files = [openDlg filenames];
+//	// Display the dialog.  If the OK button was pressed,
+//	// process the files.
+//	int ret = [openDlg runModalForDirectory:nil file:nil];
+//	QAbstractEventDispatcher::instance()->interrupt();
+//	if (ret== NSOKButton )
+//	{
+//	    // Get an array containing the full filenames of all
+//	    // files and directories selected.
+//	    NSArray* files = [openDlg filenames];
 
-	    // Loop through all the files and process them.
-	    for( i = 0; i < [files count]; i++ )
-	    {
-		NSString* filename = [files objectAtIndex:i];
-		NSRange range;
-		range.location = 0;
-		range.length = [filename length];
-    //	    QString result(range.length, QChar(0));
+//	    // Loop through all the files and process them.
+//	    for( i = 0; i < [files count]; i++ )
+//	    {
+//		NSString* filename = [files objectAtIndex:i];
+//		NSRange range;
+//		range.location = 0;
+//		range.length = [filename length];
+//    //	    QString result(range.length, QChar(0));
 
-		unichar *chars = new unichar[range.length];
-		[filename getCharacters:chars range:range];
-		QString result = QString::fromUtf16(chars, range.length);
-		delete[] chars;
-		return result;
-		// Do something with the filename.
-	    }
-	}
+//		unichar *chars = new unichar[range.length];
+//		[filename getCharacters:chars range:range];
+//		QString result = QString::fromUtf16(chars, range.length);
+//		delete[] chars;
+//		return result;
+//		// Do something with the filename.
+//	    }
+//	}
 
-	return QString();
+//	return QString();
 
 
-	NSOpenPanel *op = [NSOpenPanel openPanel];
-	if ([op runModal] == NSOKButton)
-	{
-	    NSString *filename = [op filename];
-	    NSRange range;
-	    range.location = 0;
-	    range.length = [filename length];
-//	    QString result(range.length, QChar(0));
+//	NSOpenPanel *op = [NSOpenPanel openPanel];
+//	if ([op runModal] == NSOKButton)
+//	{
+//	    NSString *filename = [op filename];
+//	    NSRange range;
+//	    range.location = 0;
+//	    range.length = [filename length];
+////	    QString result(range.length, QChar(0));
 
-	    unichar *chars = new unichar[range.length];
-	    [filename getCharacters:chars range:range];
-	    QString result = QString::fromUtf16(chars, range.length);
-	    delete[] chars;
-	    return result;
-	}
+//	    unichar *chars = new unichar[range.length];
+//	    [filename getCharacters:chars range:range];
+//	    QString result = QString::fromUtf16(chars, range.length);
+//	    delete[] chars;
+//	    return result;
+//	}
 	return QString();
 }
 

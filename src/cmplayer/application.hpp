@@ -15,7 +15,6 @@ public:
 	QString defaultStyleName();
 	void setStyle(const QString &name);
 	static Mrl getMrlFromCommandLine();
-	MainWindow *mainWindow() const;
 	QStringList devices() const;
 	void setAlwaysOnTop(QWidget *widget, bool onTop);
 	void setScreensaverDisabled(bool disabled);
@@ -32,6 +31,7 @@ private slots:
 	void open(const QString &url);
 	void parseMessage(const QString &message);
 private:
+	void initStaticObjects();
 	static void messageHandler(QtMsgType type, const char *msg);
 	bool event(QEvent *event);
 	struct Data;

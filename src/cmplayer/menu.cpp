@@ -1,36 +1,28 @@
 #include "menu.hpp"
+#include "enums.hpp"
 #include "overlay.hpp"
 #include "videorenderer.hpp"
 #include "pref.hpp"
 #include "colorproperty.hpp"
-#include "mrl.hpp"
-#include <QtCore/QUrl>
-#include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
-void ActionGroup::emitData(QAction *action) {
-	const QVariant data = action->data();
-	emit triggered(data);
-	if (data.type() == QVariant::Int)
-		emit triggered(data.toInt());
-	else if (data.type() == QVariant::Double)
-		emit triggered(data.toDouble());
-	else if (data.type() == QVariant::String)
-		emit triggered(data.toString());
-	else if (data.type() == QVariant::Url)
-		emit triggered(data.toUrl().toString());
-}
-
-Menu *Menu::obj = 0;
+Menu *Menu::m_root = 0;
 QHash<QAction*, QString> Menu::keys;
 QHash<QString, QAction*> Menu::acts;
+Menu::ClickActionMap Menu::m_click;
+Menu::WheelActionMap Menu::m_wheel;
 
-Menu &Menu::create(QWidget *parent) {
-	if (obj)
-		return *obj;
-	Menu *root = new Menu("root", parent);
+void Menu::fin() {
+	delete m_root;
+	m_root = 0;
+}
 
-	Menu *open = root->addMenu("open");
+void Menu::init() {
+	Q_ASSERT(m_root == 0);
+
+	m_root = new Menu("root");
+
+	Menu *open = m_root->addMenu("open");
 
 	QAction *file = open->addAction("file");
 	file->setShortcut(Qt::CTRL + Qt::Key_F);
@@ -49,7 +41,7 @@ Menu &Menu::create(QWidget *parent) {
 	recent->addSeparator();
 	recent->addAction("clear");
 
-	Menu *play = root->addMenu("play");
+	Menu *play = m_root->addMenu("play");
 
 	QAction *pause = play->addAction("pause");
 	pause->setShortcut(Qt::Key_Space);
@@ -115,7 +107,7 @@ Menu &Menu::create(QWidget *parent) {
 	play->addMenu("title")->setEnabled(false);
 	play->addMenu("chapter")->setEnabled(false);
 
-	Menu *subtitle = root->addMenu("subtitle");
+	Menu *subtitle = m_root->addMenu("subtitle");
 	subtitle->addMenu("spu")->setEnabled(false);
 
 	Menu *sList = subtitle->addMenu("list");
@@ -143,7 +135,7 @@ Menu &Menu::create(QWidget *parent) {
 	syncReset->setData(0);
 	subtitle->addActionToGroup("sync-sub", false, "sync")->setShortcut(Qt::Key_A);
 
-	Menu *video = root->addMenu("video");
+	Menu *video = m_root->addMenu("video");
 	video->addMenu("track")->setEnabled(false);
 	video->addSeparator();
 	video->addAction("snapshot")->setShortcut(Qt::CTRL + Qt::Key_S);
@@ -202,7 +194,7 @@ Menu &Menu::create(QWidget *parent) {
 	overlay->addActionToGroup("fbo", true)->setData((int)Overlay::FramebufferObject);
 	overlay->addActionToGroup("pixmap", true)->setData((int)Overlay::Pixmap);
 
-	Menu *audio = root->addMenu("audio");
+	Menu *audio = m_root->addMenu("audio");
 	audio->addMenu("track")->setEnabled(false);
 	audio->addSeparator();
 
@@ -222,7 +214,7 @@ Menu &Menu::create(QWidget *parent) {
 	ampUp->setShortcut(Qt::CTRL + Qt::Key_Up);
 	ampDown->setShortcut(Qt::CTRL + Qt::Key_Down);
 
-	Menu *tool = root->addMenu("tool");
+	Menu *tool = m_root->addMenu("tool");
 	tool->addAction("playlist")->setShortcut(Qt::Key_L);
 	tool->addAction("favorites")->setVisible(false);
 	tool->addAction("history")->setShortcut(Qt::Key_C);
@@ -236,11 +228,11 @@ Menu &Menu::create(QWidget *parent) {
 	playInfo->setCheckable(true);
 	playInfo->setShortcut(Qt::Key_Tab);
 
-	Menu *window = root->addMenu("window");
+	Menu *window = m_root->addMenu("window");
 	// sot == Stay On Top
-	window->addActionToGroup("sot-always", true, "sot")->setData(AlwaysOnTop);
-	window->addActionToGroup("sot-playing", true, "sot")->setData(OnTopPlaying);
-	window->addActionToGroup("sot-disabled", true, "sot")->setData(DontStayOnTop);
+	window->addActionToGroup("sot-always", true, "sot")->setData(Enum::StaysOnTop::Always.id());
+	window->addActionToGroup("sot-playing", true, "sot")->setData(Enum::StaysOnTop::Playing.id());
+	window->addActionToGroup("sot-never", true, "sot")->setData(Enum::StaysOnTop::Never.id());
 	window->addSeparator();
 	QAction *to25 = window->addActionToGroup("25%", false, "size");
 	QAction *to50 = window->addActionToGroup("50%", false, "size");
@@ -265,80 +257,34 @@ Menu &Menu::create(QWidget *parent) {
 	toFull->setShortcuts(QList<QKeySequence>()
 			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
 
-	Menu *help = root->addMenu("help");
+	Menu *help = m_root->addMenu("help");
 	QAction *about = help->addAction("about");
 	about->setMenuRole(QAction::AboutQtRole);
 
-	QAction *exit = root->addAction("exit");
+	QAction *exit = m_root->addAction("exit");
 #ifdef Q_WS_MAC
 	exit->setShortcut(Qt::ALT + Qt::Key_F4);
 #else
 	exit->setShortcut(Qt::CTRL + Qt::Key_Q);
 #endif
 
-	root->m_click[OpenFile] = file;
-	root->m_click[ToggleFullScreen] = toFull;
-	root->m_click[TogglePlayPause] = pause;
-	root->m_click[ToggleMute] = mute;
-	root->m_wheel[Seek1] = WheelActionPair(forward1, backward2);
-	root->m_wheel[Seek2] = WheelActionPair(forward2, backward2);
-	root->m_wheel[Seek3] = WheelActionPair(forward3, backward2);
-	root->m_wheel[NextPrevious] = WheelActionPair(next, prev);
-	root->m_wheel[VolumeUpDown] = WheelActionPair(volUp, volDown);
-	root->m_wheel[AmpUpDown] = WheelActionPair(ampUp, ampDown);
-
-	root->m_context = new QMenu(parent);
-	root->m_context->addMenu(open);
-	root->m_context->addSeparator();
-	root->m_context->addMenu(play);
-	root->m_context->addMenu(video);
-	root->m_context->addMenu(audio);
-	root->m_context->addMenu(subtitle);
-	root->m_context->addSeparator();
-	root->m_context->addMenu(tool);
-	root->m_context->addMenu(window);
-	root->m_context->addSeparator();
-	root->m_context->addSeparator();
-	root->m_context->addAction(about);
-	root->m_context->addAction(exit);
-
-	parent->addActions(root->m_context->actions());
+	m_root->m_click[Enum::ClickAction::OpenFile] = file;
+	m_root->m_click[Enum::ClickAction::Fullscreen] = toFull;
+	m_root->m_click[Enum::ClickAction::Pause] = pause;
+	m_root->m_click[Enum::ClickAction::Mute] = mute;
+	m_root->m_wheel[Enum::WheelAction::Seek1] = WheelActionPair(forward1, backward2);
+	m_root->m_wheel[Enum::WheelAction::Seek2] = WheelActionPair(forward2, backward2);
+	m_root->m_wheel[Enum::WheelAction::Seek3] = WheelActionPair(forward3, backward2);
+	m_root->m_wheel[Enum::WheelAction::PrevNext] = WheelActionPair(prev, next);
+	m_root->m_wheel[Enum::WheelAction::Volume] = WheelActionPair(volUp, volDown);
+	m_root->m_wheel[Enum::WheelAction::Amp] = WheelActionPair(ampUp, ampDown);
 
 	loadShortcut();
-
-	return *(obj = root);
-}
-
-template<typename N>
-inline static void setActionAttr(QAction *act, const QVariant &data
-		, const QString &text, N textValue, bool sign = true) {
-	act->setData(data);
-	act->setText(text.arg(Menu::toString(textValue, sign)));
-}
-
-inline static void setActionStep(QAction *plus, QAction *minus
-		, const QString &text, int value, double textRate = -1.0) {
-	if (textRate < 0) {
-		plus->setText(text.arg(Menu::toString(value)));
-		minus->setText(text.arg(Menu::toString(-value)));
-	} else {
-		plus->setText(text.arg(Menu::toString(value*textRate)));
-		minus->setText(text.arg(Menu::toString(-value*textRate)));
-	}
-	plus->setData(value);
-	minus->setData(-value);
-}
-
-inline static void setVideoPropStep(Menu &menu, const QString &key
-		, ColorProperty::Value prop, const QString &text, int step) {
-	setActionAttr(menu[key + "+"], QList<QVariant>() << prop << step, text, step);
-	setActionAttr(menu[key + "-"], QList<QVariant>() << prop << -step, text, -step);
 }
 
 void Menu::updatePref() {
-	if (!obj)
-		return;
-	Menu &root = *obj;
+	Q_ASSERT(m_root != 0);
+	Menu &root = *m_root;
 	const Pref &p = Pref::get();
 
 	Menu &open = root("open");
@@ -489,7 +435,7 @@ void Menu::updatePref() {
 	window.setTitle(tr("Window"));
 	window["sot-always"]->setText(tr("Always Stay on Top"));
 	window["sot-playing"]->setText(tr("Stay on Top Playing"));
-	window["sot-disabled"]->setText(tr("Don't Stay on Top"));
+	window["sot-never"]->setText(tr("Don't Stay on Top"));
 
 	window["full"]->setText(tr("Fullscreen"));
 

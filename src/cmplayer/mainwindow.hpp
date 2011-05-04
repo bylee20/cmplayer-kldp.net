@@ -15,6 +15,9 @@ public:
 	MainWindow();
 	~MainWindow();
 	PlayEngine *engine() const;
+	static void init();
+	static void fin();
+	static MainWindow &get() {Q_ASSERT(obj != 0); return *obj;}
 public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
@@ -84,16 +87,6 @@ private:
 	void hideEvent(QHideEvent *event);
 	void setFullScreen(bool full);
 	void resizeEvent(QResizeEvent *event);
-	template<typename M, typename A>
-	static typename A::mapped_type getTriggerAction(uint mod, const M &map
-			, const A &act, const typename A::mapped_type &def) {
-		typename M::const_iterator it = map.begin();
-		for (; it != map.end(); ++it) {
-			if (it.key().value() == mod && it.value().first)
-				return act[it.value().second.value()];
-		}
-		return def;
-	}
 	void mouseMoveEvent(QMouseEvent *event);
 	void mouseDoubleClickEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
@@ -109,6 +102,7 @@ private:
 		, const QString &unit, bool sign = false, int last = 2500);
 	void showMessage(const QString &cmd, bool value, int last = 2500);
 	MainWindowData *d;
+	static MainWindow *obj;
 };
 
 #endif // MAINWINDOW_HPP

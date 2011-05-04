@@ -4,9 +4,20 @@
 void qt_mac_set_dock_menu(QMenu *menu);
 #endif
 
+MainWindow *MainWindow::obj = 0;
+void MainWindow::init() {
+	Q_ASSERT(obj == 0);
+	obj = new MainWindow;
+}
+void MainWindow::fin() {
+	delete obj;
+	obj = 0;
+}
+
 MainWindow::MainWindow() {
-	LibVLC::init();
-	d = new MainWindowData(Menu::create(this));
+	Q_ASSERT(obj == 0);
+	d = new MainWindowData;
+
 	d->dontPause = false;
 	d->pausedByHiding = d->dontShowMsg = false;
 	d->changingSub = d->moving = false;
@@ -123,6 +134,21 @@ MainWindow::MainWindow() {
 		, this, handleTray(QSystemTrayIcon::ActivationReason));
 #endif
 
+	addActions(d->menu.actions());
+	d->context = new QMenu(this);
+	d->context->addMenu(&open);
+	d->context->addSeparator();
+	d->context->addMenu(&play);
+	d->context->addMenu(&video);
+	d->context->addMenu(&audio);
+	d->context->addMenu(&sub);
+	d->context->addSeparator();
+	d->context->addMenu(&tool);
+	d->context->addMenu(&win);
+	d->context->addSeparator();
+	d->context->addAction(d->menu("help")["about"]);
+	d->context->addAction(d->menu["exit"]);
+
 	d->load_state();
 	d->apply_pref();
 
@@ -149,6 +175,8 @@ MainWindow::MainWindow() {
 }
 
 MainWindow::~MainWindow() {
+	d->video->hide();
+	d->video->setParent(0);
 	d->engine->stop();
 	d->recent->setLastPlaylist(d->playlist->playlist());
 	d->recent->setLastMrl(d->engine->mrl());
@@ -156,7 +184,6 @@ MainWindow::~MainWindow() {
 	d->save_state();
 	delete d->subtitle;
 	delete d->playInfo;
-	LibVLC::release();
 	delete d;
 }
 
@@ -184,7 +211,7 @@ void MainWindow::checkAudioMenu() {
 
 #define DEF_TRACK_MENU_FUNC(prop, cap, mm, msg) \
 void MainWindow::check##cap##Menu() {\
-	const TrackList tracks = d->engine->prop##s();\
+	const PlayEngine::TrackList tracks = d->engine->prop##s();\
 	Menu &menu = d->menu mm;\
 	menu.g()->clear();\
 	if (tracks.isEmpty())\
@@ -206,6 +233,8 @@ DEF_TRACK_MENU_FUNC(audioTrack, AudioTrack, ("audio")("track"), "Current Audio T
 DEF_TRACK_MENU_FUNC(spu, SPU, ("subtitle")("spu"), "Current Subtitle Track")
 DEF_TRACK_MENU_FUNC(title, Title, ("play")("title"), "Current Title")
 DEF_TRACK_MENU_FUNC(chapter, Chapter, ("play")("chapter"), "Current Chapter")
+
+#undef DEF_TRACK_MENU_FUNC
 
 void MainWindow::openLocation(const QString &loc) {
 	openMrl(Mrl(loc));
@@ -329,7 +358,7 @@ void MainWindow::togglePlayPause() {
 }
 
 void MainWindow::showContextMenu(const QPoint &pos) {
-	d->menu.contextMenu()->exec(mapToGlobal(pos));
+	d->context->exec(mapToGlobal(pos));
 }
 
 void MainWindow::updateMrl(const Mrl &mrl) {
@@ -552,10 +581,9 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 		d->prevPos = event->globalPos();
 	}
 	if (IS_BUTTON(Qt::MidButton)) {
-		QAction *action = getTriggerAction(event->modifiers()
-				, d->pref.middle_click_map, d->menu.clickAction(), 0);
-		if (action)
-			action->trigger();
+		const Pref::ClickActionInfo info = d->pref.middle_click_map[event->modifiers()];
+		if (info.enabled)
+			Menu::clickAction(info.action)->trigger();
 	}
 }
 
@@ -596,20 +624,17 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event) {
 void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 	QMainWindow::mouseDoubleClickEvent(event);
 	if (IS_BUTTON(Qt::LeftButton) && IS_IN_CENTER) {
-		QAction *action = getTriggerAction(event->modifiers()
-				, d->pref.double_click_map, d->menu.clickAction(), 0);
-		if (action)
-			action->trigger();
+		const Pref::ClickActionInfo info = d->pref.double_click_map[event->modifiers()];
+		if (info.enabled)
+			Menu::clickAction(info.action)->trigger();
 	}
 }
 
 void MainWindow::wheelEvent(QWheelEvent *event) {
 	if (IS_IN_CENTER && event->delta()) {
-		Menu::WheelActionPair pair;
-		pair = getTriggerAction(event->modifiers()
-				, d->pref.wheel_scroll_map, d->menu.wheelAction(), pair);
-		if (!pair.isNull()) {
-			((event->delta() > 0) ? pair.up : pair.down)->trigger();
+		const Pref::WheelActionInfo info = d->pref.wheel_scroll_map[event->modifiers()];
+		if (info.enabled) {
+			Menu::wheelAction(info.action, event->delta() > 0)->trigger();
 			event->accept();
 			return;
 		}
@@ -698,7 +723,7 @@ void MainWindow::handleTray(QSystemTrayIcon::ActivationReason reason) {
 	if (reason == QSystemTrayIcon::Trigger)
 		setVisible(!isVisible());
 	else if (reason == QSystemTrayIcon::Context)
-		d->menu.contextMenu()->exec(QCursor::pos());
+		d->context->exec(QCursor::pos());
 }
 
 
@@ -777,20 +802,15 @@ void MainWindow::setColorProperty(QAction *action) {
 }
 
 void MainWindow::updateStaysOnTop() {
-	const int data = d->menu("window").g("sot")->checkedAction()->data().toInt();
+	const int id = d->menu("window").g("sot")->checkedAction()->data().toInt();
 	bool onTop = false;
 	if (!isFullScreen()) {
-		switch (data) {
-		case AlwaysOnTop:
+		if (id == Enum::StaysOnTop::Always)
 			onTop = true;
-			break;
-		case DontStayOnTop:
+		else if (id == Enum::StaysOnTop::Never)
 			onTop = false;
-			break;
-		default: // OnTopPlaying:
+		else
 			onTop = d->engine->isPlaying();
-			break;
-		}
 	}
 	app()->setAlwaysOnTop(this, onTop);
 }

@@ -4,6 +4,18 @@
 #include <QtCore/QMap>
 #include <QtCore/QDateTime>
 
+RecentInfo *RecentInfo::obj = 0;
+
+void RecentInfo::init() {
+	Q_ASSERT(obj == 0);
+	obj = new RecentInfo;
+}
+
+void RecentInfo::fin() {
+	delete obj;
+	obj = 0;
+}
+
 typedef QMap<Mrl, QPair<int, QDateTime> > StoppedMap;
 
 struct RecentInfo::Data {
@@ -21,11 +33,6 @@ RecentInfo::RecentInfo()
 
 RecentInfo::~RecentInfo() {
 	delete d;
-}
-
-RecentInfo &RecentInfo::get() {
-	static RecentInfo self;
-	return self;
 }
 
 QList<Mrl> RecentInfo::openList() const {

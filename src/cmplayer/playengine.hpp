@@ -9,19 +9,11 @@
 class NativeVideoRenderer;	class AudioController;
 class VideoRenderer;
 
-struct Track {
-	QString name;
-private:
-	int id;
-};
-
-typedef QList<Track> TrackList;
-
-//typedef QMap<MediaMetaData, QVariant> StreamData;
-
 class PlayEngine : public QObject {
 	Q_OBJECT
 public:
+	struct Track {QString name;};
+	typedef QList<Track> TrackList;
 	~PlayEngine();
 	int position() const;
 	void setMrl(const Mrl &mrl);
@@ -57,6 +49,9 @@ public:
 	int spuCount() const;
 	int titleCount() const;
 	int chapterCount() const;
+	static void init();
+	static void fin();
+	static PlayEngine &get() {Q_ASSERT(obj != 0); return *obj;}
 public slots:
 	bool play();
 	void stop();
@@ -91,11 +86,13 @@ private:
 	void updateChapterInfo();
 	typedef libvlc_track_description_t TrackDesc;
 	static TrackList parseTrackDesc(TrackDesc *desc);
+	void setMediaPlayer(libvlc_media_player_t *mp);
 	friend class LibVLC;
 	PlayEngine();
 	void parseEvent(const libvlc_event_t *event);
 	struct Data;
 	Data *d;
+	static PlayEngine *obj;
 };
 
 #endif // PLAYENGINE_HPP

@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_P_HPP
 #define MAINWINDOW_P_HPP
 
+#include "enums.hpp"
 #include "avmisc.hpp"
 #include "timelineosdrenderer.hpp"
 #include "playinfoview.hpp"
@@ -39,6 +40,7 @@
 
 class MainWindowData {
 	bool moving, changingSub, pausedByHiding, dontShowMsg, dontPause;
+	QMenu *context;
 	Menu &menu;			const Pref &pref;
 	ControlWidget *control;		QWidget *center;
 	PlayEngine *engine;		VideoRenderer *video;
@@ -54,7 +56,7 @@ class MainWindowData {
 #endif
 	friend class MainWindow;
 // methods
-	MainWindowData(Menu &menu): menu(menu), pref(Pref::get()) {}
+	MainWindowData(): menu(Menu::root()), pref(Pref::get()) {}
 	void sync_subtitle_file_menu() {
 		if (changingSub)
 			return;
@@ -86,7 +88,7 @@ class MainWindowData {
 		menu("video")("aspect").g()->trigger(as[AppState::AspectRatio]);
 		menu("video")("crop").g()->trigger(as[AppState::Crop]);
 		menu("video")("overlay").g()->trigger(as[AppState::OverlayType]);
-		menu("window").g("sot")->trigger(StaysOnTopEnum::value(as[AppState::StaysOnTop].toString()));
+		menu("window").g("sot")->trigger(Enum::StaysOnTop::from(as[AppState::StaysOnTop].toString()).id());
 		menu("subtitle").g("display")->trigger((int)as[AppState::SubLetterbox].toBool());
 		menu("subtitle").g("align")->trigger((int)as[AppState::SubAlignTop].toBool());
 
@@ -112,7 +114,7 @@ class MainWindowData {
 		as[AppState::PlaySpeed] = engine->speed();
 		as[AppState::SubPos] = subtitle->pos();
 		as[AppState::SubSync] = subtitle->delay();
-		as[AppState::StaysOnTop] = StaysOnTopEnum::name(stay_on_top_mode());
+		as[AppState::StaysOnTop] = stay_on_top_mode().name();
 		as[AppState::SubLetterbox] = subtitle->osd()->letterboxHint();
 		as[AppState::SubAlignTop] = subtitle->isTopAligned();
 		QAction *act = menu("video")("overlay").g()->checkedAction();
@@ -121,18 +123,9 @@ class MainWindowData {
 		as.save();
 	}
 
-	StaysOnTop stay_on_top_mode() const {
-		const int data = menu("window").g("sot")->checkedAction()->data().toInt();
-		switch (data) {
-		case OnTopPlaying:
-			return OnTopPlaying;
-		case AlwaysOnTop:
-			return AlwaysOnTop;
-		case DontStayOnTop:
-			return DontStayOnTop;
-		default:
-			return OnTopPlaying;
-		}
+	Enum::StaysOnTop stay_on_top_mode() const {
+		const int id = menu("window").g("sot")->checkedAction()->data().toInt();
+		return Enum::StaysOnTop::from(id, Enum::StaysOnTop::Playing);
 	}
 
 	void apply_pref() {

@@ -4,15 +4,23 @@
 #include <QtCore/QDebug>
 #include <QtCore/QLocale>
 
-Pref &Pref::ref() {
-	static Pref self;
-	return self;
+Pref *Pref::obj = 0;
+
+void Pref::init() {
+	Q_ASSERT(obj == 0);
+	obj = new Pref;
+}
+
+void Pref::fin() {
+	delete obj;
+	obj = 0;
 }
 
 #define SAVE(value) (set.setValue((#value), (value)))
 #define LOAD(val, def, converter) (val = set.value(#val, def).converter())
 #define SAVE_ENUM(val) (set.setValue(#val, val.name()))
 #define LOAD_ENUM(val, def) (val = val.value(set.value(#val, #def).toString(), def))
+#define LOAD_ENUM2(val, def) (val.set(set.value(#val, def.name()).toString()))
 
 void Pref::save() const {
 	QSettings set;
@@ -31,7 +39,7 @@ void Pref::save() const {
 	SAVE(sub_enc);
 	SAVE(sub_priority);
 	SAVE(sub_enc_autodetection);
-	SAVE(sub_enc_confidence);
+	SAVE(sub_enc_accuracy);
 	SAVE(ms_per_char);
 	SAVE(seek_step1);
 	SAVE(seek_step2);
@@ -61,14 +69,14 @@ void Pref::save() const {
 	SAVE(normalizer_gain);
 	SAVE(normalizer_smoothness);
 
-	SAVE_ENUM(auto_add_files);
+	SAVE_ENUM(generate_playlist);
 	SAVE_ENUM(sub_autoload);
 	SAVE_ENUM(sub_autoselect);
 
 	sub_style.save(&set, "sub_style");
-	saveMouse(set, "double_click_map", double_click_map);
-	saveMouse(set, "middle_click_map", middle_click_map);
-	saveMouse(set, "wheel_scroll_map", wheel_scroll_map);
+	double_click_map.save(set, "double_click_map");
+	middle_click_map.save(set, "middle_click_map");
+	wheel_scroll_map.save(set, "wheel_scroll_map");
 
 	set.endGroup();
 }
@@ -98,12 +106,9 @@ void Pref::load() {
 	LOAD(single_app, true, toBool);
 	LOAD(disable_screensaver, true, toBool);
 	LOAD(locale, QLocale::system(), toLocale);
-	if (this->locale.language() == QLocale::Korean)
-		LOAD(sub_enc, "CP949", toString);
-	else
-		LOAD(sub_enc, "UTF-8", toString);
+	LOAD(sub_enc, locale.language() == QLocale::Korean ? "CP949" : "UTF-8", toString);
 	LOAD(sub_enc_autodetection, true, toBool);
-	LOAD(sub_enc_confidence, 70, toInt);
+	LOAD(sub_enc_accuracy, 70, toInt);
 	LOAD(ms_per_char, 500, toInt);
 	LOAD(sub_priority, QStringList(), toStringList);
 	LOAD(seek_step1, DefaultSeekingStep1, toInt);
@@ -123,42 +128,31 @@ void Pref::load() {
 	LOAD(normalizer_gain, 20, toInt);
 	LOAD(normalizer_smoothness, 100, toInt);
 
-	LOAD_ENUM(auto_add_files, AllFiles);
-	LOAD_ENUM(sub_autoload, Contain);
-	LOAD_ENUM(sub_autoselect, SameName);
+	LOAD_ENUM2(generate_playlist, Enum::GeneratePlaylist::Folder);
+	LOAD_ENUM2(sub_autoload, Enum::SubtitleAutoload::Contain);
+	LOAD_ENUM2(sub_autoselect, Enum::SubtitleAutoselect::Matched);
 
 	sub_style.border_width = 0.045;
 	sub_style.text_scale = 0.040;
-	sub_style.auto_size = OsdStyle::FitToWidth;
+	sub_style.auto_size = OsdStyle::AutoSize::Width;
 	sub_style.has_shadow = true;
 	sub_style.shadow_color = Qt::black;
 	sub_style.shadow_offset = QPointF(0, 0);
 	sub_style.shadow_blur = 3;
 	sub_style.font.setBold(true);
 	sub_style.load(&set, "sub_style");
-	loadMouse(set, "double_click_map", double_click_map
-			, Qt::NoModifier, ClickActionPair(true, ToggleFullScreen));
-	loadMouse(set, "double_click_map", double_click_map
-			, Qt::AltModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "double_click_map", double_click_map
-			, Qt::ControlModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "double_click_map", double_click_map
-			, Qt::ShiftModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "middle_click_map", middle_click_map
-			, Qt::NoModifier, ClickActionPair(true, TogglePlayPause));
-	loadMouse(set, "middle_click_map", middle_click_map
-			, Qt::AltModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "middle_click_map", middle_click_map
-			, Qt::ControlModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "middle_click_map", middle_click_map
-			, Qt::ShiftModifier, ClickActionPair(false, ToggleFullScreen));
-	loadMouse(set, "wheel_scroll_map", wheel_scroll_map
-			, Qt::NoModifier, WheelActionPair(true, VolumeUpDown));
-	loadMouse(set, "wheel_scroll_map", wheel_scroll_map
-			, Qt::AltModifier, WheelActionPair(false, VolumeUpDown));
-	loadMouse(set, "wheel_scroll_map", wheel_scroll_map
-			, Qt::ControlModifier, WheelActionPair(true, AmpUpDown));
-	loadMouse(set, "wheel_scroll_map", wheel_scroll_map
-			, Qt::ShiftModifier, WheelActionPair(false, VolumeUpDown));
+
+	ClickActionMap def_click(false, Enum::ClickAction::Fullscreen);
+	def_click[Enum::KeyModifier::None].enabled = true;
+	double_click_map.load(set, "double_click_map", def_click);
+	def_click = ClickActionMap(false, Enum::ClickAction::Fullscreen);
+	def_click[Enum::KeyModifier::None] = ClickActionInfo(true, Enum::ClickAction::Pause);
+	middle_click_map.load(set, "middle_click_map", def_click);
+
+	WheelActionMap def_wheel(false, Enum::WheelAction::Volume);
+	def_wheel[Enum::KeyModifier::None].enabled = true;
+	def_wheel[Enum::KeyModifier::Ctrl] = WheelActionInfo(true, Enum::WheelAction::Amp);
+	wheel_scroll_map.load(set, "wheel_scroll_map", def_wheel);
+
 	set.endGroup();
 }

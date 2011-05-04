@@ -13,7 +13,7 @@ class LibVLC {
 public:
 	~LibVLC();
 	static void init();
-	static void release();
+	static void fin();
 	static void outputError();
 	static PlayEngine *engine();
 	static AudioController *audio();
@@ -32,10 +32,8 @@ private:
 	static void cbVideoPrepare(void *data, const VideoFormat *format);
 	static void cbManageEvent(const libvlc_event_t *event, void *data);
 	LibVLC();
-	static LibVLC *s;
-	static LibVLC &get() {return *s;}
 	struct Data;
-	Data *d;
+	static Data *d;
 };
 
 #endif // LIBVLC_H

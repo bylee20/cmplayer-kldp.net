@@ -1,4 +1,5 @@
 #include "dialogs.hpp"
+#include "global.hpp"
 #include "controls.hpp"
 #include "playlist.hpp"
 #include "info.hpp"
@@ -17,14 +18,6 @@
 #include <QtGui/QDialogButtonBox>
 #include "appstate.hpp"
 #include <QtGui/QCompleter>
-
-static QDialogButtonBox *makeButtonBox(QDialog *dlg) {
-	QDialogButtonBox *dbb = new QDialogButtonBox(
-		QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, dlg);
-	dlg->connect(dbb, SIGNAL(accepted()), SLOT(accept()));
-	dlg->connect(dbb, SIGNAL(rejected()), SLOT(reject()));
-	return dbb;
-}
 
 struct CheckDialog::Data {
 	QCheckBox *check;

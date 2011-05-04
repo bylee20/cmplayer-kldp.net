@@ -9,10 +9,10 @@ public:
 	~CharsetDetector();
 	bool isDetected() const;
 	QString encoding() const;
-	double confidence() const;
+	double accuracy() const;
 	static QString detect(const QString &fileName
-			, double confidence = 0.6, int size = 1024*500);
-	static QString detect(const QByteArray &data, double confidence = 0.6);
+			, double accuracy = 0.6, int size = 1024*500);
+	static QString detect(const QByteArray &data, double accuracy = 0.6);
 private:
 	struct Data;
 	Data *d;
