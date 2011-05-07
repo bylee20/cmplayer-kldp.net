@@ -71,15 +71,31 @@ const char *Info::pluginPath() {
 	static QByteArray path;
 	if (!path.isEmpty())
 		return path.constData();
-	path = qgetenv("CMPLAYER_VLC_PLUGIN_PATH");
+	path = qgetenv("CMPLAYER_PLUGIN_PATH");
 	if (!path.isEmpty() && QDir(QString::fromLocal8Bit(path.data())).exists())
 		return path.constData();
-#ifdef CMPLAYER_VLC_PLUGIN_PATH
-	path = CMPLAYER_VLC_PLUGIN_PATH;
+#ifdef CMPLAYER_PLUGIN_PATH
+	path = CMPLAYER_PLUGIN_PATH;
 	if (!path.isEmpty() && QDir(QString::fromLocal8Bit(path.data())).exists())
 		return path.constData();
 #endif
-	path = "./plugins";
+	path = "./plugin";
 	return path.constData();
 }
+
+//const char *Info::skinPath() {
+//	static QByteArray path;
+//	if (!path.isEmpty())
+//		return path.constData();
+//	path = qgetenv("CMPLAYER_VLC_PLUGIN_PATH");
+//	if (!path.isEmpty() && QDir(QString::fromLocal8Bit(path.data())).exists())
+//		return path.constData();
+//#ifdef CMPLAYER_VLC_PLUGIN_PATH
+//	path = CMPLAYER_VLC_PLUGIN_PATH;
+//	if (!path.isEmpty() && QDir(QString::fromLocal8Bit(path.data())).exists())
+//		return path.constData();
+//#endif
+//	path = "./plugin";
+//	return path.constData();
+//}
 

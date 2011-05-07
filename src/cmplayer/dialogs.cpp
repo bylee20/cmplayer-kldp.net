@@ -1,4 +1,10 @@
 #include "dialogs.hpp"
+#include <QtCore/QFile>
+#include "ui_aboutdialog.h"
+#include "info.hpp"
+#include <QtCore/QDate>
+#include <QtGui/QTextBrowser>
+#include <QtCore/QStringBuilder>
 #include "widgets.hpp"
 #include "global.hpp"
 #include "playlist.hpp"
@@ -313,16 +319,6 @@ QString GetUrlDialog::encoding() const {
 
 ToggleDialog::ToggleDialog(QWidget *parent): QDialog(parent, Qt::Tool) {}
 
-
-
-
-#include "aboutdialog.hpp"
-#include <QtCore/QFile>
-#include "ui_aboutdialog.h"
-#include "info.hpp"
-#include <QtCore/QDate>
-#include <QtGui/QTextBrowser>
-#include <QtCore/QStringBuilder>
 
 typedef QLatin1Char _LC;
 typedef QLatin1String _LS;

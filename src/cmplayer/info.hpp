@@ -33,6 +33,7 @@ public:
 	static QString subtitleExtFilter();
 	static QStringList mediaNameFilter() {return videoNameFilter() += audioNameFilter();}
 	static const char *pluginPath();
+//	static const char *skinPath();
 private:
 	Info();
 	ExtList m_videoExt, m_audioExt, m_subExt, m_plExt;

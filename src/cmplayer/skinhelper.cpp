@@ -1,4 +1,5 @@
 #include "skinhelper.hpp"
+#include <QtCore/QDir>
 #include "playlistmodel.hpp"
 #include "playlist.hpp"
 #include "playlistview.hpp"
@@ -25,6 +26,16 @@ SkinHelper::SkinHelper() {
 	AudioController *audio = LibVLC::audio();
 	connect(audio, SIGNAL(volumeChanged(int)), this, SIGNAL(volumeChanged()));
 	connect(audio, SIGNAL(mutedChanged(bool)), this, SIGNAL(mutedChanged()));
+}
+
+void SkinHelper::initialize() {
+	PlayEngine *engine = LibVLC::engine();
+	__updateDuration(engine->duration());
+	__updatePosition(engine->position());
+	__updateMrl(engine->mrl());
+	emit playerStateChanged();
+	emit volumeChanged();
+	emit mutedChanged();
 }
 
 void SkinHelper::__updateDuration(int duration) {
@@ -118,6 +129,60 @@ QString SkinHelper::currentMediaInfo() const {
 	return LibVLC::engine()->mrl().displayName();
 }
 
+
+/*******************************************************************/
+
+
+struct SkinManager::Data {
+	Data();
+	void check(const QString &path);
+
+	QMap<QString, QUrl> skins;
+};
+
+void SkinManager::Data::check(const QString &path) {
+	QDir dir(path);
+	if (!dir.exists())
+		return;
+	QStringList skins = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+	for (int i=0; i<skins.size(); ++i) {
+		dir.cd(skins[i]);
+		const QFileInfoList files = dir.entryInfoList(QStringList(_LS("skin.qml")), QDir::Files);
+		if (files.size() == 1)
+			this->skins[skins[i].toLower()] = QUrl::fromLocalFile(files.first().absoluteFilePath());
+	}
+}
+
+
+SkinManager::Data::Data() {
+	check("./skin");
+}
+
+SkinManager::Data &SkinManager::d() {
+	static Data d;
+	return d;
+}
+
+QStringList SkinManager::avaiableSkinNames() {
+	return d().skins.keys();
+}
+
+QList<QUrl> SkinManager::avaiableSkinUrls() {
+	return d().skins.values();
+}
+
+QString SkinManager::defaultSkinName() {
+	if (d().skins.isEmpty())
+		return QString();
+	if (d().skins.contains("default"))
+		return "default";
+	return d().skins.begin().key();
+}
+
+SkinHelper *SkinManager::load(const QString &name) {
+	const QUrl url = d().skins.value(name, QUrl());
+	return url.isEmpty() ? 0 : load(url);
+}
 
 SkinHelper *SkinManager::load(const QUrl &url) {
 	static QDeclarativeEngine engine;

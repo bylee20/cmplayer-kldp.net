@@ -3,7 +3,7 @@ LRELEASE ?= lrelease
 
 VLC_INCLUDE_PATH ?= /Applications/VLC.app/Contents/MacOS/include
 VLC_LIB_PATH ?= /Applications/VLC.app/Contents/MacOS/lib
-VLC_PLUGINS_PATH ?= /Applications/VLC.app/Contents/MacOS/plugins
+VLC_PLUGIN_PATH ?= /Applications/VLC.app/Contents/MacOS/plugins
 
 cmplayer_exec := CMPlayer
 cmplayer_exec_path := bin/$(cmplayer_exec).app/Contents/MacOS
@@ -14,14 +14,14 @@ qmake_vars := DESTDIR=\\\"../../bin\\\" RELEASE=\\\"yes\\\" \
 
 configured := $(shell cat configured)
 
-cmplayer: cmplayer-vlc-plugins translations libchardet
+cmplayer: vlc-plugin translations libchardet
 	cd src/cmplayer && $(QMAKE) $(qmake_vars) cmplayer.pro 
 	cd src/cmplayer && make
 	install -d $(cmplayer_exec_path)/lib
-	install -d $(cmplayer_exec_path)/plugins
+	install -d $(cmplayer_exec_path)/plugin
 	cp -r $(VLC_LIB_PATH)/*.dylib* $(cmplayer_exec_path)/lib
-	cp -r $(VLC_PLUGINS_PATH)/*.dylib $(cmplayer_exec_path)/plugins
-	$(install_file) bin/plugins/libcmplayer-*_plugin.dylib $(cmplayer_exec_path)/plugins
+	cp -r $(VLC_PLUGIN_PATH)/*.dylib $(cmplayer_exec_path)/plugin
+	$(install_file) bin/plugin/libcmplayer-*_plugin.dylib $(cmplayer_exec_path)/plugin
 	macdeployqt bin/$(cmplayer_exec).app
 
 bin_dir:
@@ -34,10 +34,10 @@ ifneq ($(configured),configured)
 endif
 	cd src/libchardet* && make
 
-cmplayer-vlc-plugins: bin_dir
-	cd src/cmplayer-vlc-plugins && make -f Makefile.osx
-	install -d bin/plugins
-	mv src/cmplayer-vlc-plugins/libcmplayer-*_plugin.dylib bin/plugins
+vlc-plugin: bin_dir
+	cd src/vlc-plugin && make -f Makefile.osx
+	install -d bin/plugin
+	mv src/vlc-plugin/libcmplayer-*_plugin.dylib bin/plugin
 
 translations:
 	cd src/cmplayer/translations && $(LRELEASE) cmplayer_ko.ts -qm cmplayer_ko
@@ -45,7 +45,7 @@ translations:
 	cd src/cmplayer/translations && $(LRELEASE) cmplayer_ja.ts -qm cmplayer_ja
 
 clean:
-	-cd src/cmplayer-vlc-plugins && make -f Makefile.osx clean
+	-cd src/vlc-plugin && make -f Makefile.osx clean
 	-cd src/cmplayer && $(QMAKE) $(qmake_vars) cmplayer.pro && make clean
 	-cd src/libchardet* && make distclean
 	-rm -rf bin/*

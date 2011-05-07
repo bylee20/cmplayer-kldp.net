@@ -30,7 +30,6 @@ VideoScene::VideoScene(VideoUtil *util)
 	d->view = new VideoView(this, d->gl);
 //	d->skin = SkinManager::load(QUrl::fromLocalFile("/Users/xylosper/untitled/skin.qml"));
 //	addItem(d->skin);
-//	connect(d->skin, SIGNAL(screenChanged()), this, SLOT(updateVertices()));
 }
 
 VideoScene::~VideoScene() {
@@ -112,9 +111,12 @@ bool VideoScene::hasFrame() const {
 }
 
 void VideoScene::setSkin(SkinHelper *skin) {
-	if (d->skin)
+	if (d->skin) {
 		removeItem(d->skin);
+		d->skin->disconnect(this);
+	}
 	d->skin = skin;
+	connect(d->skin, SIGNAL(screenChanged()), this, SLOT(updateVertices()));
 	addItem(d->skin);
 	d->skin->setVisible(d->skinVisible);
 	updateSceneRect();

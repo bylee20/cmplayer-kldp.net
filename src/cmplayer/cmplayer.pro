@@ -98,7 +98,6 @@ HEADERS += playengine.hpp \
     subtitlemodel.hpp \
     tagiterator.hpp \
     subtitle_parser_p.hpp \
-    aboutdialog.hpp \
     snapshotdialog.hpp \
     events.hpp \
     listmodel.hpp \
@@ -169,7 +168,6 @@ SOURCES += main.cpp \
     subtitlemodel.cpp \
     tagiterator.cpp \
     subtitle_parser_p.cpp \
-    aboutdialog.cpp \
     snapshotdialog.cpp \
     events.cpp \
     listmodel.cpp \

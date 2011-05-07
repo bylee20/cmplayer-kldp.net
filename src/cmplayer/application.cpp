@@ -1,19 +1,16 @@
 #include "application.hpp"
 #include "events.hpp"
-#include "translator.hpp"
 #include "mainwindow.hpp"
 #include "mrl.hpp"
-#include "appstate.hpp"
 #include "record.hpp"
 #include <QtGui/QMessageBox>
 #include <QtGui/QFileOpenEvent>
 #include <QtGui/QStyleFactory>
 #include <QtGui/QStyle>
+#include <QtGui/QMenuBar>
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
-#include <QtCore/QUrl>
-#include <QtGui/QMenuBar>
 #include <QtOpenGL/QGLFormat>
 
 #if defined(Q_WS_MAC)

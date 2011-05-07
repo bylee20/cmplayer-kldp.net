@@ -7,14 +7,14 @@
 #include "dialogs.hpp"
 #include "libvlc.hpp"
 #include "info.hpp"
+#include "skinhelper.hpp"
 #include <QtGui/QMouseEvent>
 #include <QtGui/QMenuBar>
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
 
-
 #ifdef Q_WS_MAC
-void qt_mac_set_dock_menu(QMenu *menu);
+//void qt_mac_set_dock_menu(QMenu *menu);
 #endif
 
 MainWindow::MainWindow() {
@@ -174,7 +174,9 @@ MainWindow::MainWindow() {
 	d->video->addOsd(d->timeLine);
 	d->video->addOsd(d->message);
 
-
+	const QString skinName = SkinManager::defaultSkinName();
+	qDebug() << "set current skin:" << skinName;
+	d->video->setSkin(SkinManager::load(skinName));
 }
 
 MainWindow::~MainWindow() {

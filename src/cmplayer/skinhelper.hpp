@@ -41,6 +41,7 @@ public:
 	QString currentMediaInfo() const;
 //	QSizeF sizeHint() const {return m_sizeHint;}
 
+	Q_INVOKABLE void initialize();
 	Q_INVOKABLE bool exec(const QString &id);
 	Q_INVOKABLE void seek(int msec);
 	Q_INVOKABLE void setVolume(int volume);
@@ -76,7 +77,14 @@ Q_DECLARE_METATYPE(SkinHelper::PlayerState)
 
 class SkinManager {
 public:
+	static QString defaultSkinName();
+	static QStringList avaiableSkinNames();
+	static QList<QUrl> avaiableSkinUrls();
+	static SkinHelper *load(const QString &name);
 	static SkinHelper *load(const QUrl &url);
+private:
+	struct Data;
+	static Data &d();
 };
 
 
