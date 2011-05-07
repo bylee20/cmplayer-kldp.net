@@ -96,9 +96,9 @@ Application::Application(int &argc, char **argv)
 }
 
 void Application::initStaticObjects() {
-	PlayEngine::init();
-	AudioController::init();
-	VideoScene::init();
+//	PlayEngine::init();
+//	AudioController::init();
+//	VideoScene::init();
 	LibVLC::init();
 	d->main = new MainWindow;
 }
@@ -110,9 +110,9 @@ Application::~Application() {
 	if (d->cpu->state() != QProcess::NotRunning)
 	    d->cpu->kill();
 	delete d;
-	PlayEngine::fin();
-	VideoScene::fin();
-	AudioController::fin();
+//	PlayEngine::fin();
+//	VideoScene::fin();
+//	AudioController::fin();
 	LibVLC::fin();
 }
 

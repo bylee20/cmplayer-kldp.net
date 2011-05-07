@@ -13,18 +13,6 @@
 #include <QtCore/QTimer>
 #include <QtCore/QUrl>
 
-PlayEngine *PlayEngine::obj = 0;
-
-void PlayEngine::init() {
-	Q_ASSERT(obj == 0);
-	obj = new PlayEngine;
-}
-
-void PlayEngine::fin() {
-	delete obj;
-	obj = 0;
-}
-
 struct PlayEngine::Data {
 	int stoppedTime, duration, prevTick;
 	bool seekable, hasVideo;
@@ -36,10 +24,9 @@ struct PlayEngine::Data {
 	QTimer ticker;
 };
 
-PlayEngine::PlayEngine(): d(new Data) {
-	Q_ASSERT(obj == 0);
+PlayEngine::PlayEngine(libvlc_media_player_t *mp): d(new Data) {
 	qRegisterMetaType<MediaState>("MediaState");
-	d->mp = 0;
+	d->mp = mp;
 	d->media = 0;
 	d->prevTick = 0;
 	d->stoppedTime = -1;
@@ -59,10 +46,6 @@ PlayEngine::~PlayEngine() {
 	d->ticker.stop();
 	delete d->media;
 	delete d;
-}
-
-void PlayEngine::setMediaPlayer(libvlc_media_player_t *mp) {
-	d->mp = mp;
 }
 
 void PlayEngine::updateDuration(int duration) {
@@ -223,7 +206,7 @@ bool PlayEngine::play() {
 				"Played Date: %1\nStopped Time: %2\n"
 				"Do you want to start from where it's stopped?\n"
 				"(You can configure not to ask anymore in the preferecences.)")
-				.arg(date.toString(Qt::ISODate)).arg(msecsToString(record, "h:mm:ss"));
+				.arg(date.toString(Qt::ISODate)).arg(msecToString(record, "h:mm:ss"));
 			const QMessageBox::StandardButtons b = QMessageBox::Yes | QMessageBox::No;
 			if (QMessageBox::question(QApplication::activeWindow(), title, text, b) == QMessageBox::Yes)
 				seek = record;

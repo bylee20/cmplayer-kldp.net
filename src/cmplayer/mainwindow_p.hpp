@@ -16,7 +16,6 @@
 #include "snapshotdialog.hpp"
 #include "subtitle_parser.hpp"
 #include "audiocontroller.hpp"
-#include "controlwidget.hpp"
 #include "pref_dialog.hpp"
 #include "application.hpp"
 #include "recentinfo.hpp"
@@ -28,7 +27,6 @@
 #include "appstate.hpp"
 #include "playlist.hpp"
 #include "dialogs.hpp"
-#include "toolbox.hpp"
 #include "libvlc.hpp"
 #include "menu.hpp"
 #include "info.hpp"
@@ -39,7 +37,7 @@
 #include <QtCore/QTimer>
 #include <qmath.h>
 
-class MainWindow::Data {
+struct MainWindow::Data {
 	bool moving, changingSub, pausedByHiding, dontShowMsg, dontPause;
 	QMenu *context;
 	RootMenu menu;			const Pref &pref;
@@ -54,36 +52,8 @@ class MainWindow::Data {
 #ifndef Q_WS_MAC
 	QSystemTrayIcon *tray;
 #endif
-	friend class MainWindow;
 // methods
 	Data(): pref(Pref::get()) {}
-
-//	QWidget *create_central_widget(QWidget *parent) {
-//		QWidget *w = new QWidget(parent);
-//		w->setMouseTracking(true);
-//		w->setAutoFillBackground(false);
-//		w->setAttribute(Qt::WA_OpaquePaintEvent, true);
-
-//		QVBoxLayout *vbox = new QVBoxLayout(w);
-////		vbox->addWidget(video);
-//		vbox->addWidget(video->view());
-////		vbox->addWidget(control);
-//		vbox->setContentsMargins(0, 0, 0, 0);
-//		vbox->setSpacing(0);
-//		return w;
-//	}
-
-//	ControlWidget *create_control_widget() {
-//		ControlWidget *w = new ControlWidget(engine, 0);
-//		Menu &play = menu("play");
-//		w->connectMute(menu("audio")["mute"]);
-//		w->connectPlay(play["pause"]);
-//		w->connectPrevious(play["prev"]);
-//		w->connectNext(play["next"]);
-//		w->connectForward(play("seek")["forward1"]);
-//		w->connectBackward(play("seek")["backward1"]);
-//		return w;
-//	}
 
 	void sync_subtitle_file_menu() {
 		if (changingSub)

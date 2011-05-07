@@ -1,7 +1,6 @@
 #include "dialogs.hpp"
 #include "widgets.hpp"
 #include "global.hpp"
-#include "controls.hpp"
 #include "playlist.hpp"
 #include "info.hpp"
 #include <QtCore/QFileInfo>

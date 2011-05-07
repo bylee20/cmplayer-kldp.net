@@ -1,14 +1,19 @@
 #include "playinfoview.hpp"
+#include "global.hpp"
 #include "osdstyle.hpp"
 #include "richstring.hpp"
 #include "audiocontroller.hpp"
 #include "avmisc.hpp"
-#include "videorenderer.hpp"
+#include "videoscene.hpp"
 #include "textosdrenderer.hpp"
 #include "application.hpp"
 #include <stdio.h>
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
+#include <QtCore/QStringBuilder>
+
+typedef QLatin1String _LS;
+typedef QLatin1Char _LC;
 
 struct PlayInfoView::Data {
 	QTimer *timer;
@@ -22,11 +27,6 @@ struct PlayInfoView::Data {
 	QString vinput, voutput;
 	QString size;
 };
-
-static inline QString toString(double value, int n = 1) {
-	char fmt[10];	sprintf(fmt, "%%.%df", n);
-	return value > 0 ? QString().sprintf(fmt, value) : QLatin1String("--");
-}
 
 PlayInfoView::PlayInfoView(QObject *parent)
 : QObject(parent), d(new Data) {
@@ -62,26 +62,19 @@ void PlayInfoView::setVideo(const VideoScene *video) {
 
 void PlayInfoView::setVideoFormat(const VideoFormat &vfmt) {
 	d->vfmt = vfmt;
-	d->size = QString::number(vfmt.width);
-	d->size += QString::fromUtf8("\303\227");
-	d->size += QString::number(vfmt.height);
+	d->size = Global::toString(vfmt.size());
 	const double sar = (double)d->vfmt.width/(double)d->vfmt.height;
 	const double dar = sar*d->vfmt.sar;
 	const QString fmt("fourcc: %1, fps: %3, aspect ratio: %2");
 	d->vinput = fmt.arg(VideoFormat::fourccToString(d->vfmt.source_fourcc))
-		.arg(toString(sar, 2)).arg(toString(d->vfmt.fps, 2));
-	d->voutput = fmt.arg(VideoFormat::fourccToString(d->vfmt.output_fourcc))
-		.arg(toString(dar, 2));
+		.arg(toString(sar, false, 2)).arg(toString(d->vfmt.fps, false, 2));
+	d->voutput = fmt.arg(VideoFormat::fourccToString(d->vfmt.output_fourcc)).arg(toString(dar, false, 2));
 	update();
 }
 
 void PlayInfoView::setProcInfo(double cpu, int rss, double mem) {
-	d->cpu = toString(cpu);
-	d->cpu += QLatin1String("%");
-	d->mem = toString(rss/1024.0);
-	d->mem += QLatin1String("MB (");
-	d->mem += toString(mem);
-	d->mem += QLatin1String("%)");
+	d->cpu = toString(cpu, false) % _LC('%');
+	d->mem = toString(rss/1024.0, false) % _LS("MB (") % toString(mem, false) % _LS("%)");
 }
 
 void PlayInfoView::setVisible(bool visible) {
@@ -103,19 +96,15 @@ void PlayInfoView::update() {
 	static const QString colon(": ");
 	if (d->visible) {
 		app()->getProcInfo();
-		QString text;
-		text += tr("CPU Usage"); text += colon; text += d->cpu; text += br;
-		text += tr("Memory Usage"); text += colon; text += d->mem; text += br;
-		text += br;
-		text += tr("Video Information"); text += br;
-		text += tr("Pixel Size"); text += colon; text += d->size; text += br;
-		text += tr("Input"); text += colon; text += d->vinput; text += br;
-		text += tr("Output"); text += colon;
-		text += d->voutput.arg(toString(d->video->outputFrameRate(), 2)); text += br;
-		text += br;
-		text += tr("Audio Information"); text += br;
-		text += tr("Normalizer"); text += colon;
-		text += toString(d->audio->gain()*100.0, 1); text += QLatin1String("%<br>");
+		const QString text =
+			tr("CPU Usage") % colon % d->cpu % br %
+			tr("Memory Usage") % colon % d->mem % br % br %
+			tr("Video Information") % br %
+			tr("Pixel Size") % colon % d->size % br %
+			tr("Input") % colon % d->vinput % br %
+			tr("Output") % colon % d->voutput.arg(toString(d->video->outputFrameRate(), false, 2)) % br % br %
+			tr("Audio Information") % br %
+			tr("Normalizer") % colon % toString(d->audio->gain()*100.0, false) % _LS("%<br>");
 		d->osd->showText(RichString(text, text));
 	}
 }

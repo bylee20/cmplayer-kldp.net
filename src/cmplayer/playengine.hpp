@@ -49,9 +49,7 @@ public:
 	int spuCount() const;
 	int titleCount() const;
 	int chapterCount() const;
-	static void init();
-	static void fin();
-	static PlayEngine &get() {Q_ASSERT(obj != 0); return *obj;}
+//	static PlayEngine &get() {Q_ASSERT(obj != 0); return *obj;}
 public slots:
 	bool play();
 	void stop();
@@ -86,13 +84,12 @@ private:
 	void updateChapterInfo();
 	typedef libvlc_track_description_t TrackDesc;
 	static TrackList parseTrackDesc(TrackDesc *desc);
-	void setMediaPlayer(libvlc_media_player_t *mp);
+//	void setMediaPlayer(libvlc_media_player_t *mp);
 	friend class LibVLC;
-	PlayEngine();
+	PlayEngine(libvlc_media_player_t *mp);
 	void parseEvent(const libvlc_event_t *event);
 	struct Data;
 	Data *d;
-	static PlayEngine *obj;
 };
 
 #endif // PLAYENGINE_HPP

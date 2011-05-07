@@ -4,7 +4,6 @@
 #include "playlist.hpp"
 #include "dialogs.hpp"
 #include "pref.hpp"
-#include "controls.hpp"
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>

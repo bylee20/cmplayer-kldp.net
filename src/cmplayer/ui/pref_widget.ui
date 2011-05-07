@@ -20,7 +20,7 @@
    <item>
     <widget class="QStackedWidget" name="stack">
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="play">
       <property name="name" stdset="0">
@@ -378,7 +378,7 @@
        <string>Audio</string>
       </property>
       <property name="icon" stdset="0">
-       <iconset resource="../rsclist.qrc">
+       <iconset>
         <normaloff>:/img/speaker-large.png</normaloff>:/img/speaker-large.png</iconset>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_19">
@@ -1476,7 +1476,7 @@ e.g.: English, Korean</string>
   <customwidget>
    <class>EncodingComboBox</class>
    <extends>QComboBox</extends>
-   <header>controls.hpp</header>
+   <header>widgets.hpp</header>
   </customwidget>
   <customwidget>
    <class>SimpleListWidget</class>

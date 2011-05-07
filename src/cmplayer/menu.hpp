@@ -104,11 +104,11 @@ private:
 	inline static void setActionStep(QAction *plus, QAction *minus
 			, const QString &text, int value, double textRate = -1.0) {
 		if (textRate < 0) {
-			plus->setText(text.arg(toString(value)));
-			minus->setText(text.arg(toString(-value)));
+			plus->setText(text.arg(toString(value, true)));
+			minus->setText(text.arg(toString(-value, true)));
 		} else {
-			plus->setText(text.arg(toString(value*textRate)));
-			minus->setText(text.arg(toString(-value*textRate)));
+			plus->setText(text.arg(toString(value*textRate, true)));
+			minus->setText(text.arg(toString(-value*textRate, true)));
 		}
 		plus->setData(value);
 		minus->setData(-value);

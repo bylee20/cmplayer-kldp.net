@@ -124,7 +124,6 @@ SOURCES += main.cpp \
     mrl.cpp \
     global.cpp \
     menu.cpp \
-    controls.cpp \
     colorproperty.cpp \
     qtsingleapplication/qtsingleapplication.cpp \
     qtsingleapplication/qtlockedfile_win.cpp \

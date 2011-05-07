@@ -18,8 +18,6 @@ MainWindow::MainWindow() {
 	d->playInfo = new PlayInfoView;
 	d->message = new TextOsdRenderer(Qt::AlignTop | Qt::AlignLeft);
 	d->ab = new ABRepeater(d->engine, d->subtitle);
-//	d->control = d->create_control_widget();
-//	d->center = d->create_central_widget(this);
 	d->hider = new QTimer(this);
 	d->playlist = new PlaylistView(d->engine, this);
 	d->history = new HistoryView(d->engine, this);
@@ -38,9 +36,8 @@ MainWindow::MainWindow() {
 	setCentralWidget(d->video->view());
 	setWindowTitle(QString("CMPlayer %1").arg(Info::version()));
 	setAcceptDrops(true);
-//	d->video->setAcceptDrops(false);
-//	d->center->setAcceptDrops(false);
-//	d->control->setAcceptDrops(false);
+	d->video->view()->setAcceptDrops(true);
+	d->video->view()->viewport()->setAcceptDrops(true);
 
 	Menu &open = d->menu("open");		Menu &play = d->menu("play");
 	Menu &video = d->menu("video");		Menu &audio = d->menu("audio");
@@ -304,17 +301,7 @@ void MainWindow::openUrl() {
 
 void MainWindow::resizeEvent(QResizeEvent *event) {
 	QMainWindow::resizeEvent(event);
-	const QSize size = (d->video->view()->size() - d->video->skinSizeHint()).toSize();
-	showMessage(QString::fromUtf8("%1\303\227%2").arg(size.width()).arg(size.height()));
-//	int width = d->center->width();
-//	int height = d->center->height();
-//	if (isFullScreen()) {
-//		d->video->setFixedRenderSize(QSize(width, height));
-//	} else {
-//		d->video->setFixedRenderSize(QSize());
-//		height -= d->control->height();
-//	}
-//	showMessage(
+	showMessage(toString((d->video->view()->size() - d->video->skinSizeHint()).toSize()));
 }
 
 void MainWindow::togglePlayPause() {
@@ -379,11 +366,11 @@ void MainWindow::seek(int diff) {
 }
 
 void MainWindow::showMessage(const QString &cmd, int value, const QString &unit, bool sign, int last) {
-	showMessage(cmd, toString(value, true) + unit, last);
+	showMessage(cmd, toString(value, sign) + unit, last);
 }
 
 void MainWindow::showMessage(const QString &cmd, double value, const QString &unit, bool sign, int last) {
-	showMessage(cmd, toString(value, true) + unit, last);
+	showMessage(cmd, toString(value, sign) + unit, last);
 }
 
 void MainWindow::showMessage(const QString &cmd, const QString &description, int last) {
@@ -483,7 +470,7 @@ void MainWindow::doRepeat(int key) {
 			return;
 		if (!d->ab->hasA()) {
 			const int at = d->ab->setAToCurrentTime();
-			QString a = msecsToString(at, "h:mm:ss.zzz");
+			QString a = msecToString(at, "h:mm:ss.zzz");
 			a.chop(2);
 			ex = tr("Set A to %1").arg(a);
 		} else if (!d->ab->hasB()) {
@@ -492,7 +479,7 @@ void MainWindow::doRepeat(int key) {
 				ex = tr("Range is too short!");
 				d->ab->setB(-1);
 			} else {
-				QString b = msecsToString(at, "h:mm:ss.zzz");
+				QString b = msecToString(at, "h:mm:ss.zzz");
 				b.chop(2);
 				ex = tr("Set B to %1. Start to repeat!").arg(b);
 				d->ab->start();

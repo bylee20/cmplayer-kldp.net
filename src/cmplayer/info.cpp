@@ -31,11 +31,11 @@ Info::~Info() {}
 QString Info::ExtList::toFilter() const {
 	QString filter;
 	for (QStringList::const_iterator it = begin(); it != end(); ++it)
-		filter += "*." + *it + ' ';
+		filter += _LS("*.") % *it % _LC(' ');
 	const int size = filter.size();
 	if (size) {
 		filter.remove(size-1, 1);
-		return '(' + filter + ')';
+		return _LC('(') % filter % _LC(')');
 	} else
 		return QString();
 }
@@ -43,7 +43,7 @@ QString Info::ExtList::toFilter() const {
 QStringList Info::ExtList::toNameFilter() const {
 	QStringList nameFilter;
 	for (QStringList::const_iterator it = begin(); it != end(); ++it)
-		nameFilter << ("*." + *it);
+		nameFilter.append(_LS("*.") % *it);
 	return nameFilter;
 }
 
@@ -63,8 +63,8 @@ QString Info::audioExtFilter() {
 	return tr("Audio Files") % QLatin1Char(' ') % audioExt().toFilter();
 }
 
-static QString subtitleExtFilter() {
-//	return tr("Subtitle Files") += QLatin1Char(' ') += Info::subtitleExt().toFilter();
+QString Info::subtitleExtFilter() {
+	return tr("Subtitle Files") % QLatin1Char(' ') % subtitleExt().toFilter();
 }
 
 const char *Info::pluginPath() {

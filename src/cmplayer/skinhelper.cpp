@@ -5,22 +5,24 @@
 #include "menu.hpp"
 #include "playengine.hpp"
 #include "audiocontroller.hpp"
+#include "libvlc.hpp"
 #include <QtCore/QTime>
 #include <QtCore/QDebug>
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeComponent>
 
-SkinHelper::SkinHelper() {
 
+
+SkinHelper::SkinHelper() {
 	m_mediaIndex = m_duration = m_position = m_mediaCount = 0;
 
-	PlayEngine *engine = &PlayEngine::get();
+	PlayEngine *engine = LibVLC::engine();
 	connect(engine, SIGNAL(durationChanged(int)), this, SLOT(__updateDuration(int)));
 	connect(engine, SIGNAL(tick(int)), this, SLOT(__updatePosition(int)));
 	connect(engine, SIGNAL(stateChanged(MediaState,MediaState)), this, SIGNAL(playerStateChanged()));
 	connect(engine, SIGNAL(mrlChanged(Mrl)), this, SLOT(__updateMrl(Mrl)));
 
-	AudioController *audio = &AudioController::get();
+	AudioController *audio = LibVLC::audio();
 	connect(audio, SIGNAL(volumeChanged(int)), this, SIGNAL(volumeChanged()));
 	connect(audio, SIGNAL(mutedChanged(bool)), this, SIGNAL(mutedChanged()));
 }
@@ -44,17 +46,17 @@ QString SkinHelper::msecToString(int msec, const QString &format) const {
 }
 
 void SkinHelper::seek(int msec) {
-	PlayEngine::get().seek(msec);
+	LibVLC::engine()->seek(msec);
 }
 
 void SkinHelper::setVolume(int volume) {
-	AudioController &audio = AudioController::get();
-	if (audio.volume() != volume)
-		audio.setVolume(volume);
+	AudioController *audio = LibVLC::audio();
+	if (audio->volume() != volume)
+		audio->setVolume(volume);
 }
 
 int SkinHelper::volume() const {
-	return AudioController::get().volume();
+	return LibVLC::audio()->volume();
 }
 
 void SkinHelper::resize(const QSizeF &size) {
@@ -73,7 +75,7 @@ void SkinHelper::updateScreen(double x, double y, double w, double h) {
 }
 
 bool SkinHelper::isMuted() const {
-	return AudioController::get().isMuted();
+	return LibVLC::audio()->isMuted();
 }
 
 const PlaylistModel *SkinHelper::playlist() const {
@@ -81,7 +83,7 @@ const PlaylistModel *SkinHelper::playlist() const {
 }
 
 SkinHelper::PlayerState SkinHelper::playerState() const {
-	return (PlayerState)PlayEngine::get().state();
+	return (PlayerState)LibVLC::engine()->state();
 }
 
 bool SkinHelper::exec(const QString &id) {
@@ -113,7 +115,7 @@ int SkinHelper::mediaCount() const {
 }
 
 QString SkinHelper::currentMediaInfo() const {
-	return PlayEngine::get().mrl().displayName();
+	return LibVLC::engine()->mrl().displayName();
 }
 
 

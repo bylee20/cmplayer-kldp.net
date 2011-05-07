@@ -6,6 +6,7 @@
 
 class OsdRenderer;	class VideoFormat;
 class VideoUtil;	class ColorProperty;
+class SkinHelper;
 
 class VideoScene : public QGraphicsScene {
 	Q_OBJECT
@@ -28,7 +29,6 @@ private:
 	static const int KernelEffects = Blur | Sharpen;
 public:
 	QGraphicsView *view();
-	QGLWidget *gl();
 	~VideoScene();
 	// takes ownership
 	void addOsd(OsdRenderer *osd);
@@ -50,9 +50,7 @@ public:
 	void setEffects(Effects effect);
 	double outputFrameRate(bool reset = true) const;
 	QRectF renderableArea() const;
-	static void init();
-	static void fin();
-	static VideoScene &get() {Q_ASSERT(obj != 0); return *obj;}
+	void setSkin(SkinHelper *skin);
 public slots:
 	void setSkinVisible(bool visible);
 	void setAspectRatio(double ratio);
@@ -71,9 +69,8 @@ protected:
 private slots:
 	void updateVertices();
 private:
-	VideoScene();
+	VideoScene(VideoUtil *util);
 	bool needToPropagate(const QPointF &mouse);
-	void setUtil(VideoUtil *util);
 	void updateSceneRect();
 	void *lock(void ***planes);
 	void unlock(void *id, void *const *plane);

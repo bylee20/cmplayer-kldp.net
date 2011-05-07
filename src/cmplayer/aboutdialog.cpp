@@ -4,6 +4,10 @@
 #include "info.hpp"
 #include <QtCore/QDate>
 #include <QtGui/QTextBrowser>
+#include <QtCore/QStringBuilder>
+
+typedef QLatin1Char _LC;
+typedef QLatin1String _LS;
 
 struct AboutDialog::Data {
 	Ui::AboutDialog ui;
@@ -98,10 +102,8 @@ void OpenDVDDialog::checkDevice(const QString &device) {
 	if (exists)
 		d->ui.available->setText(tr("Selected device is available."));
 	else {
-		QString msg = QLatin1String("<font color='red'>");
-		msg += tr("Selected device doesn't exists.");
-		msg += QLatin1String("</font>");
-		d->ui.available->setText(msg);
+		d->ui.available->setText(_LS("<font color='red'>")
+			% tr("Selected device doesn't exists.") % _LS("</font>"));
 	}
 }
 

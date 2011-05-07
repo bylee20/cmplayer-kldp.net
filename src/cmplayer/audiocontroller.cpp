@@ -5,18 +5,6 @@
 #include <cmath>
 #include <QtCore/QDebug>
 
-AudioController *AudioController::obj = 0;
-
-void AudioController::init() {
-	Q_ASSERT(obj == 0);
-	obj = new AudioController;
-}
-
-void AudioController::fin() {
-	delete obj;
-	obj = 0;
-}
-
 class AudioController::Volume {
 public:
 	Volume() {
@@ -135,8 +123,14 @@ struct AudioController::Data {
 	Volume volume;
 };
 
-void AudioController::setUtil(AudioUtil *util) {
+AudioController::AudioController(AudioUtil *util)
+: d(new Data) {
+	qRegisterMetaType<AudioFormat>("AudioFormat");
 	d->util = util;
+}
+
+AudioController::~AudioController() {
+	delete d;
 }
 
 void AudioController::prepare(const AudioFormat *format) {
@@ -147,15 +141,6 @@ void AudioController::prepare(const AudioFormat *format) {
 
 AudioBuffer *AudioController::process(AudioBuffer *in) {
 	return d->volume.process(in);
-}
-
-AudioController::AudioController(/*PlayEngine *engine*/): d(new Data) {
-	Q_ASSERT(obj == 0);
-	qRegisterMetaType<AudioFormat>("AudioFormat");
-}
-
-AudioController::~AudioController() {
-	delete d;
 }
 
 int AudioController::volume() const {

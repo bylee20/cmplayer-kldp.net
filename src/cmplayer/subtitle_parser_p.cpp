@@ -4,9 +4,6 @@
 #include <QtCore/QDebug>
 #include <list>
 
-
-
-
 void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 	int sync = -1;
 	TagIterator tag(all());
@@ -196,7 +193,7 @@ void  Subtitle::Parser::TMPlayer::_parse(Subtitle &sub) {
 		if (rxLine.indexIn(line) == -1)
 			continue;
 #define T_INT(nth) rxLine.cap(nth).toInt()
-		const int time = timeToMSecs(T_INT(1), T_INT(2), T_INT(3));
+		const int time = timeToMSec(T_INT(1), T_INT(2), T_INT(3));
 #undef T_INT
 		Subtitle::Node node;
 		if (predictedEnd > 0 && time > predictedEnd)
@@ -248,8 +245,8 @@ void Subtitle::Parser::SubRip::_parse(Subtitle &sub) {
 		if (atEnd())
 			return;
 #define T_INT(nth) rxTime.cap(nth).toInt()
-		const int start = timeToMSecs(T_INT(1), T_INT(2), T_INT(3), T_INT(4));
-		const int end = timeToMSecs(T_INT(5), T_INT(6), T_INT(7), T_INT(8));
+		const int start = timeToMSec(T_INT(1), T_INT(2), T_INT(3), T_INT(4));
+		const int end = timeToMSec(T_INT(5), T_INT(6), T_INT(7), T_INT(8));
 #undef T_INT
 		QString text;
 		while (!atEnd()) {

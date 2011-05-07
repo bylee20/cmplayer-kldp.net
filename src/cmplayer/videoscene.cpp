@@ -1,21 +1,9 @@
 #include "videoscene.hpp"
 #include "videoscene_p.hpp"
 
-VideoScene *VideoScene::obj = 0;
-
-void VideoScene::init() {
-	Q_ASSERT(obj == 0);
-	obj = new VideoScene;
-}
-
-void VideoScene::fin() {
-	delete obj;
-	obj = 0;
-}
-
-VideoScene::VideoScene()
+VideoScene::VideoScene(VideoUtil *util)
 : QGraphicsScene(), d(new Data) {
-	Q_ASSERT(obj == 0);
+	d->util = util;
 	d->gl = new QGLWidget;
 	d->skin = 0;
 	d->skinVisible = true;
@@ -40,13 +28,14 @@ VideoScene::VideoScene()
 	d->overlay = 0;
 
 	d->view = new VideoView(this, d->gl);
-	d->skin = SkinManager::load(QUrl::fromLocalFile("/Users/xylosper/untitled/skin.qml"));
-	addItem(d->skin);
-	connect(d->skin, SIGNAL(screenChanged()), this, SLOT(updateVertices()));
+//	d->skin = SkinManager::load(QUrl::fromLocalFile("/Users/xylosper/untitled/skin.qml"));
+//	addItem(d->skin);
+//	connect(d->skin, SIGNAL(screenChanged()), this, SLOT(updateVertices()));
 }
 
 VideoScene::~VideoScene() {
-	removeItem(d->skin);
+	if (d->skin)
+		removeItem(d->skin);
 	d->gl->makeCurrent();
 	qDeleteAll(d->shaders);
 	delete d->overlay;
@@ -62,7 +51,8 @@ QGraphicsView *VideoScene::view() {
 void VideoScene::setSkinVisible(bool visible) {
 	if (d->skinVisible != visible) {
 		d->skinVisible = visible;
-		d->skin->setVisible(visible);
+		if (d->skin)
+			d->skin->setVisible(visible);
 		updateVertices();
 	}
 }
@@ -121,12 +111,14 @@ bool VideoScene::hasFrame() const {
 	return d->frameIsSet;
 }
 
-void VideoScene::setUtil(VideoUtil *util) {
-	d->util = util;
-}
-
-QGLWidget *VideoScene::gl() {
-	return d->gl;
+void VideoScene::setSkin(SkinHelper *skin) {
+	if (d->skin)
+		removeItem(d->skin);
+	d->skin = skin;
+	addItem(d->skin);
+	d->skin->setVisible(d->skinVisible);
+	updateSceneRect();
+	updateVertices();
 }
 
 void VideoScene::drawBackground(QPainter *painter, const QRectF &/*rect*/) {
@@ -380,6 +372,8 @@ void VideoScene::updateSceneRect() {
 	setSceneRect(0, 0, d->view->width(), d->view->height());
 	if (d->skin)
 		d->skin->resize(sceneRect().size());
+	else
+		updateVertices();
 }
 
 QRectF VideoScene::renderableArea() const {
