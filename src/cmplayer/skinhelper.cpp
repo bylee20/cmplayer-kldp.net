@@ -1,18 +1,14 @@
 #include "skinhelper.hpp"
-#include <QtCore/QDir>
 #include "playlistmodel.hpp"
-#include "playlist.hpp"
 #include "playlistview.hpp"
 #include "menu.hpp"
 #include "playengine.hpp"
 #include "audiocontroller.hpp"
 #include "libvlc.hpp"
-#include <QtCore/QTime>
+#include <QtCore/QDir>
 #include <QtCore/QDebug>
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeComponent>
-
-
 
 SkinHelper::SkinHelper() {
 	m_mediaIndex = m_duration = m_position = m_mediaCount = 0;
@@ -38,6 +34,15 @@ void SkinHelper::initialize() {
 	emit mutedChanged();
 }
 
+int SkinHelper::mediaCount() const {return playlist()->rowCount();}
+QString SkinHelper::currentMediaInfo() const {return LibVLC::engine()->mrl().displayName();}
+QString SkinHelper::formatMSec(int msec, const QString &format) const {return msecToString(msec, format);}
+void SkinHelper::seek(int msec) {LibVLC::engine()->seek(msec);}
+int SkinHelper::volume() const {return LibVLC::audio()->volume();}
+bool SkinHelper::isMuted() const {return LibVLC::audio()->isMuted();}
+const PlaylistModel *SkinHelper::playlist() const {return PlaylistView::get().model();}
+SkinHelper::PlayerState SkinHelper::playerState() const {return (PlayerState)LibVLC::engine()->state();}
+
 void SkinHelper::__updateDuration(int duration) {
 	if (m_duration != duration) {
 		m_duration = duration;
@@ -52,22 +57,10 @@ void SkinHelper::__updatePosition(int position) {
 	}
 }
 
-QString SkinHelper::msecToString(int msec, const QString &format) const {
-	return QTime().addMSecs(msec).toString(format);
-}
-
-void SkinHelper::seek(int msec) {
-	LibVLC::engine()->seek(msec);
-}
-
 void SkinHelper::setVolume(int volume) {
 	AudioController *audio = LibVLC::audio();
 	if (audio->volume() != volume)
 		audio->setVolume(volume);
-}
-
-int SkinHelper::volume() const {
-	return LibVLC::audio()->volume();
 }
 
 void SkinHelper::resize(const QSizeF &size) {
@@ -85,25 +78,16 @@ void SkinHelper::updateScreen(double x, double y, double w, double h) {
 	}
 }
 
-bool SkinHelper::isMuted() const {
-	return LibVLC::audio()->isMuted();
-}
-
-const PlaylistModel *SkinHelper::playlist() const {
-	return PlaylistView::get().model();
-}
-
-SkinHelper::PlayerState SkinHelper::playerState() const {
-	return (PlayerState)LibVLC::engine()->state();
-}
-
 bool SkinHelper::exec(const QString &id) {
 	QAction *action = RootMenu::get().action(id);
 	if (action) {
-		action->trigger();
+		if (action->menu())
+			action->menu()->exec(QCursor::pos());
+		else
+			action->trigger();
 		return true;
 	} else {
-		qWarning("SkinHelper::exec(): no action %s", qPrintable(id));
+		qWarning("SkinHelper::exec(): no action or menu %s", qPrintable(id));
 		return false;
 	}
 }
@@ -121,17 +105,7 @@ void SkinHelper::__updateMrl(const Mrl &mrl) {
 	}
 }
 
-int SkinHelper::mediaCount() const {
-	return playlist()->rowCount();
-}
-
-QString SkinHelper::currentMediaInfo() const {
-	return LibVLC::engine()->mrl().displayName();
-}
-
-
 /*******************************************************************/
-
 
 struct SkinManager::Data {
 	Data();
@@ -153,9 +127,15 @@ void SkinManager::Data::check(const QString &path) {
 	}
 }
 
-
 SkinManager::Data::Data() {
+#ifdef CMPLAYER_SKIN_PATH
+	check(CMPLAYER_SKIN_PATH);
+#endif
 	check("./skin");
+	check(QDir::homePath() + "/.cmplayer/skin");
+	const QByteArray path = qgetenv("CMPLAYER_SKIN_PATH");
+	if (!path.isEmpty())
+		check(QString::fromLocal8Bit(path));
 }
 
 SkinManager::Data &SkinManager::d() {

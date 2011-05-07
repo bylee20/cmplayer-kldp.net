@@ -53,7 +53,8 @@ private:
 	VideoScene *m_scene;
 	void mouseMoveEvent(QMouseEvent *event) {
 		QGraphicsView::mouseMoveEvent(event);
-		event->setAccepted(!m_scene->needToPropagate(event->posF()));
+//		event->setAccepted(!m_scene->needToPropagate(event->posF()));
+		event->setAccepted(false);
 	}
 	void mousePressEvent(QMouseEvent *event) {
 		QGraphicsView::mousePressEvent(event);
@@ -88,30 +89,29 @@ private:
 	QTime m_time;
 };
 
+/******************************************************************************/
+
 struct VideoScene::Data {
 	static const int i420ToRgbSimple = 0;
 	static const int i420ToRgbFilter = 1;
 	static const int i420ToRgbKernel = 2;
-	QGLWidget *gl;
-	QGraphicsView *view;
+	QGLWidget *gl;		QGraphicsView *view;
 	FrameRateMeasure fps;	int frameId;
-	QMutex mutex;		QSize renderSize;	ColorProperty color;
+	QMutex mutex;		ColorProperty color;
 	LogoDrawer logo;	Overlay *overlay;	GLuint texture[3];
 	VideoFrame *buffer, *frame, *temp, buf[3];	VideoUtil *util;
-	QSize size;
-	QRectF vtx;		Effects effects;
+	QSize size;	QRectF vtx;
+	Effects effects;
 	void **planes[VIDEO_FRAME_MAX_PLANE_COUNT];	VideoFormat format;
 	QList<FragmentProgram*> shaders;		FragmentProgram *shader;
 	double rgb_base, rgb_c_r, rgb_c_g, rgb_c_b;
 	double crop, aspect, kern_d, kern_c, kern_n;
-	double y_min, y_max; double y_min_buffer, y_max_buffer;
+	double y_min, y_max, y_min_buffer, y_max_buffer;
 	double brightness, contrast, sat_con, sinhue, coshue;
-	double cpu;
 	bool hasKernel, prepared, logoOn, frameIsSet, hasPrograms, binding;
-	SkinHelper *skin;
-	bool skinVisible;
+	SkinHelper *skin;	bool autoPopup;
+	SkinMode skinMode;
 // methods
-
 	static double aspect_ratio(const QSizeF &size) {return size.width()/size.height();}
 	static double aspect_ratio(const QRectF &rect) {return rect.width()/rect.height();}
 	static bool compare_ratio(double r1, double r2) {return (r1<0. && r2<0.) || qFuzzyCompare(r1, r2);}
@@ -121,7 +121,13 @@ struct VideoScene::Data {
 		case Qt::RightButton:	return 2;	default:		return -1;
 		}
 	}
-
+	static inline void setRgbFromYuv(uchar *&r, int y, int u, int v) {
+		y -= 16;	y *= 298;
+		u -= 128;	v -= 128;
+		*r++ = qBound(0, (y + 409*v + 128) >> 8, 255);
+		*r++ = qBound(0, (y - 100*u - 208*v + 128) >> 8, 255);
+		*r++ = qBound(0, (y + 516*u + 128) >> 8, 255);
+	}
 
 	static inline int kbps(double fps, int width, int height, int bpp) {
 		return width*height*bpp*fps/1024 + 0.5;

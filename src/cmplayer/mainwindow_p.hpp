@@ -66,9 +66,10 @@ struct MainWindow::Data {
 		menu("video")("aspect").g()->trigger(as.aspect_ratio);
 		menu("video")("crop").g()->trigger(as.crop_ratio);
 		menu("video")("overlay").g()->trigger(as.overlay.id());
-		menu("window").g("sot")->trigger(as.stays_on_top.id());
 		menu("subtitle").g("display")->trigger((int)as.sub_letterbox);
 		menu("subtitle").g("align")->trigger((int)as.sub_align_top);
+		menu("window")["simple-mode"]->setChecked(as.simple_mode);
+		menu("window").g("sot")->trigger(as.stays_on_top.id());
 
 		audio->setVolume(as.volume);
 		audio->setMuted(as.muted);
@@ -95,6 +96,7 @@ struct MainWindow::Data {
 		as.stays_on_top = stay_on_top_mode();
 		as.sub_letterbox = subtitle->osd()->letterboxHint();
 		as.sub_align_top = subtitle->isTopAligned();
+		as.simple_mode = menu("window")["simple-mode"]->isChecked();
 		QAction *act = menu("video")("overlay").g()->checkedAction();
 		if (act)
 			as.overlay.set(act->data().toInt());
@@ -104,6 +106,12 @@ struct MainWindow::Data {
 	Enum::StaysOnTop stay_on_top_mode() const {
 		const int id = menu("window").g("sot")->checkedAction()->data().toInt();
 		return Enum::StaysOnTop::from(id, Enum::StaysOnTop::Playing);
+	}
+
+	static VideoScene::SkinMode skin_mode(bool simple, bool fullscreen) {
+		if (fullscreen)
+			return VideoScene::AutoSkin;
+		return simple ? VideoScene::NeverSkin : VideoScene::AlwaysSkin;
 	}
 
 	void apply_pref() {

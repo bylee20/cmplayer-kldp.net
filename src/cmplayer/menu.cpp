@@ -263,6 +263,8 @@ RootMenu::RootMenu(): Menu(_LS("menu"), 0) {
 	playInfo->setShortcut(Qt::Key_Tab);
 
 	Menu *window = obj->addMenu(_LS("window"));
+	window->addAction(_LS("simple-mode"), true);
+	window->addSeparator();
 	// sot == Stay On Top
 	window->addActionToGroup(_LS("sot-always"), true, _LS("sot"))->setData(Enum::StaysOnTop::Always.id());
 	window->addActionToGroup(_LS("sot-playing"), true, _LS("sot"))->setData(Enum::StaysOnTop::Playing.id());
@@ -469,6 +471,7 @@ void RootMenu::update() {
 
 	Menu &window = root("window");
 	window.setTitle(tr("Window"));
+	window["simple-mode"]->setText(tr("Simple Mode"));
 	window["sot-always"]->setText(tr("Always Stay on Top"));
 	window["sot-playing"]->setText(tr("Stay on Top Playing"));
 	window["sot-never"]->setText(tr("Don't Stay on Top"));
@@ -497,12 +500,16 @@ QAction *RootMenu::action(const QString &id) const {
 		return 0;
 	if (key.first() != this->id())
 		return 0;
-	const Menu *menu = this;
-	for (int i=1; i<key.size()-1 && menu; ++i)
-		menu = menu->m(key[i]);
-	if (!menu)
-		return 0;
-	return menu->a(key.last());
+	const Menu *it = this;
+	for (int i=1; i<key.size()-1 && it; ++i)
+		it = it->m(key[i]);
+	QAction *action = it->a(key.last());
+	if (!action) {
+		Menu *menu = it->m(key.last());
+		if (menu)
+			action = menu->menuAction();
+	}
+	return action;
 }
 
 QAction *RootMenu::doubleClickAction(Qt::KeyboardModifiers mod) const {

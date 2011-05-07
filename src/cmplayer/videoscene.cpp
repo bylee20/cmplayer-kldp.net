@@ -5,8 +5,6 @@ VideoScene::VideoScene(VideoUtil *util)
 : QGraphicsScene(), d(new Data) {
 	d->util = util;
 	d->gl = new QGLWidget;
-	d->skin = 0;
-	d->skinVisible = true;
 	d->gl->makeCurrent();
 	glGenTextures(3, d->texture);
 #define GET_PROC_ADDRESS(func) func = (_##func)d->gl->context()->getProcAddress(QLatin1String(#func))
@@ -16,20 +14,17 @@ VideoScene::VideoScene(VideoUtil *util)
 	d->init_program();
 	d->gl->doneCurrent();
 
+	d->skin = 0;	d->skinMode = AlwaysSkin;
 	d->update_color_prop();
 	d->effects = 0;	d->update_effects();
 	d->planes[0] = d->planes[1] = d->planes[2] = 0;
-	d->y_max = 1.0; d->y_min = 0.0;
+	d->y_min = 0.0;	d->y_max = 1.0;
 	d->format.fps = d->crop = d->aspect = -1.0;
 	d->format.sar = 1.0;
-	d->cpu = -1.0;
 	d->frame = &d->buf[0];	d->temp = &d->buf[1];	d->buffer = &d->buf[2];
 	d->frameIsSet = d->logoOn = d->binding = d->hasKernel = d->prepared = false;
 	d->overlay = 0;
-
 	d->view = new VideoView(this, d->gl);
-//	d->skin = SkinManager::load(QUrl::fromLocalFile("/Users/xylosper/untitled/skin.qml"));
-//	addItem(d->skin);
 }
 
 VideoScene::~VideoScene() {
@@ -47,21 +42,25 @@ QGraphicsView *VideoScene::view() {
 	return d->view;
 }
 
-void VideoScene::setSkinVisible(bool visible) {
-	if (d->skinVisible != visible) {
-		d->skinVisible = visible;
-		if (d->skin)
-			d->skin->setVisible(visible);
-		updateVertices();
+void VideoScene::updateSkinVisible(const QPointF &pos) {
+	if (!d->skin)
+		return;
+	if (d->skinMode == AlwaysSkin)
+		d->skin->setVisible(true);
+	else if (d->skinMode == NeverSkin)
+		d->skin->setVisible(false);
+	else {
+		d->skin->setVisible(sceneRect().contains(pos) && !d->skin->screen().contains(pos));
 	}
 }
 
-static inline void setRgbFromYuv(uchar *&r, int y, int u, int v) {
-	y -= 16;	y *= 298;
-	u -= 128;	v -= 128;
-	*r++ = qBound(0, (y + 409*v + 128) >> 8, 255);
-	*r++ = qBound(0, (y - 100*u - 208*v + 128) >> 8, 255);
-	*r++ = qBound(0, (y + 516*u + 128) >> 8, 255);
+void VideoScene::setSkinMode(SkinMode mode) {
+	if (d->skinMode != mode) {
+		d->skinMode = mode;
+		updateVertices();
+		updateSkinVisible();
+
+	}
 }
 
 QImage VideoScene::frameImage() const {
@@ -84,10 +83,10 @@ QImage VideoScene::frameImage() const {
 		for (int i = 0; i < image.width()/2; ++i) {
 			const int _u = *u++;
 			const int _v = *v++;
-			setRgbFromYuv(r1, *y1++, _u, _v);
-			setRgbFromYuv(r1, *y1++, _u, _v);
-			setRgbFromYuv(r2, *y2++, _u, _v);
-			setRgbFromYuv(r2, *y2++, _u, _v);
+			d->setRgbFromYuv(r1, *y1++, _u, _v);
+			d->setRgbFromYuv(r1, *y1++, _u, _v);
+			d->setRgbFromYuv(r2, *y2++, _u, _v);
+			d->setRgbFromYuv(r2, *y2++, _u, _v);
 		}
 		r1 += dr;		y0 += dy2;
 		u0 += duv;		v0 += duv;
@@ -116,11 +115,13 @@ void VideoScene::setSkin(SkinHelper *skin) {
 		d->skin->disconnect(this);
 	}
 	d->skin = skin;
-	connect(d->skin, SIGNAL(screenChanged()), this, SLOT(updateVertices()));
-	addItem(d->skin);
-	d->skin->setVisible(d->skinVisible);
+	if (d->skin) {
+		connect(d->skin, SIGNAL(screenChanged()), this, SLOT(updateVertices()));
+		addItem(d->skin);
+	}
 	updateSceneRect();
 	updateVertices();
+	updateSkinVisible();
 }
 
 void VideoScene::drawBackground(QPainter *painter, const QRectF &/*rect*/) {
@@ -318,7 +319,7 @@ double VideoScene::targetCropRatio(double fallback) const {
 }
 
 QSizeF VideoScene::skinSizeHint() const {
-	return (d->skin && d->skinVisible) ? (d->skin->size() - d->skin->screen().size()) : QSizeF(0, 0);
+	return (d->skin && d->skinMode == AlwaysSkin) ? (d->skin->size() - d->skin->screen().size()) : QSizeF(0, 0);
 }
 
 QSizeF VideoScene::sizeHint(double times) const {
@@ -379,7 +380,7 @@ void VideoScene::updateSceneRect() {
 }
 
 QRectF VideoScene::renderableArea() const {
-	if (!d->skin || !d->skinVisible)
+	if (!d->skin || d->skinMode != AlwaysSkin)
 		return sceneRect();
 	return d->skin->screen();
 }
@@ -471,10 +472,11 @@ void VideoScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 	QGraphicsScene::mouseMoveEvent(event);
 	if (event->isAccepted())
 		return;
-	if (d->skin && !d->skinVisible)
-		d->skin->setVisible(!d->skin->screen().contains(event->scenePos()));
+	QPointF pos = event->scenePos();
+	updateSkinVisible(pos);
+//	if (d->skin && !d->skinVisible)
+//		d->skin->setVisible(!d->skin->screen().contains(pos) && sceneRect().contains(pos));
 	if (d->util->vd && d->vtx.isValid() && !d->frame->isEmpty()) {
-		QPointF pos = event->scenePos();
 		if (d->vtx.contains(pos)) {
 			pos -= d->vtx.topLeft();
 			pos.rx() *= (double)d->format.width/d->vtx.width();
@@ -569,6 +571,9 @@ void VideoScene::setOverlayType(int hint) {
 }
 
 bool VideoScene::needToPropagate(const QPointF &mouse) {
-	return !d->skin || !d->skinVisible || d->skin->screen().contains(mouse);
+	return !d->skin || d->skinMode != AlwaysSkin || d->skin->screen().contains(mouse);
 }
 
+VideoScene::SkinMode VideoScene::skinMode() const {
+	return d->skinMode;
+}

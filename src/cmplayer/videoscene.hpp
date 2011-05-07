@@ -28,6 +28,7 @@ private:
 	static const int FilterEffects = InvertColor | RemapLuma | AutoContrast;
 	static const int KernelEffects = Blur | Sharpen;
 public:
+	enum SkinMode {AlwaysSkin, AutoSkin, NeverSkin};
 	QGraphicsView *view();
 	~VideoScene();
 	// takes ownership
@@ -50,9 +51,11 @@ public:
 	void setEffects(Effects effect);
 	double outputFrameRate(bool reset = true) const;
 	QRectF renderableArea() const;
+	void setSkinMode(SkinMode mode);
 	void setSkin(SkinHelper *skin);
+	SkinMode skinMode() const;
+	bool inScreen(const QPointF &pos) const;
 public slots:
-	void setSkinVisible(bool visible);
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
 	void setOverlayType(int type);
@@ -69,6 +72,7 @@ protected:
 private slots:
 	void updateVertices();
 private:
+	void updateSkinVisible(const QPointF &pos = QCursor::pos());
 	VideoScene(VideoUtil *util);
 	bool needToPropagate(const QPointF &mouse);
 	void updateSceneRect();
@@ -86,9 +90,7 @@ private:
 
 	typedef void (*_glActiveTexture) (GLenum);
 	_glActiveTexture glActiveTexture;
-	struct Data;
-	Data *d;
-	static VideoScene *obj;
+	struct Data;	Data *d;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(VideoScene::Effects)

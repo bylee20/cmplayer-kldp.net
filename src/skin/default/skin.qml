@@ -5,34 +5,15 @@ import "content"
 Skin {
 	id: root
 
-	onDurationChanged: {
-		duration.text = msecToString(root.duration, "hh:mm:ss")
-		seek.maximum = root.duration
-	}
-	onPositionChanged: {
-		position.text = msecToString(root.position, "hh:mm:ss")
-		seek.value = root.position
-	}
+	function __updateMediaInfo() {media.text = "["+(currentMediaIndex+1)+"/"+mediaCount+"] " + currentMediaInfo}
+
+	Component.onCompleted: initialize()
+	onDurationChanged: {length.text = formatMSec(duration, "hh:mm:ss"); seek.maximum = duration}
+	onPositionChanged: {pos.text = formatMSec(position, "hh:mm:ss"); seek.value = position}
 	onVolumeChanged: volume.value = root.volume
 	onSizeChanged: root.updateScreen(scr.x, scr.y, scr.width, scr.height)
-	onMutedChanged: {
-		if (muted)
-			mute.icon = "content/speaker-off.png"
-		else
-			mute.icon = "content/speaker.png"
-		mute.checked = muted
-	}
-	onPlayerStateChanged: {
-		if (playerState == Skin.PlayingState)
-			pause.icon = "content/pause.png"
-		else
-			pause.icon = "content/play.png"
-	}
-
-	function __updateMediaInfo() {
-		media.text = "[" + (currentMediaIndex + 1) + "/" + mediaCount + "] " + currentMediaInfo
-	}
-
+	onMutedChanged: {mute.icon = muted ? "content/speaker-off.png" : "content/speaker.png"; mute.checked = muted}
+	onPlayerStateChanged: {pause.icon = (playerState == Skin.PlayingState) ? "content/pause.png" : "content/play.png"}
 //	onCurrentMediaIndexChanged: __updateMediaInfo()
 	onMediaCountChanged: __updateMediaInfo()
 	onCurrentMediaInfoChanged: __updateMediaInfo()
@@ -143,7 +124,7 @@ Skin {
 					id: media
 					anchors {
 						top: parent.top; bottom: parent.bottom
-						left: parent.left; right: position.left
+						left: parent.left; right: pos.left
 						leftMargin: 3; rightMargin: 3
 					}
 					elide: Text.ElideRight
@@ -152,7 +133,7 @@ Skin {
 				}
 
 				Text {
-					id: position
+					id: pos
 
 					width: paintedWidth; anchors.right: slash.left; height: parent.height
 					font.pixelSize: 11
@@ -162,13 +143,13 @@ Skin {
 				Text {
 					id: slash
 
-					width: paintedWidth; height: parent.height; anchors.right: duration.left
+					width: paintedWidth; height: parent.height; anchors.right: length.left
 					text: "/"
 					font.pixelSize: 11
 					verticalAlignment: "AlignVCenter"
 				}
 				Text {
-					id: duration
+					id: length
 
 					width: paintedWidth; height: parent.height
 					anchors.right: parent.right; anchors.rightMargin: 3

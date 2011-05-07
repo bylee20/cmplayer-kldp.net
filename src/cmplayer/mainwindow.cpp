@@ -102,6 +102,8 @@ MainWindow::MainWindow() {
 	CONNECT(tool["subtitle"], triggered(), d->subtitle->view(), toggle());
 	CONNECT(tool["pref"], triggered(), this, setPref());
 	CONNECT(tool["playinfo"], toggled(bool), d->playInfo, setVisible(bool));
+
+	CONNECT(win["simple-mode"], toggled(bool), this, setSimpleMode(bool));
 	CONNECT(win.g("sot"), triggered(int), this, updateStaysOnTop());
 	CONNECT(win.g("size"), triggered(double), this, setVideoSize(double));
 
@@ -189,6 +191,10 @@ MainWindow::~MainWindow() {
 	delete d->playInfo;
 	delete d;
 	LibVLC::finalize();
+}
+
+void MainWindow::setSimpleMode(bool simple) {
+	d->video->setSkinMode(d->skin_mode(simple, isFullScreen()));
 }
 
 void MainWindow::updateVideoFormat(const VideoFormat &format) {
@@ -415,7 +421,7 @@ void MainWindow::setMuted(bool muted) {
 void MainWindow::setFullScreen(bool full) {
 	if (full == isFullScreen())
 		return;
-	d->video->setSkinVisible(!full);
+	d->video->setSkinMode(d->skin_mode(d->menu("window")["simple-mode"]->isChecked(), full));
 	d->dontPause = true;
 	d->moving = false;
 	d->prevPos = QPoint();

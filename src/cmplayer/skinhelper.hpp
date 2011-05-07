@@ -39,15 +39,13 @@ public:
 	int mediaCount() const;
 	int currentMediaIndex() const {return m_mediaIndex;}
 	QString currentMediaInfo() const;
-//	QSizeF sizeHint() const {return m_sizeHint;}
 
 	Q_INVOKABLE void initialize();
 	Q_INVOKABLE bool exec(const QString &id);
 	Q_INVOKABLE void seek(int msec);
 	Q_INVOKABLE void setVolume(int volume);
 	Q_INVOKABLE void updateScreen(double x, double y, double w, double h);
-//	Q_INVOKABLE void updateSizeHint(double width, double height);
-	Q_INVOKABLE QString msecToString(int msec, const QString &format) const;
+	Q_INVOKABLE QString formatMSec(int msec, const QString &format) const;
 signals:
 	void durationChanged();
 	void positionChanged();

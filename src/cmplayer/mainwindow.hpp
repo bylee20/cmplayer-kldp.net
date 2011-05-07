@@ -17,6 +17,7 @@ public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
 private slots:
+	void setSimpleMode(bool simple);
 	void applyPref();
 	void updateVideoFormat(const VideoFormat &format);
 	void setEffect(QAction *action);

@@ -24,12 +24,17 @@ public:
 	double sub_pos;
 	int sub_sync_delay;
 	bool sub_letterbox, sub_align_top;
+
+// window state
+	bool simple_mode;
+	Enum::StaysOnTop stays_on_top;
+
 // misc
 	QString last_open_file;
 	bool ask_system_tray;
 	QStringList open_url_list;
 	QString url_enc;
-	Enum::StaysOnTop stays_on_top;
+
 
 	void save() const;
 	static AppState &get();
