@@ -94,7 +94,6 @@ HEADERS += playengine.hpp \
     pixelbufferoverlay.hpp \
     pixmapoverlay.hpp \
     overlay.hpp \
-    videorenderer.hpp \
     avmisc.hpp \
     subtitlemodel.hpp \
     tagiterator.hpp \
@@ -116,7 +115,9 @@ HEADERS += playengine.hpp \
     enums.hpp \
     actiongroup.hpp \
     record.hpp \
-    skinhelper.hpp
+    skinhelper.hpp \
+    videoscene_p.hpp \
+    videoscene.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -166,7 +167,6 @@ SOURCES += main.cpp \
     pixelbufferoverlay.cpp \
     pixmapoverlay.cpp \
     overlay.cpp \
-    videorenderer.cpp \     
     subtitlemodel.cpp \
     tagiterator.cpp \
     subtitle_parser_p.cpp \
@@ -184,7 +184,8 @@ SOURCES += main.cpp \
     enums.cpp \
     actiongroup.cpp \
     record.cpp \
-    skinhelper.cpp
+    skinhelper.cpp \
+    videoscene.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts

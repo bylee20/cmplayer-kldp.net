@@ -134,6 +134,7 @@ public:
 		m_scene = scene;
 		setScene(m_scene);
 	}
+	QSize sizeHint() const {return m_scene->sizeHint(1.0).toSize();}
 private:
 	VideoScene *m_scene;
 	void mouseMoveEvent(QMouseEvent *event) {
@@ -152,12 +153,6 @@ private:
 		QGraphicsView::resizeEvent(event);
 		m_scene->updateSceneRect();
 	}
-
-//	void keyPressEvent(QKeyEvent *event) {
-//		QGraphicsView::keyPressEvent(event);
-//		event->setAccepted(false);
-//	}
-
 };
 
 bool VideoScene::needToPropagate(const QPointF &mouse) {

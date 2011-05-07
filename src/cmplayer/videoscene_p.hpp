@@ -1,0 +1,4 @@
+#ifndef VIDEOSCENE_P_HPP
+#define VIDEOSCENE_P_HPP
+
+#endif // VIDEOSCENE_P_HPP
