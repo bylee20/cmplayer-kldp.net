@@ -15,7 +15,7 @@ VideoScene *LibVLC::m_video = 0;
 libvlc_instance_t *LibVLC::m_inst = 0;
 libvlc_media_player_t *LibVLC::m_mp = 0;
 
-void LibVLC::init() {
+void LibVLC::initialize() {
 	Q_ASSERT(d == 0);
 	d = new Data;
 
@@ -88,9 +88,9 @@ void LibVLC::init() {
 	m_audio = new AudioController(&util_a);
 }
 
-void LibVLC::fin() {
-	if (!d)
-		return;
+void LibVLC::finalize() {
+	Q_ASSERT(d != 0);
+
 	delete d;
 	d = 0;
 

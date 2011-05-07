@@ -1,15 +1,9 @@
 #include "application.hpp"
-#include "recentinfo.hpp"
-#include "videoscene.hpp"
-#include "audiocontroller.hpp"
-#include "playengine.hpp"
-#include "menu.hpp"
 #include "events.hpp"
 #include "translator.hpp"
 #include "mainwindow.hpp"
 #include "mrl.hpp"
 #include "appstate.hpp"
-#include "libvlc.hpp"
 #include "record.hpp"
 #include <QtGui/QMessageBox>
 #include <QtGui/QFileOpenEvent>
@@ -95,25 +89,12 @@ Application::Application(int &argc, char **argv)
 	QTimer::singleShot(0, this, SLOT(initialize()));
 }
 
-void Application::initStaticObjects() {
-//	PlayEngine::init();
-//	AudioController::init();
-//	VideoScene::init();
-	LibVLC::init();
-	d->main = new MainWindow;
-}
-
 Application::~Application() {
 	delete d->mb;
 	delete d->main;
-	d->main = 0;
 	if (d->cpu->state() != QProcess::NotRunning)
 	    d->cpu->kill();
 	delete d;
-//	PlayEngine::fin();
-//	VideoScene::fin();
-//	AudioController::fin();
-	LibVLC::fin();
 }
 
 QIcon Application::defaultIcon() {
@@ -210,7 +191,7 @@ void Application::initialize() {
 			sendMessage("mrl " + mrl.toString());
 		quit();
 	} else {
-		initStaticObjects();
+		d->main = new MainWindow;
 		d->main->show();
 		if (!mrl.isEmpty())
 			d->main->openMrl(mrl);

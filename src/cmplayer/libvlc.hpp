@@ -11,8 +11,8 @@ class AudioFormat;		class VideoFormat;
 
 class LibVLC {
 public:
-	static void init();
-	static void fin();
+	static void initialize();
+	static void finalize();
 	static PlayEngine *engine() {Q_ASSERT(d != 0 && m_engine != 0); return m_engine;}
 	static AudioController *audio() {Q_ASSERT(d != 0 && m_audio != 0); return m_audio;}
 	static VideoScene *video() {Q_ASSERT(d != 0 && m_video != 0); return m_video;}

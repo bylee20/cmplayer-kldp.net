@@ -1,4 +1,17 @@
 #include "mainwindow_p.hpp"
+#include "avmisc.hpp"
+#include "snapshotdialog.hpp"
+#include "pref_dialog.hpp"
+#include "application.hpp"
+#include "playlist.hpp"
+#include "dialogs.hpp"
+#include "libvlc.hpp"
+#include "info.hpp"
+#include <QtGui/QMouseEvent>
+#include <QtGui/QMenuBar>
+#include <QtCore/QDebug>
+#include <QtCore/QTimer>
+
 
 #ifdef Q_WS_MAC
 void qt_mac_set_dock_menu(QMenu *menu);
@@ -6,6 +19,7 @@ void qt_mac_set_dock_menu(QMenu *menu);
 
 MainWindow::MainWindow() {
 	d = new Data;
+	LibVLC::initialize();
 
 	d->dontPause = false;
 	d->pausedByHiding = d->dontShowMsg = false;
@@ -24,7 +38,6 @@ MainWindow::MainWindow() {
 #ifndef Q_WS_MAC
 	d->tray = new QSystemTrayIcon(app()->defaultIcon(), this);
 #endif
-
 	d->video->view()->setMouseTracking(true);
 	d->video->view()->viewport()->setMouseTracking(true);
 
@@ -160,11 +173,11 @@ MainWindow::MainWindow() {
 	d->video->addOsd(d->subtitle->osd());
 	d->video->addOsd(d->timeLine);
 	d->video->addOsd(d->message);
-//	d->control->hide();
+
+
 }
 
 MainWindow::~MainWindow() {
-//	d->video->hide();
 	d->video->view()->setParent(0);
 	d->engine->stop();
 	d->recent.setLastPlaylist(d->playlist->playlist());
@@ -173,6 +186,7 @@ MainWindow::~MainWindow() {
 	delete d->subtitle;
 	delete d->playInfo;
 	delete d;
+	LibVLC::finalize();
 }
 
 void MainWindow::updateVideoFormat(const VideoFormat &format) {

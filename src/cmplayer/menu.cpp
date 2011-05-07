@@ -510,10 +510,6 @@ QAction *RootMenu::doubleClickAction(Qt::KeyboardModifiers mod) const {
 	if (info.enabled)
 		return m_click[info.action];
 	return 0;
-
-//			const Pref::ClickActionInfo info = d->pref.double_click_map[event->modifiers()];
-//			if (info.enabled)
-//				d->menu.clickAction(info.action)->trigger();
 }
 
 QAction *RootMenu::middleClickAction(Qt::KeyboardModifiers mod) const {

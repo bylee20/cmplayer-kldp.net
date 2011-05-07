@@ -174,7 +174,6 @@ SOURCES += main.cpp \
     events.cpp \
     listmodel.cpp \
     fragmentprogram.cpp \
-    mainwindow_p.cpp \
     pref_widget.cpp \
     playinfoview.cpp \
     widgets.cpp \

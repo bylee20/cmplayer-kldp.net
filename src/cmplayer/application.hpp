@@ -35,7 +35,6 @@ private slots:
 	void parseMessage(const QString &message);
 private:
 	void loadStyle();
-	void initStaticObjects();
 	static void messageHandler(QtMsgType type, const char *msg);
 	bool event(QEvent *event);
 	struct Data;

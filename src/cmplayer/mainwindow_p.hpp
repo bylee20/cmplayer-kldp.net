@@ -1,41 +1,23 @@
 #ifndef MAINWINDOW_P_HPP
 #define MAINWINDOW_P_HPP
 
-#include <QGraphicsView>
-#include "enums.hpp"
-#include "avmisc.hpp"
+#include "mainwindow.hpp"
+#include "menu.hpp"
+#include "pref.hpp"
+#include "playengine.hpp"
+#include "videoscene.hpp"
+#include "audiocontroller.hpp"
+#include "subtitlerenderer.hpp"
+#include "subtitleview.hpp"
+#include "recentinfo.hpp"
 #include "timelineosdrenderer.hpp"
 #include "playinfoview.hpp"
-#include "colorproperty.hpp"
+#include "abrepeater.hpp"
 #include "playlistview.hpp"
 #include "historyview.hpp"
-#include "playlistmodel.hpp"
-#include "aboutdialog.hpp"
-#include "subtitlerenderer.hpp"
-#include "charsetdetector.hpp"
-#include "snapshotdialog.hpp"
-#include "subtitle_parser.hpp"
-#include "audiocontroller.hpp"
-#include "pref_dialog.hpp"
-#include "application.hpp"
-#include "recentinfo.hpp"
-#include "abrepeater.hpp"
-#include "mainwindow.hpp"
-#include "playengine.hpp"
-#include "translator.hpp"
-#include "videoscene.hpp"
 #include "appstate.hpp"
-#include "playlist.hpp"
-#include "dialogs.hpp"
-#include "libvlc.hpp"
-#include "menu.hpp"
-#include "info.hpp"
-#include <QtGui/QMouseEvent>
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QMenuBar>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include <qmath.h>
+#include "translator.hpp"
+#include "subtitle_parser.hpp"
 
 struct MainWindow::Data {
 	bool moving, changingSub, pausedByHiding, dontShowMsg, dontPause;
@@ -135,7 +117,6 @@ struct MainWindow::Data {
 	#ifndef Q_WS_MAC
 		tray->setVisible(pref.enable_system_tray);
 	#endif
-//		control->setState(engine->state());
 	}
 };
 
