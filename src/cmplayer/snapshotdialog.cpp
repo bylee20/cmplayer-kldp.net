@@ -1,7 +1,7 @@
 #include "snapshotdialog.hpp"
 #include "global.hpp"
 #include "subtitlerenderer.hpp"
-#include "videorenderer.hpp"
+#include "videoscene.hpp"
 #include "ui_snapshotdialog.h"
 #include "info.hpp"
 #include <QtCore/QDebug>

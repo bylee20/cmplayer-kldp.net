@@ -1,6 +1,6 @@
 #include "application.hpp"
 #include "recentinfo.hpp"
-#include "videorenderer.hpp"
+#include "videoscene.hpp"
 #include "audiocontroller.hpp"
 #include "playengine.hpp"
 #include "menu.hpp"

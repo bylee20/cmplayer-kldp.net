@@ -1,6 +1,6 @@
 #include "audiocontroller.hpp"
 #include "info.hpp"
-#include "videorenderer.hpp"
+#include "videoscene.hpp"
 #include "videoframe.hpp"
 #include "playengine.hpp"
 #include "libvlc.hpp"

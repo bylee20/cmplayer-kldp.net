@@ -17,25 +17,6 @@ enum MediaStatus {NoMediaStatus = 0, EosStatus, BufferedStatus};
 enum StreamType {UnknownStream = 0, VideoStream, AudioStream, SubPicStream};
 enum MediaMetaData {LanguageCode};
 
-class FrameRateMeasure {
-public:
-	FrameRateMeasure() {m_drawn = 0; m_prev = 0;}
-	void reset() {m_time.restart(); m_drawn = 0; m_prev = 0;}
-	int elapsed() const {return m_time.elapsed();}
-	void frameDrawn(int id) {
-		if (m_prev != id) {
-			++m_drawn;
-			m_prev = id;
-		}
-	}
-	int drawnFrames() const {return m_drawn;}
-	double frameRate() const {return (double)m_drawn/(double)m_time.elapsed()*1e3;}
-private:
-	int m_drawn;
-	int m_prev;
-	QTime m_time;
-};
-
 QTime secsToTime(int secs);
 QTime msecsToTime(qint64 msecs);
 QString msecsToString(qint64 msecs, const QString &format = QLatin1String("hh:mm:ss"));

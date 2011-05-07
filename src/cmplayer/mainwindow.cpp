@@ -304,6 +304,8 @@ void MainWindow::openUrl() {
 
 void MainWindow::resizeEvent(QResizeEvent *event) {
 	QMainWindow::resizeEvent(event);
+	const QSize size = (d->video->view()->size() - d->video->skinSizeHint()).toSize();
+	showMessage(QString::fromUtf8("%1\303\227%2").arg(size.width()).arg(size.height()));
 //	int width = d->center->width();
 //	int height = d->center->height();
 //	if (isFullScreen()) {
@@ -312,7 +314,7 @@ void MainWindow::resizeEvent(QResizeEvent *event) {
 //		d->video->setFixedRenderSize(QSize());
 //		height -= d->control->height();
 //	}
-//	showMessage(QString("%1x%2").arg(width).arg(height), 1000);
+//	showMessage(
 }
 
 void MainWindow::togglePlayPause() {
@@ -332,9 +334,6 @@ void MainWindow::updateMrl(const Mrl &mrl) {
 	else
 		clearSubtitles();
 	d->sync_subtitle_file_menu();
-//	const int row = d->playlist->model()->currentRow() + 1;
-//	if (row > 0)
-//		d->control->setTrackNumber(row, d->playlist->model()->rowCount());
 }
 
 void MainWindow::clearSubtitles() {
@@ -359,17 +358,14 @@ void MainWindow::openSubFile() {
 void MainWindow::appendSubFiles(const QStringList &files, bool checked, const QString &enc) {
 	if (files.isEmpty())
 		return;
-	for (int i=0; i<files.size(); ++i) {
+	for (int i=0; i<files.size(); ++i)
 		d->subtitle->load(files[i], enc, checked);
-	}
 	d->sync_subtitle_file_menu();
 }
 
 void MainWindow::updateSubtitle(QAction *action) {
-	if (!d->changingSub) {
-		const int idx = action->data().toInt();
-		d->subtitle->select(idx, action->isChecked());
-	}
+	if (!d->changingSub)
+		d->subtitle->select(action->data().toInt(), action->isChecked());
 }
 
 void MainWindow::seek(int diff) {
@@ -383,19 +379,11 @@ void MainWindow::seek(int diff) {
 }
 
 void MainWindow::showMessage(const QString &cmd, int value, const QString &unit, bool sign, int last) {
-	if (!sign || value < 0)
-		showMessage(cmd, QString::number(value) + unit, last);
-	else
-		showMessage(cmd, QString::fromUtf8(value ? "+" : "±")
-			+ QString::number(value) + unit, last);
+	showMessage(cmd, toString(value, true) + unit, last);
 }
 
 void MainWindow::showMessage(const QString &cmd, double value, const QString &unit, bool sign, int last) {
-	if (!sign || value < 0)
-		showMessage(cmd, QString::number(value) + unit, last);
-	else
-		showMessage(cmd, QString::fromUtf8(value ? "+" : "±")
-			+ QString::number(value) + unit, last);
+	showMessage(cmd, toString(value, true) + unit, last);
 }
 
 void MainWindow::showMessage(const QString &cmd, const QString &description, int last) {
@@ -424,10 +412,10 @@ void MainWindow::setMuted(bool muted) {
 void MainWindow::setFullScreen(bool full) {
 	if (full == isFullScreen())
 		return;
+	d->video->setSkinVisible(!full);
 	d->dontPause = true;
 	d->moving = false;
 	d->prevPos = QPoint();
-//	d->control->setHidden(full);
 	if (full) {
 		app()->setAlwaysOnTop(this, false);
 		setWindowState(windowState() | Qt::WindowFullScreen);
@@ -440,8 +428,6 @@ void MainWindow::setFullScreen(bool full) {
 			unsetCursor();
 		updateStaysOnTop();
 	}
-	qDebug() << "set skin visible" << !full;
-	d->video->setSkinVisible(!full);
 	d->dontPause = false;
 }
 

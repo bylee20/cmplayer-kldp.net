@@ -49,6 +49,7 @@ public:
 	void setEffect(Effect effect, bool on);
 	void setEffects(Effects effect);
 	double outputFrameRate(bool reset = true) const;
+	QRectF renderableArea() const;
 	static void init();
 	static void fin();
 	static VideoScene &get() {Q_ASSERT(obj != 0); return *obj;}
@@ -65,17 +66,13 @@ protected:
 	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
 	void wheelEvent(QGraphicsSceneWheelEvent *event);
+	void drawBackground(QPainter *painter, const QRectF &rect);
+	bool event(QEvent *event);
 private slots:
 	void updateVertices();
 private:
-	friend class VideoView;
-	bool needToPropagate(const QPointF &mouse);
-
-	static VideoScene *obj;
 	VideoScene();
-	double widgetRatio() const {return (double)width()/(double)height();}
-	static bool isSameRatio(double r1, double r2) {return (r1<0. && r2<0.) || qFuzzyCompare(r1, r2);}
-	static int translateButton(Qt::MouseButton qbutton);
+	bool needToPropagate(const QPointF &mouse);
 	void setUtil(VideoUtil *util);
 	void updateSceneRect();
 	void *lock(void ***planes);
@@ -84,29 +81,17 @@ private:
 	void process(void **planes);
 	void render(void **planes);
 	void prepare(const VideoFormat *format);
+
+	class VideoView;
+	class FrameRateMeasure;
+	friend class VideoView;
 	friend class LibVLC;
 
-//	void updateSize();
-	QRectF renderableArea() const;
-	static QGLFormat makeFormat();
-//	void paintEvent(QPaintEvent *event);
-	void drawBackground(QPainter *painter, const QRectF &rect);
-	bool event(QEvent *event);
-	typedef void (*_glProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
-	typedef void (*_glBindProgramARB) (GLenum, GLuint);
-	typedef void (*_glDeleteProgramsARB) (GLsizei, const GLuint *);
-	typedef void (*_glGenProgramsARB) (GLsizei, GLuint *);
-	typedef void (*_glProgramLocalParameter4fARB) (GLenum, GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
 	typedef void (*_glActiveTexture) (GLenum);
-	_glProgramStringARB glProgramStringARB;
-	_glBindProgramARB glBindProgramARB;
-	_glDeleteProgramsARB glDeleteProgramsARB;
-	_glGenProgramsARB glGenProgramsARB;
 	_glActiveTexture glActiveTexture;
-	_glProgramLocalParameter4fARB glProgramLocalParameter4fARB;
 	struct Data;
 	Data *d;
-
+	static VideoScene *obj;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(VideoScene::Effects)

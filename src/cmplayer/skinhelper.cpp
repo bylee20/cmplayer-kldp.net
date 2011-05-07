@@ -68,7 +68,6 @@ void SkinHelper::updateScreen(double x, double y, double w, double h) {
 	const QRectF rect(x, y, w, h);
 	if (m_screen != rect) {
 		m_screen = rect;
-		qDebug() << m_screen;
 		emit screenChanged();
 	}
 }

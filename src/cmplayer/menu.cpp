@@ -1,6 +1,6 @@
 #include "menu.hpp"
 #include "enums.hpp"
-#include "videorenderer.hpp"
+#include "videoscene.hpp"
 #include "pref.hpp"
 #include "colorproperty.hpp"
 #include <QtCore/QDebug>

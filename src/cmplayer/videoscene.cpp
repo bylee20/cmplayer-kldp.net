@@ -1,30 +1,5 @@
-#include "videorenderer.hpp"
-#include <QtGui/QGraphicsSceneWheelEvent>
-#include <QtGui/QGraphicsSceneMouseEvent>
-#include "menu.hpp"
-#include <QtGui/QPainter>
-#include <QtGui/QGraphicsView>
-#include "fragmentprogram.hpp"
-#include "overlay.hpp"
-#include "colorproperty.hpp"
-#include "events.hpp"
-#include "videoframe.hpp"
-#include "pref.hpp"
-#include "logodrawer.hpp"
-#include "skinhelper.hpp"
-#include <QtGui/QPainter>
-#include <QtGui/QMouseEvent>
-#include <QtCore/QTime>
-#include <QtCore/QDebug>
-#include <QtCore/QMutex>
-#include <QtCore/QSize>
-#include <QtCore/QRegExp>
-#include <QtCore/QCoreApplication>
-#include <math.h>
-
-#include "i420_to_rgb_simple.hpp"
-#include "i420_to_rgb_filter.hpp"
-#include "i420_to_rgb_kernel.hpp"
+#include "videoscene.hpp"
+#include "videoscene_p.hpp"
 
 VideoScene *VideoScene::obj = 0;
 
@@ -36,127 +11,6 @@ void VideoScene::init() {
 void VideoScene::fin() {
 	delete obj;
 	obj = 0;
-}
-
-struct VideoScene::Data {
-	static const int i420ToRgbSimple = 0;
-	static const int i420ToRgbFilter = 1;
-	static const int i420ToRgbKernel = 2;
-	QGLWidget *gl;
-	QGraphicsView *view;
-	FrameRateMeasure fps;	int frameId;
-	QMutex mutex;		QSize renderSize;	ColorProperty color;
-	LogoDrawer logo;	Overlay *overlay;	GLuint texture[3];
-	VideoFrame *buffer, *frame, *temp, buf[3];	VideoUtil *util;
-	QSize size;
-	QRectF vtx;		Effects effects;
-	void **planes[VIDEO_FRAME_MAX_PLANE_COUNT];	VideoFormat format;
-	QList<FragmentProgram*> shaders;		FragmentProgram *shader;
-	double rgb_base, rgb_c_r, rgb_c_g, rgb_c_b;
-	double crop, aspect, kern_d, kern_c, kern_n;
-	double y_min, y_max; double y_min_buffer, y_max_buffer;
-	double brightness, contrast, sat_con, sinhue, coshue;
-	double cpu;
-	bool hasKernel, prepared, logoOn, frameIsSet, hasPrograms, binding;
-	SkinHelper *skin;
-	bool skinVisible;
-// methods
-	static inline int kbps(double fps, int width, int height, int bpp) {
-		return width*height*bpp*fps/1024 + 0.5;
-	}
-
-	inline void update_sat_con() {
-		sat_con = (!(effects & IgnoreEffect) && (effects & Grayscale)) ? 0.0
-			: qBound(0.0, color.saturation() + 1.0, 2.0)*contrast;
-	}
-	inline void update_color_prop() {
-		color.clamp();
-		brightness = qBound(-1.0, color.brightness(), 1.0);
-		contrast = qBound(0., color.contrast() + 1., 2.);
-		update_sat_con();
-		const double hue = qBound(-M_PI, color.hue()*M_PI, M_PI);
-		sinhue = sin(hue);	coshue = cos(hue);
-	}
-	inline void update_planes() {
-		*planes[0] = buffer->data(0);
-		*planes[1] = buffer->data(1);
-		*planes[2] = buffer->data(2);
-	}
-	void update_effects() {
-		int idx = i420ToRgbSimple;
-		rgb_base = 0.0;
-		rgb_c_r = rgb_c_g = rgb_c_b = 1.0;
-		kern_c = kern_d = kern_n = 0.0;
-		if (!(effects & IgnoreEffect)) {
-			if (effects & FilterEffects) {
-				idx = i420ToRgbFilter;
-				if (effects & InvertColor) {
-					rgb_base = 1.0;
-					rgb_c_r = rgb_c_g = rgb_c_b = -1.0;
-				}
-			}
-			if ((hasKernel = effects & KernelEffects)) {
-				idx = i420ToRgbKernel;
-				const Pref &p = Pref::get();
-				if (effects & Blur) {
-					kern_c += p.blur_kern_c;
-					kern_n += p.blur_kern_n;
-					kern_d += p.blur_kern_d;
-				}
-				if (effects & Sharpen) {
-					kern_c += p.sharpen_kern_c;
-					kern_n += p.sharpen_kern_n;
-					kern_d += p.sharpen_kern_d;
-				}
-				const double den = 1.0/(kern_c + kern_n*4.0 + kern_d*4.0);
-				kern_c *= den;
-				kern_d *= den;
-				kern_n *= den;
-			}
-		}
-		shader = shaders.value(idx, shaders.first());
-		update_sat_con();
-	}
-	void init_program() {
-#define GET_CODE(name) (QByteArray((char*)name##_fp, name##_fp_len))
-		shaders.push_back(new FragmentProgram(GET_CODE(i420_to_rgb_simple)));
-		shaders.push_back(new FragmentProgram(GET_CODE(i420_to_rgb_filter)));
-		shaders.push_back(new FragmentProgram(GET_CODE(i420_to_rgb_kernel)));
-#undef GET_CODE
-		hasPrograms = (shader = shaders.value(0, 0));
-		Q_ASSERT(hasPrograms);
-	}
-};
-
-class VideoView : public QGraphicsView {
-public:
-	VideoView(VideoScene *scene) {
-		m_scene = scene;
-		setScene(m_scene);
-	}
-	QSize sizeHint() const {return m_scene->sizeHint(1.0).toSize();}
-private:
-	VideoScene *m_scene;
-	void mouseMoveEvent(QMouseEvent *event) {
-		QGraphicsView::mouseMoveEvent(event);
-		event->setAccepted(!m_scene->needToPropagate(event->posF()));
-	}
-	void mousePressEvent(QMouseEvent *event) {
-		QGraphicsView::mousePressEvent(event);
-		event->setAccepted(!m_scene->needToPropagate(event->posF()));
-	}
-	void mouseReleaseEvent(QMouseEvent *event) {
-		QGraphicsView::mouseReleaseEvent(event);
-		event->setAccepted(!m_scene->needToPropagate(event->posF()));
-	}
-	void resizeEvent(QResizeEvent *event) {
-		QGraphicsView::resizeEvent(event);
-		m_scene->updateSceneRect();
-	}
-};
-
-bool VideoScene::needToPropagate(const QPointF &mouse) {
-	return !d->skin || !d->skinVisible || d->skin->screen().contains(mouse);
 }
 
 VideoScene::VideoScene()
@@ -185,28 +39,9 @@ VideoScene::VideoScene()
 	d->frameIsSet = d->logoOn = d->binding = d->hasKernel = d->prepared = false;
 	d->overlay = 0;
 
-//	setMinimumSize(QSize(200, 100));
-//	setAutoFillBackground(false);
-//	setAttribute(Qt::WA_OpaquePaintEvent, true);
-//	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-//	setMouseTracking(true);
-
-	d->view = new VideoView(this);
-	d->view->setMouseTracking(true);
-	d->view->setViewport(d->gl);
-	d->view->viewport()->setMouseTracking(true);
-//	d->view->setScene(this);
-	d->view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
-	d->view->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
-	d->view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	d->view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	d->view->setMinimumSize(200, 200);
-	d->view->setContextMenuPolicy(Qt::CustomContextMenu);
-	//	d->size = d->view->size();
-//	setSceneRect(0, 0, d->view->width(), d->view->height());
+	d->view = new VideoView(this, d->gl);
 	d->skin = SkinManager::load(QUrl::fromLocalFile("/Users/xylosper/untitled/skin.qml"));
 	addItem(d->skin);
-//	item->setProperty("minimum", -1);
 	connect(d->skin, SIGNAL(screenChanged()), this, SLOT(updateVertices()));
 }
 
@@ -228,7 +63,6 @@ void VideoScene::setSkinVisible(bool visible) {
 	if (d->skinVisible != visible) {
 		d->skinVisible = visible;
 		d->skin->setVisible(visible);
-		qDebug() << "update vtx" << visible;
 		updateVertices();
 	}
 }
@@ -295,7 +129,7 @@ QGLWidget *VideoScene::gl() {
 	return d->gl;
 }
 
-void VideoScene::drawBackground(QPainter *painter, const QRectF &rect) {
+void VideoScene::drawBackground(QPainter *painter, const QRectF &/*rect*/) {
 	painter->save();
 	const QRectF renderable = renderableArea();
 	if (!d->logoOn && d->hasPrograms && d->frameIsSet && d->prepared) {
@@ -477,7 +311,7 @@ double VideoScene::targetAspectRatio() const {
 	if (d->aspect > 0.0)
 		return d->aspect;
 	if (d->aspect == 0.0)
-		return widgetRatio();
+		return d->aspect_ratio(renderableArea());
 	return (double)d->format.width*d->format.sar/(double)d->format.height;
 }
 
@@ -485,12 +319,12 @@ double VideoScene::targetCropRatio(double fallback) const {
 	if (d->crop > 0.0)
 		return d->crop;
 	if (d->crop == 0.0)
-		return widgetRatio();
+		return d->aspect_ratio(renderableArea());
 	return fallback;
 }
 
 QSizeF VideoScene::skinSizeHint() const {
-	return (d->skin && d->skinVisible) ? (d->skin->size() - d->skin->screen().size()) : QSizeF();
+	return (d->skin && d->skinVisible) ? (d->skin->size() - d->skin->screen().size()) : QSizeF(0, 0);
 }
 
 QSizeF VideoScene::sizeHint(double times) const {
@@ -507,7 +341,7 @@ QSizeF VideoScene::sizeHint(double times) const {
 }
 
 void VideoScene::setAspectRatio(double ratio) {
-	if (!isSameRatio(d->aspect, ratio)) {
+	if (!d->compare_ratio(d->aspect, ratio)) {
 		d->aspect = ratio;
 		updateVertices();
 	}
@@ -518,7 +352,7 @@ double VideoScene::aspectRatio() const {
 }
 
 void VideoScene::setCropRatio(double ratio) {
-	if (!isSameRatio(d->crop, ratio)) {
+	if (!d->compare_ratio(d->crop, ratio)) {
 		d->crop = ratio;
 		updateVertices();
 	}
@@ -637,30 +471,12 @@ bool VideoScene::event(QEvent *event) {
 		return QGraphicsScene::event(event);
 }
 
-int VideoScene::translateButton(Qt::MouseButton qbutton) {
-	switch (qbutton) {
-	case Qt::LeftButton:
-		return 0;
-	case Qt::MidButton:
-		return 1;
-	case Qt::RightButton:
-		return 2;
-	default:
-		return -1;
-	}
-}
-
 void VideoScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 	QGraphicsScene::mouseMoveEvent(event);
 	if (event->isAccepted())
 		return;
 	if (d->skin && !d->skinVisible)
 		d->skin->setVisible(!d->skin->screen().contains(event->scenePos()));
-
-//	QDeclarativeItem *item = qgraphicsitem_cast<QDeclarativeItem*>(itemAt(event->scenePos()));
-//	qDebug() << itemAt(event->scenePos());
-//	qDebug() << "moving";
-//	QGraphicsView::mouseMoveEvent(event);
 	if (d->util->vd && d->vtx.isValid() && !d->frame->isEmpty()) {
 		QPointF pos = event->scenePos();
 		if (d->vtx.contains(pos)) {
@@ -674,7 +490,6 @@ void VideoScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 
 void VideoScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 	QGraphicsScene::mousePressEvent(event);
-//	QGraphicsView::mousePressEvent(event);
 	if (event->isAccepted())
 		return;
 	if (d->skin && d->skin->isVisible() && !d->skin->screen().contains(event->scenePos()))
@@ -685,7 +500,7 @@ void VideoScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 			action->trigger();
 	}
 	if (d->util->vd && d->vtx.contains(event->scenePos())) {
-		const int b = translateButton(event->button());
+		const int b = d->translate_button(event->button());
 		if (b >= 0)
 			d->util->mousePresseEvent(d->util->vd, b);
 	}
@@ -694,7 +509,7 @@ void VideoScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 void VideoScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 	QGraphicsScene::mouseReleaseEvent(event);
 	if (!event->isAccepted() && d->util->vd && d->vtx.contains(event->scenePos())) {
-		const int b = translateButton(event->button());
+		const int b = d->translate_button(event->button());
 		if (b >= 0)
 			d->util->mouseReleaseEvent(d->util->vd, b);
 	}
@@ -756,3 +571,8 @@ void VideoScene::setOverlayType(int hint) {
 	update();
 	qDebug() << "Overlay:" << d->overlay->type().name();
 }
+
+bool VideoScene::needToPropagate(const QPointF &mouse) {
+	return !d->skin || !d->skinVisible || d->skin->screen().contains(mouse);
+}
+

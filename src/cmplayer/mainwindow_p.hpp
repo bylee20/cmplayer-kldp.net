@@ -24,7 +24,7 @@
 #include "mainwindow.hpp"
 #include "playengine.hpp"
 #include "translator.hpp"
-#include "videorenderer.hpp"
+#include "videoscene.hpp"
 #include "appstate.hpp"
 #include "playlist.hpp"
 #include "dialogs.hpp"
@@ -39,23 +39,10 @@
 #include <QtCore/QTimer>
 #include <qmath.h>
 
-//class View : public QGraphicsView {
-//	Q_OBJECT
-//public:
-//	View(QWidget *parent): QGraphicsView(parent) {
-//		setScene(new QGraphicsScene(this));
-//	}
-//private:
-//	void drawBackground(QPainter *painter, const QRectF &rect) {
-//		static_cast<VideoRenderer*>(viewport())->render(painter);
-//	}
-//};
-
 class MainWindow::Data {
 	bool moving, changingSub, pausedByHiding, dontShowMsg, dontPause;
 	QMenu *context;
 	RootMenu menu;			const Pref &pref;
-//	QWidget *center;
 	PlayEngine *engine;		VideoScene *video;
 	SubtitleRenderer *subtitle;	AudioController *audio;
 	TimeLineOsdRenderer *timeLine;	TextOsdRenderer *message;
