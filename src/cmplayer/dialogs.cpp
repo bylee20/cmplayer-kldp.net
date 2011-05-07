@@ -1,4 +1,5 @@
 #include "dialogs.hpp"
+#include "widgets.hpp"
 #include "global.hpp"
 #include "controls.hpp"
 #include "playlist.hpp"
@@ -254,12 +255,12 @@ struct GetUrlDialog::Data {
 
 GetUrlDialog::GetUrlDialog(QWidget *parent)
 : QDialog(parent), d(new Data) {
-	AppState as;
-	d->c = new QCompleter(as[AppState::OpenUrlList].toStringList(), this);
+	const AppState &as = AppState::get();
+	d->c = new QCompleter(as.open_url_list, this);
 	d->url = new QLineEdit(this);
 	d->url->setCompleter(d->c);
 	d->enc = new EncodingComboBox(this);
-	d->enc->setEncoding(as[AppState::UrlEncoding].toString());
+	d->enc->setEncoding(as.url_enc);
 
 	QVBoxLayout *vbox = new QVBoxLayout(this);
 	QHBoxLayout *hbox = new QHBoxLayout;
@@ -278,14 +279,13 @@ GetUrlDialog::~GetUrlDialog() {
 }
 
 void GetUrlDialog::accept() {
-	AppState as;
-	QStringList list = as[AppState::OpenUrlList].toStringList();
+	AppState &as = AppState::get();
 	const QString url = d->url->text().trimmed();
-	if (!list.contains(url)) {
-		list << url;
-		as[AppState::OpenUrlList] = list;
-	}
-	as[AppState::UrlEncoding] = d->enc->encoding();
+	const int idx = as.open_url_list.indexOf(url);
+	if (idx >= 0)
+		as.open_url_list.takeAt(idx);
+	as.open_url_list.prepend(url);
+	as.url_enc = d->enc->encoding();
 	QDialog::accept();
 }
 

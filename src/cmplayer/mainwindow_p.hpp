@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_P_HPP
 #define MAINWINDOW_P_HPP
 
+#include <QGraphicsView>
 #include "enums.hpp"
 #include "avmisc.hpp"
 #include "timelineosdrenderer.hpp"
@@ -38,17 +39,29 @@
 #include <QtCore/QTimer>
 #include <qmath.h>
 
-class MainWindowData {
+//class View : public QGraphicsView {
+//	Q_OBJECT
+//public:
+//	View(QWidget *parent): QGraphicsView(parent) {
+//		setScene(new QGraphicsScene(this));
+//	}
+//private:
+//	void drawBackground(QPainter *painter, const QRectF &rect) {
+//		static_cast<VideoRenderer*>(viewport())->render(painter);
+//	}
+//};
+
+class MainWindow::Data {
 	bool moving, changingSub, pausedByHiding, dontShowMsg, dontPause;
 	QMenu *context;
-	Menu &menu;			const Pref &pref;
-	ControlWidget *control;		QWidget *center;
-	PlayEngine *engine;		VideoRenderer *video;
+	RootMenu menu;			const Pref &pref;
+//	QWidget *center;
+	PlayEngine *engine;		VideoScene *video;
 	SubtitleRenderer *subtitle;	AudioController *audio;
 	TimeLineOsdRenderer *timeLine;	TextOsdRenderer *message;
 	PlayInfoView *playInfo;
 	QPoint prevPos;			QTimer *hider;
-	RecentInfo *recent;		ABRepeater *ab;
+	RecentInfo recent;		ABRepeater *ab;
 	PlaylistView *playlist;		HistoryView *history;
 //	FavoritesView *favorite;
 #ifndef Q_WS_MAC
@@ -56,7 +69,35 @@ class MainWindowData {
 #endif
 	friend class MainWindow;
 // methods
-	MainWindowData(): menu(Menu::root()), pref(Pref::get()) {}
+	Data(): pref(Pref::get()) {}
+
+//	QWidget *create_central_widget(QWidget *parent) {
+//		QWidget *w = new QWidget(parent);
+//		w->setMouseTracking(true);
+//		w->setAutoFillBackground(false);
+//		w->setAttribute(Qt::WA_OpaquePaintEvent, true);
+
+//		QVBoxLayout *vbox = new QVBoxLayout(w);
+////		vbox->addWidget(video);
+//		vbox->addWidget(video->view());
+////		vbox->addWidget(control);
+//		vbox->setContentsMargins(0, 0, 0, 0);
+//		vbox->setSpacing(0);
+//		return w;
+//	}
+
+//	ControlWidget *create_control_widget() {
+//		ControlWidget *w = new ControlWidget(engine, 0);
+//		Menu &play = menu("play");
+//		w->connectMute(menu("audio")["mute"]);
+//		w->connectPlay(play["pause"]);
+//		w->connectPrevious(play["prev"]);
+//		w->connectNext(play["next"]);
+//		w->connectForward(play("seek")["forward1"]);
+//		w->connectBackward(play("seek")["backward1"]);
+//		return w;
+//	}
+
 	void sync_subtitle_file_menu() {
 		if (changingSub)
 			return;
@@ -82,44 +123,42 @@ class MainWindowData {
 
 	void load_state() {
 		dontShowMsg = true;
-		AppState as;
-		as.load();
+		const AppState &as = AppState::get();
+		menu("video")("aspect").g()->trigger(as.aspect_ratio);
+		menu("video")("crop").g()->trigger(as.crop_ratio);
+		menu("video")("overlay").g()->trigger(as.overlay.id());
+		menu("window").g("sot")->trigger(as.stays_on_top.id());
+		menu("subtitle").g("display")->trigger((int)as.sub_letterbox);
+		menu("subtitle").g("align")->trigger((int)as.sub_align_top);
 
-		menu("video")("aspect").g()->trigger(as[AppState::AspectRatio]);
-		menu("video")("crop").g()->trigger(as[AppState::Crop]);
-		menu("video")("overlay").g()->trigger(as[AppState::OverlayType]);
-		menu("window").g("sot")->trigger(Enum::StaysOnTop::from(as[AppState::StaysOnTop].toString()).id());
-		menu("subtitle").g("display")->trigger((int)as[AppState::SubLetterbox].toBool());
-		menu("subtitle").g("align")->trigger((int)as[AppState::SubAlignTop].toBool());
+		audio->setVolume(as.volume);
+		audio->setMuted(as.muted);
+		audio->setPreAmp(as.amp);
+		audio->setVolumeNormalized(as.volume_normalized);
 
-		audio->setVolume(as[AppState::Volume].toInt());
-		audio->setMuted(as[AppState::Muted].toBool());
-		audio->setPreAmp(as[AppState::Amp].toDouble());
-		audio->setVolumeNormalized(as[AppState::VolNorm].toBool());
-
-		engine->setSpeed(as[AppState::PlaySpeed].toDouble());
-		subtitle->setPos(as[AppState::SubPos].toDouble());
-		subtitle->setDelay(as[AppState::SubSync].toInt());
+		engine->setSpeed(as.speed);
+		subtitle->setPos(as.sub_pos);
+		subtitle->setDelay(as.sub_sync_delay);
 		dontShowMsg = false;
 	}
 
 	void save_state() const {
-		AppState as;
-		as[AppState::AspectRatio] = video->aspectRatio();
-		as[AppState::Crop] = video->cropRatio();
-		as[AppState::Volume] = audio->volume();
-		as[AppState::VolNorm] = audio->isVolumeNormalized();
-		as[AppState::Muted] = audio->isMuted();
-		as[AppState::Amp] = audio->preAmp();
-		as[AppState::PlaySpeed] = engine->speed();
-		as[AppState::SubPos] = subtitle->pos();
-		as[AppState::SubSync] = subtitle->delay();
-		as[AppState::StaysOnTop] = stay_on_top_mode().name();
-		as[AppState::SubLetterbox] = subtitle->osd()->letterboxHint();
-		as[AppState::SubAlignTop] = subtitle->isTopAligned();
+		AppState &as = AppState::get();
+		as.aspect_ratio = video->aspectRatio();
+		as.crop_ratio = video->cropRatio();
+		as.volume = audio->volume();
+		as.volume_normalized = audio->isVolumeNormalized();
+		as.muted = audio->isMuted();
+		as.amp = audio->preAmp();
+		as.speed = engine->speed();
+		as.sub_pos = subtitle->pos();
+		as.sub_sync_delay = subtitle->delay();
+		as.stays_on_top = stay_on_top_mode();
+		as.sub_letterbox = subtitle->osd()->letterboxHint();
+		as.sub_align_top = subtitle->isTopAligned();
 		QAction *act = menu("video")("overlay").g()->checkedAction();
 		if (act)
-			as[AppState::OverlayType] = act->data().toInt();
+			as.overlay.set(act->data().toInt());
 		as.save();
 	}
 
@@ -131,15 +170,15 @@ class MainWindowData {
 	void apply_pref() {
 		Subtitle::Parser::setMsPerCharactor(pref.ms_per_char);
 		Translator::load(pref.locale);
-		app()->setStyle(pref.window_style);
 		subtitle->osd()->setStyle(pref.sub_style);
 		audio->setTargetGain((double)pref.normalizer_gain/100.0);
 		audio->setNormalizerSmoothness(pref.normalizer_smoothness);
-		menu.updatePref();
+		menu.update();
+		menu.save();
 	#ifndef Q_WS_MAC
 		tray->setVisible(pref.enable_system_tray);
 	#endif
-		control->setState(engine->state());
+//		control->setState(engine->state());
 	}
 };
 

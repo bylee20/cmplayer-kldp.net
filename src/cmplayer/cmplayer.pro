@@ -34,7 +34,7 @@ macx {
 TEMPLATE = app
 CONFIG += link_pkgconfig debug_and_release
 
-QT = core gui opengl network
+QT = core gui opengl network declarative
 
 INCLUDEPATH += ../libchardet-1.0.1/src
 
@@ -51,11 +51,9 @@ RESOURCES += rsclist.qrc
 HEADERS += playengine.hpp \
     mainwindow.hpp \
     mrl.hpp \
-    controlwidget.hpp \
     global.hpp \
     menu.hpp \
     squeezedlabel.hpp \
-    controls.hpp \
     colorproperty.hpp \
     qtsingleapplication/qtsingleapplication.h \
     qtsingleapplication/qtlockedfile.h \
@@ -116,12 +114,13 @@ HEADERS += playengine.hpp \
     qtcolorpicker.hpp \
     richtext.hpp \
     enums.hpp \
-    actiongroup.hpp
+    actiongroup.hpp \
+    record.hpp \
+    skinhelper.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
     mrl.cpp \
-    controlwidget.cpp \
     global.cpp \
     menu.cpp \
     controls.cpp \
@@ -183,7 +182,9 @@ SOURCES += main.cpp \
     qtcolorpicker.cpp \
     richtext.cpp \
     enums.cpp \
-    actiongroup.cpp
+    actiongroup.cpp \
+    record.cpp \
+    skinhelper.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts

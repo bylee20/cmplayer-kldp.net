@@ -1,46 +1,40 @@
 #ifndef APPSTATE_HPP
 #define APPSTATE_HPP
 
-#include <QtCore/QMap>
-#include <QtCore/QVariant>
-#include <QtCore/QVector>
+#include "enums.hpp"
+#include <QtCore/QStringList>
+
+typedef Enum::Overlay OverlayType;
 
 class AppState {
 public:
-	typedef QMap<QString, QVariant> Map;
-	enum Type {
-		AspectRatio = 0,
-		Crop,
-		PlaySpeed,
-		Volume,
-		Muted,
-		Amp,
-		SubPos,
-		SubSync,
-		LastOpenFile,
-		OpenUrlList,
-		UrlEncoding,
-		TrayFirst,
-		VolNorm,
-		StaysOnTop,
-		SubLetterbox,
-		SubAlignTop,
-		OverlayType,
-		TypeMax
-	};
-	const QString &key(Type type) const {return d->keys[type];}
-	QVariant &operator[](Type type) {return d->values[type];}
-	const QVariant &operator[](Type type) const {return d->values[type];}
+// play state
+	double speed;
+
+// video state
+	double aspect_ratio, crop_ratio;
+	OverlayType overlay;
+
+// audio state
+	double amp;
+	int volume;
+	bool muted, volume_normalized;
+
+// subtitle state
+	double sub_pos;
+	int sub_sync_delay;
+	bool sub_letterbox, sub_align_top;
+// misc
+	QString last_open_file;
+	bool ask_system_tray;
+	QStringList open_url_list;
+	QString url_enc;
+	Enum::StaysOnTop stays_on_top;
+
 	void save() const;
-	void load();
-	static void init();
-	static void fin() {delete d;}
+	static AppState &get();
 private:
-	struct Data {
-		QVector<QString> keys;
-		QVector<QVariant> values;
-	};
-	static Data *d;
+	AppState();
 };
 
 #endif // APPSTATE_HPP

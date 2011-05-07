@@ -12,6 +12,8 @@ install_exe := install -m 755
 qmake_vars := DESTDIR=\\\"../../bin\\\" RELEASE=\\\"yes\\\" \
 	VLC_INCLUDE_PATH=\\\"$(VLC_INCLUDE_PATH)\\\" VLC_LIB_PATH=$(VLC_LIB_PATH)
 
+configured := $(shell cat configured)
+
 cmplayer: cmplayer-vlc-plugins translations libchardet
 	cd src/cmplayer && $(QMAKE) $(qmake_vars) cmplayer.pro 
 	cd src/cmplayer && make
@@ -26,7 +28,11 @@ bin_dir:
 	install -d bin
 
 libchardet:
-	cd src/libchardet* && ./configure --enable-shared=no --enable-static=yes && make
+ifneq ($(configured),configured)
+	cd src/libchardet* && ./configure --enable-shared=no --enable-static=yes
+	echo configured > configured
+endif
+	cd src/libchardet* && make
 
 cmplayer-vlc-plugins: bin_dir
 	cd src/cmplayer-vlc-plugins && make -f Makefile.osx
@@ -43,3 +49,4 @@ clean:
 	-cd src/cmplayer && $(QMAKE) $(qmake_vars) cmplayer.pro && make clean
 	-cd src/libchardet* && make distclean
 	-rm -rf bin/*
+	-rm configured

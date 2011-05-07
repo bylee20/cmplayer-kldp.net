@@ -6,131 +6,120 @@
 
 Pref *Pref::obj = 0;
 
-void Pref::init() {
-	Q_ASSERT(obj == 0);
-	obj = new Pref;
-}
-
-void Pref::fin() {
-	delete obj;
-	obj = 0;
-}
-
-#define SAVE(value) (set.setValue((#value), (value)))
-#define LOAD(val, def, converter) (val = set.value(#val, def).converter())
-#define SAVE_ENUM(val) (set.setValue(#val, val.name()))
-#define LOAD_ENUM(val, def) (val = val.value(set.value(#val, #def).toString(), def))
-#define LOAD_ENUM2(val, def) (val.set(set.value(#val, def.name()).toString()))
+#define PREF_GROUP QLatin1String("preference")
 
 void Pref::save() const {
-	QSettings set;
-	set.beginGroup("preference");
+	Record r(PREF_GROUP);
 
-	SAVE(remember_stopped);
-	SAVE(ask_record_found);
-	SAVE(pause_minimized);
-	SAVE(pause_video_only);
-	SAVE(hide_cursor);
-	SAVE(hide_delay);
-	SAVE(enable_system_tray);
-	SAVE(hide_rather_close);
-	SAVE(single_app);
-	SAVE(disable_screensaver);
-	SAVE(sub_enc);
-	SAVE(sub_priority);
-	SAVE(sub_enc_autodetection);
-	SAVE(sub_enc_accuracy);
-	SAVE(ms_per_char);
-	SAVE(seek_step1);
-	SAVE(seek_step2);
-	SAVE(seek_step3);
-	SAVE(speed_step);
-	SAVE(volume_step);
-	SAVE(amp_step);
-	SAVE(sub_pos_step);
-	SAVE(volume_step);
-	SAVE(sync_delay_step);
-	SAVE(brightness_step);
-	SAVE(saturation_step);
-	SAVE(contrast_step);
-	SAVE(hue_step);
-	SAVE(locale);
-	SAVE(window_style);
-	SAVE(sub_ext);
-	SAVE(blur_kern_c);
-	SAVE(blur_kern_n);
-	SAVE(blur_kern_d);
-	SAVE(sharpen_kern_c);
-	SAVE(sharpen_kern_n);
-	SAVE(sharpen_kern_d);
-	SAVE(adjust_contrast_min_luma);
-	SAVE(adjust_contrast_max_luma);
-	SAVE(auto_contrast_threshold);
-	SAVE(normalizer_gain);
-	SAVE(normalizer_smoothness);
+	RECORD_WRITE(r, remember_stopped);
+	RECORD_WRITE(r, ask_record_found);
+	RECORD_WRITE(r, pause_minimized);
+	RECORD_WRITE(r, pause_video_only);
+	RECORD_WRITE(r, hide_cursor);
+	RECORD_WRITE(r, hide_cursor_delay);
+	RECORD_WRITE(r, enable_system_tray);
+	RECORD_WRITE(r, hide_rather_close);
 
-	SAVE_ENUM(generate_playlist);
-	SAVE_ENUM(sub_autoload);
-	SAVE_ENUM(sub_autoselect);
+	RECORD_WRITE(r, disable_screensaver);
+	RECORD_WRITE(r, sub_enc);
+	RECORD_WRITE(r, sub_priority);
+	RECORD_WRITE(r, sub_enc_autodetection);
+	RECORD_WRITE(r, sub_enc_accuracy);
+	RECORD_WRITE(r, ms_per_char);
+	RECORD_WRITE(r, seek_step1);
+	RECORD_WRITE(r, seek_step2);
+	RECORD_WRITE(r, seek_step3);
+	RECORD_WRITE(r, speed_step);
+	RECORD_WRITE(r, volume_step);
+	RECORD_WRITE(r, amp_step);
+	RECORD_WRITE(r, sub_pos_step);
+	RECORD_WRITE(r, volume_step);
+	RECORD_WRITE(r, sync_delay_step);
+	RECORD_WRITE(r, brightness_step);
+	RECORD_WRITE(r, saturation_step);
+	RECORD_WRITE(r, contrast_step);
+	RECORD_WRITE(r, hue_step);
+	RECORD_WRITE(r, locale);
+	RECORD_WRITE(r, sub_ext);
+	RECORD_WRITE(r, blur_kern_c);
+	RECORD_WRITE(r, blur_kern_n);
+	RECORD_WRITE(r, blur_kern_d);
+	RECORD_WRITE(r, sharpen_kern_c);
+	RECORD_WRITE(r, sharpen_kern_n);
+	RECORD_WRITE(r, sharpen_kern_d);
+	RECORD_WRITE(r, adjust_contrast_min_luma);
+	RECORD_WRITE(r, adjust_contrast_max_luma);
+	RECORD_WRITE(r, auto_contrast_threshold);
+	RECORD_WRITE(r, normalizer_gain);
+	RECORD_WRITE(r, normalizer_smoothness);
 
-	sub_style.save(&set, "sub_style");
-	double_click_map.save(set, "double_click_map");
-	middle_click_map.save(set, "middle_click_map");
-	wheel_scroll_map.save(set, "wheel_scroll_map");
+	RECORD_WRITE_ENUM(r, generate_playlist);
+	RECORD_WRITE_ENUM(r, sub_autoload);
+	RECORD_WRITE_ENUM(r, sub_autoselect);
 
-	set.endGroup();
+	sub_style.save(r, "sub_style");
+	double_click_map.save(r, "double_click_map");
+	middle_click_map.save(r, "middle_click_map");
+	wheel_scroll_map.save(r, "wheel_scroll_map");
 }
 
 void Pref::load() {
-	QSettings set;
-	set.beginGroup("preference");
+	const int DefaultSeekingStep1 = 5000;
+	const int DefaultSeekingStep2 = 30000;
+	const int DefaultSeekingStep3 = 60000;
+	const int DefaultVolumeStep = 2;
+	const int DefaultSyncDelayStep = 500;
+	const int DefaultAmpStep = 10;
+	const int DefaultSubPosStep = 1;
+	const int DefaultSpeedStep = 10;
+	const int DefaultColorPropStep = 1;
 
-	LOAD(remember_stopped, true, toBool);
-	LOAD(ask_record_found, true, toBool);
-	LOAD(pause_minimized, true, toBool);
-	LOAD(pause_video_only, true, toBool);
-	LOAD(hide_cursor, true, toBool);
-	LOAD(hide_delay, 3000, toInt);
-	LOAD(blur_kern_c, 1, toInt);
-	LOAD(blur_kern_n, 2, toInt);
-	LOAD(blur_kern_d, 1, toInt);
-	LOAD(sharpen_kern_c, 5, toInt);
-	LOAD(sharpen_kern_n, -1, toInt);
-	LOAD(sharpen_kern_d, 0, toInt);
-	LOAD(adjust_contrast_min_luma, 16, toInt);
-	LOAD(adjust_contrast_max_luma, 235, toInt);
-	LOAD(auto_contrast_threshold, 0.5, toDouble);
+	Record r(PREF_GROUP);
 
-	LOAD(enable_system_tray, true, toBool);
-	LOAD(hide_rather_close, true, toBool);
-	LOAD(single_app, true, toBool);
-	LOAD(disable_screensaver, true, toBool);
-	LOAD(locale, QLocale::system(), toLocale);
-	LOAD(sub_enc, locale.language() == QLocale::Korean ? "CP949" : "UTF-8", toString);
-	LOAD(sub_enc_autodetection, true, toBool);
-	LOAD(sub_enc_accuracy, 70, toInt);
-	LOAD(ms_per_char, 500, toInt);
-	LOAD(sub_priority, QStringList(), toStringList);
-	LOAD(seek_step1, DefaultSeekingStep1, toInt);
-	LOAD(seek_step2, DefaultSeekingStep2, toInt);
-	LOAD(seek_step3, DefaultSeekingStep3, toInt);
-	LOAD(speed_step, DefaultSpeedStep, toInt);
-	LOAD(volume_step, DefaultVolumeStep, toInt);
-	LOAD(amp_step, DefaultAmpStep, toInt);
-	LOAD(sub_pos_step, DefaultSubPosStep, toInt);
-	LOAD(sync_delay_step, DefaultSyncDelayStep, toInt);
-	LOAD(brightness_step, DefaultColorPropStep, toInt);
-	LOAD(saturation_step, DefaultColorPropStep, toInt);
-	LOAD(contrast_step, DefaultColorPropStep, toInt);
-	LOAD(hue_step, DefaultColorPropStep, toInt);
-	LOAD(window_style, QString(), toString);
-	LOAD(sub_ext, QString(), toString);
-	LOAD(normalizer_gain, 20, toInt);
-	LOAD(normalizer_smoothness, 100, toInt);
+	RECORD_READ(r, remember_stopped, true);
+	RECORD_READ(r, ask_record_found, true);
+	RECORD_READ(r, pause_minimized, true);
+	RECORD_READ(r, pause_video_only, true);
+	RECORD_READ(r, hide_cursor, true);
+	RECORD_READ(r, hide_cursor_delay, 3000);
+	RECORD_READ(r, blur_kern_c, 1);
+	RECORD_READ(r, blur_kern_n, 2);
+	RECORD_READ(r, blur_kern_d, 1);
+	RECORD_READ(r, sharpen_kern_c, 5);
+	RECORD_READ(r, sharpen_kern_n, -1);
+	RECORD_READ(r, sharpen_kern_d, 0);
+	RECORD_READ(r, adjust_contrast_min_luma, 16);
+	RECORD_READ(r, adjust_contrast_max_luma, 235);
+	RECORD_READ(r, auto_contrast_threshold, 0.5);
 
-	LOAD_ENUM2(generate_playlist, Enum::GeneratePlaylist::Folder);
-	LOAD_ENUM2(sub_autoload, Enum::SubtitleAutoload::Contain);
-	LOAD_ENUM2(sub_autoselect, Enum::SubtitleAutoselect::Matched);
+	RECORD_READ(r, enable_system_tray, true);
+	RECORD_READ(r, hide_rather_close, true);
+	RECORD_READ(r, disable_screensaver, true);
+	RECORD_READ(r, locale, QLocale::system());
+	RECORD_READ(r, sub_enc, QString(locale.language() == QLocale::Korean ? "CP949" : "UTF-8"));
+	RECORD_READ(r, sub_enc_autodetection, true);
+	RECORD_READ(r, sub_enc_accuracy, 70);
+	RECORD_READ(r, ms_per_char, 500);
+	RECORD_READ(r, sub_priority, QStringList());
+	RECORD_READ(r, seek_step1, DefaultSeekingStep1);
+	RECORD_READ(r, seek_step2, DefaultSeekingStep2);
+	RECORD_READ(r, seek_step3, DefaultSeekingStep3);
+	RECORD_READ(r, speed_step, DefaultSpeedStep);
+	RECORD_READ(r, volume_step, DefaultVolumeStep);
+	RECORD_READ(r, amp_step, DefaultAmpStep);
+	RECORD_READ(r, sub_pos_step, DefaultSubPosStep);
+	RECORD_READ(r, sync_delay_step, DefaultSyncDelayStep);
+	RECORD_READ(r, brightness_step, DefaultColorPropStep);
+	RECORD_READ(r, saturation_step, DefaultColorPropStep);
+	RECORD_READ(r, contrast_step, DefaultColorPropStep);
+	RECORD_READ(r, hue_step, DefaultColorPropStep);
+	RECORD_READ(r, sub_ext, QString());
+	RECORD_READ(r, normalizer_gain, 20);
+	RECORD_READ(r, normalizer_smoothness, 100);
+
+	RECORD_READ_ENUM(r, generate_playlist, Enum::GeneratePlaylist::Folder);
+	RECORD_READ_ENUM(r, sub_autoload, Enum::SubtitleAutoload::Contain);
+	RECORD_READ_ENUM(r, sub_autoselect, Enum::SubtitleAutoselect::Matched);
 
 	sub_style.border_width = 0.045;
 	sub_style.text_scale = 0.040;
@@ -140,19 +129,19 @@ void Pref::load() {
 	sub_style.shadow_offset = QPointF(0, 0);
 	sub_style.shadow_blur = 3;
 	sub_style.font.setBold(true);
-	sub_style.load(&set, "sub_style");
+	sub_style.load(r, "sub_style");
 
 	ClickActionMap def_click(false, Enum::ClickAction::Fullscreen);
 	def_click[Enum::KeyModifier::None].enabled = true;
-	double_click_map.load(set, "double_click_map", def_click);
+	double_click_map.load(r, "double_click_map", def_click);
 	def_click = ClickActionMap(false, Enum::ClickAction::Fullscreen);
 	def_click[Enum::KeyModifier::None] = ClickActionInfo(true, Enum::ClickAction::Pause);
-	middle_click_map.load(set, "middle_click_map", def_click);
+	middle_click_map.load(r, "middle_click_map", def_click);
 
 	WheelActionMap def_wheel(false, Enum::WheelAction::Volume);
 	def_wheel[Enum::KeyModifier::None].enabled = true;
 	def_wheel[Enum::KeyModifier::Ctrl] = WheelActionInfo(true, Enum::WheelAction::Amp);
-	wheel_scroll_map.load(set, "wheel_scroll_map", def_wheel);
-
-	set.endGroup();
+	wheel_scroll_map.load(r, "wheel_scroll_map", def_wheel);
 }
+
+#undef PREF_GROUP

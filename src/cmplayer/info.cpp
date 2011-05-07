@@ -1,7 +1,11 @@
 #include "info.hpp"
 #include <QtCore/QDir>
 #include <QtCore/QCoreApplication>
+#include <QtCore/QStringBuilder>
 #include <QtCore/QDebug>
+
+typedef QLatin1String _LS;
+typedef QLatin1Char _LC;
 
 Info Info::self;
 
@@ -14,12 +18,12 @@ Info::Info() {
 		dir.cd(".cmplayer");
 		m_privPath = dir.absolutePath();
 	}
-	m_videoExt << "asf" << "avi" << "dvix" << "flv" << "mkv" << "mov"
-			<< "mp4" << "mpeg" << "mpg" << "vob"
-			<< "ogg" << "ogm"<< "qt" << "rm" << "rmvb" << "wmv";
-	m_audioExt << "mp3" << "ogg" << "ra" << "wav" << "wma";
-	m_subExt << "smi" << "srt" << "sub" << "txt";
-	m_plExt << "pls" << "m3u";
+	m_videoExt << _LS("asf") << _LS("avi") << _LS("dvix") << _LS("flv") << _LS("mkv") << _LS("mov")
+			<< _LS("mp4") << _LS("mpeg") << _LS("mpg") << _LS("vob")
+			<< _LS("ogg") << _LS("ogm") << _LS("qt") << _LS("rm") << _LS("rmvb") << _LS("wmv");
+	m_audioExt << _LS("mp3") << _LS("ogg") << _LS("ra") << _LS("wav") << _LS("wma");
+	m_subExt << _LS("smi") << _LS("srt") << _LS("sub") << _LS("txt");
+	m_plExt << _LS("pls") << _LS("m3u");
 }
 
 Info::~Info() {}
@@ -44,13 +48,23 @@ QStringList Info::ExtList::toNameFilter() const {
 }
 
 QString Info::mediaExtFilter() {
-	static const QString filter
-		= QCoreApplication::translate("Info", "Video Files") + ' '
-			+ Info::videoExt().toFilter() + ";;"
-			+ QCoreApplication::translate("Info", "Audio Files") + ' '
-			+ Info::audioExt().toFilter() + ";;"
-			+ QCoreApplication::translate("Info", "All Files") + ' ' + "(*.*)";
-	return filter;
+	return videoExtFilter() % _LS(";;") % audioExtFilter() % _LS(";;") % allExtFilter();
+}
+
+QString Info::allExtFilter() {
+	return tr("All Files") % _LS(" (*.*)");
+}
+
+QString Info::videoExtFilter() {
+	return tr("Video Files") % QLatin1Char(' ') % videoExt().toFilter();
+}
+
+QString Info::audioExtFilter() {
+	return tr("Audio Files") % QLatin1Char(' ') % audioExt().toFilter();
+}
+
+static QString subtitleExtFilter() {
+//	return tr("Subtitle Files") += QLatin1Char(' ') += Info::subtitleExt().toFilter();
 }
 
 const char *Info::pluginPath() {

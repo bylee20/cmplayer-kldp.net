@@ -4,7 +4,7 @@
 #include <QtCore/QObject>
 
 class VideoFormat;		class OsdRenderer;
-class VideoRenderer;		class AudioFormat;
+class VideoScene;		class AudioFormat;
 class AudioController;
 
 class PlayInfoView : public QObject {
@@ -13,7 +13,7 @@ public:
 	PlayInfoView(QObject *parent = 0);
 	~PlayInfoView();
 	OsdRenderer *osd() const;
-	void setVideo(const VideoRenderer *video);
+	void setVideo(const VideoScene *video);
 	void setAudio(const AudioController *audio);
 public slots:
 	void setVisible(bool visible);

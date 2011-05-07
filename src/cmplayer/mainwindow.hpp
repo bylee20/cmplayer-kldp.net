@@ -5,19 +5,14 @@
 #include <QtGui/QSystemTrayIcon>
 #include "global.hpp"
 
-class Mrl;		class PlayEngine;
-class Track;		class ControlWidget;
-class MainWindowData;	class VideoFormat;
+class Mrl;
+class VideoFormat;
 
 class MainWindow : public QMainWindow {
 	Q_OBJECT
 public:
 	MainWindow();
 	~MainWindow();
-	PlayEngine *engine() const;
-	static void init();
-	static void fin();
-	static MainWindow &get() {Q_ASSERT(obj != 0); return *obj;}
 public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
@@ -79,8 +74,6 @@ private slots:
 	void updateStaysOnTop();
 	void takeSnapshot();
 private:
-	ControlWidget *createControlWidget();
-	QWidget *createCentralWidget(QWidget *video, QWidget *control);
 	void appendSubFiles(const QStringList &files, bool checked, const QString &enc);
 	void closeEvent(QCloseEvent *event);
 	void showEvent(QShowEvent *event);
@@ -88,10 +81,8 @@ private:
 	void setFullScreen(bool full);
 	void resizeEvent(QResizeEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
-	void mouseDoubleClickEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event);
-	void wheelEvent(QWheelEvent *event);
 	void dropEvent(QDropEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);
 	void showMessage(const QString &message, int last = 2500);
@@ -101,8 +92,9 @@ private:
 	void showMessage(const QString &cmd, double value
 		, const QString &unit, bool sign = false, int last = 2500);
 	void showMessage(const QString &cmd, bool value, int last = 2500);
-	MainWindowData *d;
-	static MainWindow *obj;
+
+	class Data;
+	Data *d;
 };
 
 #endif // MAINWINDOW_HPP

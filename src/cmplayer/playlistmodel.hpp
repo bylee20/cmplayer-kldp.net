@@ -27,7 +27,7 @@ public:
 	inline bool isValidRow(int row) const {return 0 <= row && row < m_list.size();}
 	int currentRow() const {return m_current;}
 	void setCurrentRow(int row);
-	int rowOf(const Mrl &mrl) {return m_list.indexOf(mrl);}
+	int rowOf(const Mrl &mrl) const {return m_list.indexOf(mrl);}
 	Mrl next() const {return m_list.value(m_current + 1);}
 	Mrl previous() const {return m_list.value(m_current - 1);}
 	bool swap(int r1, int r2);

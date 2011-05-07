@@ -17,7 +17,7 @@
 
 struct SnapshotDialog::Data {
 	Ui::SnapshotDialog ui;
-	const VideoRenderer *video;
+	const VideoScene *video;
 	const SubtitleRenderer *subtitle;
 	TextOsdRenderer *osd;
 	RichString text;
@@ -66,7 +66,7 @@ void SnapshotDialog::copyToClipboard() {
 	QApplication::clipboard()->setPixmap(d->ui.viewer->image());
 }
 
-void SnapshotDialog::setVideoRenderer(const VideoRenderer *video) {
+void SnapshotDialog::setVideoRenderer(const VideoScene *video) {
 	d->video = video;
 }
 

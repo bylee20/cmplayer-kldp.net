@@ -9,7 +9,7 @@
 struct LibVLC::Data {
 	PlayEngine *engine;
 	AudioController *audio;
-	VideoRenderer *video;
+	VideoScene *video;
 	libvlc_instance_t *inst;
 	libvlc_media_player_t *mp;
 	VideoUtil vUtil;
@@ -86,13 +86,15 @@ void LibVLC::init() {
 
 	d->engine = &PlayEngine::get();
 	d->audio = &AudioController::get();
-	d->video = &VideoRenderer::get();
+	d->video = &VideoScene::get();
 	d->engine->setMediaPlayer(d->mp);
 	d->video->setUtil(&d->vUtil);
 	d->audio->setUtil(&d->aUtil);
 }
 
 void LibVLC::fin() {
+	if (!d)
+		return;
 	libvlc_media_player_stop(d->mp);
 	libvlc_media_player_release(d->mp);
 	libvlc_release(d->inst);
@@ -183,7 +185,7 @@ LibVLC::~LibVLC() {
 
 PlayEngine *LibVLC::engine() {Q_ASSERT(d != 0 && d->engine != 0); return d->engine;}
 AudioController *LibVLC::audio() {Q_ASSERT(d != 0 && d->audio != 0); return d->audio;}
-VideoRenderer *LibVLC::video() {Q_ASSERT(d != 0 && d->video != 0); return d->video;}
+VideoScene *LibVLC::video() {Q_ASSERT(d != 0 && d->video != 0); return d->video;}
 libvlc_instance_t *LibVLC::inst() {Q_ASSERT(d != 0 && d->inst != 0); return d->inst;}
 libvlc_media_player_t *LibVLC::mp() {Q_ASSERT(d != 0 && d->mp != 0); return d->mp;}
 libvlc_media_t *LibVLC::newMedia(const Mrl &mrl) {

@@ -4,25 +4,23 @@
 #include "audiocontroller.hpp"
 #include "playengine.hpp"
 #include "menu.hpp"
-#include <QtGui/QMessageBox>
-#include <unistd.h>
-#include <QtGui/QFileOpenEvent>
 #include "events.hpp"
 #include "translator.hpp"
 #include "mainwindow.hpp"
-#include "pref.hpp"
 #include "mrl.hpp"
+#include "appstate.hpp"
+#include "libvlc.hpp"
+#include "record.hpp"
+#include <QtGui/QMessageBox>
+#include <QtGui/QFileOpenEvent>
 #include <QtGui/QStyleFactory>
 #include <QtGui/QStyle>
-#include <QtCore/QFileInfo>
 #include <QtCore/QTimer>
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
 #include <QtCore/QUrl>
 #include <QtGui/QMenuBar>
 #include <QtOpenGL/QGLFormat>
-#include "appstate.hpp"
-#include "libvlc.hpp"
 
 #if defined(Q_WS_MAC)
 #include "application_mac.hpp"
@@ -31,7 +29,7 @@
 #endif
 
 struct Application::Data {
-	QString defStyle;
+	QStringList styleNames;
 	QMenuBar *mb;
 	QUrl url;
 	QProcess *cpu;
@@ -71,52 +69,51 @@ Application::Application(int &argc, char **argv)
 	setOrganizationDomain("xylosper.net");
 	setApplicationName("CMPlayer");
 
-	Pref::init();
-	setWindowIcon(defaultIcon());
+	d->styleNames = QStyleFactory::keys();
+	const QString def = style()->objectName();
+	for (int i=1; i<d->styleNames.size(); ++i) {
+		if (def.compare(d->styleNames[i], Qt::CaseInsensitive) == 0) {
+			d->styleNames.prepend(d->styleNames.takeAt(i));
+			break;
+		}
+	}
 
-	d->defStyle = style()->objectName();
-	setStyle(Pref::get().window_style);
 	d->main = 0;
 	d->mb = 0;
 #ifdef Q_WS_MAC
 	d->mb = new QMenuBar;
 #endif
-	setQuitOnLastWindowClosed(false);
-//	qInstallMsgHandler(messageHandler);
-	QTimer::singleShot(1, this, SLOT(initialize()));
 	d->cpu = new QProcess(this);
+
+	setQuitOnLastWindowClosed(false);
+	setWindowIcon(defaultIcon());
+	loadStyle();
+//	qInstallMsgHandler(messageHandler);
+
 	connect(d->cpu, SIGNAL(readyReadStandardOutput()), this, SLOT(readProcInfo()));
+
+	QTimer::singleShot(0, this, SLOT(initialize()));
 }
 
 void Application::initStaticObjects() {
-	RecentInfo::init();
 	PlayEngine::init();
-	VideoRenderer::init();
 	AudioController::init();
+	VideoScene::init();
 	LibVLC::init();
-	AppState::init();
-	Menu::init();
-	MainWindow::init();
-	d->main = &MainWindow::get();
+	d->main = new MainWindow;
 }
 
 Application::~Application() {
-	MainWindow::fin();
+	delete d->mb;
+	delete d->main;
+	d->main = 0;
 	if (d->cpu->state() != QProcess::NotRunning)
 	    d->cpu->kill();
-	delete d->mb;
-	d->main = 0;
 	delete d;
-
-	Menu::fin();
-	AppState::fin();
 	PlayEngine::fin();
-	VideoRenderer::fin();
+	VideoScene::fin();
 	AudioController::fin();
 	LibVLC::fin();
-	RecentInfo::fin();
-
-	Pref::fin();
 }
 
 QIcon Application::defaultIcon() {
@@ -208,53 +205,11 @@ void Application::initialize() {
 		mrl = d->url.toString();
 		d->url.clear();
 	}
-	if (Pref::get().single_app && sendMessage("wakeUp")) {
+	if (isUnique() && sendMessage("wakeUp")) {
 		if (!mrl.isEmpty())
 			sendMessage("mrl " + mrl.toString());
 		quit();
 	} else {
-		setStyleSheet("\
-			Button {\
-				margin:0px; padding: 2px;\
-			}\
-			Button#flat {\
-				border: none; border-radius: 3px;\
-			}\
-			Button#block {\
-				border: 1px solid #999; border-radius: 0px; padding: 1px;\
-				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-			}\
-				Button#flat:hover, Button#flat:checked, Button#block:hover {\
-				border: 1px solid #6ad; padding: 1px;\
-			}\
-			Button#flat:pressed, Button#block:pressed {\
-				border: 2px solid #6ad; padding: 0px;\
-			}\
-			Button#block:checked, Button#block:pressed {\
-				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #777, stop:1 #bbb);\
-			}\
-			JumpSlider::groove:horizontal {\
-				border: 1px solid #6ad; height: 3px; margin: 0px 0px; padding: 0px;\
-				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-			}\
-			JumpSlider::handle:horizontal {\
-				background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #aaa, stop:1 #999);\
-				border: 1px solid #5c5c5c; border-radius: 2px;\
-				width: 5px; margin: -2px 0px; padding: 1px;\
-			}\
-			JumpSlider::handle:horizontal:hover {\
-				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-				border: 1px solid #6ad; padding: 1px;\
-			}\
-			JumpSlider::handle:horizontal:pressed {\
-				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #fff, stop:1 #ccc);\
-				border: 2px solid #6ad; padding: 0px;\
-			}\
-			JumpSlider::add-page:horizontal {\
-				border: 1px solid #999; height: 3px; margin: 0px 0px; padding: 0px;\
-				background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #333, stop:1 #bbb);\
-			}"
-		);
 		initStaticObjects();
 		d->main->show();
 		if (!mrl.isEmpty())
@@ -280,16 +235,6 @@ void Application::open(const QString &mrl) {
 		d->main->openMrl(mrl);
 }
 
-QString Application::defaultStyleName() {
-	return d->defStyle;
-}
-
-void Application::setStyle(const QString &name) {
-	const QString key = name.isEmpty() ? d->defStyle : name;
-	if (style()->objectName() != key)
-		QApplication::setStyle(QStyleFactory::create(key));
-}
-
 void Application::parseMessage(const QString &message) {
 	if (message == "wakeUp") {
 		activateWindow();
@@ -297,3 +242,45 @@ void Application::parseMessage(const QString &message) {
 		open(message.right(message.size()-4));
 	}
 }
+
+QStringList Application::availableStyleNames() const {
+	return d->styleNames;
+}
+
+#define APP_GROUP QLatin1String("application")
+
+void Application::setStyleName(const QString &name) {
+	if (!d->styleNames.contains(name, Qt::CaseInsensitive))
+		return;
+	if (style()->objectName().compare(name, Qt::CaseInsensitive) == 0)
+		return;
+	setStyle(QStyleFactory::create(name));
+	Record r(APP_GROUP);
+	r.write("style", name);
+}
+
+void Application::setUnique(bool unique) {
+	Record r(APP_GROUP);
+	r.write("unique", unique);
+}
+
+QString Application::styleName() const {
+	return style()->objectName();
+}
+
+bool Application::isUnique() const {
+	Record r(APP_GROUP);
+	return r.read("unique", true);
+}
+
+void Application::loadStyle() {
+	Record r(APP_GROUP);
+	const QString name = r.read("style", styleName());
+	if (style()->objectName().compare(name, Qt::CaseInsensitive) == 0)
+		return;
+	if (!d->styleNames.contains(name, Qt::CaseInsensitive))
+		return;
+	setStyle(QStyleFactory::create(name));
+}
+
+#undef APP_GROUP

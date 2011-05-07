@@ -13,6 +13,8 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QMenu>
 
+PlaylistView *PlaylistView::obj = 0;
+
 struct PlaylistView::Data {
 	PlayEngine *engine;
 	QTreeView *view;
@@ -22,6 +24,8 @@ struct PlaylistView::Data {
 
 PlaylistView::PlaylistView(PlayEngine *engine, QWidget *parent)
 : ToggleDialog(parent), d(new Data) {
+	Q_ASSERT(obj == 0);
+	obj = this;
 	d->engine = engine;
 	d->view = new QTreeView(this);
 	d->view->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -70,6 +74,7 @@ PlaylistView::PlaylistView(PlayEngine *engine, QWidget *parent)
 
 PlaylistView::~PlaylistView() {
 	delete d;
+	obj = 0;
 }
 
 void PlaylistView::addFile() {

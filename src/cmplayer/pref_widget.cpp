@@ -1,11 +1,11 @@
 #include "pref_widget.hpp"
+#include "application.hpp"
 #include <QtCore/QDebug>
 #include "translator.hpp"
 #include "info.hpp"
 #include "dialogs.hpp"
 #include <QtGui/QColorDialog>
 #include <QtGui/QFontDialog>
-#include <QtGui/QStyleFactory>
 #include <QtGui/QGroupBox>
 #include "ui_pref_widget.h"
 
@@ -81,25 +81,6 @@ struct Pref::Widget::Data {
 class Pref::Widget::MenuTreeItem : public QTreeWidgetItem {
 public:
 	enum Column {Discription = 0, Shortcut1, Shortcut2, Shortcut3, Shortcut4};
-	MenuTreeItem(int type = Type) : QTreeWidgetItem(type) {}
-	MenuTreeItem(QTreeWidget *parent, QAction *action, int type = Type)
-		: QTreeWidgetItem(parent, type) {init(action);}
-	MenuTreeItem(QTreeWidget *parent, QMenu *menu, int type = Type)
-		: QTreeWidgetItem(parent, type) {init(menu->menuAction());}
-	MenuTreeItem(MenuTreeItem *parent, QAction *action, int type = Type)
-		: QTreeWidgetItem(parent, type) {init(action);}
-	MenuTreeItem(MenuTreeItem *parent, QMenu *menu, int type = Type)
-		: QTreeWidgetItem(parent, type) {init(menu->menuAction());}
-	void addChild(QAction *action){
-		if (action->menu() || !Menu::key(action).isEmpty())
-			new MenuTreeItem(this, action);
-	}
-	void addChildren(QMenu *menu){new MenuTreeItem(this, menu);}
-	void addChildren(const QList<QAction *> &actions){
-		foreach(QAction *act, actions) addChild(act);
-	}
-	void setAction(QAction *action){takeChildren(); init(action);}
-	QAction *action() const {return m_action;}
 	bool isMenu() const{return m_action->menu() != 0;}
 	bool isSeparator() const{return m_action->isSeparator();}
 	const QList<QKeySequence> &shortcuts() const {return m_shortcuts;}
@@ -112,32 +93,51 @@ public:
 			static_cast<MenuTreeItem *>(child(i))->applyShortcut();
 		m_action->setShortcuts(m_shortcuts);
 	}
-	void addActionTo(QMenu *parent){
-		if (childCount()) {
-			QMenu *menu = parent->addMenu(m_action->text());
-			menu->setIcon(m_action->icon());
-			for (int i=0; i<childCount(); ++i)
-				static_cast<MenuTreeItem *>(child(i))->addActionTo(menu);
-		} else if (isSeparator())
-			parent->addSeparator();
-		else
-			parent->addAction(m_action);
+	static void makeRoot(QTreeWidget *parent) {
+		RootMenu &root = RootMenu::get();
+		QList<QAction*> actions = root.actions();
+		for (int i=0; i<actions.size(); ++i) {
+			QAction *const act = actions[i];
+			if (act->menu()) {
+				Q_ASSERT(qobject_cast<Menu*>(act->menu()) != 0);
+				parent->addTopLevelItem(create(static_cast<Menu*>(act->menu())));
+			} else if (!root.id(act).isEmpty())
+				parent->addTopLevelItem(new MenuTreeItem(act, 0));
+		}
 	}
 private:
-	void init(QAction *action) {
-		m_action = action;
-		setIcon(Discription, action->icon());
-		if(m_action->menu()) {
-			setText(Discription, action->text());
-			addChildren(m_action->menu()->actions());
-		} else {
-			m_shortcuts = m_action->shortcuts();
-			while (m_shortcuts.size() < 4)
-				m_shortcuts.append(QKeySequence());
-			setText(Discription, action->text());
-			for (int i=0; i<4; ++i)
-				setText(i + 1, m_shortcuts[i].toString(QKeySequence::NativeText));
+	static MenuTreeItem *create(Menu *menu) {
+		QList<QAction*> actions = menu->actions();
+		QList<QTreeWidgetItem*> children;
+		for (int i=0; i<actions.size(); ++i) {
+			QAction *const act = actions[i];
+			if (act->menu()) {
+				Q_ASSERT(qobject_cast<Menu*>(act->menu()) != 0);
+				MenuTreeItem *child = create(static_cast<Menu*>(act->menu()));
+				if (child)
+					children.push_back(child);
+			} else if (!menu->id(act).isEmpty())
+				children.push_back(new MenuTreeItem(act, 0));
 		}
+		if (children.isEmpty())
+			return 0;
+		MenuTreeItem *item = new MenuTreeItem(menu, 0);
+		item->addChildren(children);
+		return item;
+	}
+	MenuTreeItem(Menu *menu, MenuTreeItem *parent)
+	: QTreeWidgetItem(parent), m_action(menu->menuAction()) {
+		setText(Discription, menu->title());
+	}
+	MenuTreeItem(QAction *action, MenuTreeItem *parent)
+	: QTreeWidgetItem(parent), m_action(action) {
+		Q_ASSERT(action->menu() == 0);
+		setText(Discription, m_action->text());
+		m_shortcuts = m_action->shortcuts();
+		while (m_shortcuts.size() < 4)
+			m_shortcuts.append(QKeySequence());
+		for (int i=0; i<m_shortcuts.size(); ++i)
+			setText(i+1, m_shortcuts[i].toString(QKeySequence::NativeText));
 	}
 	QAction *m_action;
 	QList<QKeySequence> m_shortcuts;
@@ -157,8 +157,7 @@ Pref::Widget::Widget(QWidget *parent)
 	d->ui.sub_ext->addItem(QString(), QString());
 	d->ui.sub_ext->addItemTextData(Info::subtitleExt());
 	d->ui.locale->addItemData(Translator::availableLocales());
-	d->ui.window_style->addItem(QString(), QString());
-	d->ui.window_style->addItemTextData(QStyleFactory::keys());
+	d->ui.window_style->addItemTextData(app()->availableStyleNames());
 
 	d->dbl = new PrefWidgetMouseGroup<Enum::ClickAction>(d->ui.mouse_form, true);
 	d->mdl = new PrefWidgetMouseGroup<Enum::ClickAction>(d->ui.mouse_form, true);
@@ -170,9 +169,8 @@ Pref::Widget::Widget(QWidget *parent)
 	d->shortcuts->addButton(d->ui.shortcut3, MenuTreeItem::Shortcut3);
 	d->shortcuts->addButton(d->ui.shortcut4, MenuTreeItem::Shortcut4);
 
-	QList<QAction *> acts = Menu::root().actions();
-	for (int i=0; i<acts.size(); ++i)
-		new MenuTreeItem(d->ui.shortcut_tree, acts[i]);
+	MenuTreeItem::makeRoot(d->ui.shortcut_tree);
+
 	d->ui.shortcut_tree->header()->resizeSection(0, 200);
 
 	d->ui.sub_priority->setAddingAndErasingEnabled(true);
@@ -198,7 +196,6 @@ void Pref::Widget::retranslate() {
 	d->ui.sub_ext->setItemText(0, tr("All"));
 	for (int i=0; i<d->ui.locale->count(); ++i)
 		d->ui.locale->setItemText(i, toString(d->ui.locale->itemData(i).toLocale()));
-	d->ui.window_style->setItemText(0, tr("Default"));
 }
 
 
@@ -238,7 +235,7 @@ void Pref::Widget::fill() {
 	d->ui.ask_record_found->setChecked(p.ask_record_found);
 	d->ui.generate_playlist->setCurrentData(p.generate_playlist.id());
 	d->ui.hide_cursor->setChecked(p.hide_cursor);
-	d->ui.hide_delay->setValue(p.hide_delay/1000);
+	d->ui.hide_delay->setValue(p.hide_cursor_delay/1000);
 	d->ui.disable_screensaver->setChecked(p.disable_screensaver);
 
 	d->ui.blur_kern_c->setValue(p.blur_kern_c);
@@ -274,9 +271,9 @@ void Pref::Widget::fill() {
 	d->ui.ms_per_char->setValue(p.ms_per_char);
 	d->ui.sub_priority->setValues(p.sub_priority);
 
-	d->ui.single_app->setChecked(p.single_app);
+	d->ui.single_app->setChecked(app()->isUnique());
 	d->ui.locale->setCurrentData(p.locale);
-	d->ui.window_style->setCurrentData(p.window_style);
+	d->ui.window_style->setCurrentData(app()->styleName());
 	d->ui.enable_system_tray->setChecked(p.enable_system_tray);
 	d->ui.hide_rather_close->setChecked(p.hide_rather_close);
 
@@ -308,7 +305,7 @@ void Pref::Widget::apply() {
 	p.ask_record_found = d->ui.ask_record_found->isChecked();
 	p.generate_playlist.set(d->ui.generate_playlist->currentData().toInt());
 	p.hide_cursor = d->ui.hide_cursor->isChecked();
-	p.hide_delay = d->ui.hide_delay->value()*1000;
+	p.hide_cursor_delay = d->ui.hide_delay->value()*1000;
 	p.disable_screensaver = d->ui.disable_screensaver->isChecked();
 
 	p.blur_kern_c = d->ui.blur_kern_c->value();
@@ -347,9 +344,9 @@ void Pref::Widget::apply() {
 	p.ms_per_char = d->ui.ms_per_char->value();
 	p.sub_priority = d->ui.sub_priority->values();
 
-	p.single_app = d->ui.single_app->isChecked();
+	app()->setUnique(d->ui.single_app->isChecked());
 	p.locale = d->ui.locale->currentData().toLocale();
-	p.window_style = d->ui.window_style->currentData().toString();
+	app()->setStyleName(d->ui.window_style->currentData().toString());
 	p.enable_system_tray = d->ui.enable_system_tray->isChecked();
 	p.hide_rather_close = d->ui.hide_rather_close->isChecked();
 

@@ -6,15 +6,15 @@
 #include <QtCore/QPointF>
 #include "enums.hpp"
 
-class QSettings;
+class Record;
 
 class OsdStyle {
 public:
 	typedef Enum::OsdAutoSize AutoSize;
 //	class Widget;
 	OsdStyle();
-	void save(QSettings *set, const QString &group) const;
-	void load(QSettings *set, const QString &group);
+	void save(Record &r, const QString &group) const;
+	void load(Record &r, const QString &group);
 	QFont font;
 	QColor color_bg, color_fg, shadow_color;
 	double border_width, text_scale;

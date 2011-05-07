@@ -1,4 +1,9 @@
 #include "videorenderer.hpp"
+#include <QtGui/QGraphicsSceneWheelEvent>
+#include <QtGui/QGraphicsSceneMouseEvent>
+#include "menu.hpp"
+#include <QtGui/QPainter>
+#include <QtGui/QGraphicsView>
 #include "fragmentprogram.hpp"
 #include "overlay.hpp"
 #include "colorproperty.hpp"
@@ -6,6 +11,7 @@
 #include "videoframe.hpp"
 #include "pref.hpp"
 #include "logodrawer.hpp"
+#include "skinhelper.hpp"
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
 #include <QtCore/QTime>
@@ -20,45 +26,29 @@
 #include "i420_to_rgb_filter.hpp"
 #include "i420_to_rgb_kernel.hpp"
 
-VideoRenderer *VideoRenderer::obj = 0;
+VideoScene *VideoScene::obj = 0;
 
-void VideoRenderer::init() {
+void VideoScene::init() {
 	Q_ASSERT(obj == 0);
-	obj = new VideoRenderer;
+	obj = new VideoScene;
 }
 
-void VideoRenderer::fin() {
+void VideoScene::fin() {
 	delete obj;
 	obj = 0;
 }
 
-class FrameRateMeasure {
-public:
-	FrameRateMeasure() {m_drawn = 0; m_prev = 0;}
-	void reset() {m_time.restart(); m_drawn = 0; m_prev = 0;}
-	int elapsed() const {return m_time.elapsed();}
-	void frameDrawn(int id) {
-		if (m_prev != id) {
-			++m_drawn;
-			m_prev = id;
-		}
-	}
-	int drawnFrames() const {return m_drawn;}
-	double frameRate() const {return (double)m_drawn/(double)m_time.elapsed()*1e3;}
-private:
-	int m_drawn;
-	int m_prev;
-	QTime m_time;
-};
-
-struct VideoRenderer::Data {
+struct VideoScene::Data {
 	static const int i420ToRgbSimple = 0;
 	static const int i420ToRgbFilter = 1;
 	static const int i420ToRgbKernel = 2;
+	QGLWidget *gl;
+	QGraphicsView *view;
 	FrameRateMeasure fps;	int frameId;
 	QMutex mutex;		QSize renderSize;	ColorProperty color;
 	LogoDrawer logo;	Overlay *overlay;	GLuint texture[3];
 	VideoFrame *buffer, *frame, *temp, buf[3];	VideoUtil *util;
+	QSize size;
 	QRectF vtx;		Effects effects;
 	void **planes[VIDEO_FRAME_MAX_PLANE_COUNT];	VideoFormat format;
 	QList<FragmentProgram*> shaders;		FragmentProgram *shader;
@@ -68,6 +58,8 @@ struct VideoRenderer::Data {
 	double brightness, contrast, sat_con, sinhue, coshue;
 	double cpu;
 	bool hasKernel, prepared, logoOn, frameIsSet, hasPrograms, binding;
+	SkinHelper *skin;
+	bool skinVisible;
 // methods
 	static inline int kbps(double fps, int width, int height, int bpp) {
 		return width*height*bpp*fps/1024 + 0.5;
@@ -136,22 +128,56 @@ struct VideoRenderer::Data {
 	}
 };
 
-QGLFormat VideoRenderer::makeFormat() {
-	QGLFormat format;
-	return format;
+class VideoView : public QGraphicsView {
+public:
+	VideoView(VideoScene *scene) {
+		m_scene = scene;
+		setScene(m_scene);
+	}
+private:
+	VideoScene *m_scene;
+	void mouseMoveEvent(QMouseEvent *event) {
+		QGraphicsView::mouseMoveEvent(event);
+		event->setAccepted(!m_scene->needToPropagate(event->posF()));
+	}
+	void mousePressEvent(QMouseEvent *event) {
+		QGraphicsView::mousePressEvent(event);
+		event->setAccepted(!m_scene->needToPropagate(event->posF()));
+	}
+	void mouseReleaseEvent(QMouseEvent *event) {
+		QGraphicsView::mouseReleaseEvent(event);
+		event->setAccepted(!m_scene->needToPropagate(event->posF()));
+	}
+	void resizeEvent(QResizeEvent *event) {
+		QGraphicsView::resizeEvent(event);
+		m_scene->updateSceneRect();
+	}
+
+//	void keyPressEvent(QKeyEvent *event) {
+//		QGraphicsView::keyPressEvent(event);
+//		event->setAccepted(false);
+//	}
+
+};
+
+bool VideoScene::needToPropagate(const QPointF &mouse) {
+	return !d->skin || !d->skinVisible || d->skin->screen().contains(mouse);
 }
 
-VideoRenderer::VideoRenderer()
-: QGLWidget(makeFormat()), d(new Data) {
+VideoScene::VideoScene()
+: QGraphicsScene(), d(new Data) {
 	Q_ASSERT(obj == 0);
-	makeCurrent();
+	d->gl = new QGLWidget;
+	d->skin = 0;
+	d->skinVisible = true;
+	d->gl->makeCurrent();
 	glGenTextures(3, d->texture);
-#define GET_PROC_ADDRESS(func) func = (_##func)context()->getProcAddress(QLatin1String(#func))
+#define GET_PROC_ADDRESS(func) func = (_##func)d->gl->context()->getProcAddress(QLatin1String(#func))
 	GET_PROC_ADDRESS(glActiveTexture);
 	Q_ASSERT(glActiveTexture != 0);
 #undef GET_PROC_ADDRESS
 	d->init_program();
-	doneCurrent();
+	d->gl->doneCurrent();
 
 	d->update_color_prop();
 	d->effects = 0;	d->update_effects();
@@ -164,22 +190,52 @@ VideoRenderer::VideoRenderer()
 	d->frameIsSet = d->logoOn = d->binding = d->hasKernel = d->prepared = false;
 	d->overlay = 0;
 
-	setMinimumSize(QSize(200, 100));
-	setAutoFillBackground(false);
-	setAttribute(Qt::WA_OpaquePaintEvent, true);
-	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	setMouseTracking(true);
-	setContextMenuPolicy(Qt::CustomContextMenu);
+//	setMinimumSize(QSize(200, 100));
+//	setAutoFillBackground(false);
+//	setAttribute(Qt::WA_OpaquePaintEvent, true);
+//	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+//	setMouseTracking(true);
 
-
+	d->view = new VideoView(this);
+	d->view->setMouseTracking(true);
+	d->view->setViewport(d->gl);
+	d->view->viewport()->setMouseTracking(true);
+//	d->view->setScene(this);
+	d->view->setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
+	d->view->setFrameStyle(QFrame::NoFrame | QFrame::Plain);
+	d->view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	d->view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	d->view->setMinimumSize(200, 200);
+	d->view->setContextMenuPolicy(Qt::CustomContextMenu);
+	//	d->size = d->view->size();
+//	setSceneRect(0, 0, d->view->width(), d->view->height());
+	d->skin = SkinManager::load(QUrl::fromLocalFile("/Users/xylosper/untitled/skin.qml"));
+	addItem(d->skin);
+//	item->setProperty("minimum", -1);
+	connect(d->skin, SIGNAL(screenChanged()), this, SLOT(updateVertices()));
 }
 
-VideoRenderer::~VideoRenderer() {
-	makeCurrent();
+VideoScene::~VideoScene() {
+	removeItem(d->skin);
+	d->gl->makeCurrent();
 	qDeleteAll(d->shaders);
 	delete d->overlay;
 	glDeleteTextures(3, d->texture);
+	delete d->view;
 	delete d;
+}
+
+QGraphicsView *VideoScene::view() {
+	return d->view;
+}
+
+void VideoScene::setSkinVisible(bool visible) {
+	if (d->skinVisible != visible) {
+		d->skinVisible = visible;
+		d->skin->setVisible(visible);
+		qDebug() << "update vtx" << visible;
+		updateVertices();
+	}
 }
 
 static inline void setRgbFromYuv(uchar *&r, int y, int u, int v) {
@@ -190,7 +246,7 @@ static inline void setRgbFromYuv(uchar *&r, int y, int u, int v) {
 	*r++ = qBound(0, (y + 516*u + 128) >> 8, 255);
 }
 
-QImage VideoRenderer::frameImage() const {
+QImage VideoScene::frameImage() const {
 	if (!d->frameIsSet || !VideoFormat::isPlanar(d->format.output_fourcc))
 		return QImage();
 	VideoFrame frame = *d->frame;
@@ -221,290 +277,38 @@ QImage VideoRenderer::frameImage() const {
 	return (image);
 }
 
-double VideoRenderer::outputFrameRate(bool reset) const {
+double VideoScene::outputFrameRate(bool reset) const {
 	const double ret = d->fps.frameRate();
 	if (reset)
 		d->fps.reset();
 	return ret;
 }
 
-const VideoFormat &VideoRenderer::format() const {
+const VideoFormat &VideoScene::format() const {
 	return d->format;
 }
 
-bool VideoRenderer::hasFrame() const {
+bool VideoScene::hasFrame() const {
 	return d->frameIsSet;
 }
 
-void VideoRenderer::setUtil(VideoUtil *util) {
+void VideoScene::setUtil(VideoUtil *util) {
 	d->util = util;
 }
 
-void VideoRenderer::render(void **planes) {
-	Q_ASSERT(planes[0] == d->buffer->data());
-	int min = 0;
-	int max = 255;
-	if (d->effects & IgnoreEffect)
-		return;
-	if (d->effects & RemapLuma) {
-		min = Pref::get().adjust_contrast_min_luma;
-		max = Pref::get().adjust_contrast_max_luma;
-	}
-	if (d->effects & AutoContrast) {
-		int his_y[256] = {0};
-		uchar *y1, *y2;
-		y1 = (uchar*)planes[0];
-		y2 = y1 + d->format.planes[0].data_pitch;
-		const int lines = d->format.planes[1].frame_lines;
-		const int pitch = d->format.planes[1].frame_pitch;
-		const int dy = (d->format.planes[0].data_pitch << 1) - d->format.planes[0].frame_pitch;
-		for (int j=0; j<lines; ++j) {
-			for (int i=0; i<pitch; ++i) {
-				++his_y[*y1++];		++his_y[*y1++];
-				++his_y[*y2++];		++his_y[*y2++];
-			}
-			y1 += dy;	y2 += dy;
-		}
-		const double th = Pref::get().auto_contrast_threshold/100.0;
-		int acc = 0;
-		const double r_count = 1.0/(double)((lines*pitch) << 2);
-		for (int i=min; i<256; ++i) {
-			acc += his_y[i];
-			if ((double)acc*r_count > th)
-				break;
-			min = i;
-		}
-		acc = 0;
-		for (int i=max; i>min; --i) {
-			acc += his_y[i];
-			if ((double)acc*r_count > th)
-				break;
-			max = i;
-		}
-	}
-	d->y_min_buffer = (double)min/255.0;
-	d->y_max_buffer = (double)max/255.0;
+QGLWidget *VideoScene::gl() {
+	return d->gl;
 }
 
-void VideoRenderer::process(void **planes) {
-	Q_UNUSED(planes);
-	return;
-}
-
-void *VideoRenderer::lock(void ***planes) {
-	d->mutex.lock();
-	d->planes[0] = planes[0];
-	d->planes[1] = planes[1];
-	d->planes[2] = planes[2];
-	d->update_planes();
-	return 0;
-}
-
-void VideoRenderer::unlock(void *id, void *const *plane) {
-	Q_UNUSED(id);
-	Q_ASSERT(d->buffer->data() == plane[0]);
-	d->mutex.unlock();
-}
-
-void VideoRenderer::display(void *id) {
-	Q_UNUSED(id);
-	if (!d->prepared || d->binding) {
-		qDebug() << "drop a frame!";
-	} else {
-		Q_ASSERT(d->temp->length() == d->buffer->length());
-		qSwap(d->temp, d->buffer);
-		QEvent *event = new NewVideoFrameEvent(d->y_min_buffer, d->y_max_buffer);
-		QCoreApplication::postEvent(this, event);
-		d->update_planes();
-	}
-}
-
-void VideoRenderer::prepare(const VideoFormat *format) {
-	d->prepared = false;
-	d->format = *format;
-	*d->buffer = VideoFrame(d->format);
-	*d->frame = VideoFrame(d->format);
-	*d->temp = VideoFrame(d->format);
-	QCoreApplication::postEvent(this, new VideoPrepareEvent);
-}
-
-void VideoRenderer::addOsd(OsdRenderer *osd) {
-	if (d->overlay)
-		d->overlay->addOsd(osd);
-}
-
-double VideoRenderer::targetAspectRatio() const {
-	if (d->aspect > 0.0)
-		return d->aspect;
-	if (d->aspect == 0.0)
-		return widgetRatio();
-	return (double)d->format.width*d->format.sar/(double)d->format.height;
-}
-
-double VideoRenderer::targetCropRatio(double fallback) const {
-	if (d->crop > 0.0)
-		return d->crop;
-	if (d->crop == 0.0)
-		return widgetRatio();
-	return fallback;
-}
-
-QSize VideoRenderer::sizeHint() const {
-	if (d->frame->isEmpty())
-		return QSize(400, 300);
-	const double aspect = targetAspectRatio();
-	QSizeF size(aspect, 1.0);
-	size.scale(d->frame->format().size(), Qt::KeepAspectRatioByExpanding);
-	QSizeF crop(targetCropRatio(aspect), 1.0);
-	crop.scale(size, Qt::KeepAspectRatio);
-	return crop.toSize();
-}
-
-void VideoRenderer::setAspectRatio(double ratio) {
-	if (!isSameRatio(d->aspect, ratio)) {
-		d->aspect = ratio;
-		update();
-	}
-}
-
-double VideoRenderer::aspectRatio() const {
-	return d->aspect;
-}
-
-void VideoRenderer::setCropRatio(double ratio) {
-	if (!isSameRatio(d->crop, ratio)) {
-		d->crop = ratio;
-		update();
-	}
-}
-
-double VideoRenderer::cropRatio() const {
-	return d->crop;
-}
-
-void VideoRenderer::setLogoMode(bool on) {
-	d->logoOn = on;
-}
-
-void VideoRenderer::setColorProperty(const ColorProperty &prop) {
-	d->color = prop;
-	d->update_color_prop();
-	update();
-}
-
-const ColorProperty &VideoRenderer::colorProperty() const {
-	return d->color;
-}
-
-void VideoRenderer::setFixedRenderSize(const QSize &size) {
-	if (d->renderSize != size) {
-		d->renderSize = size;
-		if (this->size() != size)
-			updateSize();
-		update();
-	}
-}
-
-QSize VideoRenderer::renderableSize() const {
-	return d->renderSize.isEmpty() ? size() : d->renderSize;
-}
-
-void VideoRenderer::updateSize() {
-	const QSizeF widget = renderableSize();
-	QRectF vtx(QPointF(0, 0), widget);
-	if (!d->logoOn && d->hasPrograms && d->prepared) {
-		const double aspect = targetAspectRatio();
-		QSizeF frame(aspect, 1.0);
-		QSizeF letter(targetCropRatio(aspect), 1.0);
-		letter.scale(widget, Qt::KeepAspectRatio);
-		frame.scale(letter, Qt::KeepAspectRatioByExpanding);
-		vtx.setLeft((widget.width() - frame.width())*0.5);
-		vtx.setTop((widget.height() - frame.height())*0.5);
-		vtx.setSize(frame);
-	}
-	if (d->vtx != vtx) {
-		d->vtx = vtx;
-		if (d->overlay)
-			d->overlay->setArea(QRect(QPoint(0, 0), widget.toSize()), d->vtx.toRect());
-	}
-}
-
-void VideoRenderer::resizeEvent(QResizeEvent *event) {
-	QGLWidget::resizeEvent(event);
-	updateSize();
-}
-
-bool VideoRenderer::event(QEvent *event) {
-	if (event->type() == (int)Event::NewVideoFrame) {
-		if (!d->prepared)
-			return true;
-		if (!(d->frameIsSet = !d->frame->isEmpty()))
-			return true;
-		d->binding = true;
-		qSwap(d->frame, d->temp);
-		NewVideoFrameEvent *e = static_cast<NewVideoFrameEvent*>(event);
-		d->y_min = e->y_min;
-		d->y_max = e->y_max;
-		const VideoFrame &frame = *d->frame;
-		makeCurrent();
-		uchar *data[3] = {frame.data(0), frame.data(1), frame.data(2)};
-		switch (frame.format().output_fourcc) {
-		case VideoFormat::YV12:
-			qSwap(data[1], data[2]);
-		case VideoFormat::I420:
-	#define BIND_TEXTURE_I420(idx)\
-			glBindTexture(GL_TEXTURE_2D, d->texture[idx]);\
-			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0\
-				, frame.dataPitch(idx), frame.dataLines(idx)\
-				, GL_LUMINANCE, GL_UNSIGNED_BYTE, data[idx]);
-			BIND_TEXTURE_I420(0);
-			BIND_TEXTURE_I420(1);
-			BIND_TEXTURE_I420(2);
-	#undef BIND_TEXTURE_I420
-			break;
-		default:
-			d->frameIsSet = false;
-			break;
-		}
-		++d->frameId;
-		d->binding = false;
-		update();
-		return true;
-	} else if (event->type() == (int)Event::VideoPrepare) {
-		d->prepared = false;
-		d->y_min = 0.0;
-		d->y_max = 1.0;
-		emit formatChanged(d->format);
-		if (!VideoFormat::isPlanar(d->format.output_fourcc))
-			return true;
-		makeCurrent();
-		for (int i=0; i<3; ++i) {
-			glBindTexture(GL_TEXTURE_2D, d->texture[i]);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE
-				, d->frame->dataPitch(i), d->frame->dataLines(i), 0
-				, GL_LUMINANCE, GL_UNSIGNED_BYTE, d->frame->data(i));
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		}
-		d->prepared = true;
-		d->fps.reset();
-		updateSize();
-		return true;
-	} else
-		return QGLWidget::event(event);
-}
-
-void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
-	QPainter painter(this);
-	const QSizeF widget = renderableSize();
+void VideoScene::drawBackground(QPainter *painter, const QRectF &rect) {
+	painter->save();
+	const QRectF renderable = renderableArea();
 	if (!d->logoOn && d->hasPrograms && d->frameIsSet && d->prepared) {
 		const double aspect = targetAspectRatio();
 		QSizeF letter(targetCropRatio(aspect), 1.0);
-		letter.scale(widget, Qt::KeepAspectRatio);
-		const double hMargin = (widget.width() - letter.width())*0.5;
-		const double vMargin = (widget.height() - letter.height())*0.5;
+		letter.scale(renderable.size(), Qt::KeepAspectRatio);
+		const double hMargin = (renderable.width() - letter.width())*0.5;
+		const double vMargin = (renderable.height() - letter.height())*0.5;
 		double top = 0.0, left = 0.0;
 		double bottom = (double)(d->frame->frameLines(0)-1)/(double)d->frame->dataLines(0);
 		double right = (double)(d->frame->framePitch(0)-1)/(double)d->frame->dataPitch(0);
@@ -512,8 +316,8 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 			qSwap(left, right);
 		if (d->effects & FlipVertically)
 			qSwap(top, bottom);
-		painter.beginNativePainting();
-		makeCurrent();
+		painter->beginNativePainting();
+		d->gl->makeCurrent();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		d->shader->bind();
@@ -559,28 +363,286 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 
 		d->shader->release();
 
-		painter.endNativePainting();
+		painter->endNativePainting();
 
 		if (vMargin >= 0.0) {
-			QRectF rect(0.0, 0.0, widget.width(), vMargin);
-			painter.fillRect(rect, Qt::black);
-			rect.moveTop(widget.height() - vMargin);
-			painter.fillRect(rect, Qt::black);
+			QRectF rect(0.0, 0.0, renderable.width(), vMargin);
+			painter->fillRect(rect, Qt::black);
+			rect.moveTop(renderable.height() - vMargin);
+			painter->fillRect(rect, Qt::black);
 		}
 		if (hMargin >= 0.0) {
-			QRectF rect(0.0, 0.0, hMargin, widget.height());
-			painter.fillRect(rect, Qt::black);
-			rect.moveLeft(widget.width() - hMargin);
-			painter.fillRect(rect, Qt::black);
+			QRectF rect(0.0, 0.0, hMargin, renderable.height());
+			painter->fillRect(rect, Qt::black);
+			rect.moveLeft(renderable.width() - hMargin);
+			painter->fillRect(rect, Qt::black);
 		}
 		d->fps.frameDrawn(d->frameId);
 	} else
-		d->logo.draw(&painter, QRectF(QPointF(0, 0), widget));
+		d->logo.draw(painter, renderable);
 	if (d->overlay)
-		d->overlay->render(&painter);
+		d->overlay->render(painter);
+	painter->restore();
 }
 
-int VideoRenderer::translateButton(Qt::MouseButton qbutton) {
+void VideoScene::render(void **planes) {
+	Q_ASSERT(planes[0] == d->buffer->data());
+	int min = 0;
+	int max = 255;
+	if (d->effects & IgnoreEffect)
+		return;
+	if (d->effects & RemapLuma) {
+		min = Pref::get().adjust_contrast_min_luma;
+		max = Pref::get().adjust_contrast_max_luma;
+	}
+	if (d->effects & AutoContrast) {
+		int his_y[256] = {0};
+		uchar *y1, *y2;
+		y1 = (uchar*)planes[0];
+		y2 = y1 + d->format.planes[0].data_pitch;
+		const int lines = d->format.planes[1].frame_lines;
+		const int pitch = d->format.planes[1].frame_pitch;
+		const int dy = (d->format.planes[0].data_pitch << 1) - d->format.planes[0].frame_pitch;
+		for (int j=0; j<lines; ++j) {
+			for (int i=0; i<pitch; ++i) {
+				++his_y[*y1++];		++his_y[*y1++];
+				++his_y[*y2++];		++his_y[*y2++];
+			}
+			y1 += dy;	y2 += dy;
+		}
+		const double th = Pref::get().auto_contrast_threshold/100.0;
+		int acc = 0;
+		const double r_count = 1.0/(double)((lines*pitch) << 2);
+		for (int i=min; i<256; ++i) {
+			acc += his_y[i];
+			if ((double)acc*r_count > th)
+				break;
+			min = i;
+		}
+		acc = 0;
+		for (int i=max; i>min; --i) {
+			acc += his_y[i];
+			if ((double)acc*r_count > th)
+				break;
+			max = i;
+		}
+	}
+	d->y_min_buffer = (double)min/255.0;
+	d->y_max_buffer = (double)max/255.0;
+}
+
+void VideoScene::process(void **planes) {
+	Q_UNUSED(planes);
+	return;
+}
+
+void *VideoScene::lock(void ***planes) {
+	d->mutex.lock();
+	d->planes[0] = planes[0];
+	d->planes[1] = planes[1];
+	d->planes[2] = planes[2];
+	d->update_planes();
+	return 0;
+}
+
+void VideoScene::unlock(void *id, void *const *plane) {
+	Q_UNUSED(id);
+	Q_ASSERT(d->buffer->data() == plane[0]);
+	d->mutex.unlock();
+}
+
+void VideoScene::display(void *id) {
+	Q_UNUSED(id);
+	if (!d->prepared || d->binding) {
+		qDebug() << "drop a frame!";
+	} else {
+		Q_ASSERT(d->temp->length() == d->buffer->length());
+		qSwap(d->temp, d->buffer);
+		QEvent *event = new NewVideoFrameEvent(d->y_min_buffer, d->y_max_buffer);
+		QCoreApplication::postEvent(this, event);
+		d->update_planes();
+	}
+}
+
+void VideoScene::prepare(const VideoFormat *format) {
+	d->prepared = false;
+	d->format = *format;
+	*d->buffer = VideoFrame(d->format);
+	*d->frame = VideoFrame(d->format);
+	*d->temp = VideoFrame(d->format);
+	QCoreApplication::postEvent(this, new VideoPrepareEvent);
+}
+
+void VideoScene::addOsd(OsdRenderer *osd) {
+	if (d->overlay)
+		d->overlay->addOsd(osd);
+}
+
+double VideoScene::targetAspectRatio() const {
+	if (d->aspect > 0.0)
+		return d->aspect;
+	if (d->aspect == 0.0)
+		return widgetRatio();
+	return (double)d->format.width*d->format.sar/(double)d->format.height;
+}
+
+double VideoScene::targetCropRatio(double fallback) const {
+	if (d->crop > 0.0)
+		return d->crop;
+	if (d->crop == 0.0)
+		return widgetRatio();
+	return fallback;
+}
+
+QSizeF VideoScene::skinSizeHint() const {
+	return (d->skin && d->skinVisible) ? (d->skin->size() - d->skin->screen().size()) : QSizeF();
+}
+
+QSizeF VideoScene::sizeHint(double times) const {
+	if (d->frame->isEmpty())
+		return QSize(400, 300);
+	const double aspect = targetAspectRatio();
+	QSizeF size(aspect, 1.0);
+	size.scale(d->frame->format().size(), Qt::KeepAspectRatioByExpanding);
+	QSizeF crop(targetCropRatio(aspect), 1.0);
+	crop.scale(size, Qt::KeepAspectRatio);
+	crop *= sqrt(times);
+	crop += skinSizeHint();
+	return crop.toSize();
+}
+
+void VideoScene::setAspectRatio(double ratio) {
+	if (!isSameRatio(d->aspect, ratio)) {
+		d->aspect = ratio;
+		updateVertices();
+	}
+}
+
+double VideoScene::aspectRatio() const {
+	return d->aspect;
+}
+
+void VideoScene::setCropRatio(double ratio) {
+	if (!isSameRatio(d->crop, ratio)) {
+		d->crop = ratio;
+		updateVertices();
+	}
+}
+
+double VideoScene::cropRatio() const {
+	return d->crop;
+}
+
+void VideoScene::setLogoMode(bool on) {
+	d->logoOn = on;
+}
+
+void VideoScene::setColorProperty(const ColorProperty &prop) {
+	d->color = prop;
+	d->update_color_prop();
+	update();
+}
+
+const ColorProperty &VideoScene::colorProperty() const {
+	return d->color;
+}
+
+void VideoScene::updateSceneRect() {
+	setSceneRect(0, 0, d->view->width(), d->view->height());
+	if (d->skin)
+		d->skin->resize(sceneRect().size());
+}
+
+QRectF VideoScene::renderableArea() const {
+	if (!d->skin || !d->skinVisible)
+		return sceneRect();
+	return d->skin->screen();
+}
+
+void VideoScene::updateVertices() {
+	const QRectF area = renderableArea();
+	QRectF vtx = area;
+	if (!d->logoOn && d->hasPrograms && d->prepared) {
+		const double aspect = targetAspectRatio();
+		QSizeF frame(aspect, 1.0);
+		QSizeF letter(targetCropRatio(aspect), 1.0);
+		letter.scale(area.size(), Qt::KeepAspectRatio);
+		frame.scale(letter, Qt::KeepAspectRatioByExpanding);
+		vtx.setLeft(vtx.left() + (area.width() - frame.width())*0.5);
+		vtx.setTop(vtx.top() + (area.height() - frame.height())*0.5);
+		vtx.setSize(frame);
+	}
+	if (d->vtx != vtx) {
+		d->vtx = vtx;
+		if (d->overlay)
+			d->overlay->setArea(renderableArea().toRect(), d->vtx.toRect());
+		update();
+	}
+}
+
+bool VideoScene::event(QEvent *event) {
+	if (event->type() == (int)Event::NewVideoFrame) {
+		if (!d->prepared)
+			return true;
+		if (!(d->frameIsSet = !d->frame->isEmpty()))
+			return true;
+		d->binding = true;
+		qSwap(d->frame, d->temp);
+		NewVideoFrameEvent *e = static_cast<NewVideoFrameEvent*>(event);
+		d->y_min = e->y_min;
+		d->y_max = e->y_max;
+		const VideoFrame &frame = *d->frame;
+		d->gl->makeCurrent();
+		uchar *data[3] = {frame.data(0), frame.data(1), frame.data(2)};
+		switch (frame.format().output_fourcc) {
+		case VideoFormat::YV12:
+			qSwap(data[1], data[2]);
+		case VideoFormat::I420:
+	#define BIND_TEXTURE_I420(idx)\
+			glBindTexture(GL_TEXTURE_2D, d->texture[idx]);\
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0\
+				, frame.dataPitch(idx), frame.dataLines(idx)\
+				, GL_LUMINANCE, GL_UNSIGNED_BYTE, data[idx]);
+			BIND_TEXTURE_I420(0);
+			BIND_TEXTURE_I420(1);
+			BIND_TEXTURE_I420(2);
+	#undef BIND_TEXTURE_I420
+			break;
+		default:
+			d->frameIsSet = false;
+			break;
+		}
+		++d->frameId;
+		d->binding = false;
+		update();
+		return true;
+	} else if (event->type() == (int)Event::VideoPrepare) {
+		d->prepared = false;
+		d->y_min = 0.0;
+		d->y_max = 1.0;
+		emit formatChanged(d->format);
+		if (!VideoFormat::isPlanar(d->format.output_fourcc))
+			return true;
+		d->gl->makeCurrent();
+		for (int i=0; i<3; ++i) {
+			glBindTexture(GL_TEXTURE_2D, d->texture[i]);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE
+				, d->frame->dataPitch(i), d->frame->dataLines(i), 0
+				, GL_LUMINANCE, GL_UNSIGNED_BYTE, d->frame->data(i));
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		}
+		d->prepared = true;
+		d->fps.reset();
+		updateVertices();
+		return true;
+	} else
+		return QGraphicsScene::event(event);
+}
+
+int VideoScene::translateButton(Qt::MouseButton qbutton) {
 	switch (qbutton) {
 	case Qt::LeftButton:
 		return 0;
@@ -593,46 +655,89 @@ int VideoRenderer::translateButton(Qt::MouseButton qbutton) {
 	}
 }
 
-void VideoRenderer::mouseMoveEvent(QMouseEvent *event) {
-	QGLWidget::mouseMoveEvent(event);
+void VideoScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
+	QGraphicsScene::mouseMoveEvent(event);
+	if (event->isAccepted())
+		return;
+	if (d->skin && !d->skinVisible)
+		d->skin->setVisible(!d->skin->screen().contains(event->scenePos()));
+
+//	QDeclarativeItem *item = qgraphicsitem_cast<QDeclarativeItem*>(itemAt(event->scenePos()));
+//	qDebug() << itemAt(event->scenePos());
+//	qDebug() << "moving";
+//	QGraphicsView::mouseMoveEvent(event);
 	if (d->util->vd && d->vtx.isValid() && !d->frame->isEmpty()) {
-		QPointF pos = event->posF();
-		pos -= d->vtx.topLeft();
-		pos.rx() *= (double)d->format.width/d->vtx.width();
-		pos.ry() *= (double)d->format.height/d->vtx.height();
-		d->util->mouseMoveEvent(d->util->vd, pos.x() + 0.5, pos.y() + 0.5);
+		QPointF pos = event->scenePos();
+		if (d->vtx.contains(pos)) {
+			pos -= d->vtx.topLeft();
+			pos.rx() *= (double)d->format.width/d->vtx.width();
+			pos.ry() *= (double)d->format.height/d->vtx.height();
+			d->util->mouseMoveEvent(d->util->vd, pos.x() + 0.5, pos.y() + 0.5);
+		}
 	}
 }
 
-void VideoRenderer::mousePressEvent(QMouseEvent *event) {
-	QGLWidget::mousePressEvent(event);
-	if (d->util->vd) {
+void VideoScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
+	QGraphicsScene::mousePressEvent(event);
+//	QGraphicsView::mousePressEvent(event);
+	if (event->isAccepted())
+		return;
+	if (d->skin && d->skin->isVisible() && !d->skin->screen().contains(event->scenePos()))
+		return;
+	if (event->buttons() & Qt::MidButton) {
+		QAction *action = RootMenu::get().middleClickAction(event->modifiers());
+		if (action)
+			action->trigger();
+	}
+	if (d->util->vd && d->vtx.contains(event->scenePos())) {
 		const int b = translateButton(event->button());
 		if (b >= 0)
 			d->util->mousePresseEvent(d->util->vd, b);
 	}
 }
 
-void VideoRenderer::mouseReleaseEvent(QMouseEvent *event) {
-	QGLWidget::mouseReleaseEvent(event);
-	if (d->util->vd) {
+void VideoScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
+	QGraphicsScene::mouseReleaseEvent(event);
+	if (!event->isAccepted() && d->util->vd && d->vtx.contains(event->scenePos())) {
 		const int b = translateButton(event->button());
 		if (b >= 0)
 			d->util->mouseReleaseEvent(d->util->vd, b);
 	}
 }
 
-void VideoRenderer::clearEffects() {
+void VideoScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
+	QGraphicsScene::mouseDoubleClickEvent(event);
+	if (event->isAccepted())
+		return;
+	if (d->skin && d->skin->isVisible() && !d->skin->screen().contains(event->scenePos()))
+		return;
+	QAction *action = RootMenu::get().doubleClickAction(event->modifiers());
+	if (action)
+		action->trigger();
+}
+
+void VideoScene::wheelEvent(QGraphicsSceneWheelEvent *event) {
+	QGraphicsScene::wheelEvent(event);
+	if (event->isAccepted())
+		return;
+	if (d->skin && d->skin->isVisible() && !d->skin->screen().contains(event->scenePos()))
+		return;
+	QAction *action = RootMenu::get().wheelScrollAction(event->modifiers(), event->delta() > 0);
+	if (action)
+		action->trigger();
+}
+
+void VideoScene::clearEffects() {
 	d->effects = 0;
 	d->update_effects();
 	update();
 }
 
-void VideoRenderer::setEffect(Effect effect, bool on) {
+void VideoScene::setEffect(Effect effect, bool on) {
 	setEffects(on ? (d->effects | effect) : (d->effects & ~effect));
 }
 
-void VideoRenderer::setEffects(Effects effects) {
+void VideoScene::setEffects(Effects effects) {
 	if (d->effects != effects) {
 		d->effects = effects;
 		d->update_effects();
@@ -640,7 +745,7 @@ void VideoRenderer::setEffects(Effects effects) {
 	}
 }
 
-void VideoRenderer::setOverlayType(int hint) {
+void VideoScene::setOverlayType(int hint) {
 	const Overlay::Type type = Overlay::guessType(hint);
 	if (d->overlay && d->overlay->type() == type)
 		return;
@@ -649,9 +754,10 @@ void VideoRenderer::setOverlayType(int hint) {
 		osds = d->overlay->takeOsds();
 		delete d->overlay;
 	}
-	d->overlay = Overlay::create(this, type);
+	d->overlay = Overlay::create(d->gl, type);
 	for (int i=0; i<osds.size(); ++i)
 		d->overlay->addOsd(osds[i]);
-	d->overlay->setArea(QRect(QPoint(0, 0), renderableSize()), d->vtx.toRect());
-	qDebug() << "Overlay:" << Overlay::typeToString(d->overlay->type());
+	d->overlay->setArea(renderableArea().toRect(), d->vtx.toRect());
+	update();
+	qDebug() << "Overlay:" << d->overlay->type().name();
 }

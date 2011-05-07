@@ -1,75 +1,109 @@
 #include "menu.hpp"
 #include "enums.hpp"
-#include "overlay.hpp"
 #include "videorenderer.hpp"
 #include "pref.hpp"
 #include "colorproperty.hpp"
 #include <QtCore/QDebug>
+#include "record.hpp"
 
-Menu *Menu::m_root = 0;
-QHash<QAction*, QString> Menu::keys;
-QHash<QString, QAction*> Menu::acts;
-Menu::ClickActionMap Menu::m_click;
-Menu::WheelActionMap Menu::m_wheel;
-
-void Menu::fin() {
-	delete m_root;
-	m_root = 0;
+template<typename T>
+QStringList toStringList(const QList<T> &list) {
+	QStringList ret;
+	ret.reserve(list.size());
+	for (int i=0; i<list.size(); ++i)
+		ret.push_back(list[i].toString());
+	return ret;
 }
 
-void Menu::init() {
-	Q_ASSERT(m_root == 0);
+template<typename T>
+QList<T> fromStringList(const QStringList &list) {
+	QList<T> ret;
+	ret.reserve(list.size());
+	for (int i=0; i<list.size(); ++i)
+		ret.push_back(T::fromString(list[i]));
+	return ret;
+}
 
-	m_root = new Menu("root");
+void Menu::save(Record &r) const {
+	r.beginGroup(m_id);
+	for (ActionHash::const_iterator it = m_a.begin(); it != m_a.end(); ++it) {
+		r.beginGroup(it.key());
+		r.write("shortcut", toStringList((*it)->shortcuts()));
+		r.endGroup();
+	}
+	for (MenuHash::const_iterator it = m_m.begin(); it != m_m.end(); ++it)
+		(*it)->save(r);
+	r.endGroup();
+}
 
-	Menu *open = m_root->addMenu("open");
+void Menu::load(Record &r) {
+	r.beginGroup(m_id);
+	for (ActionHash::const_iterator it = m_a.begin(); it != m_a.end(); ++it) {
+		r.beginGroup(it.key());
+		const QStringList keys = r.read("shortcut", QStringList(_LS("none")));
+		if (keys.size() != 1 || keys[0] != _LS("none"))
+			(*it)->setShortcuts(fromStringList<QKeySequence>(keys));
+		r.endGroup();
+	}
+	for (MenuHash::const_iterator it = m_m.begin(); it != m_m.end(); ++it)
+		(*it)->load(r);
+	r.endGroup();
+}
 
-	QAction *file = open->addAction("file");
+RootMenu *RootMenu::obj = 0;
+
+RootMenu::RootMenu(): Menu(_LS("menu"), 0) {
+	Q_ASSERT(obj == 0);
+	obj = this;
+
+	Menu *open = obj->addMenu(_LS("open"));
+
+	QAction *file = open->addAction(_LS("file"));
 	file->setShortcut(Qt::CTRL + Qt::Key_F);
 	file->setData(int('f'));
-	QAction *url = open->addAction("url");
+	QAction *url = open->addAction(_LS("url"));
 	url->setData(int('u'));
-	QAction *dvd = open->addAction("dvd");
+	QAction *dvd = open->addAction(_LS("dvd"));
 	dvd->setData(QUrl("dvd://"));
 	url->setDisabled(true);
 	url->setVisible(false);
 
 	open->addSeparator();
 
-	Menu *recent = open->addMenu("recent");
+	Menu *recent = open->addMenu(_LS("recent"));
 
 	recent->addSeparator();
-	recent->addAction("clear");
+	recent->addAction(_LS("clear"));
 
-	Menu *play = m_root->addMenu("play");
+	Menu *play = obj->addMenu(_LS("play"));
 
-	QAction *pause = play->addAction("pause");
+	QAction *pause = play->addAction(_LS("pause"));
 	pause->setShortcut(Qt::Key_Space);
-	play->addAction("stop");
+	play->addAction(_LS("stop"));
 
 	play->addSeparator();
 
-	QAction *prev = play->addAction("prev");
-	QAction *next = play->addAction("next");
+	QAction *prev = play->addAction(_LS("prev"));
+	QAction *next = play->addAction(_LS("next"));
 	prev->setShortcut(Qt::CTRL + Qt::Key_Left);
 	next->setShortcut(Qt::CTRL + Qt::Key_Right);
 
 	play->addSeparator();
 
-	Menu *speed = play->addMenu("speed");
-	speed->addActionToGroup("slower", false)->setShortcut(Qt::Key_Minus);
-	QAction *reset = speed->addActionToGroup("reset", false);
+	Menu *speed = play->addMenu(_LS("speed"));
+	speed->addActionToGroup(_LS("slower"), false)->setShortcut(Qt::Key_Minus);
+	QAction *reset = speed->addActionToGroup(_LS("reset"), false);
 	reset->setShortcut(Qt::Key_Backspace);
 	reset->setData(0);
-	QAction *faster = speed->addActionToGroup("faster", false);
+	QAction *faster = speed->addActionToGroup(_LS("faster"), false);
 	faster->setShortcuts(QList<QKeySequence>() << Qt::Key_Plus << Qt::Key_Equal);
 
 	play->addSeparator();
 
-	Menu *repeat = play->addMenu("repeat");
-	QAction *range = repeat->addActionToGroup("range", false);
-	QAction *srange = repeat->addActionToGroup("subtitle", false);
-	QAction *quitRepeat = repeat->addActionToGroup("quit", false);
+	Menu *repeat = play->addMenu(_LS("repeat"));
+	QAction *range = repeat->addActionToGroup(_LS("range"), false);
+	QAction *srange = repeat->addActionToGroup(_LS("subtitle"), false);
+	QAction *quitRepeat = repeat->addActionToGroup(_LS("quit"), false);
 	range->setShortcut(Qt::Key_R);
 	range->setData(int('r'));
 	srange->setShortcut(Qt::Key_E);
@@ -79,13 +113,13 @@ void Menu::init() {
 
 	play->addSeparator();
 
-	Menu *seek = play->addMenu("seek");
-	QAction *forward1 = seek->addActionToGroup("forward1", false, "relative");
-	QAction *forward2 = seek->addActionToGroup("forward2", false, "relative");
-	QAction *forward3 = seek->addActionToGroup("forward3", false, "relative");
-	QAction *backward1 = seek->addActionToGroup("backward1", false, "relative");
-	QAction *backward2 = seek->addActionToGroup("backward2", false, "relative");
-	QAction *backward3 = seek->addActionToGroup("backward3", false, "relative");
+	Menu *seek = play->addMenu(_LS("seek"));
+	QAction *forward1 = seek->addActionToGroup(_LS("forward1"), false, _LS("relative"));
+	QAction *forward2 = seek->addActionToGroup(_LS("forward2"), false, _LS("relative"));
+	QAction *forward3 = seek->addActionToGroup(_LS("forward3"), false, _LS("relative"));
+	QAction *backward1 = seek->addActionToGroup(_LS("backward1"), false, _LS("relative"));
+	QAction *backward2 = seek->addActionToGroup(_LS("backward2"), false, _LS("relative"));
+	QAction *backward3 = seek->addActionToGroup(_LS("backward3"), false, _LS("relative"));
 	forward1->setShortcut(Qt::Key_Right);
 	forward2->setShortcut(Qt::Key_PageDown);
 	forward3->setShortcut(Qt::Key_End);
@@ -94,9 +128,9 @@ void Menu::init() {
 	backward3->setShortcut(Qt::Key_Home);
 
 	seek->addSeparator();
-	QAction *prevSub = seek->addActionToGroup("prev-subtitle", false, "subtitle");
-	QAction *curSub = seek->addActionToGroup("current-subtitle", false, "subtitle");
-	QAction *nextSub = seek->addActionToGroup("next-subtitle", false, "subtitle");
+	QAction *prevSub = seek->addActionToGroup(_LS("prev-subtitle"), false, _LS("subtitle"));
+	QAction *curSub = seek->addActionToGroup(_LS("current-subtitle"), false, _LS("subtitle"));
+	QAction *nextSub = seek->addActionToGroup(_LS("next-subtitle"), false, _LS("subtitle"));
 	prevSub->setData(-1);
 	prevSub->setShortcut(Qt::Key_Comma);
 	curSub->setData(0);
@@ -104,143 +138,143 @@ void Menu::init() {
 	nextSub->setData(1);
 	nextSub->setShortcut(Qt::Key_Slash);
 
-	play->addMenu("title")->setEnabled(false);
-	play->addMenu("chapter")->setEnabled(false);
+	play->addMenu(_LS("title"))->setEnabled(false);
+	play->addMenu(_LS("chapter"))->setEnabled(false);
 
-	Menu *subtitle = m_root->addMenu("subtitle");
-	subtitle->addMenu("spu")->setEnabled(false);
+	Menu *subtitle = obj->addMenu(_LS("subtitle"));
+	subtitle->addMenu(_LS("spu"))->setEnabled(false);
 
-	Menu *sList = subtitle->addMenu("list");
+	Menu *sList = subtitle->addMenu(_LS("list"));
 	sList->g()->setExclusive(false);
-	sList->addAction("open");
-	sList->addAction("clear");
-	sList->addAction("hide")->setCheckable(true);
+	sList->addAction(_LS("open"));
+	sList->addAction(_LS("clear"));
+	sList->addAction(_LS("hide"))->setCheckable(true);
 
 	subtitle->addSeparator();
-	subtitle->addActionToGroup("in-video", true, "display")->setData(0);
-	subtitle->addActionToGroup("on-letterbox", true, "display")->setData(1);
+	subtitle->addActionToGroup(_LS("in-video"), true, _LS("display"))->setData(0);
+	subtitle->addActionToGroup(_LS("on-letterbox"), true, _LS("display"))->setData(1);
 	subtitle->addSeparator();
-	subtitle->addActionToGroup("align-top", true, "align")->setData(1);
-	subtitle->addActionToGroup("align-bottom", true, "align")->setData(0);
+	subtitle->addActionToGroup(_LS("align-top"), true, _LS("align"))->setData(1);
+	subtitle->addActionToGroup(_LS("align-bottom"), true, _LS("align"))->setData(0);
 	subtitle->addSeparator();
 //	subtitle->addAction();
-	subtitle->addActionToGroup("pos-up", false, "pos")->setShortcut(Qt::Key_W);
-	subtitle->addActionToGroup("pos-down", false, "pos")->setShortcut(Qt::Key_S);
+	subtitle->addActionToGroup(_LS("pos-up"), false, _LS("pos"))->setShortcut(Qt::Key_W);
+	subtitle->addActionToGroup(_LS("pos-down"), false, _LS("pos"))->setShortcut(Qt::Key_S);
 
 	subtitle->addSeparator();
 
-	subtitle->addActionToGroup("sync-add", false, "sync")->setShortcut(Qt::Key_D);
-	QAction *syncReset = subtitle->addActionToGroup("sync-reset", false, "sync");
+	subtitle->addActionToGroup(_LS("sync-add"), false, _LS("sync"))->setShortcut(Qt::Key_D);
+	QAction *syncReset = subtitle->addActionToGroup(_LS("sync-reset"), false, _LS("sync"));
 	syncReset->setShortcut(Qt::Key_Q);
 	syncReset->setData(0);
-	subtitle->addActionToGroup("sync-sub", false, "sync")->setShortcut(Qt::Key_A);
+	subtitle->addActionToGroup(_LS("sync-sub"), false, _LS("sync"))->setShortcut(Qt::Key_A);
 
-	Menu *video = m_root->addMenu("video");
-	video->addMenu("track")->setEnabled(false);
+	Menu *video = obj->addMenu(_LS("video"));
+	video->addMenu(_LS("track"))->setEnabled(false);
 	video->addSeparator();
-	video->addAction("snapshot")->setShortcut(Qt::CTRL + Qt::Key_S);
-	video->addSeparator();
-
-	Menu *aspect = video->addMenu("aspect");
-	aspect->addActionToGroup("auto", true)->setData(-1.0);
-	aspect->addActionToGroup("window", true)->setData(0.0);
-	aspect->addActionToGroup("4:3", true)->setData(4.0/3.0);
-	aspect->addActionToGroup("16:9", true)->setData(16.0/9.0);
-	aspect->addActionToGroup("1.85:1", true)->setData(1.85);
-	aspect->addActionToGroup("2.35:1", true)->setData(2.35);
-
-	Menu *crop = video->addMenu("crop");
-	crop->addActionToGroup("off", true)->setData(-1.0);
-	crop->addActionToGroup("window", true)->setData(0.0);
-	crop->addActionToGroup("4:3", true)->setData(4.0/3.0);
-	crop->addActionToGroup("16:9", true)->setData(16.0/9.0);
-	crop->addActionToGroup("1.85:1", true)->setData(1.85);
-	crop->addActionToGroup("2.35:1", true)->setData(2.35);
-
+	video->addAction(_LS("snapshot"))->setShortcut(Qt::CTRL + Qt::Key_S);
 	video->addSeparator();
 
-	Menu *effect = video->addMenu("filter");
+	Menu *aspect = video->addMenu(_LS("aspect"));
+	aspect->addActionToGroup(_LS("auto"), true)->setData(-1.0);
+	aspect->addActionToGroup(_LS("window"), true)->setData(0.0);
+	aspect->addActionToGroup(_LS("4:3"), true)->setData(4.0/3.0);
+	aspect->addActionToGroup(_LS("16:9"), true)->setData(16.0/9.0);
+	aspect->addActionToGroup(_LS("1.85:1"), true)->setData(1.85);
+	aspect->addActionToGroup(_LS("2.35:1"), true)->setData(2.35);
+
+	Menu *crop = video->addMenu(_LS("crop"));
+	crop->addActionToGroup(_LS("off"), true)->setData(-1.0);
+	crop->addActionToGroup(_LS("window"), true)->setData(0.0);
+	crop->addActionToGroup(_LS("4:3"), true)->setData(4.0/3.0);
+	crop->addActionToGroup(_LS("16:9"), true)->setData(16.0/9.0);
+	crop->addActionToGroup(_LS("1.85:1"), true)->setData(1.85);
+	crop->addActionToGroup(_LS("2.35:1"), true)->setData(2.35);
+
+	video->addSeparator();
+
+	Menu *effect = video->addMenu(_LS("filter"));
 	effect->g()->setExclusive(false);
-	effect->addActionToGroup("flip-v", true)->setData((int)VideoRenderer::FlipVertically);
-	effect->addActionToGroup("flip-h", true)->setData((int)VideoRenderer::FlipHorizontally);
+	effect->addActionToGroup(_LS("flip-v"), true)->setData((int)VideoScene::FlipVertically);
+	effect->addActionToGroup(_LS("flip-h"), true)->setData((int)VideoScene::FlipHorizontally);
 	effect->addSeparator();
-	effect->addActionToGroup("blur", true)->setData((int)VideoRenderer::Blur);
-	effect->addActionToGroup("sharpen", true)->setData((int)VideoRenderer::Sharpen);
+	effect->addActionToGroup(_LS("blur"), true)->setData((int)VideoScene::Blur);
+	effect->addActionToGroup(_LS("sharpen"), true)->setData((int)VideoScene::Sharpen);
 	effect->addSeparator();
-	effect->addActionToGroup("remap", true)->setData((int)VideoRenderer::RemapLuma);
-	effect->addActionToGroup("auto-contrast", true)->setData((int)VideoRenderer::AutoContrast);
+	effect->addActionToGroup(_LS("remap"), true)->setData((int)VideoScene::RemapLuma);
+	effect->addActionToGroup(_LS("auto-contrast"), true)->setData((int)VideoScene::AutoContrast);
 	effect->addSeparator();
-	effect->addActionToGroup("gray", true)->setData((int)VideoRenderer::Grayscale);
-	effect->addActionToGroup("invert", true)->setData((int)VideoRenderer::InvertColor);
+	effect->addActionToGroup(_LS("gray"), true)->setData((int)VideoScene::Grayscale);
+	effect->addActionToGroup(_LS("invert"), true)->setData((int)VideoScene::InvertColor);
 	effect->addSeparator();
-	effect->addActionToGroup("ignore", true)->setData((int)VideoRenderer::IgnoreEffect);
+	effect->addActionToGroup(_LS("ignore"), true)->setData((int)VideoScene::IgnoreEffect);
 	video->addSeparator();
 
-	QAction *creset = video->addActionToGroup("reset", false, "color");
+	QAction *creset = video->addActionToGroup(_LS("reset"), false, _LS("color"));
 	creset->setShortcut(Qt::Key_O);
 	creset->setData(QList<QVariant>() << -1 << 0);
-	video->addActionToGroup("brightness+", false, "color")->setShortcut(Qt::Key_T);
-	video->addActionToGroup("brightness-", false, "color")->setShortcut(Qt::Key_G);
-	video->addActionToGroup("contrast+", false, "color")->setShortcut(Qt::Key_Y);
-	video->addActionToGroup("contrast-", false, "color")->setShortcut(Qt::Key_H);
-	video->addActionToGroup("saturation+", false, "color")->setShortcut(Qt::Key_U);
-	video->addActionToGroup("saturation-", false, "color")->setShortcut(Qt::Key_J);
-	video->addActionToGroup("hue+", false, "color")->setShortcut(Qt::Key_I);
-	video->addActionToGroup("hue-", false, "color")->setShortcut(Qt::Key_K);
+	video->addActionToGroup(_LS("brightness+"), false, _LS("color"))->setShortcut(Qt::Key_T);
+	video->addActionToGroup(_LS("brightness-"), false, _LS("color"))->setShortcut(Qt::Key_G);
+	video->addActionToGroup(_LS("contrast+"), false, _LS("color"))->setShortcut(Qt::Key_Y);
+	video->addActionToGroup(_LS("contrast-"), false, _LS("color"))->setShortcut(Qt::Key_H);
+	video->addActionToGroup(_LS("saturation+"), false, _LS("color"))->setShortcut(Qt::Key_U);
+	video->addActionToGroup(_LS("saturation-"), false, _LS("color"))->setShortcut(Qt::Key_J);
+	video->addActionToGroup(_LS("hue+"), false, _LS("color"))->setShortcut(Qt::Key_I);
+	video->addActionToGroup(_LS("hue-"), false, _LS("color"))->setShortcut(Qt::Key_K);
 
 	video->addSeparator();
-	Menu *overlay = video->addMenu("overlay");
-	overlay->addActionToGroup("auto", true)->setData((int)Overlay::Auto);
-	overlay->addActionToGroup("fbo", true)->setData((int)Overlay::FramebufferObject);
-	overlay->addActionToGroup("pixmap", true)->setData((int)Overlay::Pixmap);
+	Menu *overlay = video->addMenu(_LS("overlay"));
+	overlay->addActionToGroup(_LS("auto"), true)->setData(Enum::Overlay::Auto.id());
+	overlay->addActionToGroup(_LS("fbo"), true)->setData(Enum::Overlay::FramebufferObject.id());
+	overlay->addActionToGroup(_LS("pixmap"), true)->setData(Enum::Overlay::Pixmap.id());
 
-	Menu *audio = m_root->addMenu("audio");
-	audio->addMenu("track")->setEnabled(false);
+	Menu *audio = obj->addMenu(_LS("audio"));
+	audio->addMenu(_LS("track"))->setEnabled(false);
 	audio->addSeparator();
 
-	QAction *volUp = audio->addActionToGroup("volume-up", false, "volume");
+	QAction *volUp = audio->addActionToGroup(_LS("volume-up"), false, _LS("volume"));
 	volUp->setShortcut(Qt::Key_Up);
-	QAction *volDown = audio->addActionToGroup("volume-down", false, "volume");
+	QAction *volDown = audio->addActionToGroup(_LS("volume-down"), false, _LS("volume"));
 	volDown->setShortcut(Qt::Key_Down);
-	QAction *mute = audio->addAction("mute", true);
+	QAction *mute = audio->addAction(_LS("mute"), true);
 	mute->setShortcut(Qt::Key_M);
-	QAction *volnorm = audio->addAction("volnorm", true);
+	QAction *volnorm = audio->addAction(_LS("volnorm"), true);
 	volnorm->setShortcut(Qt::Key_N);
 
 	audio->addSeparator();
 
-	QAction *ampUp = audio->addActionToGroup("amp-up", false, "amp");
-	QAction *ampDown = audio->addActionToGroup("amp-down", false, "amp");
+	QAction *ampUp = audio->addActionToGroup(_LS("amp-up"), false, _LS("amp"));
+	QAction *ampDown = audio->addActionToGroup(_LS("amp-down"), false, _LS("amp"));
 	ampUp->setShortcut(Qt::CTRL + Qt::Key_Up);
 	ampDown->setShortcut(Qt::CTRL + Qt::Key_Down);
 
-	Menu *tool = m_root->addMenu("tool");
-	tool->addAction("playlist")->setShortcut(Qt::Key_L);
-	tool->addAction("favorites")->setVisible(false);
-	tool->addAction("history")->setShortcut(Qt::Key_C);
-	tool->addAction("subtitle")->setShortcut(Qt::Key_V);
+	Menu *tool = obj->addMenu(_LS("tool"));
+	tool->addAction(_LS("playlist"))->setShortcut(Qt::Key_L);
+	tool->addAction(_LS("favorites"))->setVisible(false);
+	tool->addAction(_LS("history"))->setShortcut(Qt::Key_C);
+	tool->addAction(_LS("subtitle"))->setShortcut(Qt::Key_V);
 	tool->addSeparator();
-	QAction *pref = tool->addAction("pref");
+	QAction *pref = tool->addAction(_LS("pref"));
 	pref->setShortcut(Qt::Key_P);
 	pref->setMenuRole(QAction::PreferencesRole);
 	tool->addSeparator();
-	QAction *playInfo = tool->addAction("playinfo");
+	QAction *playInfo = tool->addAction(_LS("playinfo"));
 	playInfo->setCheckable(true);
 	playInfo->setShortcut(Qt::Key_Tab);
 
-	Menu *window = m_root->addMenu("window");
+	Menu *window = obj->addMenu(_LS("window"));
 	// sot == Stay On Top
-	window->addActionToGroup("sot-always", true, "sot")->setData(Enum::StaysOnTop::Always.id());
-	window->addActionToGroup("sot-playing", true, "sot")->setData(Enum::StaysOnTop::Playing.id());
-	window->addActionToGroup("sot-never", true, "sot")->setData(Enum::StaysOnTop::Never.id());
+	window->addActionToGroup(_LS("sot-always"), true, _LS("sot"))->setData(Enum::StaysOnTop::Always.id());
+	window->addActionToGroup(_LS("sot-playing"), true, _LS("sot"))->setData(Enum::StaysOnTop::Playing.id());
+	window->addActionToGroup(_LS("sot-never"), true, _LS("sot"))->setData(Enum::StaysOnTop::Never.id());
 	window->addSeparator();
-	QAction *to25 = window->addActionToGroup("25%", false, "size");
-	QAction *to50 = window->addActionToGroup("50%", false, "size");
-	QAction *to100 = window->addActionToGroup("100%", false, "size");
-	QAction *to200 = window->addActionToGroup("200%", false, "size");
-	QAction *to300 = window->addActionToGroup("300%", false, "size");
-	QAction *to400 = window->addActionToGroup("400%", false, "size");
-	QAction *toFull = window->addActionToGroup("full", false, "size");
+	QAction *to25 = window->addActionToGroup(_LS("25%"), false, _LS("size"));
+	QAction *to50 = window->addActionToGroup(_LS("50%"), false, _LS("size"));
+	QAction *to100 = window->addActionToGroup(_LS("100%"), false, _LS("size"));
+	QAction *to200 = window->addActionToGroup(_LS("200%"), false, _LS("size"));
+	QAction *to300 = window->addActionToGroup(_LS("300%"), false, _LS("size"));
+	QAction *to400 = window->addActionToGroup(_LS("400%"), false, _LS("size"));
+	QAction *toFull = window->addActionToGroup(_LS("full"), false, _LS("size"));
 	to25->setData(0.25);
 	to50->setData(0.5);
 	to100->setData(1.0);
@@ -248,8 +282,8 @@ void Menu::init() {
 	to300->setData(3.0);
 	to400->setData(4.0);
 	toFull->setData(-1.0);
-	to25->setShortcut(QKeySequence("Shift+`"));
-	to50->setShortcut(QKeySequence("`"));
+	to25->setShortcut(QKeySequence(_LS("Shift+`")));
+	to50->setShortcut(QKeySequence(_LS("`")));
 	to100->setShortcut(Qt::Key_1);
 	to200->setShortcut(Qt::Key_2);
 	to300->setShortcut(Qt::Key_3);
@@ -257,34 +291,36 @@ void Menu::init() {
 	toFull->setShortcuts(QList<QKeySequence>()
 			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
 
-	Menu *help = m_root->addMenu("help");
-	QAction *about = help->addAction("about");
+	Menu *help = obj->addMenu(_LS("help"));
+	QAction *about = help->addAction(_LS("about"));
 	about->setMenuRole(QAction::AboutQtRole);
 
-	QAction *exit = m_root->addAction("exit");
+	QAction *exit = obj->addAction(_LS("exit"));
 #ifdef Q_WS_MAC
 	exit->setShortcut(Qt::ALT + Qt::Key_F4);
 #else
 	exit->setShortcut(Qt::CTRL + Qt::Key_Q);
 #endif
 
-	m_root->m_click[Enum::ClickAction::OpenFile] = file;
-	m_root->m_click[Enum::ClickAction::Fullscreen] = toFull;
-	m_root->m_click[Enum::ClickAction::Pause] = pause;
-	m_root->m_click[Enum::ClickAction::Mute] = mute;
-	m_root->m_wheel[Enum::WheelAction::Seek1] = WheelActionPair(forward1, backward2);
-	m_root->m_wheel[Enum::WheelAction::Seek2] = WheelActionPair(forward2, backward2);
-	m_root->m_wheel[Enum::WheelAction::Seek3] = WheelActionPair(forward3, backward2);
-	m_root->m_wheel[Enum::WheelAction::PrevNext] = WheelActionPair(prev, next);
-	m_root->m_wheel[Enum::WheelAction::Volume] = WheelActionPair(volUp, volDown);
-	m_root->m_wheel[Enum::WheelAction::Amp] = WheelActionPair(ampUp, ampDown);
-
-	loadShortcut();
+	m_click[Enum::ClickAction::OpenFile] = file;
+	m_click[Enum::ClickAction::Fullscreen] = toFull;
+	m_click[Enum::ClickAction::Pause] = pause;
+	m_click[Enum::ClickAction::Mute] = mute;
+	m_wheel[Enum::WheelAction::Seek1] = WheelActionPair(forward1, backward2);
+	m_wheel[Enum::WheelAction::Seek2] = WheelActionPair(forward2, backward2);
+	m_wheel[Enum::WheelAction::Seek3] = WheelActionPair(forward3, backward2);
+	m_wheel[Enum::WheelAction::PrevNext] = WheelActionPair(prev, next);
+	m_wheel[Enum::WheelAction::Volume] = WheelActionPair(volUp, volDown);
+	m_wheel[Enum::WheelAction::Amp] = WheelActionPair(ampUp, ampDown);
 }
 
-void Menu::updatePref() {
-	Q_ASSERT(m_root != 0);
-	Menu &root = *m_root;
+RootMenu::~RootMenu() {
+	Q_ASSERT(obj == this);
+	obj = 0;
+}
+
+void RootMenu::update() {
+	Menu &root = *this;
 	const Pref &p = Pref::get();
 
 	Menu &open = root("open");
@@ -443,43 +479,54 @@ void Menu::updatePref() {
 	help.setTitle(tr("Help"));
 	help["about"]->setText(tr("About %1").arg("CMPlayer"));
 	root["exit"]->setText(tr("Exit"));
-
-	saveShortcut();
 }
 
-void Menu::saveShortcut() {
-	QSettings set;
-	set.beginGroup("menu");
-	QHash<QAction*, QString>::iterator it = keys.begin();
-	for (; it != keys.end(); ++it) {
-		const QList<QKeySequence> shortcut = it.key()->shortcuts();
-		set.beginWriteArray(it.value(), shortcut.size());
-		for (int i=0; i<shortcut.size(); ++i) {
-			set.setArrayIndex(i);
-			set.setValue("shortcut", shortcut[i].toString());
-		}
-		set.endArray();
-	}
-	set.endGroup();
+void RootMenu::save() {
+	Record r;
+	Menu::save(r);
 }
 
-void Menu::loadShortcut() {
-	QSettings set;
-	set.beginGroup("menu");
-	QHash<QAction*, QString>::iterator it = keys.begin();
-	for (; it != keys.end(); ++it) {
-		const int count = set.beginReadArray(it.value());
-		QList<QKeySequence> shortcut = it.key()->shortcuts();
-		while (shortcut.size() < count)
-			shortcut.push_back(QKeySequence());
-		for (int i=0; i<count; ++i) {
-			set.setArrayIndex(i);
-			const QString key = set.value("shortcut", shortcut[i].toString()).toString();
-			shortcut[i] = QKeySequence::fromString(key);
-		}
-		set.endArray();
-		it.key()->setShortcuts(shortcut);
-	}
-	set.endGroup();
+void RootMenu::load() {
+	Record r;
+	Menu::load(r);
+}
+
+QAction *RootMenu::action(const QString &id) const {
+	const QStringList key = id.split(QLatin1Char('/'));
+	if (key.size() < 2)
+		return 0;
+	if (key.first() != this->id())
+		return 0;
+	const Menu *menu = this;
+	for (int i=1; i<key.size()-1 && menu; ++i)
+		menu = menu->m(key[i]);
+	if (!menu)
+		return 0;
+	return menu->a(key.last());
+}
+
+QAction *RootMenu::doubleClickAction(Qt::KeyboardModifiers mod) const {
+	const Pref::ClickActionInfo info = Pref::get().double_click_map[mod];
+	if (info.enabled)
+		return m_click[info.action];
+	return 0;
+
+//			const Pref::ClickActionInfo info = d->pref.double_click_map[event->modifiers()];
+//			if (info.enabled)
+//				d->menu.clickAction(info.action)->trigger();
+}
+
+QAction *RootMenu::middleClickAction(Qt::KeyboardModifiers mod) const {
+	const Pref::ClickActionInfo info = Pref::get().middle_click_map[mod];
+	if (info.enabled)
+		return m_click[info.action];
+	return 0;
+}
+
+QAction *RootMenu::wheelScrollAction(Qt::KeyboardModifiers mod, bool up) const {
+	const Pref::WheelActionInfo info = Pref::get().wheel_scroll_map[mod];
+	if (info.enabled)
+		return up ? m_wheel[info.action].up : m_wheel[info.action].down;
+	return 0;
 }
 

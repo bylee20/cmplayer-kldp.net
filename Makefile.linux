@@ -12,7 +12,9 @@ LRELEASE ?= lrelease
 cmplayer_exec := cmplayer
 install_file := install -m 644
 install_exe := install -m 755
-qmake_vars := DESTDIR=\\\"../../bin\\\" RELEASE=\\\"yes\\\" DEFINES+="CMPLAYER_VLC_PLUGIN_PATH=\\\\\\\"$(CMPLAYER_PLUGIN_PATH)\\\\\\\""
+qmake_vars := DESTDIR=\\\"../../bin\\\" RELEASE=\\\"yes\\\" \
+	DEFINES+="CMPLAYER_VLC_PLUGIN_PATH=\\\\\\\"$(CMPLAYER_PLUGIN_PATH)\\\\\\\""
+configured := $(shell cat configured)
 
 cmplayer: cmplayer-vlc-plugins translations libchardet
 	cd src/cmplayer && $(QMAKE) $(qmake_vars) cmplayer.pro 
@@ -22,7 +24,11 @@ bin_dir:
 	install -d bin
 
 libchardet:
-	cd src/libchardet* && ./configure --enable-shared=no --enable-static=yes && make
+ifneq ($(configured),configured)
+	cd src/libchardet* && ./configure --enable-shared=no --enable-static=yes
+	echo configured > configured
+endif
+	cd src/libchardet* && make
 
 cmplayer-vlc-plugins: bin_dir
 	cd src/cmplayer-vlc-plugins && make -f Makefile.linux
@@ -39,6 +45,7 @@ clean:
 	-cd src/cmplayer && $(QMAKE) $(qmake_vars) cmplayer.pro && make clean
 	-cd src/libchardet* && make distclean
 	-rm -rf bin/*
+	-rm configured
 
 install: cmplayer
 	-install -d $(DEST_DIR)$(CMPLAYER_BIN_PATH)

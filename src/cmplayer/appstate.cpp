@@ -1,51 +1,62 @@
 #include "appstate.hpp"
-#include "enums.hpp"
-#include "overlay.hpp"
-#include "global.hpp"
-#include <QtCore/QSize>
-#include <QtCore/QRect>
-#include <QtCore/QStringList>
-#include <QtCore/QSettings>
+#include "record.hpp"
 
-AppState::Data *AppState::d = 0;
+typedef QLatin1String _LS;
 
-void AppState::init() {
-	d = new Data;
-	d->keys.resize(TypeMax);
-	d->values.resize(TypeMax);
-#define INIT(type, init) {d->keys[type] = #type; d->values[type] = QVariant(init);}
-	INIT(AspectRatio, -1.0);
-	INIT(Crop, -1.0);
-	INIT(PlaySpeed, 1.0);
-	INIT(Volume, 100);
-	INIT(Muted, false);
-	INIT(Amp, 1.0);
-	INIT(SubPos, 1.0);
-	INIT(SubSync, 0);
-	INIT(LastOpenFile, QString());
-	INIT(TrayFirst, true);
-	INIT(VolNorm, true);
-	INIT(OpenUrlList, QStringList());
-	INIT(UrlEncoding, QString());
-	INIT(StaysOnTop, Enum::StaysOnTop::Playing.name());
-	INIT(SubLetterbox, true);
-	INIT(SubAlignTop, false);
-	INIT(OverlayType, (int)Overlay::Auto);
-#undef INIT
+AppState &AppState::get() {
+	static AppState obj;
+	return obj;
+}
+
+AppState::AppState() {
+	Record r("app-state");
+
+	RECORD_READ(r, speed, 1.0);
+
+	RECORD_READ(r, aspect_ratio, -1.0);
+	RECORD_READ(r, crop_ratio, -1.0);
+	RECORD_READ_ENUM(r, overlay, OverlayType::Auto);
+
+	RECORD_READ(r, volume, 100);
+	RECORD_READ(r, volume_normalized, true);
+	RECORD_READ(r, muted, false);
+	RECORD_READ(r, amp, 1.0);
+
+	RECORD_READ(r, sub_pos, 1.0);
+	RECORD_READ(r, sub_letterbox, true);
+	RECORD_READ(r, sub_align_top, false);
+	RECORD_READ(r, sub_sync_delay, 0);
+
+	RECORD_READ(r, last_open_file, QString());
+	RECORD_READ(r, ask_system_tray, true);
+	RECORD_READ(r, open_url_list, QStringList());
+	RECORD_READ(r, url_enc, QString());
+	RECORD_READ_ENUM(r, stays_on_top, Enum::StaysOnTop::Playing);
 }
 
 void AppState::save() const {
-	QSettings set;
-	set.beginGroup("app-state");
-	for (int i=0; i<d->values.size(); ++i)
-		set.setValue(d->keys[i], d->values[i]);
-	set.endGroup();
+	Record r("app-state");
+
+	RECORD_WRITE(r, speed);
+
+	RECORD_WRITE(r, aspect_ratio);
+	RECORD_WRITE(r, crop_ratio);
+	RECORD_WRITE_ENUM(r, overlay);
+
+	RECORD_WRITE(r, volume);
+	RECORD_WRITE(r, volume_normalized);
+	RECORD_WRITE(r, muted);
+	RECORD_WRITE(r, amp);
+
+	RECORD_WRITE(r, sub_pos);
+	RECORD_WRITE(r, sub_letterbox);
+	RECORD_WRITE(r, sub_align_top);
+	RECORD_WRITE(r, sub_sync_delay);
+
+	RECORD_WRITE(r, last_open_file);
+	RECORD_WRITE(r, ask_system_tray);
+	RECORD_WRITE(r, open_url_list);
+	RECORD_WRITE(r, url_enc);
+	RECORD_WRITE_ENUM(r, stays_on_top);
 }
 
-void AppState::load() {
-	QSettings set;
-	set.beginGroup("app-state");
-	for (int i=0; i<d->values.size(); ++i)
-		d->values[i] = set.value(d->keys[i], d->values[i]);
-	set.endGroup();
-}

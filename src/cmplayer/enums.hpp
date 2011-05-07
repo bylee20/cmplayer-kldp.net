@@ -129,6 +129,68 @@ inline bool operator == (int lhs, const Enum::SeekingStep &rhs) {return lhs == r
 inline bool operator != (int lhs, const Enum::SeekingStep &rhs) {return lhs != rhs.id();}
 
 namespace Enum {
+class Overlay {
+	Q_DECLARE_TR_FUNCTIONS(Overlay)
+public:
+	typedef QList<Overlay> List;
+	static const int count = 3;
+	static const Overlay Auto;
+	static const Overlay FramebufferObject;
+	static const Overlay Pixmap;
+
+	Overlay(): m_id(0) {}
+	Overlay(const Overlay &rhs): m_id(rhs.m_id) {}
+	Overlay &operator = (const Overlay &rhs) {m_id = rhs.m_id; return *this;}
+	bool operator == (const Overlay &rhs) const {return m_id == rhs.m_id;}
+	bool operator != (const Overlay &rhs) const {return m_id != rhs.m_id;}
+	bool operator == (int rhs) const {return m_id == rhs;}
+	bool operator != (int rhs) const {return m_id != rhs;}
+	bool operator < (const Overlay &rhs) const {return m_id < rhs.m_id;}
+	int id() const {return m_id;}
+	QString name() const {return map().name[m_id];}
+	QString description() const {return description(m_id);}
+	void set(int id) {if (isCompatible(id)) m_id = id;}
+	void set(const QString &name) {m_id = map().value.value(name, m_id);}
+	static bool isCompatible(int id) {return 0 <= id && id < count;}
+	static bool isCompatible(const QString &name) {return map().value.contains(name);}
+	static Overlay from(const QString &name, const Overlay &def = Overlay()) {
+		const QMap<QString, int>::const_iterator it = map().value.find(name);
+		return it != map().value.end() ? Overlay(*it) : def;
+	}
+	static Overlay from(int id, const Overlay &def = Overlay()) {
+		return isCompatible(id) ? Overlay(id) : def;
+	}
+	static QString description(int id) {
+		if (id == Auto.m_id)
+			return tr("Auto");
+		if (id == FramebufferObject.m_id)
+			return tr("Framebuffer Object");
+		if (id == Pixmap.m_id)
+			return tr("Pixmap");
+		return QString();
+	}
+	static const List &list() {return map().list;}
+private:
+	struct Map {
+		Map() {list.reserve(count);}
+		QString name[count];
+		QMap<QString, int> value;
+		List list;
+	};
+	static Map _map;
+	static const Map &map() {return _map;}
+	Overlay(int id, const char *name): m_id(id) {
+		_map.value.insert(_map.name[m_id] = QLatin1String(name), m_id);
+		_map.list.append(*this);
+	}
+	Overlay(int id): m_id(id) {}
+	int m_id;
+};
+}
+inline bool operator == (int lhs, const Enum::Overlay &rhs) {return lhs == rhs.id();}
+inline bool operator != (int lhs, const Enum::Overlay &rhs) {return lhs != rhs.id();}
+
+namespace Enum {
 class GeneratePlaylist {
 	Q_DECLARE_TR_FUNCTIONS(GeneratePlaylist)
 public:

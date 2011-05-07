@@ -4,19 +4,8 @@
 void qt_mac_set_dock_menu(QMenu *menu);
 #endif
 
-MainWindow *MainWindow::obj = 0;
-void MainWindow::init() {
-	Q_ASSERT(obj == 0);
-	obj = new MainWindow;
-}
-void MainWindow::fin() {
-	delete obj;
-	obj = 0;
-}
-
 MainWindow::MainWindow() {
-	Q_ASSERT(obj == 0);
-	d = new MainWindowData;
+	d = new Data;
 
 	d->dontPause = false;
 	d->pausedByHiding = d->dontShowMsg = false;
@@ -29,9 +18,8 @@ MainWindow::MainWindow() {
 	d->playInfo = new PlayInfoView;
 	d->message = new TextOsdRenderer(Qt::AlignTop | Qt::AlignLeft);
 	d->ab = new ABRepeater(d->engine, d->subtitle);
-	d->control = createControlWidget();
-	d->center = createCentralWidget(d->video, d->control);
-	d->recent = &RecentInfo::get();
+//	d->control = d->create_control_widget();
+//	d->center = d->create_central_widget(this);
 	d->hider = new QTimer(this);
 	d->playlist = new PlaylistView(d->engine, this);
 	d->history = new HistoryView(d->engine, this);
@@ -39,29 +27,31 @@ MainWindow::MainWindow() {
 	d->tray = new QSystemTrayIcon(app()->defaultIcon(), this);
 #endif
 
+	d->video->view()->setMouseTracking(true);
+	d->video->view()->viewport()->setMouseTracking(true);
+
 	d->hider->setSingleShot(true);
 	d->playInfo->setVideo(d->video);
 	d->playInfo->setAudio(d->audio);
 
 	setMouseTracking(true);
-	setCentralWidget(d->center);
+	setCentralWidget(d->video->view());
 	setWindowTitle(QString("CMPlayer %1").arg(Info::version()));
 	setAcceptDrops(true);
-	d->video->setAcceptDrops(false);
-	d->center->setAcceptDrops(false);
-	d->control->setAcceptDrops(false);
+//	d->video->setAcceptDrops(false);
+//	d->center->setAcceptDrops(false);
+//	d->control->setAcceptDrops(false);
 
-	Menu &menu = d->menu;
-	Menu &open = menu("open");		Menu &play = menu("play");
-	Menu &video = menu("video");		Menu &audio = menu("audio");
-	Menu &sub = menu("subtitle");		Menu &tool = menu("tool");
-	Menu &win = menu("window");		Menu &help = menu("help");
+	Menu &open = d->menu("open");		Menu &play = d->menu("play");
+	Menu &video = d->menu("video");		Menu &audio = d->menu("audio");
+	Menu &sub = d->menu("subtitle");	Menu &tool = d->menu("tool");
+	Menu &win = d->menu("window");		Menu &help = d->menu("help");
 
 	CONNECT(open["file"], triggered(), this, openFile());
 	CONNECT(open["url"], triggered(), this, openUrl());
 	CONNECT(open["dvd"], triggered(), this, openDvd());
 	CONNECT(open("recent").g(), triggered(QString), this, openLocation(QString));
-	CONNECT(open("recent")["clear"], triggered(), d->recent, clear());
+	CONNECT(open("recent")["clear"], triggered(), &d->recent, clear());
 
 	CONNECT(play["stop"], triggered(), d->engine, stop());
 	CONNECT(play("speed").g(), triggered(int), this, setSpeed(int));
@@ -106,7 +96,7 @@ MainWindow::MainWindow() {
 	CONNECT(win.g("size"), triggered(double), this, setVideoSize(double));
 
 	CONNECT(help["about"], triggered(), this, about());
-	CONNECT(menu["exit"], triggered(), qApp, quit());
+	CONNECT(d->menu["exit"], triggered(), qApp, quit());
 
 	CONNECT(&play, aboutToShow(), this, checkPlayMenu());
 	CONNECT(&play("title"), aboutToShow(), this, checkTitleMenu());
@@ -121,12 +111,12 @@ MainWindow::MainWindow() {
 	CONNECT(d->engine, mrlChanged(Mrl), this, updateMrl(Mrl));
 	CONNECT(d->engine, stateChanged(MediaState,MediaState), this, updateState(MediaState,MediaState));
 	CONNECT(d->engine, tick(int), d->subtitle, render(int));
-	CONNECT(d->video, customContextMenuRequested(const QPoint&), this, showContextMenu(const QPoint&));
+	CONNECT(d->video->view(), customContextMenuRequested(const QPoint&), this, showContextMenu(const QPoint&));
 	CONNECT(d->video, formatChanged(VideoFormat), this, updateVideoFormat(VideoFormat));
 	CONNECT(d->audio, mutedChanged(bool), audio["mute"], setChecked(bool));
 	CONNECT(d->audio, volumeNormalizedChanged(bool), audio["volnorm"], setChecked(bool));
 
-	CONNECT(d->recent, openListChanged(QList<Mrl>), this, updateRecentActions(QList<Mrl>));
+	CONNECT(&d->recent, openListChanged(QList<Mrl>), this, updateRecentActions(QList<Mrl>));
 	CONNECT(d->hider, timeout(), this, hideCursor());
 	CONNECT(d->history, playRequested(Mrl), this, openMrl(Mrl));
 #ifndef Q_WS_MAC
@@ -150,11 +140,12 @@ MainWindow::MainWindow() {
 	d->context->addAction(d->menu["exit"]);
 
 	d->load_state();
+	d->menu.load();
 	d->apply_pref();
 
-	d->playlist->setPlaylist(d->recent->lastPlaylist());
-	d->engine->setMrl(d->recent->lastMrl());
-	updateRecentActions(d->recent->openList());
+	d->playlist->setPlaylist(d->recent.lastPlaylist());
+	d->engine->setMrl(d->recent.lastMrl());
+	updateRecentActions(d->recent.openList());
 
 #ifdef Q_WS_MAC
 //	qt_mac_set_dock_menu(&d->menu);
@@ -172,15 +163,15 @@ MainWindow::MainWindow() {
 	d->video->addOsd(d->subtitle->osd());
 	d->video->addOsd(d->timeLine);
 	d->video->addOsd(d->message);
+//	d->control->hide();
 }
 
 MainWindow::~MainWindow() {
-	d->video->hide();
-	d->video->setParent(0);
+//	d->video->hide();
+	d->video->view()->setParent(0);
 	d->engine->stop();
-	d->recent->setLastPlaylist(d->playlist->playlist());
-	d->recent->setLastMrl(d->engine->mrl());
-	d->recent->save();
+	d->recent.setLastPlaylist(d->playlist->playlist());
+	d->recent.setLastMrl(d->engine->mrl());
 	d->save_state();
 	delete d->subtitle;
 	delete d->playInfo;
@@ -241,32 +232,6 @@ void MainWindow::openLocation(const QString &loc) {
 }
 
 
-ControlWidget *MainWindow::createControlWidget() {
-	ControlWidget *w = new ControlWidget(d->engine, 0);
-	Menu &play = d->menu("play");
-	w->connectMute(d->menu("audio")["mute"]);
-	w->connectPlay(play["pause"]);
-	w->connectPrevious(play["prev"]);
-	w->connectNext(play["next"]);
-	w->connectForward(play("seek")["forward1"]);
-	w->connectBackward(play("seek")["backward1"]);
-	return w;
-}
-
-QWidget *MainWindow::createCentralWidget(QWidget *video, QWidget *control) {
-	QWidget *w = new QWidget(this);
-	w->setMouseTracking(true);
-	w->setAutoFillBackground(false);
-	w->setAttribute(Qt::WA_OpaquePaintEvent, true);
-
-	QVBoxLayout *vbox = new QVBoxLayout(w);
-	vbox->addWidget(video);
-	vbox->addWidget(control);
-	vbox->setContentsMargins(0, 0, 0, 0);
-	vbox->setSpacing(0);
-	return w;
-}
-
 void MainWindow::updateRecentActions(const QList<Mrl> &list) {
 	Menu &recent = d->menu("open")("recent");
 	ActionGroup *group = recent.g();
@@ -312,13 +277,13 @@ void MainWindow::openMrl(const Mrl &mrl, const QString &enc) {
 }
 
 void MainWindow::openFile() {
-	AppState as;
+	AppState &as = AppState::get();
 	const QString filter = Info::mediaExtFilter();
-	const QString dir = QFileInfo(as[AppState::LastOpenFile].toString()).absolutePath();
+	const QString dir = QFileInfo(as.last_open_file).absolutePath();
 	const QString file = getOpenFileName(this, tr("Open File"), dir, filter);
 	if (!file.isEmpty()) {
 		openMrl(Mrl(file));
-		as[AppState::LastOpenFile] = file;
+		as.last_open_file = file;
 	}
 }
 
@@ -339,15 +304,15 @@ void MainWindow::openUrl() {
 
 void MainWindow::resizeEvent(QResizeEvent *event) {
 	QMainWindow::resizeEvent(event);
-	int width = d->center->width();
-	int height = d->center->height();
-	if (isFullScreen()) {
-		d->video->setFixedRenderSize(QSize(width, height));
-	} else {
-		d->video->setFixedRenderSize(QSize());
-		height -= d->control->height();
-	}
-	showMessage(QString("%1x%2").arg(width).arg(height), 1000);
+//	int width = d->center->width();
+//	int height = d->center->height();
+//	if (isFullScreen()) {
+//		d->video->setFixedRenderSize(QSize(width, height));
+//	} else {
+//		d->video->setFixedRenderSize(QSize());
+//		height -= d->control->height();
+//	}
+//	showMessage(QString("%1x%2").arg(width).arg(height), 1000);
 }
 
 void MainWindow::togglePlayPause() {
@@ -367,9 +332,9 @@ void MainWindow::updateMrl(const Mrl &mrl) {
 	else
 		clearSubtitles();
 	d->sync_subtitle_file_menu();
-	const int row = d->playlist->model()->currentRow() + 1;
-	if (row > 0)
-		d->control->setTrackNumber(row, d->playlist->model()->rowCount());
+//	const int row = d->playlist->model()->currentRow() + 1;
+//	if (row > 0)
+//		d->control->setTrackNumber(row, d->playlist->model()->rowCount());
 }
 
 void MainWindow::clearSubtitles() {
@@ -462,12 +427,12 @@ void MainWindow::setFullScreen(bool full) {
 	d->dontPause = true;
 	d->moving = false;
 	d->prevPos = QPoint();
-	d->control->setHidden(full);
+//	d->control->setHidden(full);
 	if (full) {
 		app()->setAlwaysOnTop(this, false);
 		setWindowState(windowState() | Qt::WindowFullScreen);
 		if (d->pref.hide_cursor)
-			d->hider->start(d->pref.hide_delay);
+			d->hider->start(d->pref.hide_cursor_delay);
 	} else {
 		setWindowState(windowState() & ~Qt::WindowFullScreen);
 		d->hider->stop();
@@ -475,6 +440,8 @@ void MainWindow::setFullScreen(bool full) {
 			unsetCursor();
 		updateStaysOnTop();
 	}
+	qDebug() << "set skin visible" << !full;
+	d->video->setSkinVisible(!full);
 	d->dontPause = false;
 }
 
@@ -485,7 +452,7 @@ void MainWindow::setVideoSize(double rate) {
 	} else {
 		if (isFullScreen())
 			setFullScreen(false);
-		resize(size() - d->video->size() + d->video->sizeHint()*qSqrt(rate));
+		resize(d->video->sizeHint(rate).toSize());
 	}
 }
 
@@ -565,11 +532,7 @@ void MainWindow::moveSubtitle(int dy) {
 	showMessage(tr("Subtitle Position"), newPos, "%");
 }
 
-PlayEngine *MainWindow::engine() const {
-	return d->engine;
-}
-
-#define IS_IN_CENTER (d->video->geometry().contains(d->video->mapFrom(this, event->pos())))
+#define IS_IN_CENTER (d->video->view()->geometry().contains(d->video->view()->mapFrom(this, event->pos())))
 #define IS_BUTTON(b) (event->buttons() & (b))
 
 void MainWindow::mousePressEvent(QMouseEvent *event) {
@@ -579,11 +542,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 	if (IS_BUTTON(Qt::LeftButton) && !isFullScreen()) {
 		d->moving = true;
 		d->prevPos = event->globalPos();
-	}
-	if (IS_BUTTON(Qt::MidButton)) {
-		const Pref::ClickActionInfo info = d->pref.middle_click_map[event->modifiers()];
-		if (info.enabled)
-			Menu::clickAction(info.action)->trigger();
 	}
 }
 
@@ -598,17 +556,18 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 			d->moving = false;
 			d->prevPos = QPoint();
 		}
-		static const int h = d->control->height();
-		QRect rect = this->rect();
-		rect.setTop(rect.height() - h);
-		d->control->setVisible(rect.contains(event->pos()));
 		if (d->pref.hide_cursor)
-			d->hider->start(d->pref.hide_delay);
+			d->hider->start(d->pref.hide_cursor_delay);
 	} else {
 		if (d->moving) {
-			const QPoint pos = event->globalPos();
-			move(this->pos() + pos - d->prevPos);
-			d->prevPos = pos;
+			if (event->buttons() != Qt::LeftButton) {
+				d->moving = false;
+				d->prevPos = QPoint();
+			} else {
+				const QPoint pos = event->globalPos();
+				move(this->pos() + pos - d->prevPos);
+				d->prevPos = pos;
+			}
 		}
 	}
 }
@@ -619,27 +578,6 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event) {
 		d->prevPos = QPoint();
 	}
 	QMainWindow::mouseReleaseEvent(event);
-}
-
-void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
-	QMainWindow::mouseDoubleClickEvent(event);
-	if (IS_BUTTON(Qt::LeftButton) && IS_IN_CENTER) {
-		const Pref::ClickActionInfo info = d->pref.double_click_map[event->modifiers()];
-		if (info.enabled)
-			Menu::clickAction(info.action)->trigger();
-	}
-}
-
-void MainWindow::wheelEvent(QWheelEvent *event) {
-	if (IS_IN_CENTER && event->delta()) {
-		const Pref::WheelActionInfo info = d->pref.wheel_scroll_map[event->modifiers()];
-		if (info.enabled) {
-			Menu::wheelAction(info.action, event->delta() > 0)->trigger();
-			event->accept();
-			return;
-		}
-	}
-	QMainWindow::wheelEvent(event);
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
@@ -833,10 +771,10 @@ void MainWindow::setEffect(QAction *act) {
 	if (!act)
 		return;
 	const QList<QAction*> acts = d->menu("video")("filter").actions();
-	VideoRenderer::Effects effects = 0;
+	VideoScene::Effects effects = 0;
 	for (int i=0; i<acts.size(); ++i) {
 		if (acts[i]->isChecked())
-			effects |= static_cast<VideoRenderer::Effect>(acts[i]->data().toInt());
+			effects |= static_cast<VideoScene::Effect>(acts[i]->data().toInt());
 	}
 	d->video->setEffects(effects);
 }

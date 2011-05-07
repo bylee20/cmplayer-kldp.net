@@ -6,6 +6,16 @@
 #include <QtCore/QEvent>
 #include "enums.hpp"
 
+class EncodingComboBox : public QComboBox {
+	Q_OBJECT
+public:
+	EncodingComboBox(QWidget *parent = 0);
+	QString encoding() const;
+	void setEncoding(const QString &encoding);
+private:
+	QStringList enc;
+};
+
 class FontOptionWidget : public QWidget {
 public:
 	FontOptionWidget(QWidget *parent = 0);

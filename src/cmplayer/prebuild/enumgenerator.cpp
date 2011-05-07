@@ -44,6 +44,19 @@ static QString cpp() {
 	return tmp;
 }
 
+static QString addOne(const QString &value) {
+	int idx = value.size()-1;
+	for (; idx >= 0; --idx) {
+		const ushort ucs = value[idx].unicode();
+		if (!('0' <= ucs && ucs <= '9'))
+			break;
+	}
+	if (idx < 0)
+		return QString::number(value.toInt() + 1);
+	else
+		return value.left(idx+1) += QString::number(value.mid(idx+1).toInt() + 1);
+}
+
 static QList<EnumData> readEnums() {
 	QFile file("enum-list");
 	file.open(QFile::ReadOnly);
@@ -80,7 +93,7 @@ static QList<EnumData> readEnums() {
 				if (data.last().items.isEmpty())
 					item.value = "0";
 				else
-					item.value = data.last().items.last().value + "+1";
+					item.value = addOne(data.last().items.last().value);
 			}
 			data.last().items.append(item);
 		}

@@ -11,7 +11,7 @@ public:
 	void setArea(const QRect &bg, const QRect &video);
 	qint64 addOsd(OsdRenderer *osd);
 	void render(QPainter *painter);
-	Type type() const {return FramebufferObject;}
+	Type type() const {return Type::FramebufferObject;}
 	QList<OsdRenderer*> takeOsds();
 private slots:
 	void cache();

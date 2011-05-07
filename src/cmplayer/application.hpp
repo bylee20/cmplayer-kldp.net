@@ -12,12 +12,15 @@ public:
 	Application(int &argc, char **argv);
 	~Application();
 	static QIcon defaultIcon();
-	QString defaultStyleName();
-	void setStyle(const QString &name);
+	void setStyleName(const QString &name);
 	static Mrl getMrlFromCommandLine();
 	QStringList devices() const;
 	void setAlwaysOnTop(QWidget *widget, bool onTop);
 	void setScreensaverDisabled(bool disabled);
+	void setUnique(bool unique);
+	QString styleName() const;
+	bool isUnique() const;
+	QStringList availableStyleNames() const;
 	QString test();
 #ifdef Q_WS_MAC
 	QMenuBar *globalMenuBar() const;
@@ -31,6 +34,7 @@ private slots:
 	void open(const QString &url);
 	void parseMessage(const QString &message);
 private:
+	void loadStyle();
 	void initStaticObjects();
 	static void messageHandler(QtMsgType type, const char *msg);
 	bool event(QEvent *event);

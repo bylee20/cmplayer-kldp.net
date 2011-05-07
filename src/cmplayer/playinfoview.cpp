@@ -14,7 +14,7 @@ struct PlayInfoView::Data {
 	QTimer *timer;
 	VideoFormat vfmt;
 	AudioFormat afmt;
-	const VideoRenderer *video;
+	const VideoScene *video;
 	const AudioController *audio;
 	QString vfps, cpu, mem;
 	TextOsdRenderer *osd;
@@ -55,7 +55,7 @@ OsdRenderer *PlayInfoView::osd() const {
 	return d->osd;
 }
 
-void PlayInfoView::setVideo(const VideoRenderer *video) {
+void PlayInfoView::setVideo(const VideoScene *video) {
 	d->video = video;
 	connect(d->video, SIGNAL(formatChanged(VideoFormat)), this, SLOT(setVideoFormat(VideoFormat)));
 }

@@ -7,7 +7,7 @@
 #include <vlc/vlc.h>
 
 class NativeVideoRenderer;	class AudioController;
-class VideoRenderer;
+class VideoScene;
 
 class PlayEngine : public QObject {
 	Q_OBJECT

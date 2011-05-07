@@ -19,6 +19,7 @@ public:
 	void append(const Playlist &list);
 	void merge(const Playlist &list);
 	const PlaylistModel *model() const;
+	static PlaylistView &get() {Q_ASSERT(obj != 0); return *obj;}
 public slots:
 	void playNext();
 	void playPrevious();
@@ -44,6 +45,7 @@ private:
 	class Item;
 	class Table;
 	struct Data;
+	static PlaylistView *obj;
 	Data *d;
 };
 

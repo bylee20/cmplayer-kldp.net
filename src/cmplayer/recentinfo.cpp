@@ -6,16 +6,6 @@
 
 RecentInfo *RecentInfo::obj = 0;
 
-void RecentInfo::init() {
-	Q_ASSERT(obj == 0);
-	obj = new RecentInfo;
-}
-
-void RecentInfo::fin() {
-	delete obj;
-	obj = 0;
-}
-
 typedef QMap<Mrl, QPair<int, QDateTime> > StoppedMap;
 
 struct RecentInfo::Data {
@@ -27,12 +17,17 @@ struct RecentInfo::Data {
 
 RecentInfo::RecentInfo()
 : d(new Data) {
+	Q_ASSERT(obj == 0);
+	obj = this;
 	d->max = 10;
 	load();
 }
 
 RecentInfo::~RecentInfo() {
+	Q_ASSERT(obj == this);
+	save();
 	delete d;
+	obj = 0;
 }
 
 QList<Mrl> RecentInfo::openList() const {

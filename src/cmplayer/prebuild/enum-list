@@ -8,6 +8,11 @@ Name:SeekingStep
 -Step2
 -Step3
 
+Name:Overlay
+-Auto-Auto
+-FramebufferObject-Framebuffer Object
+-Pixmap-Pixmap
+
 Name:GeneratePlaylist
 -Similar-Add files which have similar names
 -Folder-Add all files in the same folder

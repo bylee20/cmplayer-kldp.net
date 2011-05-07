@@ -8,6 +8,11 @@
 #include <QtGui/QMenu>
 #include <QtCore/QHash>
 
+typedef QLatin1String _LS;
+typedef QLatin1Char _LC;
+
+class Record;
+
 class Menu : public QMenu {
 	Q_OBJECT
 public:
@@ -19,55 +24,76 @@ public:
 	};
 	typedef QMap<Enum::ClickAction, QAction*> ClickActionMap;
 	typedef QMap<Enum::WheelAction, WheelActionPair> WheelActionMap;
+	typedef QHash<QString, Menu*> MenuHash;
+	typedef QHash<QString, QAction*> ActionHash;
+	typedef QHash<QString, ActionGroup*> GroupHash;
+
+	inline Menu &operator() (const QLatin1String &key) const {return *m(key);}
+	inline QAction *operator[] (const QLatin1String &key) const {return a(key);}
+	inline ActionGroup *g(const QLatin1String &key) const {return m_g[key];}
+	inline QAction *a(const QLatin1String &key) const {return m_a[key];}
+	inline Menu *m(const QLatin1String &key) const {return m_m[key];}
 
 	inline Menu &operator() (const QString &key) const {return *m(key);}
 	inline QAction *operator[] (const QString &key) const {return a(key);}
-	inline ActionGroup *g(const QString &key = "") const {return m_group[key];}
-	inline QAction *a(const QString &key) const {return m_act[key];}
-	inline Menu *m(const QString &key) const {return m_menu[key];}
-	inline Menu *addMenu(const QString &k) {Menu *m = new Menu(k, this); QMenu::addMenu(m); return (m_menu[k] = m);}
-	inline QAction *addActionToGroup(const QString &k, bool ch = false, const QString &g = "") {
-		QAction *a = addAction(k, ch); addGroup(g)->addAction(a); return a;
+	inline ActionGroup *g(const QString &key = "") const {return m_g[key];}
+	inline QAction *a(const QString &key) const {return m_a[key];}
+	inline Menu *m(const QString &key) const {return m_m[key];}
+
+	inline Menu *addMenu(const QString &key) {
+		Menu *m = m_m[key] = new Menu(key, this); QMenu::addMenu(m); return m;
+	}
+	inline QAction *addActionToGroup(const QString &key, bool ch = false, const QString &g = "") {
+		return addGroup(g)->addAction(addAction(key, ch));
 	}
 	inline QAction *addAction(const QString &key, bool ch = false) {
-		QAction *a = QMenu::addAction(key); a->setCheckable(ch);
-		return m_act[key] = acts[keys[a] = (m_unique + "." + key)] = a;
+		QAction *a = m_a[key] = QMenu::addAction(key); a->setCheckable(ch); return a;
 	}
 	inline QAction *addActionToGroupWithoutKey(const QString &name, bool ch = false, const QString &g = "") {
-		QAction *a = QMenu::addAction(name); a->setCheckable(ch); addGroup(g)->addAction(a); return a;
+		QAction *a = QMenu::addAction(name); a->setCheckable(ch); return addGroup(g)->addAction(a);
 	}
 	inline ActionGroup *addGroup(const QString &name) {
-		ActionGroup *g = m_group.value(name, 0); return g ? g : (m_group[name] = new ActionGroup(this));
+		ActionGroup *g = m_g.value(name, 0); return g ? g : (m_g[name] = new ActionGroup(this));
 	}
-
-	inline static Menu &root() {Q_ASSERT(m_root != 0); return *m_root;}
-	inline static QString key(QAction *action) {return keys.value(action);}
-	static QAction *clickAction(const Enum::ClickAction &a) {return m_click[a];}
-	static QAction *wheelAction(const Enum::WheelAction &a, bool up) {return up ? m_wheel[a].up : m_wheel[a].down;}
-
-	static void saveShortcut();
-	static void loadShortcut();
-	static void updatePref();
-
-	static void init();
-	static void fin();
+	inline QString id(QAction *action) const {return m_a.key(action, QString());}
+	inline QString id(Menu *menu) const {return m_m.key(menu, QString());}
+	inline QString id() const {return m_id;}
+protected:
+	Menu(const QString &id, Menu *parent): QMenu(parent), m_id(id) {addGroup("");}
+	void save(Record &set) const;
+	void load(Record &set);
 private:
-	Menu(const QString &key)
-	: QMenu(0), m_key(key), m_upper(0) {
-		addGroup("");
-		m_unique = key;
-	}
-	Menu(const QString &key, Menu *parent)
-	: QMenu(parent), m_key(key), m_upper(parent) {
-		addGroup("");
-		m_unique = parent->m_unique + "." + key;
-	}
-	static Menu *m_root;
-	static QHash<QAction*, QString> keys;
-	static QHash<QString, QAction*> acts;
-	static ClickActionMap m_click;
-	static WheelActionMap m_wheel;
+	GroupHash m_g;
+	ActionHash m_a;
+	MenuHash m_m;
+	const QString m_id;
+};
 
+class RootMenu : public Menu {
+	struct WheelActionPair {
+		WheelActionPair(QAction *up, QAction *down): up(up), down(down) {}
+		WheelActionPair(): up(0), down(0) {}
+		bool isNull() const {return !up || !down;}
+		QAction *up, *down;
+	};
+	typedef QMap<Enum::ClickAction, QAction*> ClickActionMap;
+	typedef QMap<Enum::WheelAction, WheelActionPair> WheelActionMap;
+public:
+	RootMenu();
+	~RootMenu();
+	void save();
+	void load();
+	void update();
+	inline QAction *clickAction(const Enum::ClickAction &a) const {return m_click[a];}
+	inline QAction *wheelAction(const Enum::WheelAction &a, bool up) const {
+		return up ? m_wheel[a].up : m_wheel[a].down;
+	}
+	static inline RootMenu &get() {Q_ASSERT(obj != 0); return *obj;}
+	QAction *action(const QString &id) const;
+	QAction *doubleClickAction(Qt::KeyboardModifiers mod) const;
+	QAction *middleClickAction(Qt::KeyboardModifiers mod) const;
+	QAction *wheelScrollAction(Qt::KeyboardModifiers mod, bool up) const;
+private:
 	template<typename N>
 	inline static void setActionAttr(QAction *act, const QVariant &data
 			, const QString &text, N textValue, bool sign = true) {
@@ -93,13 +119,9 @@ private:
 		setActionAttr(menu[key + "+"], QList<QVariant>() << prop << step, text, step);
 		setActionAttr(menu[key + "-"], QList<QVariant>() << prop << -step, text, -step);
 	}
-
-	QHash<QString, ActionGroup*> m_group;
-	QHash<QString, QAction*> m_act;
-	QHash<QString, Menu*> m_menu;
-	QString m_key;
-	QString m_unique;
-	Menu *m_upper;
+	static RootMenu *obj;
+	ClickActionMap m_click;
+	WheelActionMap m_wheel;
 };
 
 #endif // MENU_HPP
