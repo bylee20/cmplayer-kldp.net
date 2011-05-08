@@ -7,19 +7,43 @@ Skin {
 
 	function __updateMediaInfo() {media.text = "["+(currentMediaIndex+1)+"/"+mediaCount+"] " + currentMediaInfo}
 
-	Component.onCompleted: initialize()
+	Component.onCompleted: {hider.checked = load("default", "hide", false)}
+	Component.onDestruction: {save("default", "hide", hider.checked)}
 	onDurationChanged: {length.text = formatMSec(duration, "hh:mm:ss"); seek.maximum = duration}
 	onPositionChanged: {pos.text = formatMSec(position, "hh:mm:ss"); seek.value = position}
 	onVolumeChanged: volume.value = root.volume
-	onSizeChanged: root.updateScreen(scr.x, scr.y, scr.width, scr.height)
 	onMutedChanged: {mute.icon = muted ? "content/speaker-off.png" : "content/speaker.png"; mute.checked = muted}
 	onPlayerStateChanged: {pause.icon = (playerState == Skin.PlayingState) ? "content/pause.png" : "content/play.png"}
 //	onCurrentMediaIndexChanged: __updateMediaInfo()
 	onMediaCountChanged: __updateMediaInfo()
 	onCurrentMediaInfoChanged: __updateMediaInfo()
+	onFullscreenChanged: {
+		hider.visible = !fullscreen;
+		controls.visible = !hider.checked
+		if (fullscreen) {
+			controls.visible = false
+			screen.anchors.bottom = bottom;
+		} else {
+			controls.visible = !hider.checked
+			screen.anchors.bottom = controls.top;
+		}
+	}
 
-	Item {
-		id: scr
+	MouseArea {
+		anchors.fill: parent
+		hoverEnabled: true
+		function __contains(min, val, max) {return min <= val && val <= max;}
+		onPositionChanged: {
+			if (!parent.visible || !parent.fullscreen)
+				return;
+			controls.visible = __contains(0, mouseX-controls.pos.x, controls.width)
+					&& __contains(0, mouseY-controls.pos.y, controls.height)
+			hider.visible = controls.visible
+		}
+	}
+
+	Screen {
+		id: screen
 		width: parent.width
 		anchors.top: parent.top
 		anchors.bottom: controls.top
@@ -191,7 +215,41 @@ Skin {
 					width: 70
 					onValueChangedByUser: root.volume = value
 				}
+
 			}
+		}
+	}
+
+	Rectangle {
+		id: hider
+
+		property bool checked: false
+
+		anchors.bottom: parent.bottom; anchors.margins: 1
+		anchors.left:parent.left
+		width: 8
+		height: 8
+		radius: 3
+		color: "#111"
+		border.width: 1
+		border.color: "#000"
+		onCheckedChanged: {
+			controls.visible = !checked
+			if (fullscreen || checked)
+				screen.anchors.bottom = parent.bottom
+			else
+				screen.anchors.bottom = controls.top
+		}
+		MouseArea {
+			hoverEnabled: true
+			anchors.fill: parent
+			onHoveredChanged: {
+				if (containsMouse)
+					parent.border.color = "#fff"
+				else
+					parent.border.color = "#111"
+			}
+			onPressed: parent.checked = !parent.checked
 		}
 	}
 }

@@ -18,7 +18,10 @@
 //void qt_mac_set_dock_menu(QMenu *menu);
 #endif
 
+MainWindow *MainWindow::obj = 0;
+
 MainWindow::MainWindow() {
+	obj = this;
 	d = new Data;
 	LibVLC::initialize();
 
@@ -183,6 +186,7 @@ MainWindow::MainWindow() {
 }
 
 MainWindow::~MainWindow() {
+	obj = 0;
 	d->video->view()->setParent(0);
 	d->engine->stop();
 	d->recent.setLastPlaylist(d->playlist->playlist());
@@ -439,6 +443,7 @@ void MainWindow::setFullScreen(bool full) {
 		updateStaysOnTop();
 	}
 	d->dontPause = false;
+	emit fullScreenChanged(full);
 }
 
 void MainWindow::setVideoSize(double rate) {

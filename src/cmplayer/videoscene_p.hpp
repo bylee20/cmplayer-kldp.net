@@ -72,18 +72,24 @@ private:
 
 class VideoScene::FrameRateMeasure {
 public:
-	FrameRateMeasure() {m_drawn = 0; m_prev = 0;}
-	void reset() {m_time.restart(); m_drawn = 0; m_prev = 0;}
-	int elapsed() const {return m_time.elapsed();}
+	static const int interval = 1000;
+	FrameRateMeasure() {m_time.start(); m_drawn = 0; m_prev = 0; m_fps = 0.0;}
+	void reset() {/*m_drawn = m_prev = 0; m_time.restart();*/}
 	void frameDrawn(int id) {
 		if (m_prev != id) {
 			++m_drawn;
 			m_prev = id;
+			const int msec = m_time.elapsed();
+			if (msec > interval) {
+				m_fps = (double)m_drawn/(double)(msec)*1e3;
+				m_drawn = m_prev = 0;
+				m_time.restart();
+			}
 		}
 	}
-	int drawnFrames() const {return m_drawn;}
-	double frameRate() const {return (double)m_drawn/(double)m_time.elapsed()*1e3;}
+	double frameRate() const {return m_fps;}
 private:
+	double m_fps;
 	int m_drawn;
 	int m_prev;
 	QTime m_time;

@@ -13,9 +13,12 @@ class MainWindow : public QMainWindow {
 public:
 	MainWindow();
 	~MainWindow();
+	static MainWindow &get() {Q_ASSERT(obj != 0); return *obj;}
 public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
+signals:
+	void fullScreenChanged(bool full);
 private slots:
 	void setSimpleMode(bool simple);
 	void applyPref();
@@ -96,6 +99,8 @@ private:
 
 	class Data;
 	Data *d;
+
+	static MainWindow *obj;
 };
 
 #endif // MAINWINDOW_HPP

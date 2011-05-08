@@ -28,7 +28,7 @@ private:
 	static const int FilterEffects = InvertColor | RemapLuma | AutoContrast;
 	static const int KernelEffects = Blur | Sharpen;
 public:
-	enum SkinMode {AlwaysSkin, AutoSkin, NeverSkin};
+	enum SkinMode {AlwaysSkin, /*AutoSkin, */NeverSkin};
 	QGraphicsView *view();
 	~VideoScene();
 	// takes ownership

@@ -1,4 +1,6 @@
 #include "skinhelper.hpp"
+#include "record.hpp"
+#include "mainwindow.hpp"
 #include "playlistmodel.hpp"
 #include "playlistview.hpp"
 #include "menu.hpp"
@@ -10,9 +12,19 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeComponent>
 
+SkinScreen::SkinScreen() {}
+
+void SkinScreen::geometryChanged(const QRectF &newOne, const QRectF &old) {
+	QDeclarativeItem::geometryChanged(newOne, old);
+	if (newOne != m_rect) {
+		m_rect = newOne;
+		emit geometryChanged();
+	}
+}
+
 SkinHelper::SkinHelper() {
 	m_mediaIndex = m_duration = m_position = m_mediaCount = 0;
-
+	m_fullscreen = false;
 	PlayEngine *engine = LibVLC::engine();
 	connect(engine, SIGNAL(durationChanged(int)), this, SLOT(__updateDuration(int)));
 	connect(engine, SIGNAL(tick(int)), this, SLOT(__updatePosition(int)));
@@ -22,16 +34,47 @@ SkinHelper::SkinHelper() {
 	AudioController *audio = LibVLC::audio();
 	connect(audio, SIGNAL(volumeChanged(int)), this, SIGNAL(volumeChanged()));
 	connect(audio, SIGNAL(mutedChanged(bool)), this, SIGNAL(mutedChanged()));
+
+	connect(&MainWindow::get(), SIGNAL(fullScreenChanged(bool)), this, SLOT(__updateFullscreen(bool)));
 }
 
-void SkinHelper::initialize() {
+SkinHelper::~SkinHelper() {}
+
+SkinScreen *findScreen(QGraphicsItem *parent) {
+	const QList<QGraphicsItem*> items = parent->childItems();
+	for (int i=0; i<items.size(); ++i) {
+		SkinScreen *screen = qgraphicsitem_cast<SkinScreen*>(items[i]);
+		if (screen)
+			return screen;
+		screen = findScreen(items[i]);
+		if (screen)
+			return screen;
+	}
+	return 0;
+}
+
+void SkinHelper::componentComplete() {
+	QDeclarativeItem::componentComplete();
+	m_screen = findScreen(this);
+	if (m_screen)
+		connect(m_screen, SIGNAL(geometryChanged()), this, SLOT(__updateScreenGeometry()));
+
 	PlayEngine *engine = LibVLC::engine();
 	__updateDuration(engine->duration());
 	__updatePosition(engine->position());
 	__updateMrl(engine->mrl());
+	__updateScreenGeometry();
+	__updateFullscreen(MainWindow::get().isFullScreen());
 	emit playerStateChanged();
 	emit volumeChanged();
 	emit mutedChanged();
+}
+
+void SkinHelper::__updateScreenGeometry() {
+	if (m_screen && m_screenGeometry != m_screen->geometry()) {
+		m_screenGeometry = m_screen->geometry();
+		emit screenGeometryChanged();
+	}
 }
 
 int SkinHelper::mediaCount() const {return playlist()->rowCount();}
@@ -57,6 +100,13 @@ void SkinHelper::__updatePosition(int position) {
 	}
 }
 
+void SkinHelper::__updateFullscreen(bool full) {
+	if (m_fullscreen != full) {
+		m_fullscreen = full;
+		emit fullscreenChanged();
+	}
+}
+
 void SkinHelper::setVolume(int volume) {
 	AudioController *audio = LibVLC::audio();
 	if (audio->volume() != volume)
@@ -70,12 +120,26 @@ void SkinHelper::resize(const QSizeF &size) {
 	}
 }
 
-void SkinHelper::updateScreen(double x, double y, double w, double h) {
-	const QRectF rect(x, y, w, h);
-	if (m_screen != rect) {
-		m_screen = rect;
-		emit screenChanged();
+void SkinHelper::updateScreenGeometry(const QRectF &rect) {
+	if (rect != m_screenGeometry) {
+		m_screenGeometry = rect;
+		emit screenGeometryChanged();
 	}
+}
+
+void SkinHelper::updateScreenGeometry(double x, double y, double w, double h) {
+	updateScreenGeometry(QRectF(x, y, w, h));
+}
+
+void SkinHelper::save(const QString &name, const QString &key, const QVariant &value) const {
+	Record r(name);
+	r.setValue(key, value);
+
+}
+
+QVariant SkinHelper::load(const QString &name, const QString &key, const QVariant &def) const {
+	Record r(name);
+	return r.value(key, def);
 }
 
 bool SkinHelper::exec(const QString &id) {

@@ -28,8 +28,7 @@ VideoScene::VideoScene(VideoUtil *util)
 }
 
 VideoScene::~VideoScene() {
-	if (d->skin)
-		removeItem(d->skin);
+	delete d->skin;
 	d->gl->makeCurrent();
 	qDeleteAll(d->shaders);
 	delete d->overlay;
@@ -50,7 +49,7 @@ void VideoScene::updateSkinVisible(const QPointF &pos) {
 	else if (d->skinMode == NeverSkin)
 		d->skin->setVisible(false);
 	else {
-		d->skin->setVisible(sceneRect().contains(pos) && !d->skin->screen().contains(pos));
+		d->skin->setVisible(sceneRect().contains(pos) && !d->skin->screenGeometry().contains(pos));
 	}
 }
 
@@ -116,7 +115,7 @@ void VideoScene::setSkin(SkinHelper *skin) {
 	}
 	d->skin = skin;
 	if (d->skin) {
-		connect(d->skin, SIGNAL(screenChanged()), this, SLOT(updateVertices()));
+		connect(d->skin, SIGNAL(screenGeometryChanged()), this, SLOT(updateVertices()));
 		addItem(d->skin);
 	}
 	updateSceneRect();
@@ -319,7 +318,7 @@ double VideoScene::targetCropRatio(double fallback) const {
 }
 
 QSizeF VideoScene::skinSizeHint() const {
-	return (d->skin && d->skinMode == AlwaysSkin) ? (d->skin->size() - d->skin->screen().size()) : QSizeF(0, 0);
+	return (d->skin && d->skinMode == AlwaysSkin) ? (d->skin->size() - d->skin->screenGeometry().size()) : QSizeF(0, 0);
 }
 
 QSizeF VideoScene::sizeHint(double times) const {
@@ -382,7 +381,7 @@ void VideoScene::updateSceneRect() {
 QRectF VideoScene::renderableArea() const {
 	if (!d->skin || d->skinMode != AlwaysSkin)
 		return sceneRect();
-	return d->skin->screen();
+	return d->skin->screenGeometry();
 }
 
 void VideoScene::updateVertices() {
@@ -440,6 +439,7 @@ bool VideoScene::event(QEvent *event) {
 		}
 		++d->frameId;
 		d->binding = false;
+//		d->fps.reset();
 		update();
 		return true;
 	} else if (event->type() == (int)Event::VideoPrepare) {
@@ -461,7 +461,7 @@ bool VideoScene::event(QEvent *event) {
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		}
 		d->prepared = true;
-		d->fps.reset();
+//		d->fps.reset();
 		updateVertices();
 		return true;
 	} else
@@ -470,8 +470,8 @@ bool VideoScene::event(QEvent *event) {
 
 void VideoScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 	QGraphicsScene::mouseMoveEvent(event);
-	if (event->isAccepted())
-		return;
+//	if (event->isAccepted())
+//		return;
 	QPointF pos = event->scenePos();
 	updateSkinVisible(pos);
 //	if (d->skin && !d->skinVisible)
@@ -488,9 +488,9 @@ void VideoScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event) {
 
 void VideoScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 	QGraphicsScene::mousePressEvent(event);
-	if (event->isAccepted())
-		return;
-	if (d->skin && d->skin->isVisible() && !d->skin->screen().contains(event->scenePos()))
+//	if (event->isAccepted())
+//		return;
+	if (d->skin && d->skin->isVisible() && !d->skin->screenGeometry().contains(event->scenePos()))
 		return;
 	if (event->buttons() & Qt::MidButton) {
 		QAction *action = RootMenu::get().middleClickAction(event->modifiers());
@@ -506,7 +506,7 @@ void VideoScene::mousePressEvent(QGraphicsSceneMouseEvent *event) {
 
 void VideoScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 	QGraphicsScene::mouseReleaseEvent(event);
-	if (!event->isAccepted() && d->util->vd && d->vtx.contains(event->scenePos())) {
+	if (/*!event->isAccepted() && */d->util->vd && d->vtx.contains(event->scenePos())) {
 		const int b = d->translate_button(event->button());
 		if (b >= 0)
 			d->util->mouseReleaseEvent(d->util->vd, b);
@@ -515,9 +515,9 @@ void VideoScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
 
 void VideoScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
 	QGraphicsScene::mouseDoubleClickEvent(event);
-	if (event->isAccepted())
-		return;
-	if (d->skin && d->skin->isVisible() && !d->skin->screen().contains(event->scenePos()))
+//	if (event->isAccepted())
+//		return;
+	if (d->skin && d->skin->isVisible() && !d->skin->screenGeometry().contains(event->scenePos()))
 		return;
 	QAction *action = RootMenu::get().doubleClickAction(event->modifiers());
 	if (action)
@@ -526,9 +526,9 @@ void VideoScene::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event) {
 
 void VideoScene::wheelEvent(QGraphicsSceneWheelEvent *event) {
 	QGraphicsScene::wheelEvent(event);
-	if (event->isAccepted())
-		return;
-	if (d->skin && d->skin->isVisible() && !d->skin->screen().contains(event->scenePos()))
+//	if (event->isAccepted())
+//		return;
+	if (d->skin && d->skin->isVisible() && !d->skin->screenGeometry().contains(event->scenePos()))
 		return;
 	QAction *action = RootMenu::get().wheelScrollAction(event->modifiers(), event->delta() > 0);
 	if (action)
@@ -571,7 +571,7 @@ void VideoScene::setOverlayType(int hint) {
 }
 
 bool VideoScene::needToPropagate(const QPointF &mouse) {
-	return !d->skin || d->skinMode != AlwaysSkin || d->skin->screen().contains(mouse);
+	return !d->skin || d->skinMode != AlwaysSkin || d->skin->screenGeometry().contains(mouse);
 }
 
 VideoScene::SkinMode VideoScene::skinMode() const {

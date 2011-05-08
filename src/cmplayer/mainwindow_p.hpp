@@ -109,8 +109,8 @@ struct MainWindow::Data {
 	}
 
 	static VideoScene::SkinMode skin_mode(bool simple, bool fullscreen) {
-		if (fullscreen)
-			return VideoScene::AutoSkin;
+//		if (fullscreen)
+//			return VideoScene::AutoSkin;
 		return simple ? VideoScene::NeverSkin : VideoScene::AlwaysSkin;
 	}
 
