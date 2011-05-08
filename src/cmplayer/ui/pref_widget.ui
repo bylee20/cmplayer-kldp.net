@@ -20,7 +20,7 @@
    <item>
     <widget class="QStackedWidget" name="stack">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="play">
       <property name="name" stdset="0">
@@ -378,8 +378,8 @@
        <string>Audio</string>
       </property>
       <property name="icon" stdset="0">
-       <iconset>
-        <normaloff>:/img/speaker-large.png</normaloff>:/img/speaker-large.png</iconset>
+       <iconset resource="../rsclist.qrc">
+        <normaloff>:/img/speaker.png</normaloff>:/img/speaker.png</iconset>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_19">
        <item>

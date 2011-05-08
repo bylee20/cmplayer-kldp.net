@@ -8,6 +8,7 @@
 #include "libvlc.hpp"
 #include "info.hpp"
 #include "skinhelper.hpp"
+#include <QtGui/QDesktopWidget>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QMenuBar>
 #include <QtCore/QDebug>
@@ -441,12 +442,18 @@ void MainWindow::setFullScreen(bool full) {
 }
 
 void MainWindow::setVideoSize(double rate) {
-	if (rate < 0) {
+	if (rate < 0.0) {
 		const bool wasFull = isFullScreen();
 		setFullScreen(!wasFull);
 	} else {
 		if (isFullScreen())
 			setFullScreen(false);
+		if (rate == 0.0) {
+			const QSizeF video = d->video->sizeHint(1.0) - d->video->skinSizeHint();
+			const QSizeF desktop = QDesktopWidget().availableGeometry(this).size();
+			const double target = 0.15;
+			rate = desktop.width()*desktop.height()*target/(video.width()*video.height());
+		}
 		resize(d->video->sizeHint(rate).toSize());
 	}
 }

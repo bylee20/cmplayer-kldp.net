@@ -270,22 +270,19 @@ RootMenu::RootMenu(): Menu(_LS("menu"), 0) {
 	window->addActionToGroup(_LS("sot-playing"), true, _LS("sot"))->setData(Enum::StaysOnTop::Playing.id());
 	window->addActionToGroup(_LS("sot-never"), true, _LS("sot"))->setData(Enum::StaysOnTop::Never.id());
 	window->addSeparator();
-	QAction *to25 = window->addActionToGroup(_LS("25%"), false, _LS("size"));
-	QAction *to50 = window->addActionToGroup(_LS("50%"), false, _LS("size"));
+	QAction *proper = window->addActionToGroup(_LS("proper"), false, _LS("size"));
 	QAction *to100 = window->addActionToGroup(_LS("100%"), false, _LS("size"));
 	QAction *to200 = window->addActionToGroup(_LS("200%"), false, _LS("size"));
 	QAction *to300 = window->addActionToGroup(_LS("300%"), false, _LS("size"));
 	QAction *to400 = window->addActionToGroup(_LS("400%"), false, _LS("size"));
 	QAction *toFull = window->addActionToGroup(_LS("full"), false, _LS("size"));
-	to25->setData(0.25);
-	to50->setData(0.5);
+	proper->setData(0.0);
 	to100->setData(1.0);
 	to200->setData(2.0);
 	to300->setData(3.0);
 	to400->setData(4.0);
 	toFull->setData(-1.0);
-	to25->setShortcut(QKeySequence(_LS("Shift+`")));
-	to50->setShortcut(QKeySequence(_LS("`")));
+	proper->setShortcut(Qt::Key_QuoteLeft);
 	to100->setShortcut(Qt::Key_1);
 	to200->setShortcut(Qt::Key_2);
 	to300->setShortcut(Qt::Key_3);
@@ -475,7 +472,7 @@ void RootMenu::update() {
 	window["sot-always"]->setText(tr("Always Stay on Top"));
 	window["sot-playing"]->setText(tr("Stay on Top Playing"));
 	window["sot-never"]->setText(tr("Don't Stay on Top"));
-
+	window["proper"]->setText(tr("Proper Size"));
 	window["full"]->setText(tr("Fullscreen"));
 
 	Menu &help = root("help");
