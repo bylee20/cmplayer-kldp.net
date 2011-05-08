@@ -109,10 +109,7 @@ bool VideoScene::hasFrame() const {
 }
 
 void VideoScene::setSkin(SkinHelper *skin) {
-	if (d->skin) {
-		removeItem(d->skin);
-		d->skin->disconnect(this);
-	}
+	delete d->skin;
 	d->skin = skin;
 	if (d->skin) {
 		connect(d->skin, SIGNAL(screenGeometryChanged()), this, SLOT(updateVertices()));

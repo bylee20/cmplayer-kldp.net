@@ -3,42 +3,51 @@ import CMPlayerSkin 0.1
 import "content"
 
 Skin {
-	id: root
+	id: skin
+	name: "default"
 
 	function __updateMediaInfo() {media.text = "["+(currentMediaIndex+1)+"/"+mediaCount+"] " + currentMediaInfo}
 
-	Component.onCompleted: {hider.checked = load("default", "hide", false)}
-	Component.onDestruction: {save("default", "hide", hider.checked)}
+	onStorageCreated: {
+		storage.hide = false
+	}
+	Component.onCompleted: {
+		hider.checked = storage.hide
+	}
+	Component.onDestruction: {
+		storage.hide = hider.checked
+	}
 	onDurationChanged: {length.text = formatMSec(duration, "hh:mm:ss"); seek.maximum = duration}
 	onPositionChanged: {pos.text = formatMSec(position, "hh:mm:ss"); seek.value = position}
-	onVolumeChanged: volume.value = root.volume
+	onVolumeChanged: {volume.value = skin.volume}
 	onMutedChanged: {mute.icon = muted ? "content/speaker-off.png" : "content/speaker.png"; mute.checked = muted}
 	onPlayerStateChanged: {pause.icon = (playerState == Skin.PlayingState) ? "content/pause.png" : "content/play.png"}
-//	onCurrentMediaIndexChanged: __updateMediaInfo()
+	onCurrentMediaIndexChanged: __updateMediaInfo()
 	onMediaCountChanged: __updateMediaInfo()
 	onCurrentMediaInfoChanged: __updateMediaInfo()
 	onFullscreenChanged: {
 		hider.visible = !fullscreen;
-		controls.visible = !hider.checked
-		if (fullscreen) {
+		if (fullscreen || hider.checked) {
 			controls.visible = false
-			screen.anchors.bottom = bottom;
+			screen.anchors.bottom = bottom
 		} else {
-			controls.visible = !hider.checked
-			screen.anchors.bottom = controls.top;
+			controls.visible = true
+			screen.anchors.bottom = controls.top
 		}
 	}
 
 	MouseArea {
-		anchors.fill: parent
-		hoverEnabled: true
+		id: mouseTracker
+
 		function __contains(min, val, max) {return min <= val && val <= max;}
+		hoverEnabled: true
+		anchors.fill: parent
 		onPositionChanged: {
-			if (!parent.visible || !parent.fullscreen)
-				return;
-			controls.visible = __contains(0, mouseX-controls.pos.x, controls.width)
-					&& __contains(0, mouseY-controls.pos.y, controls.height)
-			hider.visible = controls.visible
+			if (parent.visible && parent.fullscreen) {
+				controls.visible = __contains(0, mouseX-controls.pos.x, controls.width)
+						&& __contains(0, mouseY-controls.pos.y, controls.height)
+				hider.visible = controls.visible
+			}
 		}
 	}
 
@@ -88,7 +97,7 @@ Skin {
 				anchors.left: parent.left;
 				width: height
 				icon: "content/play.png"
-				onClicked: root.exec("menu/play/pause")
+				onClicked: skin.exec("menu/play/pause")
 			}
 
 			Button {
@@ -97,7 +106,7 @@ Skin {
 				anchors.top: parent.top; anchors.left: pause.right; anchors.leftMargin: 1
 				width: pause.width/2-0.5
 				height: width
-				onClicked: root.exec("menu/play/seek/backward1")
+				onClicked: skin.exec("menu/play/seek/backward1")
 			}
 			Button {
 				id: forward
@@ -105,7 +114,7 @@ Skin {
 				anchors.top: parent.top; anchors.left: backward.right; anchors.leftMargin: 1
 				width: backward.width
 				height: backward.height
-				onClicked: root.exec("menu/play/seek/forward1")
+				onClicked: skin.exec("menu/play/seek/forward1")
 			}
 			Button {
 				id: prev
@@ -113,7 +122,7 @@ Skin {
 				anchors.bottom: parent.bottom; anchors.left: pause.right; anchors.leftMargin: 1
 				width: backward.width
 				height: backward.height
-				onClicked: root.exec("menu/play/prev")
+				onClicked: skin.exec("menu/play/prev")
 			}
 			Button {
 				id: next
@@ -121,7 +130,7 @@ Skin {
 				anchors.bottom: parent.bottom; anchors.left: prev.right; anchors.leftMargin: 1
 				width: backward.width
 				height: backward.height
-				onClicked: root.exec("menu/play/next")
+				onClicked: skin.exec("menu/play/next")
 			}
 		}
 
@@ -193,7 +202,7 @@ Skin {
 					anchors.right: mute.left
 					anchors.rightMargin: 2
 					anchors.verticalCenter: parent.verticalCenter
-					onValueChangedByUser: root.seek(value)
+					onValueChangedByUser: skin.seek(value)
 				}
 
 				Button {
@@ -204,7 +213,7 @@ Skin {
 					anchors.bottom: parent.bottom; anchors.bottomMargin: 1
 					anchors.right: volume.left
 					anchors.rightMargin: 2
-					onClicked: root.exec("menu/audio/mute")
+					onClicked: skin.exec("menu/audio/mute")
 				}
 
 				Slider {
@@ -213,7 +222,7 @@ Skin {
 					anchors.right: parent.right
 					anchors.verticalCenter: parent.verticalCenter
 					width: 70
-					onValueChangedByUser: root.volume = value
+					onValueChangedByUser: skin.volume = value
 				}
 
 			}
@@ -230,9 +239,9 @@ Skin {
 		width: 8
 		height: 8
 		radius: 3
-		color: "#111"
+		color: "#333"
 		border.width: 1
-		border.color: "#000"
+		border.color: "#555"
 		onCheckedChanged: {
 			controls.visible = !checked
 			if (fullscreen || checked)
@@ -245,11 +254,14 @@ Skin {
 			anchors.fill: parent
 			onHoveredChanged: {
 				if (containsMouse)
-					parent.border.color = "#fff"
+					parent.border.color = "#6ad"
 				else
-					parent.border.color = "#111"
+					parent.border.color = "#555"
+				parent.border.width = pressed ? 2 : 1
+
 			}
-			onPressed: parent.checked = !parent.checked
+			onPressed: {parent.border.width = 2; parent.checked = !parent.checked}
+			onReleased: {parent.border.width = 1;}
 		}
 	}
 }

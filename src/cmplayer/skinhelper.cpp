@@ -12,6 +12,34 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeComponent>
 
+void SkinStorage::save() {
+	if (m_name.isEmpty()) {
+		qWarning("Skin name is empty. Cannot save storage.");
+		return;
+	}
+	const QStringList keys = this->keys();
+	Record r("skin");
+	r.beginGroup(m_name);
+	for (int i=0; i<keys.size(); ++i)
+		r.setValue(keys[i], this->value(keys[i]));
+	r.endGroup();
+}
+
+void SkinStorage::load() {
+	if (m_name.isEmpty()) {
+		qWarning("Skin name is empty. Cannot load storage.");
+		return;
+	}
+	Record r("skin");
+	r.beginGroup(m_name);
+	const QStringList keys = this->keys();
+	for (int i=0; i<keys.size(); ++i) {
+		QVariant &data = (*this)[keys[i]];
+		data = r.value(keys[i], data);
+	}
+	r.endGroup();
+}
+
 SkinScreen::SkinScreen() {}
 
 void SkinScreen::geometryChanged(const QRectF &newOne, const QRectF &old) {
@@ -25,6 +53,7 @@ void SkinScreen::geometryChanged(const QRectF &newOne, const QRectF &old) {
 SkinHelper::SkinHelper() {
 	m_mediaIndex = m_duration = m_position = m_mediaCount = 0;
 	m_fullscreen = false;
+
 	PlayEngine *engine = LibVLC::engine();
 	connect(engine, SIGNAL(durationChanged(int)), this, SLOT(__updateDuration(int)));
 	connect(engine, SIGNAL(tick(int)), this, SLOT(__updatePosition(int)));
@@ -36,9 +65,20 @@ SkinHelper::SkinHelper() {
 	connect(audio, SIGNAL(mutedChanged(bool)), this, SIGNAL(mutedChanged()));
 
 	connect(&MainWindow::get(), SIGNAL(fullScreenChanged(bool)), this, SLOT(__updateFullscreen(bool)));
+	m_storage = new SkinStorage;
 }
 
-SkinHelper::~SkinHelper() {}
+SkinHelper::~SkinHelper() {
+	m_storage->save();
+	delete m_storage;
+}
+
+void SkinHelper::setName(const QString &name) {
+	if (m_name != name) {
+		m_storage->setName(m_name = name);
+		emit nameChanged();
+	}
+}
 
 SkinScreen *findScreen(QGraphicsItem *parent) {
 	const QList<QGraphicsItem*> items = parent->childItems();
@@ -68,6 +108,8 @@ void SkinHelper::componentComplete() {
 	emit playerStateChanged();
 	emit volumeChanged();
 	emit mutedChanged();
+	emit storageCreated();
+	m_storage->load();
 }
 
 void SkinHelper::__updateScreenGeometry() {
@@ -131,16 +173,16 @@ void SkinHelper::updateScreenGeometry(double x, double y, double w, double h) {
 	updateScreenGeometry(QRectF(x, y, w, h));
 }
 
-void SkinHelper::save(const QString &name, const QString &key, const QVariant &value) const {
-	Record r(name);
-	r.setValue(key, value);
+//void SkinHelper::save(const QString &name, const QString &key, const QVariant &value) const {
+//	Record r(name);
+//	r.setValue(key, value);
 
-}
+//}
 
-QVariant SkinHelper::load(const QString &name, const QString &key, const QVariant &def) const {
-	Record r(name);
-	return r.value(key, def);
-}
+//QVariant SkinHelper::load(const QString &name, const QString &key, const QVariant &def) const {
+//	Record r(name);
+//	return r.value(key, def);
+//}
 
 bool SkinHelper::exec(const QString &id) {
 	QAction *action = RootMenu::get().action(id);
@@ -225,10 +267,10 @@ QString SkinManager::defaultSkinName() {
 
 SkinHelper *SkinManager::load(const QString &name) {
 	const QUrl url = d().skins.value(name, QUrl());
-	return url.isEmpty() ? 0 : load(url);
+	return url.isEmpty() ? 0 : load(url, name);
 }
 
-SkinHelper *SkinManager::load(const QUrl &url) {
+SkinHelper *SkinManager::load(const QUrl &url, const QString &nameHint) {
 	static QDeclarativeEngine engine;
 	static QDeclarativeComponent comp(&engine, 0);
 	comp.loadUrl(url);
@@ -236,6 +278,12 @@ SkinHelper *SkinManager::load(const QUrl &url) {
 		qWarning("Cannot load skin %s", qPrintable(url.toString()));
 		qWarning("%s", qPrintable(comp.errorString()));
 		return 0;
-	} else
-		return qobject_cast<SkinHelper*>(comp.create());
+	} else {
+		SkinHelper *skin = qobject_cast<SkinHelper*>(comp.create());
+		if (!skin)
+			return 0;
+		if (skin->name().isEmpty())
+			skin->setName(nameHint);
+		return skin;
+	}
 }
