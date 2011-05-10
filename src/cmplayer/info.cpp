@@ -74,12 +74,16 @@ const char *Info::pluginPath() {
 	path = qgetenv("CMPLAYER_PLUGIN_PATH");
 	if (!path.isEmpty() && QDir(QString::fromLocal8Bit(path.data())).exists())
 		return path.constData();
-#ifdef CMPLAYER_PLUGIN_PATH
-	path = CMPLAYER_PLUGIN_PATH;
+#ifdef CMPLAYER_VLC_PLUGINS_PATH
+	path = CMPLAYER_VLC_PLUGINS_PATH;
 	if (!path.isEmpty() && QDir(QString::fromLocal8Bit(path.data())).exists())
 		return path.constData();
 #endif
-	path = "./plugin";
+	path = QCoreApplication::applicationDirPath().toLocal8Bit();
+	if (path.isEmpty())
+		path = "./vlc-plugins";
+	else
+		path += "/vlc-plugins";
 	return path.constData();
 }
 

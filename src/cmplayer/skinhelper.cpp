@@ -222,6 +222,7 @@ struct SkinManager::Data {
 
 void SkinManager::Data::check(const QString &path) {
 	QDir dir(path);
+	qDebug() << "checking skin path:" << dir.absolutePath();
 	if (!dir.exists())
 		return;
 	QStringList skins = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -234,10 +235,14 @@ void SkinManager::Data::check(const QString &path) {
 }
 
 SkinManager::Data::Data() {
+	const QString app = QCoreApplication::applicationDirPath();
+	if (app.isEmpty())
+		check("./skin");
+	else
+		check(app + "/skin");
 #ifdef CMPLAYER_SKIN_PATH
 	check(CMPLAYER_SKIN_PATH);
 #endif
-	check("./skin");
 	check(QDir::homePath() + "/.cmplayer/skin");
 	const QByteArray path = qgetenv("CMPLAYER_SKIN_PATH");
 	if (!path.isEmpty())

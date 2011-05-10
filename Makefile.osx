@@ -14,14 +14,15 @@ qmake_vars := DESTDIR=\\\"../../bin\\\" RELEASE=\\\"yes\\\" \
 
 configured := $(shell cat configured)
 
-cmplayer: vlc-plugin translations libchardet
+cmplayer: vlc-plugins translations libchardet skin
 	cd src/cmplayer && $(QMAKE) $(qmake_vars) cmplayer.pro 
 	cd src/cmplayer && make
 	install -d $(cmplayer_exec_path)/lib
 	install -d $(cmplayer_exec_path)/plugin
-	cp -r $(VLC_LIB_PATH)/*.dylib* $(cmplayer_exec_path)/lib
-	cp -r $(VLC_PLUGIN_PATH)/*.dylib $(cmplayer_exec_path)/plugin
+	cp $(VLC_LIB_PATH)/*.dylib* $(cmplayer_exec_path)/lib
+	cp $(VLC_PLUGIN_PATH)/*.dylib $(cmplayer_exec_path)/plugin
 	$(install_file) bin/plugin/libcmplayer-*_plugin.dylib $(cmplayer_exec_path)/plugin
+	cp -Rf bin/skin $(cmplayer_exec_path)
 	macdeployqt bin/$(cmplayer_exec).app
 
 bin_dir:
@@ -34,9 +35,12 @@ ifneq ($(configured),configured)
 endif
 	cd src/libchardet* && make
 
-vlc-plugin: bin_dir
-	cd src/vlc-plugin && make -f Makefile.osx
-	install -d bin/plugin
+skin: bin_dir
+	cp -Rf src/skin bin
+
+vlc-plugins: bin_dir
+	cd src/vlc-plugins && make -f Makefile.osx
+	install -d bin/vlc-plugins
 	mv src/vlc-plugin/libcmplayer-*_plugin.dylib bin/plugin
 
 translations:
