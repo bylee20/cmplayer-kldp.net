@@ -115,7 +115,7 @@ struct VideoScene::Data {
 	double y_min, y_max, y_min_buffer, y_max_buffer;
 	double brightness, contrast, sat_con, sinhue, coshue;
 	bool hasKernel, prepared, logoOn, frameIsSet, hasPrograms, binding;
-	SkinHelper *skin;	bool autoPopup;
+	Skin::Helper *skin;	bool autoPopup;
 	SkinMode skinMode;
 // methods
 	static double aspect_ratio(const QSizeF &size) {return size.width()/size.height();}

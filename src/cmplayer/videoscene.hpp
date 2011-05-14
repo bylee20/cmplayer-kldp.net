@@ -6,7 +6,10 @@
 
 class OsdRenderer;	class VideoFormat;
 class VideoUtil;	class ColorProperty;
-class SkinHelper;
+
+namespace Skin {
+class Helper;
+}
 
 class VideoScene : public QGraphicsScene {
 	Q_OBJECT
@@ -52,7 +55,7 @@ public:
 	double outputFrameRate(bool reset = true) const;
 	QRectF renderableArea() const;
 	void setSkinMode(SkinMode mode);
-	void setSkin(SkinHelper *skin);
+	void setSkin(Skin::Helper *skin);
 	SkinMode skinMode() const;
 	bool inScreen(const QPointF &pos) const;
 public slots:

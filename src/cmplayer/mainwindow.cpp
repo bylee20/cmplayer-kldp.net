@@ -180,9 +180,9 @@ MainWindow::MainWindow() {
 	d->video->addOsd(d->timeLine);
 	d->video->addOsd(d->message);
 
-	const QString skinName = SkinManager::defaultSkinName();
+	const QString skinName = Skin::Manager::defaultSkinName();
 	qDebug() << "set current skin:" << skinName;
-	d->video->setSkin(SkinManager::load(skinName));
+	d->video->setSkin(Skin::Manager::load(skinName));
 }
 
 MainWindow::~MainWindow() {

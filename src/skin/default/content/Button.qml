@@ -1,50 +1,13 @@
 import QtQuick 1.0
 
-Rectangle {
+BaseButton {
 	id: root
-
-	property alias icon:image.source
-	property bool checked: false
-
-	function __updateBorder() {
-		var width = 0
-		if (mouse.pressed)
-			width = 2
-		else if (mouse.containsMouse || checked)
-			width = 1
-		border.width = width
-		if (width > 0)
-			border.color = "#6ad"
-		else
-			border.color = "transparent"
-	}
-
-	color: "transparent"
+	border.color.plain: "transparent"
+	border.color.hovered: "#6ad"
+	border.color.pressed: "#6ad"
+	border.width.plain: 0
+	border.width.hovered: 1
+	border.width.pressed: 2
 	radius: 3
-	onCheckedChanged: __updateBorder()
-
-	signal clicked()
-
-	Image {
-		id: image
-
-		fillMode: Image.PreserveAspectFit
-		smooth: true
-		anchors.fill: parent
-		anchors.margins: 2
-	}
-
-	MouseArea {
-		id: mouse
-
-		anchors.fill: parent
-		hoverEnabled: true
-		onHoveredChanged: parent.__updateBorder()
-		onPressed: parent.__updateBorder()
-		onReleased: {
-			parent.__updateBorder()
-			if (containsMouse)
-				parent.clicked()
-		}
-	}
+	padding: 2
 }

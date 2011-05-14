@@ -108,7 +108,7 @@ bool VideoScene::hasFrame() const {
 	return d->frameIsSet;
 }
 
-void VideoScene::setSkin(SkinHelper *skin) {
+void VideoScene::setSkin(Skin::Helper *skin) {
 	delete d->skin;
 	d->skin = skin;
 	if (d->skin) {

@@ -108,7 +108,7 @@ struct MainWindow::Data {
 		return Enum::StaysOnTop::from(id, Enum::StaysOnTop::Playing);
 	}
 
-	static VideoScene::SkinMode skin_mode(bool simple, bool fullscreen) {
+	static VideoScene::SkinMode skin_mode(bool simple, bool /*fullscreen*/) {
 //		if (fullscreen)
 //			return VideoScene::AutoSkin;
 		return simple ? VideoScene::NeverSkin : VideoScene::AlwaysSkin;

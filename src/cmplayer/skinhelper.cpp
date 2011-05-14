@@ -12,7 +12,13 @@
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeComponent>
 
-void SkinStorage::save() {
+namespace Skin {
+
+Media::~Media() {
+//	qDebug() << "delete media:" << m_info;
+}
+
+void Storage::save() {
 	if (m_name.isEmpty()) {
 		qWarning("Skin name is empty. Cannot save storage.");
 		return;
@@ -25,7 +31,7 @@ void SkinStorage::save() {
 	r.endGroup();
 }
 
-void SkinStorage::load() {
+void Storage::load() {
 	if (m_name.isEmpty()) {
 		qWarning("Skin name is empty. Cannot load storage.");
 		return;
@@ -40,9 +46,10 @@ void SkinStorage::load() {
 	r.endGroup();
 }
 
-SkinScreen::SkinScreen() {}
+Screen::Screen(QDeclarativeItem *parent)
+: QDeclarativeItem(parent) {}
 
-void SkinScreen::geometryChanged(const QRectF &newOne, const QRectF &old) {
+void Screen::geometryChanged(const QRectF &newOne, const QRectF &old) {
 	QDeclarativeItem::geometryChanged(newOne, old);
 	if (newOne != m_rect) {
 		m_rect = newOne;
@@ -50,9 +57,18 @@ void SkinScreen::geometryChanged(const QRectF &newOne, const QRectF &old) {
 	}
 }
 
-SkinHelper::SkinHelper() {
-	m_mediaIndex = m_duration = m_position = m_mediaCount = 0;
+void Screen::setGeometry(const QRectF &rect) {
+	if (m_rect != rect) {
+		setPos(rect.topLeft());
+		setSize(rect.size());
+	}
+}
+
+Helper::Helper() {
+	m_duration = m_position = m_mediaCount = 0;
 	m_fullscreen = false;
+
+	m_media = new Media(this);
 
 	PlayEngine *engine = LibVLC::engine();
 	connect(engine, SIGNAL(durationChanged(int)), this, SLOT(__updateDuration(int)));
@@ -65,40 +81,25 @@ SkinHelper::SkinHelper() {
 	connect(audio, SIGNAL(mutedChanged(bool)), this, SIGNAL(mutedChanged()));
 
 	connect(&MainWindow::get(), SIGNAL(fullScreenChanged(bool)), this, SLOT(__updateFullscreen(bool)));
-	m_storage = new SkinStorage;
+	m_storage = new Storage;
+	m_screen = new Screen(this);
+	connect(m_screen, SIGNAL(geometryChanged()), this, SLOT(__updateScreenGeometry()));
 }
 
-SkinHelper::~SkinHelper() {
+Helper::~Helper() {
 	m_storage->save();
 	delete m_storage;
 }
 
-void SkinHelper::setName(const QString &name) {
+void Helper::setName(const QString &name) {
 	if (m_name != name) {
 		m_storage->setName(m_name = name);
 		emit nameChanged();
 	}
 }
 
-SkinScreen *findScreen(QGraphicsItem *parent) {
-	const QList<QGraphicsItem*> items = parent->childItems();
-	for (int i=0; i<items.size(); ++i) {
-		SkinScreen *screen = qgraphicsitem_cast<SkinScreen*>(items[i]);
-		if (screen)
-			return screen;
-		screen = findScreen(items[i]);
-		if (screen)
-			return screen;
-	}
-	return 0;
-}
-
-void SkinHelper::componentComplete() {
+void Helper::componentComplete() {
 	QDeclarativeItem::componentComplete();
-	m_screen = findScreen(this);
-	if (m_screen)
-		connect(m_screen, SIGNAL(geometryChanged()), this, SLOT(__updateScreenGeometry()));
-
 	PlayEngine *engine = LibVLC::engine();
 	__updateDuration(engine->duration());
 	__updatePosition(engine->position());
@@ -112,65 +113,54 @@ void SkinHelper::componentComplete() {
 	m_storage->load();
 }
 
-void SkinHelper::__updateScreenGeometry() {
-	if (m_screen && m_screenGeometry != m_screen->geometry()) {
+void Helper::__updateScreenGeometry() {
+	if (m_screenGeometry != m_screen->geometry()) {
 		m_screenGeometry = m_screen->geometry();
 		emit screenGeometryChanged();
 	}
 }
 
-int SkinHelper::mediaCount() const {return playlist()->rowCount();}
-QString SkinHelper::currentMediaInfo() const {return LibVLC::engine()->mrl().displayName();}
-QString SkinHelper::formatMSec(int msec, const QString &format) const {return msecToString(msec, format);}
-void SkinHelper::seek(int msec) {LibVLC::engine()->seek(msec);}
-int SkinHelper::volume() const {return LibVLC::audio()->volume();}
-bool SkinHelper::isMuted() const {return LibVLC::audio()->isMuted();}
-const PlaylistModel *SkinHelper::playlist() const {return PlaylistView::get().model();}
-SkinHelper::PlayerState SkinHelper::playerState() const {return (PlayerState)LibVLC::engine()->state();}
+int Helper::mediaCount() const {return playlist()->rowCount();}
+//QString Helper::currentMediaInfo() const {return LibVLC::engine()->mrl().displayName();}
+QString Helper::formatMSec(int msec, const QString &format) const {return msecToString(msec, format);}
+void Helper::seek(int msec) {LibVLC::engine()->seek(msec);}
+int Helper::volume() const {return LibVLC::audio()->volume();}
+bool Helper::isMuted() const {return LibVLC::audio()->isMuted();}
+const PlaylistModel *Helper::playlist() const {return PlaylistView::get().model();}
+Helper::PlayerState Helper::playerState() const {return (PlayerState)LibVLC::engine()->state();}
 
-void SkinHelper::__updateDuration(int duration) {
+void Helper::__updateDuration(int duration) {
 	if (m_duration != duration) {
 		m_duration = duration;
 		emit durationChanged();
 	}
 }
 
-void SkinHelper::__updatePosition(int position) {
+void Helper::__updatePosition(int position) {
 	if (m_position/1000 != position/1000) {
 		m_position = position;
 		emit positionChanged();
 	}
 }
 
-void SkinHelper::__updateFullscreen(bool full) {
+void Helper::__updateFullscreen(bool full) {
 	if (m_fullscreen != full) {
 		m_fullscreen = full;
 		emit fullscreenChanged();
 	}
 }
 
-void SkinHelper::setVolume(int volume) {
+void Helper::setVolume(int volume) {
 	AudioController *audio = LibVLC::audio();
 	if (audio->volume() != volume)
 		audio->setVolume(volume);
 }
 
-void SkinHelper::resize(const QSizeF &size) {
+void Helper::resize(const QSizeF &size) {
 	if (size.width() != width() || size.height() != height()) {
 		setSize(size);
 		emit sizeChanged();
 	}
-}
-
-void SkinHelper::updateScreenGeometry(const QRectF &rect) {
-	if (rect != m_screenGeometry) {
-		m_screenGeometry = rect;
-		emit screenGeometryChanged();
-	}
-}
-
-void SkinHelper::updateScreenGeometry(double x, double y, double w, double h) {
-	updateScreenGeometry(QRectF(x, y, w, h));
 }
 
 //void SkinHelper::save(const QString &name, const QString &key, const QVariant &value) const {
@@ -184,7 +174,7 @@ void SkinHelper::updateScreenGeometry(double x, double y, double w, double h) {
 //	return r.value(key, def);
 //}
 
-bool SkinHelper::exec(const QString &id) {
+bool Helper::exec(const QString &id) {
 	QAction *action = RootMenu::get().action(id);
 	if (action) {
 		if (action->menu())
@@ -198,13 +188,10 @@ bool SkinHelper::exec(const QString &id) {
 	}
 }
 
-void SkinHelper::__updateMrl(const Mrl &mrl) {
-	emit currentMediaInfoChanged();
-	const int idx = playlist()->rowOf(mrl);
-	if (m_mediaIndex != idx) {
-		m_mediaIndex = idx;
-		emit currentMediaIndexChanged();
-	}
+void Helper::__updateMrl(const Mrl &mrl) {
+	m_media->setIndex(playlist()->rowOf(mrl));
+	m_media->setInfo(mrl.displayName());
+	emit currentMediaChanged();
 	if (m_mediaCount != playlist()->rowCount()) {
 		m_mediaCount = playlist()->rowCount();
 		emit mediaCountChanged();
@@ -213,14 +200,14 @@ void SkinHelper::__updateMrl(const Mrl &mrl) {
 
 /*******************************************************************/
 
-struct SkinManager::Data {
+struct Manager::Data {
 	Data();
 	void check(const QString &path);
 
 	QMap<QString, QUrl> skins;
 };
 
-void SkinManager::Data::check(const QString &path) {
+void Manager::Data::check(const QString &path) {
 	QDir dir(path);
 	qDebug() << "checking skin path:" << dir.absolutePath();
 	if (!dir.exists())
@@ -234,7 +221,7 @@ void SkinManager::Data::check(const QString &path) {
 	}
 }
 
-SkinManager::Data::Data() {
+Manager::Data::Data() {
 	const QString app = QCoreApplication::applicationDirPath();
 	if (app.isEmpty())
 		check("./skin");
@@ -249,20 +236,20 @@ SkinManager::Data::Data() {
 		check(QString::fromLocal8Bit(path));
 }
 
-SkinManager::Data &SkinManager::d() {
+Manager::Data &Manager::d() {
 	static Data d;
 	return d;
 }
 
-QStringList SkinManager::avaiableSkinNames() {
+QStringList Manager::avaiableSkinNames() {
 	return d().skins.keys();
 }
 
-QList<QUrl> SkinManager::avaiableSkinUrls() {
+QList<QUrl> Manager::avaiableSkinUrls() {
 	return d().skins.values();
 }
 
-QString SkinManager::defaultSkinName() {
+QString Manager::defaultSkinName() {
 	if (d().skins.isEmpty())
 		return QString();
 	if (d().skins.contains("default"))
@@ -270,12 +257,12 @@ QString SkinManager::defaultSkinName() {
 	return d().skins.begin().key();
 }
 
-SkinHelper *SkinManager::load(const QString &name) {
+Helper *Manager::load(const QString &name) {
 	const QUrl url = d().skins.value(name, QUrl());
 	return url.isEmpty() ? 0 : load(url, name);
 }
 
-SkinHelper *SkinManager::load(const QUrl &url, const QString &nameHint) {
+Helper *Manager::load(const QUrl &url, const QString &nameHint) {
 	static QDeclarativeEngine engine;
 	static QDeclarativeComponent comp(&engine, 0);
 	comp.loadUrl(url);
@@ -284,11 +271,13 @@ SkinHelper *SkinManager::load(const QUrl &url, const QString &nameHint) {
 		qWarning("%s", qPrintable(comp.errorString()));
 		return 0;
 	} else {
-		SkinHelper *skin = qobject_cast<SkinHelper*>(comp.create());
+		Helper *skin = qobject_cast<Helper*>(comp.create());
 		if (!skin)
 			return 0;
 		if (skin->name().isEmpty())
 			skin->setName(nameHint);
 		return skin;
 	}
+}
+
 }

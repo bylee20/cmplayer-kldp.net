@@ -1,13 +1,17 @@
 import QtQuick 1.0
 import CMPlayerSkin 0.1
 import "content"
+import "content/util.js" as Util
 
 Skin {
 	id: skin
+
+	function updateMediaInfo() {mediaInfo.text = "["+currentMedia.nth+"/"+mediaCount+"] " + currentMedia.info}
+
 	name: "default"
-
-	function __updateMediaInfo() {media.text = "["+(currentMediaIndex+1)+"/"+mediaCount+"] " + currentMediaInfo}
-
+	screen.width : width
+	screen.anchors.top: top
+	screen.anchors.bottom: controls.top
 	onStorageCreated: {
 		storage.hide = false
 	}
@@ -19,12 +23,11 @@ Skin {
 	}
 	onDurationChanged: {length.text = formatMSec(duration, "hh:mm:ss"); seek.maximum = duration}
 	onPositionChanged: {pos.text = formatMSec(position, "hh:mm:ss"); seek.value = position}
-	onVolumeChanged: {volume.value = skin.volume}
-	onMutedChanged: {mute.icon = muted ? "content/speaker-off.png" : "content/speaker.png"; mute.checked = muted}
-	onPlayerStateChanged: {pause.icon = (playerState == Skin.PlayingState) ? "content/pause.png" : "content/play.png"}
-	onCurrentMediaIndexChanged: __updateMediaInfo()
-	onMediaCountChanged: __updateMediaInfo()
-	onCurrentMediaInfoChanged: __updateMediaInfo()
+	onVolumeChanged: volume.value = skin.volume
+	onMutedChanged: mute.checked = muted
+	onPlayerStateChanged: pause.checked = (playerState == Skin.PlayingState)
+	onMediaCountChanged: updateMediaInfo()
+	onCurrentMediaChanged: updateMediaInfo()
 	onFullscreenChanged: {
 		hider.visible = !fullscreen;
 		if (fullscreen || hider.checked) {
@@ -39,23 +42,16 @@ Skin {
 	MouseArea {
 		id: mouseTracker
 
-		function __contains(min, val, max) {return min <= val && val <= max;}
+//		function __contains(min, val, max) {return min <= val && val <= max;}
 		hoverEnabled: true
 		anchors.fill: parent
 		onPositionChanged: {
 			if (parent.visible && parent.fullscreen) {
-				controls.visible = __contains(0, mouseX-controls.pos.x, controls.width)
-						&& __contains(0, mouseY-controls.pos.y, controls.height)
+				controls.visible = Util.inRange(0, mouseX-controls.pos.x, controls.width)
+						&& Util.inRange(0, mouseY-controls.pos.y, controls.height)
 				hider.visible = controls.visible
 			}
 		}
-	}
-
-	Screen {
-		id: screen
-		width: parent.width
-		anchors.top: parent.top
-		anchors.bottom: controls.top
 	}
 
 	Rectangle {
@@ -93,43 +89,51 @@ Skin {
 
 			Button {
 				id: pause
-				anchors.top: parent.top; anchors.bottom: parent.bottom
-				anchors.left: parent.left;
+				anchors.top: parent.top;
+				anchors.bottom: parent.bottom;
+				anchors.left: parent.left
 				width: height
-				icon: "content/play.png"
+				icon.normal: "content/play.png"
+				icon.checked: "content/pause.png"
 				onClicked: skin.exec("menu/play/pause")
 			}
 
 			Button {
 				id: backward
-				icon: "content/backward.png"
-				anchors.top: parent.top; anchors.left: pause.right; anchors.leftMargin: 1
+				anchors.top: parent.top
+				anchors.left: pause.right
+				anchors.leftMargin: 1
 				width: pause.width/2-0.5
 				height: width
+				icon.normal: "content/backward.png"
 				onClicked: skin.exec("menu/play/seek/backward1")
 			}
 			Button {
 				id: forward
-				icon: "content/forward.png"
-				anchors.top: parent.top; anchors.left: backward.right; anchors.leftMargin: 1
+				anchors.top: parent.top
+				anchors.left: backward.right
+				anchors.leftMargin: 1
 				width: backward.width
 				height: backward.height
+				icon.normal: "content/forward.png"
 				onClicked: skin.exec("menu/play/seek/forward1")
 			}
 			Button {
 				id: prev
-				icon: "content/previous.png"
-				anchors.bottom: parent.bottom; anchors.left: pause.right; anchors.leftMargin: 1
+				icon.normal: "content/previous.png"
+				anchors {bottom: parent.bottom; left: pause.right; leftMargin: 1}
 				width: backward.width
 				height: backward.height
 				onClicked: skin.exec("menu/play/prev")
 			}
 			Button {
 				id: next
-				icon: "content/next.png"
-				anchors.bottom: parent.bottom; anchors.left: prev.right; anchors.leftMargin: 1
+				anchors.bottom: parent.bottom
+				anchors.left: prev.right
+				anchors.leftMargin: 1
 				width: backward.width
 				height: backward.height
+				icon.normal: "content/next.png"
 				onClicked: skin.exec("menu/play/next")
 			}
 		}
@@ -137,9 +141,13 @@ Skin {
 		Item {
 			id: rightBox
 
-			anchors.top: boundary.bottom; anchors.topMargin: 0; anchors.bottom: parent.bottom
+			anchors.top: boundary.bottom;
+			anchors.topMargin: 0;
+			anchors.bottom: parent.bottom
 			anchors.left: leftBox.right
-			anchors.right: parent.right; anchors.rightMargin: 2
+			anchors.right: parent.right;
+			anchors.rightMargin: 2
+
 			Rectangle {
 				id: lcd
 
@@ -154,7 +162,7 @@ Skin {
 				}
 
 				Text {
-					id: media
+					id: mediaInfo
 					anchors {
 						top: parent.top; bottom: parent.bottom
 						left: parent.left; right: pos.left
@@ -162,7 +170,7 @@ Skin {
 					}
 					elide: Text.ElideRight
 					font.pixelSize: 11
-					verticalAlignment: "AlignVCenter"
+					verticalAlignment: Text.AlignVCenter
 				}
 
 				Text {
@@ -170,7 +178,7 @@ Skin {
 
 					width: paintedWidth; anchors.right: slash.left; height: parent.height
 					font.pixelSize: 11
-					verticalAlignment: "AlignVCenter"
+					verticalAlignment: Text.AlignVCenter
 					text: "00:00:00"
 				}
 				Text {
@@ -179,7 +187,7 @@ Skin {
 					width: paintedWidth; height: parent.height; anchors.right: length.left
 					text: "/"
 					font.pixelSize: 11
-					verticalAlignment: "AlignVCenter"
+					verticalAlignment: Text.AlignVCenter
 				}
 				Text {
 					id: length
@@ -188,7 +196,7 @@ Skin {
 					anchors.right: parent.right; anchors.rightMargin: 3
 					text: "00:00:00"
 					font.pixelSize: 11
-					verticalAlignment: "AlignVCenter"
+					verticalAlignment: Text.AlignVCenter
 				}
 			}
 
@@ -202,13 +210,16 @@ Skin {
 					anchors.right: mute.left
 					anchors.rightMargin: 2
 					anchors.verticalCenter: parent.verticalCenter
-					onValueChangedByUser: skin.seek(value)
+					onValueChangedByMouse: skin.seek(value)
 				}
 
 				Button {
 					id: mute
-					icon: "content/speaker.png"
+					icon.normal: "./content/speaker.png"
+					icon.checked: "./content/speaker-off.png"
+
 					width: 10
+					height: 10
 					anchors.top: parent.top; anchors.topMargin: 1
 					anchors.bottom: parent.bottom; anchors.bottomMargin: 1
 					anchors.right: volume.left
@@ -222,9 +233,8 @@ Skin {
 					anchors.right: parent.right
 					anchors.verticalCenter: parent.verticalCenter
 					width: 70
-					onValueChangedByUser: skin.volume = value
+					onValueChangedByMouse: skin.volume = value
 				}
-
 			}
 		}
 	}
@@ -232,16 +242,18 @@ Skin {
 	Rectangle {
 		id: hider
 
-		property bool checked: false
+		property alias checked: button.checked
 
-		anchors.bottom: parent.bottom; anchors.margins: 1
+		anchors.margins: 1
+		anchors.bottom: parent.bottom;
 		anchors.left:parent.left
 		width: 8
 		height: 8
-		radius: 3
+		radius: 4
 		color: "#333"
-		border.width: 1
+		border.width: 2
 		border.color: "#555"
+
 		onCheckedChanged: {
 			controls.visible = !checked
 			if (fullscreen || checked)
@@ -249,19 +261,12 @@ Skin {
 			else
 				screen.anchors.bottom = controls.top
 		}
-		MouseArea {
-			hoverEnabled: true
-			anchors.fill: parent
-			onHoveredChanged: {
-				if (containsMouse)
-					parent.border.color = "#6ad"
-				else
-					parent.border.color = "#555"
-				parent.border.width = pressed ? 2 : 1
 
-			}
-			onPressed: {parent.border.width = 2; parent.checked = !parent.checked}
-			onReleased: {parent.border.width = 1;}
+		Button {
+			id: button
+			anchors.fill: parent
+			radius: parent.radius
+			onClicked: checked = !checked;
 		}
 	}
 }
