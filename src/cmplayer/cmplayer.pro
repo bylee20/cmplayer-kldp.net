@@ -116,7 +116,8 @@ HEADERS += playengine.hpp \
     record.hpp \
     skinhelper.hpp \
     videoscene_p.hpp \
-    videoscene.hpp
+    videoscene.hpp \
+    skinmisc.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -181,7 +182,8 @@ SOURCES += main.cpp \
     actiongroup.cpp \
     record.cpp \
     skinhelper.cpp \
-    videoscene.cpp
+    videoscene.cpp \
+    skinmisc.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts
@@ -190,3 +192,5 @@ FORMS += \
     ui/opendvddialog.ui \
     ui/snapshotdialog.ui \
     ui/pref_widget.ui
+
+OTHER_FILES +=

@@ -31,7 +31,6 @@ private:
 	static const int FilterEffects = InvertColor | RemapLuma | AutoContrast;
 	static const int KernelEffects = Blur | Sharpen;
 public:
-	enum SkinMode {AlwaysSkin, /*AutoSkin, */NeverSkin};
 	QGraphicsView *view();
 	~VideoScene();
 	// takes ownership
@@ -54,9 +53,7 @@ public:
 	void setEffects(Effects effect);
 	double outputFrameRate(bool reset = true) const;
 	QRectF renderableArea() const;
-	void setSkinMode(SkinMode mode);
 	void setSkin(Skin::Helper *skin);
-	SkinMode skinMode() const;
 	bool inScreen(const QPointF &pos) const;
 public slots:
 	void setAspectRatio(double ratio);
@@ -64,6 +61,8 @@ public slots:
 	void setOverlayType(int type);
 signals:
 	void formatChanged(const VideoFormat &format);
+	void renderableAreaChanged(const QRectF &rect);
+	void screenSizeChanged(const QSize &size);
 protected:
 	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 	void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -75,7 +74,8 @@ protected:
 private slots:
 	void updateVertices();
 private:
-	void updateSkinVisible(const QPointF &pos = QCursor::pos());
+	friend class VideoView;
+//	void updateSkinVisible(const QPointF &pos = QCursor::pos());
 	VideoScene(VideoUtil *util);
 	bool needToPropagate(const QPointF &mouse);
 	void updateSceneRect();

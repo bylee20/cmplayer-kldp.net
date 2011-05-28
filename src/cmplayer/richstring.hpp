@@ -9,8 +9,9 @@ public:
 	static QStringRef trimmed(const QStringRef &ref);
 	static QStringRef processEntity(int &idx, const QStringRef &ref);
 	static bool skipSeperator(int &idx, const QStringRef &text);
-	static inline QStringRef midRef(const QStringRef &ref, int from, int n = -1)
-		{return ref.string()->midRef(ref.position() + from, n);}
+	static inline QStringRef midRef(const QStringRef &ref, int from, int n = -1) {
+		return ref.string()->midRef(ref.position() + from, n < 0 ? ref.size() - from : n);
+	}
 	static inline bool isRightBracket(ushort c) {return c == '>';}
 	static inline bool isSeperator(ushort c) {return c == ' ' || c == '\t' || c == '\r' || c== '\n';}
 	static inline bool inRange(ushort min, ushort c, ushort max) {return min <= c && c <= max;}

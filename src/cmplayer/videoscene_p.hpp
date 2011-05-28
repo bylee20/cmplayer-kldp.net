@@ -42,11 +42,14 @@ public:
 		setMinimumSize(300, 200);
 		setContextMenuPolicy(Qt::CustomContextMenu);
 
+		setOptimizationFlag(QGraphicsView::DontSavePainterState);
 		setViewport(viewport);
 		setAutoFillBackground(false);
 		setAttribute(Qt::WA_OpaquePaintEvent, true);
 		viewport->setAutoFillBackground(false);
 		viewport->setAttribute(Qt::WA_OpaquePaintEvent, true);
+
+		setInteractive(true);
 	}
 	QSize sizeHint() const {return m_scene->sizeHint(1.0).toSize();}
 private:
@@ -67,6 +70,11 @@ private:
 	void resizeEvent(QResizeEvent *event) {
 		QGraphicsView::resizeEvent(event);
 		m_scene->updateSceneRect();
+	}
+	void dragEnterEvent(QDragEnterEvent *event) {
+		QGraphicsView::dragEnterEvent(event);
+		if (event->mimeData()->hasUrls())
+			event->setAccepted(false);
 	}
 };
 
@@ -106,7 +114,7 @@ struct VideoScene::Data {
 	QMutex mutex;		ColorProperty color;
 	LogoDrawer logo;	Overlay *overlay;	GLuint texture[3];
 	VideoFrame *buffer, *frame, *temp, buf[3];	VideoUtil *util;
-	QSize size;	QRectF vtx;
+	QSize size, screenSize;	QRectF vtx;
 	Effects effects;
 	void **planes[VIDEO_FRAME_MAX_PLANE_COUNT];	VideoFormat format;
 	QList<FragmentProgram*> shaders;		FragmentProgram *shader;
@@ -116,7 +124,6 @@ struct VideoScene::Data {
 	double brightness, contrast, sat_con, sinhue, coshue;
 	bool hasKernel, prepared, logoOn, frameIsSet, hasPrograms, binding;
 	Skin::Helper *skin;	bool autoPopup;
-	SkinMode skinMode;
 // methods
 	static double aspect_ratio(const QSizeF &size) {return size.width()/size.height();}
 	static double aspect_ratio(const QRectF &rect) {return rect.width()/rect.height();}

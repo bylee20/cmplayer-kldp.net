@@ -28,7 +28,7 @@ static inline QTime msecToTime(qint64 ms) {return __null_time.addMSecs(ms);}
 static inline QString msecToString(qint64 ms, const QString &fmt = _LS("hh:mm:ss")) {return msecToTime(ms).toString(fmt);}
 static inline QString secToString(int s, const QString &fmt = _LS("hh:mm:ss")) {return secToTime(s).toString(fmt);}
 static inline qint64 timeToMSec(const QTime &time) {return __null_time.msecsTo(time);}
-static inline qint64 timeToMSec(int h, int m, int s, int ms = 0) {return h*3600000 + m*60000 + s*1000 + ms;}
+static inline qint64 timeToMSec(int h, int m, int s, int ms = 0) {return ((h*60 + m)*60 + s)*1000 + ms;}
 
 QStringList getOpenFileNames(QWidget *p, const QString &t, const QString &dir, const QString &f);
 QString getOpenFileName(QWidget *p, const QString &t, const QString &dir, const QString &f);

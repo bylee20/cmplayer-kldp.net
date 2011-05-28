@@ -250,7 +250,7 @@ void Subtitle::Parser::SubRip::_parse(Subtitle &sub) {
 #undef T_INT
 		QString text;
 		while (!atEnd()) {
-			line = getLine();
+			line = getLine().trimmed();
 			if (line.isEmpty())
 				break;
 			text += line + '\n';

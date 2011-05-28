@@ -64,7 +64,9 @@ void FramebufferObjectOverlay::cache() {
 	QPainter painter(d->fbo);
 	for (int i=0; i<d->osds.size(); ++i) {
 		OsdRenderer *osd = d->osds[i];
-		const QPointF pos = osd->posHint() + (osd->letterboxHint() ? d->bg : d->video).topLeft();
+		QPointF pos = osd->posHint();
+		if (!osd->letterboxHint())
+			pos += d->video.topLeft() - d->bg.topLeft();
 		osd->render(&painter, pos);
 	}
 	painter.end();

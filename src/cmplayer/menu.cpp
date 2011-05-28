@@ -263,8 +263,6 @@ RootMenu::RootMenu(): Menu(_LS("menu"), 0) {
 	playInfo->setShortcut(Qt::Key_Tab);
 
 	Menu *window = obj->addMenu(_LS("window"));
-	window->addAction(_LS("simple-mode"), true);
-	window->addSeparator();
 	// sot == Stay On Top
 	window->addActionToGroup(_LS("sot-always"), true, _LS("sot"))->setData(Enum::StaysOnTop::Always.id());
 	window->addActionToGroup(_LS("sot-playing"), true, _LS("sot"))->setData(Enum::StaysOnTop::Playing.id());
@@ -289,6 +287,10 @@ RootMenu::RootMenu(): Menu(_LS("menu"), 0) {
 	to400->setShortcut(Qt::Key_4);
 	toFull->setShortcuts(QList<QKeySequence>()
 			<< Qt::Key_Enter << Qt::Key_Return << Qt::Key_F);
+	window->addSeparator();
+	window->addAction(_LS("minimize"));
+	window->addAction(_LS("maximize"));
+	window->addAction(_LS("close"));
 
 	Menu *help = obj->addMenu(_LS("help"));
 	QAction *about = help->addAction(_LS("about"));
@@ -468,12 +470,14 @@ void RootMenu::update() {
 
 	Menu &window = root("window");
 	window.setTitle(tr("Window"));
-	window["simple-mode"]->setText(tr("Simple Mode"));
 	window["sot-always"]->setText(tr("Always Stay on Top"));
 	window["sot-playing"]->setText(tr("Stay on Top Playing"));
 	window["sot-never"]->setText(tr("Don't Stay on Top"));
 	window["proper"]->setText(tr("Proper Size"));
 	window["full"]->setText(tr("Fullscreen"));
+	window["minimize"]->setText(tr("Minimize"));
+	window["maximize"]->setText(tr("Maximize"));
+	window["close"]->setText(tr("Close"));
 
 	Menu &help = root("help");
 	help.setTitle(tr("Help"));

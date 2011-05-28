@@ -27,7 +27,6 @@ AppState::AppState() {
 	RECORD_READ(r, sub_align_top, false);
 	RECORD_READ(r, sub_sync_delay, 0);
 
-	RECORD_READ(r, simple_mode, false);
 	RECORD_READ_ENUM(r, stays_on_top, Enum::StaysOnTop::Playing);
 
 	RECORD_READ(r, last_open_file, QString());
@@ -56,7 +55,6 @@ void AppState::save() const {
 	RECORD_WRITE(r, sub_align_top);
 	RECORD_WRITE(r, sub_sync_delay);
 
-	RECORD_WRITE(r, simple_mode);
 	RECORD_WRITE_ENUM(r, stays_on_top);
 
 	RECORD_WRITE(r, last_open_file);

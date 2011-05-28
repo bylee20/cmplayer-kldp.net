@@ -18,6 +18,63 @@
 #include "appstate.hpp"
 #include "translator.hpp"
 #include "subtitle_parser.hpp"
+#include <QtDeclarative/QDeclarativeView>
+#include "skinhelper.hpp"
+#include "skinmisc.hpp"
+#include <QtGui/QPainter>
+
+class WindowFrame : public QGraphicsView {
+	Q_OBJECT
+public:
+	WindowFrame(QWidget *parent): QGraphicsView(parent) {
+		m_view = 0;
+		m_frame = 0;
+		m_scene = new QGraphicsScene(this);
+		setScene(m_scene);
+		setFrameShape(QFrame::NoFrame);
+		viewport()->setAutoFillBackground(false);
+		setMouseTracking(true);
+	}
+	QSize sizeHint() const {
+		return m_view ? m_view->sizeHint() + zero() : QSize(400, 300);
+	}
+	void setView(QWidget *view) {
+		m_view = view;
+		m_view->setParent(this);
+		m_view->show();
+		setMinimumSize(m_view->minimumSize() + zero());
+		updateViewGeometry();
+	}
+	void setFrameItem(Skin::Frame *frame) {
+		m_frame = frame;
+		m_scene->addItem(m_frame);
+		m_frame->setGeometry(m_scene->sceneRect());
+		setMinimumSize(m_view->minimumSize() + zero());
+		updateViewGeometry();
+		update();
+	}
+	QSize zero() const {return m_frame ? m_frame->zero() : QSize(0, 0);}
+	void setFrameVisible(bool visible) {
+		if (m_frame) {
+			m_frame->setVisible(visible);
+		}
+	}
+private:
+	void updateViewGeometry() {
+		if (m_view)
+			m_view->setGeometry(m_frame ? m_frame->view()->geometry().toRect() : rect());
+	}
+
+	void resizeEvent(QResizeEvent */*event*/) {
+		m_scene->setSceneRect(rect());
+		if (m_frame)
+			m_frame->setSize(size());
+		updateViewGeometry();
+	}
+	QGraphicsScene *m_scene;
+	QWidget *m_view;
+	Skin::Frame *m_frame;
+};
 
 struct MainWindow::Data {
 	bool moving, changingSub, pausedByHiding, dontShowMsg, dontPause;
@@ -30,6 +87,7 @@ struct MainWindow::Data {
 	QPoint prevPos;			QTimer *hider;
 	RecentInfo recent;		ABRepeater *ab;
 	PlaylistView *playlist;		HistoryView *history;
+	WindowFrame *frame;
 //	FavoritesView *favorite;
 #ifndef Q_WS_MAC
 	QSystemTrayIcon *tray;
@@ -68,7 +126,6 @@ struct MainWindow::Data {
 		menu("video")("overlay").g()->trigger(as.overlay.id());
 		menu("subtitle").g("display")->trigger((int)as.sub_letterbox);
 		menu("subtitle").g("align")->trigger((int)as.sub_align_top);
-		menu("window")["simple-mode"]->setChecked(as.simple_mode);
 		menu("window").g("sot")->trigger(as.stays_on_top.id());
 
 		audio->setVolume(as.volume);
@@ -96,7 +153,6 @@ struct MainWindow::Data {
 		as.stays_on_top = stay_on_top_mode();
 		as.sub_letterbox = subtitle->osd()->letterboxHint();
 		as.sub_align_top = subtitle->isTopAligned();
-		as.simple_mode = menu("window")["simple-mode"]->isChecked();
 		QAction *act = menu("video")("overlay").g()->checkedAction();
 		if (act)
 			as.overlay.set(act->data().toInt());
@@ -106,12 +162,6 @@ struct MainWindow::Data {
 	Enum::StaysOnTop stay_on_top_mode() const {
 		const int id = menu("window").g("sot")->checkedAction()->data().toInt();
 		return Enum::StaysOnTop::from(id, Enum::StaysOnTop::Playing);
-	}
-
-	static VideoScene::SkinMode skin_mode(bool simple, bool /*fullscreen*/) {
-//		if (fullscreen)
-//			return VideoScene::AutoSkin;
-		return simple ? VideoScene::NeverSkin : VideoScene::AlwaysSkin;
 	}
 
 	void apply_pref() {

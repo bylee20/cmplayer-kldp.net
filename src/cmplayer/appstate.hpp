@@ -26,7 +26,6 @@ public:
 	bool sub_letterbox, sub_align_top;
 
 // window state
-	bool simple_mode;
 	Enum::StaysOnTop stays_on_top;
 
 // misc

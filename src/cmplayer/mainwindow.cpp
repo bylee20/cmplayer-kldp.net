@@ -13,6 +13,7 @@
 #include <QtGui/QMenuBar>
 #include <QtCore/QDebug>
 #include <QtCore/QTimer>
+#include "skinmisc.hpp"
 
 #ifdef Q_WS_MAC
 //void qt_mac_set_dock_menu(QMenu *menu);
@@ -50,11 +51,14 @@ MainWindow::MainWindow() {
 	d->playInfo->setAudio(d->audio);
 
 	setMouseTracking(true);
-	setCentralWidget(d->video->view());
+	d->frame = new WindowFrame(this);
+	d->frame->setView(d->video->view());
+	setCentralWidget(d->frame);
 	setWindowTitle(QString("CMPlayer %1").arg(Info::version()));
 	setAcceptDrops(true);
 	d->video->view()->setAcceptDrops(true);
 	d->video->view()->viewport()->setAcceptDrops(true);
+//	d->frame->setAcceptDrops(true);
 
 	Menu &open = d->menu("open");		Menu &play = d->menu("play");
 	Menu &video = d->menu("video");		Menu &audio = d->menu("audio");
@@ -107,9 +111,11 @@ MainWindow::MainWindow() {
 	CONNECT(tool["pref"], triggered(), this, setPref());
 	CONNECT(tool["playinfo"], toggled(bool), d->playInfo, setVisible(bool));
 
-	CONNECT(win["simple-mode"], toggled(bool), this, setSimpleMode(bool));
 	CONNECT(win.g("sot"), triggered(int), this, updateStaysOnTop());
 	CONNECT(win.g("size"), triggered(double), this, setVideoSize(double));
+	CONNECT(win["minimize"], triggered(), this, showMinimized());
+	CONNECT(win["maximize"], triggered(), this, maximize());
+	CONNECT(win["close"], triggered(), this, close());
 
 	CONNECT(help["about"], triggered(), this, about());
 	CONNECT(d->menu["exit"], triggered(), qApp, quit());
@@ -129,6 +135,7 @@ MainWindow::MainWindow() {
 	CONNECT(d->engine, tick(int), d->subtitle, render(int));
 	CONNECT(d->video->view(), customContextMenuRequested(const QPoint&), this, showContextMenu(const QPoint&));
 	CONNECT(d->video, formatChanged(VideoFormat), this, updateVideoFormat(VideoFormat));
+	CONNECT(d->video, screenSizeChanged(QSize), this, onScreenSizeChanged(QSize));
 	CONNECT(d->audio, mutedChanged(bool), audio["mute"], setChecked(bool));
 	CONNECT(d->audio, volumeNormalizedChanged(bool), audio["volnorm"], setChecked(bool));
 
@@ -182,7 +189,13 @@ MainWindow::MainWindow() {
 
 	const QString skinName = Skin::Manager::defaultSkinName();
 	qDebug() << "set current skin:" << skinName;
-	d->video->setSkin(Skin::Manager::load(skinName));
+	Skin::Helper *skin = Skin::Manager::load(skinName);
+	d->video->setSkin(skin);
+	if (skin->frame()) {
+		setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
+		setAttribute(Qt::WA_TranslucentBackground);
+		d->frame->setFrameItem(skin->frame());
+	}
 }
 
 MainWindow::~MainWindow() {
@@ -198,8 +211,8 @@ MainWindow::~MainWindow() {
 	LibVLC::finalize();
 }
 
-void MainWindow::setSimpleMode(bool simple) {
-	d->video->setSkinMode(d->skin_mode(simple, isFullScreen()));
+void MainWindow::onScreenSizeChanged(const QSize &size) {
+	showMessage(toString(size));
 }
 
 void MainWindow::updateVideoFormat(const VideoFormat &format) {
@@ -328,7 +341,6 @@ void MainWindow::openUrl() {
 
 void MainWindow::resizeEvent(QResizeEvent *event) {
 	QMainWindow::resizeEvent(event);
-	showMessage(toString((d->video->view()->size() - d->video->skinSizeHint()).toSize()));
 }
 
 void MainWindow::togglePlayPause() {
@@ -382,6 +394,12 @@ void MainWindow::updateSubtitle(QAction *action) {
 		d->subtitle->select(action->data().toInt(), action->isChecked());
 }
 
+void MainWindow::maximize() {
+	setGeometry(QDesktopWidget().availableGeometry(this));
+//	move(0, 0);
+//	resize()
+}
+
 void MainWindow::seek(int diff) {
 	if (!diff || d->engine->state() == StoppedState)
 		return;
@@ -426,7 +444,6 @@ void MainWindow::setMuted(bool muted) {
 void MainWindow::setFullScreen(bool full) {
 	if (full == isFullScreen())
 		return;
-	d->video->setSkinMode(d->skin_mode(d->menu("window")["simple-mode"]->isChecked(), full));
 	d->dontPause = true;
 	d->moving = false;
 	d->prevPos = QPoint();
@@ -459,7 +476,7 @@ void MainWindow::setVideoSize(double rate) {
 			const double target = 0.15;
 			rate = desktop.width()*desktop.height()*target/(video.width()*video.height());
 		}
-		resize(d->video->sizeHint(rate).toSize());
+		resize(d->video->sizeHint(rate).toSize() + d->frame->zero());
 	}
 }
 

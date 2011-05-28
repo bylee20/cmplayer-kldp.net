@@ -1,4 +1,7 @@
 #include "skinhelper.hpp"
+#include <QtDeclarative/QDeclarativeProperty>
+#include <QtGui/QGraphicsSceneHoverEvent>
+#include <QtGui/QGraphicsSceneMouseEvent>
 #include "record.hpp"
 #include "mainwindow.hpp"
 #include "playlistmodel.hpp"
@@ -11,62 +14,16 @@
 #include <QtCore/QDebug>
 #include <QtDeclarative/QDeclarativeEngine>
 #include <QtDeclarative/QDeclarativeComponent>
+#include <QtGui/QPainter>
+#include "skinmisc.hpp"
 
 namespace Skin {
 
-Media::~Media() {
-//	qDebug() << "delete media:" << m_info;
-}
-
-void Storage::save() {
-	if (m_name.isEmpty()) {
-		qWarning("Skin name is empty. Cannot save storage.");
-		return;
-	}
-	const QStringList keys = this->keys();
-	Record r("skin");
-	r.beginGroup(m_name);
-	for (int i=0; i<keys.size(); ++i)
-		r.setValue(keys[i], this->value(keys[i]));
-	r.endGroup();
-}
-
-void Storage::load() {
-	if (m_name.isEmpty()) {
-		qWarning("Skin name is empty. Cannot load storage.");
-		return;
-	}
-	Record r("skin");
-	r.beginGroup(m_name);
-	const QStringList keys = this->keys();
-	for (int i=0; i<keys.size(); ++i) {
-		QVariant &data = (*this)[keys[i]];
-		data = r.value(keys[i], data);
-	}
-	r.endGroup();
-}
-
-Screen::Screen(QDeclarativeItem *parent)
-: QDeclarativeItem(parent) {}
-
-void Screen::geometryChanged(const QRectF &newOne, const QRectF &old) {
-	QDeclarativeItem::geometryChanged(newOne, old);
-	if (newOne != m_rect) {
-		m_rect = newOne;
-		emit geometryChanged();
-	}
-}
-
-void Screen::setGeometry(const QRectF &rect) {
-	if (m_rect != rect) {
-		setPos(rect.topLeft());
-		setSize(rect.size());
-	}
-}
 
 Helper::Helper() {
 	m_duration = m_position = m_mediaCount = 0;
 	m_fullscreen = false;
+	m_autoHide = 0;
 
 	m_media = new Media(this);
 
@@ -82,13 +39,48 @@ Helper::Helper() {
 
 	connect(&MainWindow::get(), SIGNAL(fullScreenChanged(bool)), this, SLOT(__updateFullscreen(bool)));
 	m_storage = new Storage;
-	m_screen = new Screen(this);
-	connect(m_screen, SIGNAL(geometryChanged()), this, SLOT(__updateScreenGeometry()));
+
+	m_renderable = m_screenGeometry = QRectF(0, 0, width(), height());
+	m_box = new Spacer(this);
+	m_frame = 0;
+	m_hider = new ButtonItem(this);
+
+	connect(m_hider, SIGNAL(clicked()), m_hider, SLOT(toggle()));
+	connect(m_hider, SIGNAL(toggled(bool)), this, SLOT(onHiderToggled(bool)));
+//	connect(m_screen, SIGNAL(geometryChanged()), this, SLOT(__updateScreenGeometry()));
+}
+
+void Helper::onHiderToggled(bool hide) {
+	if (m_autoHide)
+		m_autoHide->setVisible(!hide);
+}
+
+void Helper::hoverMoveEvent(QGraphicsSceneHoverEvent *event) {
+	if (m_autoHide && m_fullscreen) {
+		m_autoHide->setVisible(boundingRect().contains(event->pos()) && !m_screenGeometry.contains(event->pos()));
+		m_hider->setVisible(m_autoHide->isVisible());
+	}
 }
 
 Helper::~Helper() {
+	m_storage->insert("hide", m_hider->isChecked());
 	m_storage->save();
 	delete m_storage;
+}
+
+QSizeF Helper::sizeHint() const {
+	if (m_autoHide && !m_autoHide->isVisible() && !m_fullscreen)
+		return QSizeF(0, 0);
+	const QSizeF size = m_autoHide ? m_autoHide->boundingRect().size() : this->size();
+	return size - m_screenGeometry.size();
+}
+
+void Helper::__updateRenderableArea() {
+	const QRectF rect = m_fullscreen || (m_autoHide && !m_autoHide->isVisible()) ? boundingRect() : m_screenGeometry;
+	if (rect != m_renderable) {
+		m_renderable = rect;
+		emit renderableAreaChanged();
+	}
 }
 
 void Helper::setName(const QString &name) {
@@ -100,23 +92,30 @@ void Helper::setName(const QString &name) {
 
 void Helper::componentComplete() {
 	QDeclarativeItem::componentComplete();
+	m_storage->insert("hide", false);
+
 	PlayEngine *engine = LibVLC::engine();
 	__updateDuration(engine->duration());
 	__updatePosition(engine->position());
 	__updateMrl(engine->mrl());
-	__updateScreenGeometry();
+//	__updateScreenGeometry();
 	__updateFullscreen(MainWindow::get().isFullScreen());
 	emit playerStateChanged();
 	emit volumeChanged();
 	emit mutedChanged();
 	emit storageCreated();
 	m_storage->load();
+
+	m_hider->setChecked(m_storage->value("hide").toBool());
 }
 
-void Helper::__updateScreenGeometry() {
-	if (m_screenGeometry != m_screen->geometry()) {
-		m_screenGeometry = m_screen->geometry();
+void Helper::setScreenGeometry(const QRectF &rect) {
+	if (m_screenGeometry != rect) {
+		m_screenGeometry = rect;
 		emit screenGeometryChanged();
+		if (!m_fullscreen)
+			__updateRenderableArea();
+//			emit renderableAreaChanged();
 	}
 }
 
@@ -146,7 +145,32 @@ void Helper::__updatePosition(int position) {
 void Helper::__updateFullscreen(bool full) {
 	if (m_fullscreen != full) {
 		m_fullscreen = full;
+		__updateRenderableArea();
+//		emit renderableAreaChanged();
+
+		m_hider->setVisible(!m_fullscreen);
+		setAcceptsHoverEvents(m_fullscreen);
+		if (m_autoHide)
+			m_autoHide->setVisible(!m_fullscreen && !m_hider->isChecked());
+
 		emit fullscreenChanged();
+	}
+}
+
+//hider.onClicked: {hider.checked = !hider.checked}
+
+//hider.onCheckedChanged: {
+//	if (autoHide)
+//		autoHide.visible = !hider.checked
+//}
+
+void Helper::setAutoHide(QDeclarativeItem *item) {
+	if (m_autoHide != item) {
+		if (m_autoHide)
+			disconnect(m_autoHide, 0, this, 0);
+		m_autoHide = item;
+		connect(m_autoHide, SIGNAL(visibleChanged()), this, SLOT(__updateRenderableArea()));
+		emit autoHideChanged();
 	}
 }
 
@@ -174,18 +198,22 @@ void Helper::resize(const QSizeF &size) {
 //	return r.value(key, def);
 //}
 
-bool Helper::exec(const QString &id) {
+QAction *Helper::action(const QString &id) {
 	QAction *action = RootMenu::get().action(id);
-	if (action) {
-		if (action->menu())
-			action->menu()->exec(QCursor::pos());
-		else
-			action->trigger();
-		return true;
-	} else {
-		qWarning("SkinHelper::exec(): no action or menu %s", qPrintable(id));
+	if (!action)
+		qWarning("SkinHelper: no action or menu %s", qPrintable(id));
+	return action;
+}
+
+bool Helper::exec(const QString &id) {
+	QAction *action = this->action(id);
+	if (!action)
 		return false;
-	}
+	if (action->menu())
+		action->menu()->exec(QCursor::pos());
+	else
+		action->trigger();
+	return true;
 }
 
 void Helper::__updateMrl(const Mrl &mrl) {

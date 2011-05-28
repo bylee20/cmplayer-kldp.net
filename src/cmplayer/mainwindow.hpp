@@ -20,8 +20,9 @@ public slots:
 signals:
 	void fullScreenChanged(bool full);
 private slots:
-	void setSimpleMode(bool simple);
+	void maximize();
 	void applyPref();
+	void onScreenSizeChanged(const QSize &size);
 	void updateVideoFormat(const VideoFormat &format);
 	void setEffect(QAction *action);
 	void setSubtitleAlign(int data);
