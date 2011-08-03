@@ -24,7 +24,7 @@ Pref::Dialog::Dialog(QWidget *parent)
 		QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
 #ifdef Q_WS_MAC
 	QToolBar *tb = new QToolBar(this);
-	tb->setIconSize(QSize(48, 48));
+	tb->setIconSize(QSize(32, 32));
 	QActionGroup *g = new QActionGroup(this);
 	for (int i=0; i<d->widget->pageCount(); ++i) {
 		QAction *act = tb->addAction(d->widget->pageIcon(i), d->widget->pageName(i));

@@ -13,6 +13,9 @@ TARGET = cmplayer
 }
 
 macx {
+	QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.5
+	QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.5.sdk
+	INCLUDEPATH += /usr/include/c++/4.2.1
 	isEmpty(VLC_INCLUDE_PATH) {
 		VLC_INCLUDE_PATH = /Applications/VLC.app/Contents/MacOS/include
 	}
@@ -25,7 +28,7 @@ macx {
 	TARGET = CMPlayer
 	HEADERS += application_mac.hpp
 	SOURCES += application_mac.mm
-	#QMAKE_CFLAGS += -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5
+
 } else:unix {
 	LIBS += -lX11
         HEADERS += application_x11.hpp

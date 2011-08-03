@@ -65,7 +65,11 @@ const char *Info::pluginPath() {
 	if (!path.isEmpty() && QDir(QString::fromLocal8Bit(path.data())).exists())
 		return path.constData();
 #endif
-	path = "./vlc-plugins";
+	path = QCoreApplication::applicationDirPath().toLocal8Bit();
+	if (path.isEmpty())
+		path = "./vlc-plugins";
+	else
+		path += "/vlc-plugins";
 	return path.constData();
 }
 

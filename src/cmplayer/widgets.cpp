@@ -11,7 +11,6 @@
 
 #include "audiocontroller.hpp"
 #include "playengine.hpp"
-#include "controls.hpp"
 #include "libvlc.hpp"
 #include <QtGui/QApplication>
 #include <QtGui/QMouseEvent>

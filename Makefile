@@ -10,7 +10,8 @@ install_dir := sh install_dir.sh
 configured := $(shell cat configured)
 
 ifeq ($(os),osx)
-	QMAKE ?= /Users/xylosper/QtSDK/Desktop/Qt/473/gcc/bin/qmake -spec macx-g++
+	QTSDK ?= /Users/xylosper/QtSDK/Desktop/Qt/473/gcc
+	QMAKE ?= /usr/bin/qmake -spec macx-g++
 	VLC_INCLUDE_PATH ?= /Applications/VLC.app/Contents/MacOS/include
 	VLC_LIB_PATH ?= /Applications/VLC.app/Contents/MacOS/lib
 	VLC_PLUGINS_PATH ?= /Applications/VLC.app/Contents/MacOS/plugins
@@ -18,6 +19,12 @@ ifeq ($(os),osx)
 	cmplayer_exec_path := bin/$(cmplayer_exec).app/Contents/MacOS
 	qmake_vars := $(qmake_vars) \
 		VLC_INCLUDE_PATH=\\\"$(VLC_INCLUDE_PATH)\\\" VLC_LIB_PATH=$(VLC_LIB_PATH)
+	copy_qt = \
+		install -d $(cmplayer_exec_path)/../Frameworks/$@.framework/Versions/4 && \
+		$(install_file) $(QTSDK)/lib/$@.framework/Versions/4/$@ \
+			$(cmplayer_exec_path)/../Frameworks/$@.framework/Versions/4/$@ && \
+		install_name_tool -change $(QTSDK)/lib/$@.framework/Versions/Current/$@ \
+			@executable_path/../Frameworks/$@.framework/Versions/4/$@
 else
 	PREFIX ?= /usr/local
 	QMAKE ?= qmake
@@ -42,7 +49,7 @@ ifeq ($(os),osx)
 	$(install_file) $(VLC_PLUGINS_PATH)/*.dylib $(cmplayer_exec_path)/$(vlc_plugins_dir)
 	$(install_file) bin/$(vlc_plugins_dir)/*.dylib $(cmplayer_exec_path)/$(vlc_plugins_dir)
 #	$(install_dir) bin/skin $(cmplayer_exec_path)/skin
-#	macdeployqt bin/$(cmplayer_exec).app
+	macdeployqt bin/$(cmplayer_exec).app
 endif
 
 cmplayer: translations libchardet

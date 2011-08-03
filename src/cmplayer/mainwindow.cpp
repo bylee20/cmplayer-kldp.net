@@ -241,33 +241,6 @@ void MainWindow::openLocation(const QString &loc) {
 	openMrl(Mrl(loc));
 }
 
-
-//ControlWidget *MainWindow::createControlWidget() {
-//	ControlWidget *w = new ControlWidget(d->engine, 0);
-//	Menu &play = d->menu("play");
-//	w->connectMute(d->menu("audio")["mute"]);
-//	w->connectPlay(play["pause"]);
-//	w->connectPrevious(play["prev"]);
-//	w->connectNext(play["next"]);
-//	w->connectForward(play("seek")["forward1"]);
-//	w->connectBackward(play("seek")["backward1"]);
-//	return w;
-//}
-
-//QWidget *MainWindow::createCentralWidget(QWidget *video, QWidget *control) {
-//	QWidget *w = new QWidget(this);
-//	w->setMouseTracking(true);
-//	w->setAutoFillBackground(false);
-//	w->setAttribute(Qt::WA_OpaquePaintEvent, true);
-
-//	QVBoxLayout *vbox = new QVBoxLayout(w);
-//	vbox->addWidget(video);
-//	vbox->addWidget(control);
-//	vbox->setContentsMargins(0, 0, 0, 0);
-//	vbox->setSpacing(0);
-//	return w;
-//}
-
 void MainWindow::updateRecentActions(const QList<Mrl> &list) {
 	Menu &recent = d->menu("open")("recent");
 	ActionGroup *group = recent.g();
@@ -479,28 +452,18 @@ void MainWindow::setFullScreen(bool full) {
 }
 
 void MainWindow::setVideoSize(double rate) {
-//	if (rate < 0.0) {
-//		const bool wasFull = isFullScreen();
-//		setFullScreen(!wasFull);
-//	} else {
-//		if (isFullScreen())
-//			setFullScreen(false);
-//		if (rate == 0.0) {
-//			const QSizeF video = d->video->sizeHint(1.0) - d->video->skinSizeHint();
-//			const QSizeF desktop = QDesktopWidget().availableGeometry(this).size();
-//			const double target = 0.15;
-//			rate = desktop.width()*desktop.height()*target/(video.width()*video.height());
-//		}
-//		resize(d->video->sizeHint(rate).toSize() + d->frame->zero());
-//	}
-
-
 	if (rate < 0) {
 		const bool wasFull = isFullScreen();
 		setFullScreen(!wasFull);
 	} else {
 		if (isFullScreen())
 			setFullScreen(false);
+		if (rate == 0.0) {
+			const QSizeF video = d->video->sizeHint();
+			const QSizeF desktop = QDesktopWidget().availableGeometry(this).size();
+			const double target = 0.15;
+			rate = desktop.width()*desktop.height()*target/(video.width()*video.height());
+		}
 		resize(size() - d->video->size() + d->video->sizeHint()*qSqrt(rate));
 	}
 }
