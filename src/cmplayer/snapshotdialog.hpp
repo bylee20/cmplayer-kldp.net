@@ -4,14 +4,14 @@
 #include <QtGui/QDialog>
 #include <QtGui/QScrollArea>
 
-class VideoScene;		class SubtitleRenderer;
+class VideoRenderer;		class SubtitleRenderer;
 
 class SnapshotDialog : public QDialog {
 	Q_OBJECT
 public:
 	SnapshotDialog(QWidget *parent = 0);
 	~SnapshotDialog();
-	void setVideoRenderer(const VideoScene *video);
+	void setVideoRenderer(const VideoRenderer *video);
 	void setSubtitleRenderer(const SubtitleRenderer *subtitle);
 public slots:
 	void take();

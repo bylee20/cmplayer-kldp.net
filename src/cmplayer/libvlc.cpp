@@ -1,6 +1,6 @@
 #include "audiocontroller.hpp"
 #include "info.hpp"
-#include "videoscene.hpp"
+#include "videorenderer.hpp"
 #include "videoframe.hpp"
 #include "playengine.hpp"
 #include "libvlc.hpp"
@@ -11,7 +11,7 @@ struct LibVLC::Data {};
 LibVLC::Data *LibVLC::d = 0;
 PlayEngine *LibVLC::m_engine = 0;
 AudioController *LibVLC::m_audio = 0;
-VideoScene *LibVLC::m_video = 0;
+VideoRenderer *LibVLC::m_video = 0;
 libvlc_instance_t *LibVLC::m_inst = 0;
 libvlc_media_player_t *LibVLC::m_mp = 0;
 
@@ -84,7 +84,7 @@ void LibVLC::initialize() {
 		libvlc_event_attach(man, events[i], cbManageEvent, d);
 
 	m_engine = new PlayEngine(m_mp);
-	m_video = new VideoScene(&util_v);
+	m_video = new VideoRenderer(&util_v);
 	m_audio = new AudioController(&util_a);
 }
 

@@ -6,7 +6,7 @@
 #include "mrl.hpp"
 
 class AudioController;		class AudioBuffer;
-class VideoScene;		class PlayEngine;
+class VideoRenderer;		class PlayEngine;
 class AudioFormat;		class VideoFormat;
 
 class LibVLC {
@@ -15,7 +15,7 @@ public:
 	static void finalize();
 	static PlayEngine *engine() {Q_ASSERT(d != 0 && m_engine != 0); return m_engine;}
 	static AudioController *audio() {Q_ASSERT(d != 0 && m_audio != 0); return m_audio;}
-	static VideoScene *video() {Q_ASSERT(d != 0 && m_video != 0); return m_video;}
+	static VideoRenderer *video() {Q_ASSERT(d != 0 && m_video != 0); return m_video;}
 	static libvlc_instance_t *inst() {Q_ASSERT(d != 0 && m_inst != 0); return m_inst;}
 	static libvlc_media_player_t *mp() {Q_ASSERT(d != 0 && m_mp != 0); return m_mp;}
 	static libvlc_media_t *newMedia(const Mrl &mrl) {Q_ASSERT(d && m_inst);
@@ -38,7 +38,7 @@ private:
 
 	static PlayEngine *m_engine;
 	static AudioController *m_audio;
-	static VideoScene *m_video;
+	static VideoRenderer *m_video;
 	static libvlc_instance_t *m_inst;
 	static libvlc_media_player_t *m_mp;
 };

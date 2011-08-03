@@ -5,14 +5,15 @@
 #include <QtCore/QString>
 #include <QtCore/QLocale>
 
+typedef QList<QLocale> LocaleList;
+
 class Translator : public QObject {
 	Q_OBJECT
 public:
 	~Translator();
 	static bool load(const QLocale &locale = QLocale::system());
-	static QList<QLocale> availableLocales();
+	static LocaleList availableLocales();
 private:
-	static QSet<QLocale> getLocales(const QString &p, const QString &f, const QString &rx);
 	Translator();
 	static Translator &get();
 	struct Data;

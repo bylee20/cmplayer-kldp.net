@@ -1,97 +1,59 @@
 #ifndef MAINWINDOW_P_HPP
 #define MAINWINDOW_P_HPP
 
-#include "mainwindow.hpp"
-#include "menu.hpp"
-#include "pref.hpp"
-#include "playengine.hpp"
-#include "videoscene.hpp"
-#include "audiocontroller.hpp"
-#include "subtitlerenderer.hpp"
-#include "subtitleview.hpp"
-#include "recentinfo.hpp"
+#include "avmisc.hpp"
 #include "timelineosdrenderer.hpp"
 #include "playinfoview.hpp"
-#include "abrepeater.hpp"
+#include "colorproperty.hpp"
 #include "playlistview.hpp"
 #include "historyview.hpp"
-#include "appstate.hpp"
-#include "translator.hpp"
+#include "playlistmodel.hpp"
+#include "subtitlerenderer.hpp"
+#include "charsetdetector.hpp"
+#include "snapshotdialog.hpp"
 #include "subtitle_parser.hpp"
-#include <QtDeclarative/QDeclarativeView>
-#include "skinhelper.hpp"
-#include "skinmisc.hpp"
-#include <QtGui/QPainter>
+#include "audiocontroller.hpp"
+#include "controlwidget.hpp"
+#include "pref_dialog.hpp"
+#include "application.hpp"
+#include "recentinfo.hpp"
+#include "abrepeater.hpp"
+#include "mainwindow.hpp"
+#include "playengine.hpp"
+#include "translator.hpp"
+#include "videorenderer.hpp"
+#include "appstate.hpp"
+#include "playlist.hpp"
+#include "dialogs.hpp"
+#include "toolbox.hpp"
+#include "libvlc.hpp"
+#include "menu.hpp"
+#include "info.hpp"
+#include <QtGui/QMouseEvent>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QMenuBar>
+#include <QtCore/QDebug>
+#include <QtCore/QTimer>
+#include <qmath.h>
 
-class WindowFrame : public QGraphicsView {
-	Q_OBJECT
-public:
-	WindowFrame(QWidget *parent): QGraphicsView(parent) {
-		m_view = 0;
-		m_frame = 0;
-		m_scene = new QGraphicsScene(this);
-		setScene(m_scene);
-		setFrameShape(QFrame::NoFrame);
-		viewport()->setAutoFillBackground(false);
-		setMouseTracking(true);
-	}
-	QSize sizeHint() const {
-		return m_view ? m_view->sizeHint() + zero() : QSize(400, 300);
-	}
-	void setView(QWidget *view) {
-		m_view = view;
-		m_view->setParent(this);
-		m_view->show();
-		setMinimumSize(m_view->minimumSize() + zero());
-		updateViewGeometry();
-	}
-	void setFrameItem(Skin::Frame *frame) {
-		m_frame = frame;
-		m_scene->addItem(m_frame);
-		m_frame->setGeometry(m_scene->sceneRect());
-		setMinimumSize(m_view->minimumSize() + zero());
-		updateViewGeometry();
-		update();
-	}
-	QSize zero() const {return m_frame ? m_frame->zero() : QSize(0, 0);}
-	void setFrameVisible(bool visible) {
-		if (m_frame) {
-			m_frame->setVisible(visible);
-		}
-	}
-private:
-	void updateViewGeometry() {
-		if (m_view)
-			m_view->setGeometry(m_frame ? m_frame->view()->geometry().toRect() : rect());
-	}
+class MainWindow::Data {
 
-	void resizeEvent(QResizeEvent */*event*/) {
-		m_scene->setSceneRect(rect());
-		if (m_frame)
-			m_frame->setSize(size());
-		updateViewGeometry();
-	}
-	QGraphicsScene *m_scene;
-	QWidget *m_view;
-	Skin::Frame *m_frame;
-};
-
-struct MainWindow::Data {
 	bool moving, changingSub, pausedByHiding, dontShowMsg, dontPause;
 	QMenu *context;
 	RootMenu menu;			const Pref &pref;
-	PlayEngine *engine;		VideoScene *video;
+	PlayEngine *engine;		VideoRenderer *video;
 	SubtitleRenderer *subtitle;	AudioController *audio;
 	TimeLineOsdRenderer *timeLine;	TextOsdRenderer *message;
 	PlayInfoView *playInfo;
 	QPoint prevPos;			QTimer *hider;
 	RecentInfo recent;		ABRepeater *ab;
 	PlaylistView *playlist;		HistoryView *history;
-	WindowFrame *frame;
 //	FavoritesView *favorite;
+	QWidget *center;		ControlWidget *control;
 #ifndef Q_WS_MAC
 	QSystemTrayIcon *tray;
 #endif
+	friend class MainWindow;
 // methods
 	Data(): pref(Pref::get()) {}
 
@@ -116,6 +78,32 @@ struct MainWindow::Data {
 			actions[i]->setChecked(loaded[i].isSelected());
 		}
 		changingSub = false;
+	}
+
+	ControlWidget *create_control_widget() {
+		ControlWidget *w = new ControlWidget(engine, 0);
+		Menu &play = menu("play");
+		w->connectMute(menu("audio")["mute"]);
+		w->connectPlay(play["pause"]);
+		w->connectPrevious(play["prev"]);
+		w->connectNext(play["next"]);
+		w->connectForward(play("seek")["forward1"]);
+		w->connectBackward(play("seek")["backward1"]);
+		return w;
+	}
+
+	QWidget *create_central_widget(QWidget *video, QWidget *control) {
+		QWidget *w = new QWidget;
+		w->setMouseTracking(true);
+		w->setAutoFillBackground(false);
+		w->setAttribute(Qt::WA_OpaquePaintEvent, true);
+
+		QVBoxLayout *vbox = new QVBoxLayout(w);
+		vbox->addWidget(video);
+		vbox->addWidget(control);
+		vbox->setContentsMargins(0, 0, 0, 0);
+		vbox->setSpacing(0);
+		return w;
 	}
 
 	void load_state() {

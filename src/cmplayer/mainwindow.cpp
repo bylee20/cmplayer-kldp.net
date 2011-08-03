@@ -1,29 +1,15 @@
 #include "mainwindow_p.hpp"
-#include "avmisc.hpp"
-#include "snapshotdialog.hpp"
-#include "pref_dialog.hpp"
-#include "application.hpp"
-#include "playlist.hpp"
-#include "dialogs.hpp"
-#include "libvlc.hpp"
-#include "info.hpp"
-#include "skinhelper.hpp"
 #include <QtGui/QDesktopWidget>
-#include <QtGui/QMouseEvent>
-#include <QtGui/QMenuBar>
-#include <QtCore/QDebug>
-#include <QtCore/QTimer>
-#include "skinmisc.hpp"
 
 #ifdef Q_WS_MAC
-//void qt_mac_set_dock_menu(QMenu *menu);
+void qt_mac_set_dock_menu(QMenu *menu);
 #endif
 
 MainWindow *MainWindow::obj = 0;
 
 MainWindow::MainWindow() {
 	obj = this;
-	d = new Data;
+	d = new Data();
 	LibVLC::initialize();
 
 	d->dontPause = false;
@@ -37,28 +23,26 @@ MainWindow::MainWindow() {
 	d->playInfo = new PlayInfoView;
 	d->message = new TextOsdRenderer(Qt::AlignTop | Qt::AlignLeft);
 	d->ab = new ABRepeater(d->engine, d->subtitle);
+	d->control = d->create_control_widget();
+	d->center = d->create_central_widget(d->video, d->control);
 	d->hider = new QTimer(this);
 	d->playlist = new PlaylistView(d->engine, this);
 	d->history = new HistoryView(d->engine, this);
 #ifndef Q_WS_MAC
 	d->tray = new QSystemTrayIcon(app()->defaultIcon(), this);
 #endif
-	d->video->view()->setMouseTracking(true);
-	d->video->view()->viewport()->setMouseTracking(true);
 
 	d->hider->setSingleShot(true);
 	d->playInfo->setVideo(d->video);
 	d->playInfo->setAudio(d->audio);
 
 	setMouseTracking(true);
-	d->frame = new WindowFrame(this);
-	d->frame->setView(d->video->view());
-	setCentralWidget(d->frame);
+	setCentralWidget(d->center);
 	setWindowTitle(QString("CMPlayer %1").arg(Info::version()));
 	setAcceptDrops(true);
-	d->video->view()->setAcceptDrops(true);
-	d->video->view()->viewport()->setAcceptDrops(true);
-//	d->frame->setAcceptDrops(true);
+	d->video->setAcceptDrops(false);
+	d->center->setAcceptDrops(false);
+	d->control->setAcceptDrops(false);
 
 	Menu &open = d->menu("open");		Menu &play = d->menu("play");
 	Menu &video = d->menu("video");		Menu &audio = d->menu("audio");
@@ -133,7 +117,7 @@ MainWindow::MainWindow() {
 	CONNECT(d->engine, mrlChanged(Mrl), this, updateMrl(Mrl));
 	CONNECT(d->engine, stateChanged(MediaState,MediaState), this, updateState(MediaState,MediaState));
 	CONNECT(d->engine, tick(int), d->subtitle, render(int));
-	CONNECT(d->video->view(), customContextMenuRequested(const QPoint&), this, showContextMenu(const QPoint&));
+	CONNECT(d->video, customContextMenuRequested(const QPoint&), this, showContextMenu(const QPoint&));
 	CONNECT(d->video, formatChanged(VideoFormat), this, updateVideoFormat(VideoFormat));
 	CONNECT(d->video, screenSizeChanged(QSize), this, onScreenSizeChanged(QSize));
 	CONNECT(d->audio, mutedChanged(bool), audio["mute"], setChecked(bool));
@@ -166,6 +150,7 @@ MainWindow::MainWindow() {
 	d->menu.load();
 	d->apply_pref();
 
+
 	d->playlist->setPlaylist(d->recent.lastPlaylist());
 	d->engine->setMrl(d->recent.lastMrl());
 	updateRecentActions(d->recent.openList());
@@ -186,21 +171,11 @@ MainWindow::MainWindow() {
 	d->video->addOsd(d->subtitle->osd());
 	d->video->addOsd(d->timeLine);
 	d->video->addOsd(d->message);
-
-	const QString skinName = Skin::Manager::defaultSkinName();
-	qDebug() << "set current skin:" << skinName;
-	Skin::Helper *skin = Skin::Manager::load(skinName);
-	d->video->setSkin(skin);
-	if (skin->frame()) {
-		setWindowFlags(windowFlags() | Qt::FramelessWindowHint);
-		setAttribute(Qt::WA_TranslucentBackground);
-		d->frame->setFrameItem(skin->frame());
-	}
 }
 
 MainWindow::~MainWindow() {
 	obj = 0;
-	d->video->view()->setParent(0);
+	d->video->setParent(0);
 	d->engine->stop();
 	d->recent.setLastPlaylist(d->playlist->playlist());
 	d->recent.setLastMrl(d->engine->mrl());
@@ -262,12 +237,36 @@ DEF_TRACK_MENU_FUNC(spu, SPU, ("subtitle")("spu"), "Current Subtitle Track")
 DEF_TRACK_MENU_FUNC(title, Title, ("play")("title"), "Current Title")
 DEF_TRACK_MENU_FUNC(chapter, Chapter, ("play")("chapter"), "Current Chapter")
 
-#undef DEF_TRACK_MENU_FUNC
-
 void MainWindow::openLocation(const QString &loc) {
 	openMrl(Mrl(loc));
 }
 
+
+//ControlWidget *MainWindow::createControlWidget() {
+//	ControlWidget *w = new ControlWidget(d->engine, 0);
+//	Menu &play = d->menu("play");
+//	w->connectMute(d->menu("audio")["mute"]);
+//	w->connectPlay(play["pause"]);
+//	w->connectPrevious(play["prev"]);
+//	w->connectNext(play["next"]);
+//	w->connectForward(play("seek")["forward1"]);
+//	w->connectBackward(play("seek")["backward1"]);
+//	return w;
+//}
+
+//QWidget *MainWindow::createCentralWidget(QWidget *video, QWidget *control) {
+//	QWidget *w = new QWidget(this);
+//	w->setMouseTracking(true);
+//	w->setAutoFillBackground(false);
+//	w->setAttribute(Qt::WA_OpaquePaintEvent, true);
+
+//	QVBoxLayout *vbox = new QVBoxLayout(w);
+//	vbox->addWidget(video);
+//	vbox->addWidget(control);
+//	vbox->setContentsMargins(0, 0, 0, 0);
+//	vbox->setSpacing(0);
+//	return w;
+//}
 
 void MainWindow::updateRecentActions(const QList<Mrl> &list) {
 	Menu &recent = d->menu("open")("recent");
@@ -341,6 +340,15 @@ void MainWindow::openUrl() {
 
 void MainWindow::resizeEvent(QResizeEvent *event) {
 	QMainWindow::resizeEvent(event);
+//	int width = d->center->width();
+//	int height = d->center->height();
+//	if (isFullScreen()) {
+//		d->video->setFixedRenderSize(QSize(width, height));
+//	} else {
+//		d->video->setFixedRenderSize(QSize());
+//		height -= d->control->height();
+//	}
+//	showMessage(QString("%1x%2").arg(width).arg(height), 1000);
 }
 
 void MainWindow::togglePlayPause() {
@@ -360,6 +368,9 @@ void MainWindow::updateMrl(const Mrl &mrl) {
 	else
 		clearSubtitles();
 	d->sync_subtitle_file_menu();
+	const int row = d->playlist->model()->currentRow() + 1;
+	if (row > 0)
+		d->control->setTrackNumber(row, d->playlist->model()->rowCount());
 }
 
 void MainWindow::clearSubtitles() {
@@ -384,14 +395,17 @@ void MainWindow::openSubFile() {
 void MainWindow::appendSubFiles(const QStringList &files, bool checked, const QString &enc) {
 	if (files.isEmpty())
 		return;
-	for (int i=0; i<files.size(); ++i)
+	for (int i=0; i<files.size(); ++i) {
 		d->subtitle->load(files[i], enc, checked);
+	}
 	d->sync_subtitle_file_menu();
 }
 
 void MainWindow::updateSubtitle(QAction *action) {
-	if (!d->changingSub)
-		d->subtitle->select(action->data().toInt(), action->isChecked());
+	if (!d->changingSub) {
+		const int idx = action->data().toInt();
+		d->subtitle->select(idx, action->isChecked());
+	}
 }
 
 void MainWindow::maximize() {
@@ -447,6 +461,7 @@ void MainWindow::setFullScreen(bool full) {
 	d->dontPause = true;
 	d->moving = false;
 	d->prevPos = QPoint();
+	d->control->setHidden(full);
 	if (full) {
 		app()->setAlwaysOnTop(this, false);
 		setWindowState(windowState() | Qt::WindowFullScreen);
@@ -460,23 +475,33 @@ void MainWindow::setFullScreen(bool full) {
 		updateStaysOnTop();
 	}
 	d->dontPause = false;
-	emit fullScreenChanged(full);
+	emit fullscreenChanged(full);
 }
 
 void MainWindow::setVideoSize(double rate) {
-	if (rate < 0.0) {
+//	if (rate < 0.0) {
+//		const bool wasFull = isFullScreen();
+//		setFullScreen(!wasFull);
+//	} else {
+//		if (isFullScreen())
+//			setFullScreen(false);
+//		if (rate == 0.0) {
+//			const QSizeF video = d->video->sizeHint(1.0) - d->video->skinSizeHint();
+//			const QSizeF desktop = QDesktopWidget().availableGeometry(this).size();
+//			const double target = 0.15;
+//			rate = desktop.width()*desktop.height()*target/(video.width()*video.height());
+//		}
+//		resize(d->video->sizeHint(rate).toSize() + d->frame->zero());
+//	}
+
+
+	if (rate < 0) {
 		const bool wasFull = isFullScreen();
 		setFullScreen(!wasFull);
 	} else {
 		if (isFullScreen())
 			setFullScreen(false);
-		if (rate == 0.0) {
-			const QSizeF video = d->video->sizeHint(1.0) - d->video->skinSizeHint();
-			const QSizeF desktop = QDesktopWidget().availableGeometry(this).size();
-			const double target = 0.15;
-			rate = desktop.width()*desktop.height()*target/(video.width()*video.height());
-		}
-		resize(d->video->sizeHint(rate).toSize() + d->frame->zero());
+		resize(size() - d->video->size() + d->video->sizeHint()*qSqrt(rate));
 	}
 }
 
@@ -556,7 +581,7 @@ void MainWindow::moveSubtitle(int dy) {
 	showMessage(tr("Subtitle Position"), newPos, "%");
 }
 
-#define IS_IN_CENTER (d->video->view()->geometry().contains(d->video->view()->mapFrom(this, event->pos())))
+#define IS_IN_CENTER (d->video->geometry().contains(d->video->mapFrom(this, event->pos())))
 #define IS_BUTTON(b) (event->buttons() & (b))
 
 void MainWindow::mousePressEvent(QMouseEvent *event) {
@@ -566,6 +591,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 	if (IS_BUTTON(Qt::LeftButton) && !isFullScreen()) {
 		d->moving = true;
 		d->prevPos = event->globalPos();
+	}
+	if (IS_BUTTON(Qt::MidButton)) {
+		if (QAction *action = d->menu.middleClickAction(event->modifiers()))
+			action->trigger();
 	}
 }
 
@@ -580,6 +609,10 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 			d->moving = false;
 			d->prevPos = QPoint();
 		}
+		static const int h = d->control->height();
+		QRect rect = this->rect();
+		rect.setTop(rect.height() - h);
+		d->control->setVisible(rect.contains(event->pos()));
 		if (d->pref.hide_cursor)
 			d->hider->start(d->pref.hide_cursor_delay);
 	} else {
@@ -602,6 +635,25 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event) {
 		d->prevPos = QPoint();
 	}
 	QMainWindow::mouseReleaseEvent(event);
+}
+
+void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
+	QMainWindow::mouseDoubleClickEvent(event);
+	if (IS_BUTTON(Qt::LeftButton) && IS_IN_CENTER) {
+		if (QAction *action = d->menu.doubleClickAction(event->modifiers()))
+			action->trigger();
+	}
+}
+
+void MainWindow::wheelEvent(QWheelEvent *event) {
+	if (IS_IN_CENTER && event->delta()) {
+		if (QAction *action = d->menu.wheelScrollAction(event->modifiers(), event->delta() > 0)) {
+			action->trigger();
+			event->accept();
+			return;
+		}
+	}
+	QMainWindow::wheelEvent(event);
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event) {
@@ -795,10 +847,10 @@ void MainWindow::setEffect(QAction *act) {
 	if (!act)
 		return;
 	const QList<QAction*> acts = d->menu("video")("filter").actions();
-	VideoScene::Effects effects = 0;
+	VideoRenderer::Effects effects = 0;
 	for (int i=0; i<acts.size(); ++i) {
 		if (acts[i]->isChecked())
-			effects |= static_cast<VideoScene::Effect>(acts[i]->data().toInt());
+			effects |= static_cast<VideoRenderer::Effect>(acts[i]->data().toInt());
 	}
 	d->video->setEffects(effects);
 }

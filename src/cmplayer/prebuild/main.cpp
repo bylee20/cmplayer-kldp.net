@@ -6,18 +6,17 @@
 #include <QtCore/QTextStream>
 #include "shaderinterpreter.hpp"
 #include "enumgenerator.hpp"
-#include "enumtemplate1.hpp"
 
 static void makeShader();
 
 int main(int argc, char **argv) {
 	EnumGenerator::generate2();
-	qDebug() << Enum::__ENUM_CLASS::Item0.name();
+//	qDebug() << Enum::__ENUM_CLASS::Item0.name();
 //	qDebug() << ListEnum::Item0.id() << ListEnum::Item0.toString();
 //	Test t = Test::v1;
 //	Test::v1.key();
-//	QCoreApplication app(argc, argv);
-//	makeShader();
+	QCoreApplication app(argc, argv);
+	makeShader();
 //	EnumGenerator::generate();
 	return 0;
 }

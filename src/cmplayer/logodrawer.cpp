@@ -40,16 +40,18 @@ void LogoDrawer::drawLogo(QPainter *painter, const QRectF &bg) {
 void LogoDrawer::draw(QPainter *painter, const QRectF &bg) {
 	const double w = bg.width();
 	const double h = bg.height();
-	const QRectF rect(0, 0, w, h);
+
 	painter->save();
 	painter->setPen(Qt::NoPen);
 	painter->setRenderHint(QPainter::Antialiasing);
-	painter->translate(bg.topLeft());
 
 	painter->save();
 	painter->scale(w, h);
-	painter->fillRect(rect, m_bgBrush);
+	painter->fillRect(bg, m_bgBrush);
+	painter->restore();
 
+	painter->save();
+	painter->scale(w, h);
 	painter->setOpacity(0.2);
 	painter->setBrush(m_lightBrush);
 	painter->drawPath(m_lightPath);

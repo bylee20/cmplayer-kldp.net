@@ -2,16 +2,11 @@
 #define GLRENDERER_H
 
 #include <QtOpenGL/QGLWidget>
-#include <QGraphicsView>
 
 class OsdRenderer;	class VideoFormat;
 class VideoUtil;	class ColorProperty;
 
-namespace Skin {
-class Helper;
-}
-
-class VideoScene : public QGraphicsScene {
+class VideoRenderer : public QGLWidget {
 	Q_OBJECT
 public:
 	enum Effect {
@@ -31,12 +26,11 @@ private:
 	static const int FilterEffects = InvertColor | RemapLuma | AutoContrast;
 	static const int KernelEffects = Blur | Sharpen;
 public:
-	QGraphicsView *view();
-	~VideoScene();
+	VideoRenderer(VideoUtil *util, QWidget *parent = 0);
+	~VideoRenderer();
 	// takes ownership
 	void addOsd(OsdRenderer *osd);
-	QSizeF skinSizeHint() const;
-	QSizeF sizeHint(double times) const;
+	QSize sizeHint() const;
 	bool hasFrame() const;
 	QImage frameImage() const;
 	const VideoFormat &format() const;
@@ -48,54 +42,56 @@ public:
 	void setLogoMode(bool on);
 	void setColorProperty(const ColorProperty &prop);
 	const ColorProperty &colorProperty() const;
+	void setFixedRenderSize(const QSize &size);
 	void clearEffects();
 	void setEffect(Effect effect, bool on);
 	void setEffects(Effects effect);
+	void setInfoVisible(bool visible);
 	double outputFrameRate(bool reset = true) const;
-	QRectF renderableArea() const;
-	void setSkin(Skin::Helper *skin);
-	bool inScreen(const QPointF &pos) const;
 public slots:
 	void setAspectRatio(double ratio);
 	void setCropRatio(double ratio);
 	void setOverlayType(int type);
 signals:
 	void formatChanged(const VideoFormat &format);
-	void renderableAreaChanged(const QRectF &rect);
 	void screenSizeChanged(const QSize &size);
 protected:
-	void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-	void mousePressEvent(QGraphicsSceneMouseEvent *event);
-	void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
-	void wheelEvent(QGraphicsSceneWheelEvent *event);
-	void drawBackground(QPainter *painter, const QRectF &rect);
-	bool event(QEvent *event);
-private slots:
-	void updateVertices();
+	void mouseMoveEvent(QMouseEvent *event);
+	void mousePressEvent(QMouseEvent *event);
+	void mouseReleaseEvent(QMouseEvent *event);
 private:
-	friend class VideoView;
-//	void updateSkinVisible(const QPointF &pos = QCursor::pos());
-	VideoScene(VideoUtil *util);
-	bool needToPropagate(const QPointF &mouse);
-	void updateSceneRect();
+	double widgetRatio() const {return (double)width()/(double)height();}
+	static int translateButton(Qt::MouseButton qbutton);
 	void *lock(void ***planes);
 	void unlock(void *id, void *const *plane);
 	void display(void *id);
 	void process(void **planes);
 	void render(void **planes);
 	void prepare(const VideoFormat *format);
-
-	class VideoView;
-	class FrameRateMeasure;
-	friend class VideoView;
 	friend class LibVLC;
 
+	void updateSize();
+	QSize renderableSize() const;
+	static QGLFormat makeFormat();
+	void paintEvent(QPaintEvent *event);
+	void resizeEvent(QResizeEvent *event);
+	bool event(QEvent *event);
+	typedef void (*_glProgramStringARB) (GLenum, GLenum, GLsizei, const GLvoid *);
+	typedef void (*_glBindProgramARB) (GLenum, GLuint);
+	typedef void (*_glDeleteProgramsARB) (GLsizei, const GLuint *);
+	typedef void (*_glGenProgramsARB) (GLsizei, GLuint *);
+	typedef void (*_glProgramLocalParameter4fARB) (GLenum, GLuint, GLfloat, GLfloat, GLfloat, GLfloat);
 	typedef void (*_glActiveTexture) (GLenum);
+	_glProgramStringARB glProgramStringARB;
+	_glBindProgramARB glBindProgramARB;
+	_glDeleteProgramsARB glDeleteProgramsARB;
+	_glGenProgramsARB glGenProgramsARB;
 	_glActiveTexture glActiveTexture;
-	struct Data;	Data *d;
+	_glProgramLocalParameter4fARB glProgramLocalParameter4fARB;
+	struct Data;
+	Data *d;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(VideoScene::Effects)
+Q_DECLARE_OPERATORS_FOR_FLAGS(VideoRenderer::Effects)
 
 #endif

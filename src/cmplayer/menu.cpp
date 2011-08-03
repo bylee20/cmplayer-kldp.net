@@ -1,6 +1,6 @@
 #include "menu.hpp"
+#include "videorenderer.hpp"
 #include "enums.hpp"
-#include "videoscene.hpp"
 #include "pref.hpp"
 #include "colorproperty.hpp"
 #include <QtCore/QDebug>
@@ -195,19 +195,19 @@ RootMenu::RootMenu(): Menu(_LS("menu"), 0) {
 
 	Menu *effect = video->addMenu(_LS("filter"));
 	effect->g()->setExclusive(false);
-	effect->addActionToGroup(_LS("flip-v"), true)->setData((int)VideoScene::FlipVertically);
-	effect->addActionToGroup(_LS("flip-h"), true)->setData((int)VideoScene::FlipHorizontally);
+	effect->addActionToGroup(_LS("flip-v"), true)->setData((int)VideoRenderer::FlipVertically);
+	effect->addActionToGroup(_LS("flip-h"), true)->setData((int)VideoRenderer::FlipHorizontally);
 	effect->addSeparator();
-	effect->addActionToGroup(_LS("blur"), true)->setData((int)VideoScene::Blur);
-	effect->addActionToGroup(_LS("sharpen"), true)->setData((int)VideoScene::Sharpen);
+	effect->addActionToGroup(_LS("blur"), true)->setData((int)VideoRenderer::Blur);
+	effect->addActionToGroup(_LS("sharpen"), true)->setData((int)VideoRenderer::Sharpen);
 	effect->addSeparator();
-	effect->addActionToGroup(_LS("remap"), true)->setData((int)VideoScene::RemapLuma);
-	effect->addActionToGroup(_LS("auto-contrast"), true)->setData((int)VideoScene::AutoContrast);
+	effect->addActionToGroup(_LS("remap"), true)->setData((int)VideoRenderer::RemapLuma);
+	effect->addActionToGroup(_LS("auto-contrast"), true)->setData((int)VideoRenderer::AutoContrast);
 	effect->addSeparator();
-	effect->addActionToGroup(_LS("gray"), true)->setData((int)VideoScene::Grayscale);
-	effect->addActionToGroup(_LS("invert"), true)->setData((int)VideoScene::InvertColor);
+	effect->addActionToGroup(_LS("gray"), true)->setData((int)VideoRenderer::Grayscale);
+	effect->addActionToGroup(_LS("invert"), true)->setData((int)VideoRenderer::InvertColor);
 	effect->addSeparator();
-	effect->addActionToGroup(_LS("ignore"), true)->setData((int)VideoScene::IgnoreEffect);
+	effect->addActionToGroup(_LS("ignore"), true)->setData((int)VideoRenderer::IgnoreEffect);
 	video->addSeparator();
 
 	QAction *creset = video->addActionToGroup(_LS("reset"), false, _LS("color"));

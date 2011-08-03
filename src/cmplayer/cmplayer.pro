@@ -25,6 +25,7 @@ macx {
 	TARGET = CMPlayer
 	HEADERS += application_mac.hpp
 	SOURCES += application_mac.mm
+	#QMAKE_CFLAGS += -isysroot /Developer/SDKs/MacOSX10.5.sdk -mmacosx-version-min=10.5
 } else:unix {
 	LIBS += -lX11
         HEADERS += application_x11.hpp
@@ -34,7 +35,7 @@ macx {
 TEMPLATE = app
 CONFIG += link_pkgconfig debug_and_release
 
-QT = core gui opengl network declarative
+QT = core gui opengl network
 
 INCLUDEPATH += ../libchardet-1.0.1/src
 
@@ -51,6 +52,7 @@ RESOURCES += rsclist.qrc
 HEADERS += playengine.hpp \
     mainwindow.hpp \
     mrl.hpp \
+    controlwidget.hpp \
     global.hpp \
     menu.hpp \
     squeezedlabel.hpp \
@@ -94,10 +96,12 @@ HEADERS += playengine.hpp \
     pixelbufferoverlay.hpp \
     pixmapoverlay.hpp \
     overlay.hpp \
+    videorenderer.hpp \
     avmisc.hpp \
     subtitlemodel.hpp \
     tagiterator.hpp \
     subtitle_parser_p.hpp \
+    enums.hpp \
     snapshotdialog.hpp \
     events.hpp \
     listmodel.hpp \
@@ -111,17 +115,13 @@ HEADERS += playengine.hpp \
     widgets.hpp \
     qtcolorpicker.hpp \
     richtext.hpp \
-    enums.hpp \
-    actiongroup.hpp \
     record.hpp \
-    skinhelper.hpp \
-    videoscene_p.hpp \
-    videoscene.hpp \
-    skinmisc.hpp
+    actiongroup.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
     mrl.cpp \
+    controlwidget.cpp \
     global.cpp \
     menu.cpp \
     colorproperty.cpp \
@@ -166,24 +166,23 @@ SOURCES += main.cpp \
     pixelbufferoverlay.cpp \
     pixmapoverlay.cpp \
     overlay.cpp \
+    videorenderer.cpp \     
     subtitlemodel.cpp \
     tagiterator.cpp \
     subtitle_parser_p.cpp \
+    enums.cpp \
     snapshotdialog.cpp \
     events.cpp \
     listmodel.cpp \
     fragmentprogram.cpp \
+    mainwindow_p.cpp \
     pref_widget.cpp \
     playinfoview.cpp \
     widgets.cpp \
     qtcolorpicker.cpp \
     richtext.cpp \
-    enums.cpp \
-    actiongroup.cpp \
     record.cpp \
-    skinhelper.cpp \
-    videoscene.cpp \
-    skinmisc.cpp
+    actiongroup.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts
@@ -192,5 +191,3 @@ FORMS += \
     ui/opendvddialog.ui \
     ui/snapshotdialog.ui \
     ui/pref_widget.ui
-
-OTHER_FILES +=

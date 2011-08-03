@@ -2,10 +2,8 @@
 #define INFO_HPP
 
 #include <QtCore/QStringList>
-#include <QtCore/QCoreApplication>
 
 class Info {
-	Q_DECLARE_TR_FUNCTIONS(Info)
 public:
 	class ExtList : public QStringList {
 	public:
@@ -25,15 +23,10 @@ public:
 	static QStringList audioNameFilter() {return self.m_audioExt.toNameFilter();}
 	static QStringList subtitleNameFilter() {return self.m_subExt.toNameFilter();}
 	static QStringList playlistNameFilter() {return self.m_plExt.toNameFilter();}
-	static const char *version() {return "0.5.3.2";}
+	static const char *version() {return "0.5.3";}
 	static QString mediaExtFilter();
-	static QString allExtFilter();
-	static QString videoExtFilter();
-	static QString audioExtFilter();
-	static QString subtitleExtFilter();
 	static QStringList mediaNameFilter() {return videoNameFilter() += audioNameFilter();}
 	static const char *pluginPath();
-//	static const char *skinPath();
 private:
 	Info();
 	ExtList m_videoExt, m_audioExt, m_subExt, m_plExt;

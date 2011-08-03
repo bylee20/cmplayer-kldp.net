@@ -1,7 +1,7 @@
 #include "controlwidget.hpp"
+#include "widgets.hpp"
 #include "squeezedlabel.hpp"
 #include "playengine.hpp"
-#include "controls.hpp"
 #include "libvlc.hpp"
 #include "mrl.hpp"
 #include <QtGui/QLinearGradient>
@@ -279,13 +279,13 @@ void ControlWidget::setState(MediaState state) {
 }
 
 void ControlWidget::setDuration(int duration) {
-	d->lcd->duration->setText(msecsToString(duration));
+	d->lcd->duration->setText(msecToString(duration));
 }
 
 void ControlWidget::setPlayTime(int time) {
 	const int secs = time/1000;
 	if (d->lcd->prevSecs != secs) {
-		d->lcd->time->setText(secsToString(secs));
+		d->lcd->time->setText(secToString(secs));
 		d->lcd->prevSecs = secs;
 	}
 }

@@ -1,5 +1,5 @@
 #include "audiocontroller.hpp"
-#include "videoscene.hpp"
+//#include "videoscene.hpp"
 #include "playengine.hpp"
 #include "recentinfo.hpp"
 #include "vlcmedia.hpp"

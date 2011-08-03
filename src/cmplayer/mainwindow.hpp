@@ -5,7 +5,8 @@
 #include <QtGui/QSystemTrayIcon>
 #include "global.hpp"
 
-class Mrl;
+class Mrl;		class PlayEngine;
+class Track;		class ControlWidget;
 class VideoFormat;
 
 class MainWindow : public QMainWindow {
@@ -14,15 +15,16 @@ public:
 	MainWindow();
 	~MainWindow();
 	static MainWindow &get() {Q_ASSERT(obj != 0); return *obj;}
+//	PlayEngine *engine() const;
 public slots:
 	void openMrl(const Mrl &mrl, const QString &enc);
 	void openMrl(const Mrl &mrl);
 signals:
-	void fullScreenChanged(bool full);
+	void fullscreenChanged(bool full);
 private slots:
 	void maximize();
-	void applyPref();
 	void onScreenSizeChanged(const QSize &size);
+	void applyPref();
 	void updateVideoFormat(const VideoFormat &format);
 	void setEffect(QAction *action);
 	void setSubtitleAlign(int data);
@@ -79,15 +81,29 @@ private slots:
 	void updateStaysOnTop();
 	void takeSnapshot();
 private:
+//	ControlWidget *createControlWidget();
+//	QWidget *createCentralWidget(QWidget *video, QWidget *control);
 	void appendSubFiles(const QStringList &files, bool checked, const QString &enc);
 	void closeEvent(QCloseEvent *event);
 	void showEvent(QShowEvent *event);
 	void hideEvent(QHideEvent *event);
 	void setFullScreen(bool full);
 	void resizeEvent(QResizeEvent *event);
+	template<typename M, typename A>
+	static typename A::mapped_type getTriggerAction(uint mod, const M &map
+			, const A &act, const typename A::mapped_type &def) {
+		typename M::const_iterator it = map.begin();
+		for (; it != map.end(); ++it) {
+			if (it.key().value() == mod && it.value().first)
+				return act[it.value().second.value()];
+		}
+		return def;
+	}
 	void mouseMoveEvent(QMouseEvent *event);
+	void mouseDoubleClickEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 	void mousePressEvent(QMouseEvent *event);
+	void wheelEvent(QWheelEvent *event);
 	void dropEvent(QDropEvent *event);
 	void dragEnterEvent(QDragEnterEvent *event);
 	void showMessage(const QString &message, int last = 2500);
@@ -97,8 +113,7 @@ private:
 	void showMessage(const QString &cmd, double value
 		, const QString &unit, bool sign = false, int last = 2500);
 	void showMessage(const QString &cmd, bool value, int last = 2500);
-
-	class Data;
+	struct Data;
 	Data *d;
 
 	static MainWindow *obj;

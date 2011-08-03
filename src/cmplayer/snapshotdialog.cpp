@@ -1,7 +1,7 @@
 #include "snapshotdialog.hpp"
 #include "global.hpp"
 #include "subtitlerenderer.hpp"
-#include "videoscene.hpp"
+#include "videorenderer.hpp"
 #include "ui_snapshotdialog.h"
 #include "info.hpp"
 #include <QtCore/QDebug>
@@ -17,7 +17,7 @@
 
 struct SnapshotDialog::Data {
 	Ui::SnapshotDialog ui;
-	const VideoScene *video;
+	const VideoRenderer *video;
 	const SubtitleRenderer *subtitle;
 	TextOsdRenderer *osd;
 	RichString text;
@@ -66,7 +66,7 @@ void SnapshotDialog::copyToClipboard() {
 	QApplication::clipboard()->setPixmap(d->ui.viewer->image());
 }
 
-void SnapshotDialog::setVideoRenderer(const VideoScene *video) {
+void SnapshotDialog::setVideoRenderer(const VideoRenderer *video) {
 	d->video = video;
 }
 

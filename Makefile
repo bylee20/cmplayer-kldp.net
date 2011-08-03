@@ -10,7 +10,7 @@ install_dir := sh install_dir.sh
 configured := $(shell cat configured)
 
 ifeq ($(os),osx)
-	QMAKE ?= qmake -spec macx-g++
+	QMAKE ?= /Users/xylosper/QtSDK/Desktop/Qt/473/gcc/bin/qmake -spec macx-g++
 	VLC_INCLUDE_PATH ?= /Applications/VLC.app/Contents/MacOS/include
 	VLC_LIB_PATH ?= /Applications/VLC.app/Contents/MacOS/lib
 	VLC_PLUGINS_PATH ?= /Applications/VLC.app/Contents/MacOS/plugins
@@ -27,11 +27,11 @@ else
 	APP_PATH ?= $(DATA_PATH)/applications
 	ACTION_PATH ?= $(DATA_PATH)/apps/solid/actions
 	CMPLAYER_VLC_PLUGINS_PATH ?= $(PREFIX)/lib/cmplayer/$(vlc_plugins_dir)
-	CMPLAYER_SKIN_PATH ?= $(DATA_PATH)/cmplayer/skin
+#	CMPLAYER_SKIN_PATH ?= $(DATA_PATH)/cmplayer/skin
 	cmplayer_exec := cmplayer
 	qmake_vars := $(qmake_vars) \
-		DEFINES+="CMPLAYER_VLC_PLUGINS_PATH=\\\\\\\"$(CMPLAYER_VLC_PLUGINS_PATH)\\\\\\\"" \
-		DEFINES+="CMPLAYER_SKIN_PATH=\\\\\\\"$(CMPLAYER_SKIN_PATH)\\\\\\\""
+		DEFINES+="CMPLAYER_VLC_PLUGINS_PATH=\\\\\\\"$(CMPLAYER_VLC_PLUGINS_PATH)\\\\\\\"" #\
+#		DEFINES+="CMPLAYER_SKIN_PATH=\\\\\\\"$(CMPLAYER_SKIN_PATH)\\\\\\\""
 endif
 
 all: vlc-plugins skin cmplayer
@@ -41,8 +41,8 @@ ifeq ($(os),osx)
 	$(install_file) $(VLC_LIB_PATH)/*.dylib* $(cmplayer_exec_path)/lib
 	$(install_file) $(VLC_PLUGINS_PATH)/*.dylib $(cmplayer_exec_path)/$(vlc_plugins_dir)
 	$(install_file) bin/$(vlc_plugins_dir)/*.dylib $(cmplayer_exec_path)/$(vlc_plugins_dir)
-	$(install_dir) bin/skin $(cmplayer_exec_path)/skin
-	macdeployqt bin/$(cmplayer_exec).app
+#	$(install_dir) bin/skin $(cmplayer_exec_path)/skin
+#	macdeployqt bin/$(cmplayer_exec).app
 endif
 
 cmplayer: translations libchardet
@@ -67,7 +67,7 @@ endif
 	cd src/libchardet* && make
 
 skin: bin_dir
-	$(install_dir) src/skin bin/skin
+#	$(install_dir) src/skin bin/skin
 
 bin_dir:
 	install -d bin
