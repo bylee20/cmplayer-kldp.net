@@ -168,14 +168,6 @@ VideoRenderer::~VideoRenderer() {
 	delete d;
 }
 
-static inline void setRgbFromYuv(uchar *&r, int y, int u, int v) {
-	y -= 16;	y *= 298;
-	u -= 128;	v -= 128;
-	*r++ = qBound(0, (y + 409*v + 128) >> 8, 255);
-	*r++ = qBound(0, (y - 100*u - 208*v + 128) >> 8, 255);
-	*r++ = qBound(0, (y + 516*u + 128) >> 8, 255);
-}
-
 QImage VideoRenderer::frameImage() const {
 	if (!d->frameIsSet || !VideoFormat::isPlanar(d->format.output_fourcc))
 		return QImage();
@@ -189,6 +181,15 @@ QImage VideoRenderer::frameImage() const {
 	const uchar *u0 = frame.data(1);
 	const uchar *v0 = frame.data(2);
 	uchar *r1 = image.bits();
+
+	auto setRgbFromYuv = [](uchar *&r, int y, int u, int v) -> void {
+		y -= 16;	y *= 298;
+		u -= 128;	v -= 128;
+		*r++ = qBound(0, (y + 409*v + 128) >> 8, 255);
+		*r++ = qBound(0, (y - 100*u - 208*v + 128) >> 8, 255);
+		*r++ = qBound(0, (y + 516*u + 128) >> 8, 255);
+	};
+
 	for (int j = 0; j < image.height()/2; ++j) {
 		const uchar *u = u0;	const uchar *v = v0;
 		const uchar *y1 = y0;	const uchar *y2 = y1 + dy;
@@ -340,10 +341,6 @@ QSize VideoRenderer::sizeHint() const {
 	QSizeF crop(targetCropRatio(aspect), 1.0);
 	crop.scale(size, Qt::KeepAspectRatio);
 	return crop.toSize();
-}
-
-static bool isSameRatio(double r1, double r2) {
-	return (r1 < 0.0 && r2 < 0.0) || qFuzzyCompare(r1, r2);
 }
 
 void VideoRenderer::setAspectRatio(double ratio) {
@@ -524,16 +521,16 @@ void VideoRenderer::paintEvent(QPaintEvent */*event*/) {
 		glActiveTexture(GL_TEXTURE0);
 
 		const float textureCoords[] = {
-			left,	top,	d->brightness,
-			right,	top,	d->brightness,
-			right,	bottom,	d->brightness,
-			left,	bottom, d->brightness
+			(float)left,	(float)top,	(float)d->brightness,
+			(float)right,	(float)top,	(float)d->brightness,
+			(float)right,	(float)bottom,	(float)d->brightness,
+			(float)left,	(float)bottom, (float)d->brightness
 		};
 		const float vertexCoords[] = {
-			d->vtx.left(),	d->vtx.top(),
-			d->vtx.right(),	d->vtx.top(),
-			d->vtx.right(),	d->vtx.bottom(),
-			d->vtx.left(),	d->vtx.bottom()
+			(float)d->vtx.left(),	(float)d->vtx.top(),
+			(float)d->vtx.right(),(float)	d->vtx.top(),
+			(float)d->vtx.right(),	(float)d->vtx.bottom(),
+			(float)d->vtx.left(),	(float)d->vtx.bottom()
 		};
 
 		glEnableClientState(GL_VERTEX_ARRAY);

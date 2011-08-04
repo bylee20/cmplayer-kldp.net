@@ -13,9 +13,16 @@ TARGET = cmplayer
 }
 
 macx {
+	QMAKE_CXXFLAGS += -std=c++0x
+	QMAKE_CXX = /opt/local/bin/g++-mp-4.6
+	#LIBS += -L/opt/local/lib/gcc46 -lstdc++
+	#INCLUDEPATH += /opt/local/include/gcc46/c++/x86_64-apple-darwin10
+	#INCLUDEPATH += /opt/local/include/gcc46/c++
+
+
 	QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.5
-	QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.5.sdk
-	INCLUDEPATH += /usr/include/c++/4.2.1
+	#QMAKE_MAC_SDK = /Developer/SDKs/MacOSX10.5.sdk
+	#INCLUDEPATH += /usr/include/c++/4.2.1
 	isEmpty(VLC_INCLUDE_PATH) {
 		VLC_INCLUDE_PATH = /Applications/VLC.app/Contents/MacOS/include
 	}
@@ -24,6 +31,7 @@ macx {
 	}
 	ICON = ../../icons/cmplayer.icns
 	LIBS += -framework Cocoa -framework IOKit
+
 	QMAKE_INFO_PLIST = Info.plist
 	TARGET = CMPlayer
 	HEADERS += application_mac.hpp
@@ -119,7 +127,8 @@ HEADERS += playengine.hpp \
     qtcolorpicker.hpp \
     richtext.hpp \
     record.hpp \
-    actiongroup.hpp
+    actiongroup.hpp \
+    rootmenu.hpp
 SOURCES += main.cpp \
     playengine.cpp \
     mainwindow.cpp \
@@ -185,7 +194,8 @@ SOURCES += main.cpp \
     qtcolorpicker.cpp \
     richtext.cpp \
     record.cpp \
-    actiongroup.cpp
+    actiongroup.cpp \
+    rootmenu.cpp
 TRANSLATIONS += translations/cmplayer_ko.ts \
     translations/cmplayer_en.ts \
     translations/cmplayer_ja.ts

@@ -29,7 +29,7 @@ public:
 		QVector<PrevInfo> prev;
 		int last;
 	};
-	static const float silence = 1e-4;
+	static constexpr float silence = 1e-4;
 	void init(const AudioFormat &format) {
 		m_channels = QVector<Channel>(format.channels);
 	}

@@ -60,6 +60,9 @@ protected:
 	void mousePressEvent(QMouseEvent *event);
 	void mouseReleaseEvent(QMouseEvent *event);
 private:
+	static bool isSameRatio(double r1, double r2) {
+		return (r1 < 0.0 && r2 < 0.0) || qFuzzyCompare(r1, r2);
+	}
 	double widgetRatio() const {return (double)width()/(double)height();}
 	static int translateButton(Qt::MouseButton qbutton);
 	void *lock(void ***planes);

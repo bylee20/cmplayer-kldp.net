@@ -27,7 +27,7 @@
 #include "dialogs.hpp"
 #include "toolbox.hpp"
 #include "libvlc.hpp"
-#include "menu.hpp"
+#include "rootmenu.hpp"
 #include "info.hpp"
 #include <QtGui/QMouseEvent>
 #include <QtGui/QVBoxLayout>

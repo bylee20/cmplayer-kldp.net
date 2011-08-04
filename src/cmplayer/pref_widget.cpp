@@ -8,8 +8,7 @@
 #include <QtGui/QFontDialog>
 #include <QtGui/QGroupBox>
 #include "ui_pref_widget.h"
-
-#include "menu.hpp"
+#include "rootmenu.hpp"
 
 template <typename Enum>
 class PrefWidgetMouseGroup : public QWidget {

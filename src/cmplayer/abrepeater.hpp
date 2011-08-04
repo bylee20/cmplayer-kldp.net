@@ -11,8 +11,7 @@ class ABRepeater : public QObject {
 public:
 	ABRepeater(PlayEngine *engine, const SubtitleRenderer *sub);
 	~ABRepeater();
-	bool repeat(int a, int b, int times = -1) {
-		m_a = a; m_b = b; return start(times);}
+	bool repeat(int a, int b, int times = -1) {m_a = a; m_b = b; return start(times);}
 	bool isRepeating() {return m_repeating;}
 	int a() const {return m_a;}
 	int b() const {return m_b;}

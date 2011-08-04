@@ -2,7 +2,7 @@
 #include "tagiterator.hpp"
 #include "global.hpp"
 #include <QtCore/QDebug>
-#include <list>
+#include <QtCore/QLinkedList>
 
 void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 	int sync = -1;
@@ -52,7 +52,7 @@ void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 		QString klass = tag.value("class").toString();
 		QString text, plain;
 		int brIdx = -1;
-		std::list<QStringRef> pair;
+		QLinkedList<QStringRef> pair;
 		for (;;) {
 			int a = tag.pos();
 			const bool br = tag.elementIs("br");
@@ -67,12 +67,11 @@ void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 				brIdx = -1;
 				appendTo(text, tag);
 				if (tag.elementIs("p") || tag.elementIs("sync") || tag.elementIs("span") || tag.elementIs("font"))
-					pair.push_back(tag.element());
+					pair.push_front(tag.element());
 				else if (!tag.element().isEmpty() && tag.element().at(0) == '/') {
-					std::list<QStringRef>::reverse_iterator it;
-					for (it=pair.rbegin(); it != pair.rend(); ++it) {
+					for (auto it=pair.begin(); it != pair.end(); ++it) {
 						if (it->compare(RichString::midRef(tag.element(), 1), Qt::CaseInsensitive) == 0) {
-							pair.erase(--it.base());
+							pair.erase(it);
 							break;
 						}
 					}
@@ -105,15 +104,15 @@ void Subtitle::Parser::Sami::_parse(Subtitle &sub) {
 				break;
 			}
 		}
+
 		int chop = 0;
 		for (int i=plain.size()-1; i>=0 && isspace(plain[i].unicode()); --i, ++chop) ;
 		plain.chop(chop);
 		if (brIdx != -1)
 			text.chop(text.size() - brIdx);
-		std::list<QStringRef>::const_reverse_iterator rit = pair.rbegin();
-		for (; rit!=pair.rend(); ++rit) {
+		for (const QStringRef &one : const_(pair)) {
 			text += QLatin1String("</");
-			text += *rit;
+			text += one;
 			text += QLatin1Char('>');
 		}
 

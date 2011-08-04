@@ -15,6 +15,9 @@ typedef QLatin1Char _LC;
 
 namespace Global {
 
+template<typename T>
+static inline const T& const_(T& t) {return t;}
+
 static const QTime __null_time;
 static inline QString _U8(const char *utf8) {return QString::fromUtf8(utf8);}
 

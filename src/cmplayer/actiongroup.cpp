@@ -7,9 +7,9 @@ ActionGroup::ActionGroup(QObject *parent)
 
 void ActionGroup::setChecked(const QVariant &data, bool checked) {
 	const QList<QAction*> acts = actions();
-	for (int i=0; i<acts.size(); ++i) {
-		if (acts[i]->data() == data) {
-			acts[i]->setChecked(checked);
+	for (QAction *act : acts) {
+		if (act->data() == data) {
+			act->setChecked(checked);
 			return;
 		}
 	}
@@ -17,9 +17,9 @@ void ActionGroup::setChecked(const QVariant &data, bool checked) {
 
 void ActionGroup::trigger(const QVariant &data) {
 	const QList<QAction*> acts = actions();
-	for (int i=0; i<acts.size(); ++i) {
-		if (acts[i]->data() == data) {
-			acts[i]->trigger();
+	for (QAction *act : acts) {
+		if (act->data() == data) {
+			act->trigger();
 			return;
 		}
 	}
@@ -31,10 +31,10 @@ QVariant ActionGroup::data() const {
 }
 
 void ActionGroup::clear() {
-	QList<QAction*> acts = actions();
-	for (int i=0; i<acts.size(); ++i) {
-		removeAction(acts[i]);
-		delete acts[i];
+	const QList<QAction*> acts = actions();
+	for (QAction *act : acts) {
+		removeAction(act);
+		delete act;
 	}
 }
 
