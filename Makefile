@@ -1,3 +1,5 @@
+# DYLD_FALLBACK_LIBRARY_PATH /Applications/VLC.app/Contents/MacOS/lib
+
 LRELEASE ?= lrelease
 
 kern := $(shell uname -s)
